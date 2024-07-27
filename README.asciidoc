@@ -1,6 +1,6 @@
 ====  Implementation of https://github.com/SomewhatCloudy/phpstorm-related-proposal  ==== 
 
-image::example.gif[]
+image::docs/example.gif[]
 
 === Types of groups
 - favorites
@@ -75,7 +75,7 @@ image::example.gif[]
 
 
 == Regex groups
-image::regexSettings.png[]
+image::docs/regexSettings.png[]
 
 ---
 

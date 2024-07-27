@@ -1,42 +1,113 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.Changelog
+import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun properties(key: String) = providers.gradleProperty(key)
+fun properties(key: String) = providers.gradleProperty(key).get()
 fun environment(key: String) = providers.environmentVariable(key)
+fun fileProperties(key: String) = project.findProperty(key).toString().let { if (it.isNotEmpty()) file(it) else null }
 
 plugins {
+  // Java support
   id("java")
-  id("org.jetbrains.intellij") version "1.14.1"
-  id("org.jetbrains.kotlin.jvm") version "1.8.21"
-  id("org.jetbrains.changelog") version "2.1.0"
+  alias(libs.plugins.kotlin)
+  alias(libs.plugins.gradleIntelliJPlugin)
+  alias(libs.plugins.changelog)
+  alias(libs.plugins.detekt)
+  alias(libs.plugins.ktlint)
 }
 
-group = properties("pluginGroup").get()
-version = properties("pluginVersion").get()
-val javaVersion = properties("javaVersion").get()
-val pluginVersion = properties("pluginVersion").get()
+// Import variables from gradle.properties file
+val pluginGroup: String by project
+val pluginName: String by project
+val pluginVersion: String by project
+val pluginSinceBuild: String by project
+val pluginUntilBuild: String by project
+val pluginVerifierIdeVersions: String by project
+
+val platformType: String by project
+val platformVersion: String by project
+val platformPlugins: String by project
+val platformDownloadSources: String by project
+
+group = properties("pluginGroup")
+version = properties("pluginVersion")
+
+val javaVersion: String by project
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+  gradlePluginPortal()
+
+  intellijPlatform {
+    defaultRepositories()
+    jetbrainsRuntime()
+  }
+}
+
+dependencies {
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
+  implementation("commons-io:commons-io:2.11.0")
+  implementation("io.sentry:sentry:6.18.1")
+  testImplementation("org.assertj:assertj-core:3.24.2")
+  testImplementation("io.mockk:mockk:1.13.5")
+  implementation("commons-io:commons-io:2.11.0")
+  implementation("org.apache.commons:commons-lang3:3.12.0")
+
+  intellijPlatform {
+    intellijIdeaUltimate(platformVersion, useInstaller = false)
+    instrumentationTools()
+    pluginVerifier()
+    zipSigner()
+  }
+}
+
+kotlin {
+  jvmToolchain(17)
+}
+
+detekt {
+  config.setFrom("./detekt-config.yml")
+  buildUponDefaultConfig = true
+  autoCorrect = true
+}
 
 // Configure gradle-changelog-plugin plugin.
 // Read more: https://github.com/JetBrains/gradle-changelog-plugin
 changelog {
   path.set("${project.projectDir}/docs/CHANGELOG.md")
-  version.set(properties("pluginVersion").get())
-  header.set(provider { version.get() })
+  version.set(properties("pluginVersion"))
+  // header.set(provider { version })
   itemPrefix.set("-")
   keepUnreleasedSection.set(true)
   unreleasedTerm.set("Changelog")
   groups.set(listOf("Features", "Fixes", "Removals", "Other"))
 }
 
+intellijPlatform {
+  pluginConfiguration {
+    id = pluginGroup
+    name = pluginName
+    version = pluginVersion
 
-tasks {
-  patchPluginXml {
-    version.set(properties("pluginVersion").get())
-    sinceBuild.set(properties("pluginSinceBuild").get())
-    untilBuild.set(properties("pluginUntilBuild").get())
+    // description = File("./README.md").readText().lines().run {
+    //   val start = "<!-- Plugin description -->"
+    //   val end = "<!-- Plugin description end -->"
+    //
+    //   if (!containsAll(listOf(start, end))) {
+    //     throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+    //   }
+    //   subList(indexOf(start) + 1, indexOf(end))
+    // }.joinToString("\n").run { markdownToHTML(this) }
+
+    ideaVersion {
+      sinceBuild = pluginSinceBuild
+      untilBuild = pluginUntilBuild
+    }
 
     val changelog = project.changelog // local variable for configuration cache compatibility
-    // Get the latest available change notes from the changelog file
-    changeNotes.set(provider {
+    changeNotes = provider {
       with(changelog) {
         renderItem(
           (getOrNull(pluginVersion) ?: getUnreleased())
@@ -45,79 +116,43 @@ tasks {
           Changelog.OutputType.HTML,
         )
       }
-    })
+    }
   }
 
+  publishing {
+    token = environment("PUBLISH_TOKEN")
+    channels = listOf(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
+  }
+
+  signing {
+    certificateChain = environment("CERTIFICATE_CHAIN")
+    privateKey = environment("PRIVATE_KEY")
+    password = environment("PRIVATE_KEY_PASSWORD")
+  }
+}
+
+
+
+tasks {
   wrapper {
-    gradleVersion = properties("gradleVersion").get()
-  }
-
-  // Set the JVM compatibility versions
-  withType<JavaCompile> {
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-  }
-
-  withType<Copy> {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-  }
-
-  signPlugin {
-    certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-    privateKey.set(System.getenv("PRIVATE_KEY"))
-    password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-  }
-
-  publishPlugin {
-    dependsOn("patchChangelog")
-    token.set(System.getenv("PUBLISH_TOKEN") ?: file("./publishToken").readText().trim())
-    // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
-    // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
-    // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-    channels.set(properties("pluginVersion")
-      .map { listOf(it.split('-').getOrElse(1) { "default" }.split('.').first()) })
+    gradleVersion = "8.9"
   }
 
   buildSearchableOptions {
     enabled = false
   }
 
-  compileKotlin {
+  withType<JavaCompile> {
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    options.compilerArgs = listOf("-Xlint:deprecation", "-Xlint:unchecked")
+  }
+
+  withType<KotlinCompile> {
     kotlinOptions.jvmTarget = javaVersion
   }
 
-  compileTestKotlin {
-    kotlinOptions.jvmTarget = javaVersion
+  withType<Detekt> {
+    jvmTarget = javaVersion
   }
 }
-
-repositories {
-  mavenCentral()
-}
-
-// Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-intellij {
-  pluginName.set(properties("pluginName").get())
-  version.set(properties("platformVersion").get())
-  type.set(properties("platformType").get())
-  downloadSources.set(true)
-  instrumentCode.set(true)
-  updateSinceUntilBuild.set(true)
-
-  plugins.set(
-    listOf(
-      "java",
-    )
-  )
-}
-
-
-dependencies {
-// https://mvnrepository.com/artifact/commons-io/commons-io
-  implementation("commons-io:commons-io:2.11.0")
-
-  // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-  implementation("org.apache.commons:commons-lang3:3.12.0")
-
-}
-
