@@ -16,6 +16,6 @@ public class LinkComparator implements Comparator<Link> {
     String s1 = link1.getPath();
     String s2 = link2.getPath();
 
-    return FileNameComparator.INSTANCE.compare(s1, s2);
+    return FileNameComparator.getInstance().compare(s1, s2);
   }
 }

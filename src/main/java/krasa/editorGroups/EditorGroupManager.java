@@ -128,9 +128,6 @@ public class EditorGroupManager {
 
       }
 
-      //		if (result instanceof AutoGroup) {
-      //			result = cache.updateGroups((AutoGroup) result, currentFilePath);
-      //		}
       result.setStub(stub);
 
       if (LOG.isDebugEnabled()) {
@@ -243,9 +240,6 @@ public class EditorGroupManager {
         }
       }
 
-//		if (result instanceof AutoGroup) {
-//			result = cache.updateGroups((AutoGroup) result, currentFilePath);
-//		}
       result.setStub(stub);
 
       if (LOG.isDebugEnabled()) {
@@ -478,7 +472,7 @@ public class EditorGroupManager {
           FileEditor[] fileEditors = pair.first;
 
           if (fileEditors.length == 0) {  //directory or some fail
-            Notifications.warning("Unable to open editor for file " + fileToOpen.getName(), null);
+            Notifications.warning("Unable to open editor for file " + fileToOpen.getName());
             LOG.debug("no editors opened");
             resetSwitching();
             return;

@@ -28,7 +28,7 @@ public final class KrTabsUtil {
   }
 
   public static int getTabsHeight(int verticalPadding) {
-    @SuppressWarnings("HardCodedStringLiteral") JLabel xxx = new JLabel("XXX");
+    JLabel xxx = new JLabel("XXX");
     xxx.setFont(getLabelFont());
     return xxx.getPreferredSize().height + (verticalPadding * 2);
   }

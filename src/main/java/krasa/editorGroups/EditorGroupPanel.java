@@ -13,12 +13,12 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ex.FocusChangeListener;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorImpl;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.*;
@@ -80,7 +80,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
   private volatile EditorGroup toBeRendered;
   private final VirtualFile fileFromTextEditor;
   private final MyJBEditorTabs tabs;
-  private final FileEditorManagerImpl fileEditorManager;
+  private final FileEditorManager fileEditorManager;
   public EditorGroupManager groupManager;
   private ActionToolbar toolbar;
   private boolean disposed;
@@ -206,7 +206,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
         return ActionCallback.DONE;
       }
     });
-    
+
     int tabHeight = ApplicationConfiguration.state().isCompactTabs() ? 26 : JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get();
     setPreferredSize(new Dimension(0, tabHeight));
     JComponent component = tabs.getComponent();
@@ -375,9 +375,6 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       MyTabInfo tab = new MyTabInfo(link, path_name.get(link));
 
       tabs.addTabSilently(tab, -1);
-//			if (EditorGroupsLanguage.isEditorGroupsLanguage(path) && StringUtils.isNotEmpty(displayedGroup.getTitle()) && displayedGroup.isOwner(path)) {
-//				tab.setText("[" + displayedGroup.getTitle() + "]");
-//			}
       if (Objects.equals(link.getLine(), line) && link.fileEquals(fileFromTextEditor)) {
         tabs.setMySelectedInfo(tab);
         customizeSelectedColor(tab);
@@ -813,7 +810,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       }
       if (LOG.isDebugEnabled()) LOG.debug("getGroupInReadActionWithRetries - " + request);
 
-      ProgressIndicatorUtils.yieldToPendingWriteActions();
+//      ProgressIndicatorUtils.yieldToPendingWriteActions();
       EditorGroup lastGroup = getLastGroup();
       if (Disposer.isDisposed(fileEditor)) {
         LOG.debug("fileEditor disposed");
@@ -919,7 +916,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     fileEditor.putUserData(EDITOR_GROUP, displayedGroup); // for titles
     file.putUserData(EDITOR_GROUP, displayedGroup); // for project view colors
     fileEditorManager.updateFilePresentation(file);
-    toolbar.updateActionsImmediately();
+    toolbar.updateActionsAsync();
 
     groupManager.enableSwitching();
     if (LOG.isDebugEnabled())
@@ -950,7 +947,6 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
   public void dispose() {
     disposed = true;
     myTaskExecutor.shutdownNow();
-    tabs.dispose();
   }
 
   public void onIndexingDone(@NotNull String ownerPath, @NotNull EditorGroupIndexValue group) {

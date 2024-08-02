@@ -3,7 +3,7 @@ package krasa.editorGroups.tabs2.impl;
 
 import com.intellij.openapi.ui.OnePixelDivider;
 import com.intellij.openapi.ui.Splittable;
-import com.intellij.util.ui.UIUtil;
+import com.intellij.ui.ClientProperty;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.KrTabsPosition;
 import org.jetbrains.annotations.NotNull;
@@ -98,7 +98,7 @@ class KrTabsSideSplitter implements Splittable, PropertyChangeListener {
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if (evt.getSource() != myTabs) return;
-    Integer limit = UIUtil.getClientProperty(myTabs, SIDE_TABS_SIZE_LIMIT_KEY);
+    Integer limit = ClientProperty.get(myTabs, SIDE_TABS_SIZE_LIMIT_KEY);
     if (limit == null) limit = KrTabsImpl.DEFAULT_MAX_TAB_WIDTH;
     setSideTabsLimit(limit);
   }

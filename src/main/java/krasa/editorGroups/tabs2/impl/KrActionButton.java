@@ -112,7 +112,7 @@ class KrActionButton implements ActionListener {
     if (changed) {
       myInplaceButton.setIcons(myIconButton);
       String tooltipText = KeymapUtil.createTooltipText(p.getText(), myAction);
-      myInplaceButton.setToolTipText(tooltipText.length() > 0 ? tooltipText : null);
+      myInplaceButton.setToolTipText(!tooltipText.isEmpty() ? tooltipText : null);
       myInplaceButton.setVisible(p.isEnabled() && p.isVisible());
     }
 

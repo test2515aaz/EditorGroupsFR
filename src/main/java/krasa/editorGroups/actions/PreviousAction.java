@@ -27,9 +27,10 @@ public class PreviousAction extends EditorGroupsAction implements CustomComponen
     if (panel != null) {
       InputEvent e = anActionEvent.getInputEvent();
 
-      boolean newTab = BitUtil.isSet(e.getModifiers(), InputEvent.CTRL_MASK) && (e instanceof MouseEvent) && ((MouseEvent) e).getClickCount() > 0;
+      assert e != null;
+      boolean newTab = BitUtil.isSet(e.getModifiersEx(), InputEvent.CTRL_DOWN_MASK) && (e instanceof MouseEvent) && ((MouseEvent) e).getClickCount() > 0;
 
-      panel.previous(newTab, BitUtil.isSet(e.getModifiers(), InputEvent.SHIFT_MASK), Splitters.from(e));
+      panel.previous(newTab, BitUtil.isSet(e.getModifiersEx(), InputEvent.SHIFT_DOWN_MASK), Splitters.from(e));
     }
   }
 

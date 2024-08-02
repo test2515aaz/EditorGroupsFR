@@ -14,6 +14,6 @@ public final class VirtualFileComparator implements Comparator<VirtualFile> {
 
   @Override
   public int compare(final VirtualFile o1, final VirtualFile o2) {
-    return FileNameComparator.INSTANCE.compare(o1.getPath(), o2.getPath());
+    return FileNameComparator.getInstance().compare(o1.getPath(), o2.getPath());
   }
 }

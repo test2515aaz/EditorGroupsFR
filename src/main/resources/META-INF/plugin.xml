@@ -59,7 +59,6 @@
         <projectService serviceImplementation="krasa.editorGroups.IndexCache"/>
         <editorTabTitleProvider implementation="krasa.editorGroups.EditorGroupTabTitleProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
-        <defaultLiveTemplatesProvider implementation="krasa.editorGroups.support.EditorGroupsLiveTemplatesProvider"/>
 
         <!--<fileBasedIndex implementation="krasa.editorGroups.EditorGroupFileBasedIndexExtension"/>-->
 
@@ -71,7 +70,6 @@
         <applicationConfigurable instance="krasa.editorGroups.MyConfigurable" id="EditorGroups"
                                  displayName="Editor Groups"/>
 
-        <fileTypeFactory implementation="krasa.editorGroups.language.EditorGroupsTypeFactory"/>
         <lang.parserDefinition language="EditorGroups"
                                implementationClass="krasa.editorGroups.language.EditorGroupsParserDefinition"/>
         <lang.commenter language="EditorGroups"
@@ -211,44 +209,18 @@
         <action id="AddToCurrentFavoritesAction" class="krasa.editorGroups.actions.AddToCurrentFavoritesAction"
                 description="Provided by 'Editor Groups' plugin"
                 text="Add to Currently Opened Favorites" icon="AllIcons.Toolwindows.ToolWindowFavorites">
-            <!--<add-to-group group-id="GuiDesigner.EditorPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="TypeHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="MethodHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="CallHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="CommanderPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="Images.EditorPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="Images.ThumbnailsPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="FileMenu" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="NavbarPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="FavoritesViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="StructureViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="EditorTabPopupMenuEx" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="UsageView.Popup" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="PyTypeHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="PyCallHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
         </action>
 
         <action id="krasa.editorGroups.actions.RemoveFromCurrentFavorites"
                 description="Provided by 'Editor Groups' plugin"
                 class="krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction"
                 text="Remove from Current Favorites">
-            <!--<add-to-group group-id="GuiDesigner.EditorPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="TypeHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="MethodHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="CallHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="CommanderPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="ProjectViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="Images.EditorPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="Images.ThumbnailsPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="FileMenu" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="NavbarPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="FavoritesViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="StructureViewPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
             <add-to-group group-id="EditorTabPopupMenuEx" anchor="before" relative-to-action="AddToFavorites"/>
-            <!--<add-to-group group-id="UsageView.Popup" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="PyTypeHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
-            <!--<add-to-group group-id="PyCallHierarchyPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>-->
 
             <add-to-group group-id="EditorGroupsTabPopupMenu" anchor="before" relative-to-action="AddToFavorites"/>
         </action>

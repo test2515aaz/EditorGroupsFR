@@ -2,7 +2,10 @@ package krasa.editorGroups.support;
 
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationListener;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -167,9 +170,18 @@ public class FileResolver {
 
     File rootFile = new File(root);
     if (!rootFile.exists()) {
-      Notifications.warning("Root does not exist [" + root + "] in " + Notifications.href(ownerFile) + "<br\\>" + group, new NotificationListener.Adapter() {
+      NotificationListener.Adapter listener = new NotificationListener.Adapter() {
         @Override
         protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+          assert project != null;
+          OpenFileAction.openFile(ownerFile, project);
+          notification.expire();
+        }
+      };
+
+      Notifications.warning("Root does not exist [" + root + "] in " + Notifications.href(ownerFile) + "<br\\>" + group, new NotificationAction("") {
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
           assert project != null;
           OpenFileAction.openFile(ownerFile, project);
           notification.expire();

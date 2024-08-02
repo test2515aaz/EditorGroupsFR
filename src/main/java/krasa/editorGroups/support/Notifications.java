@@ -3,6 +3,7 @@ package krasa.editorGroups.support;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.notification.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -11,7 +12,6 @@ import krasa.editorGroups.model.EditorGroup;
 import krasa.editorGroups.model.EditorGroupIndexValue;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.event.HyperlinkEvent;
 import java.util.List;
 
 public class Notifications {
@@ -29,9 +29,9 @@ public class Notifications {
     String content = "Settings | ... | Editor Tabs | 'Open declaration source in the same tab' is enabled.<br/> It may cause problems when switching too fast.<br/><a href=\"#\">Click here to disable it<a/>.";
 
     Notification notification = getNotificationGroup().createNotification("Editor Groups plugin", content, NotificationType.WARNING)
-      .setListener(new NotificationListener.Adapter() {
+      .addAction(new NotificationAction("") {
         @Override
-        protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
           UISettings.getInstance().setReuseNotModifiedTabs(false);
           notification.expire();
         }
@@ -42,9 +42,9 @@ public class Notifications {
   public static void indexingWarn(Project project, VirtualFile file, String message) {
     String content = message + " in " + href(file);
     Notification notification = getNotificationGroup().createNotification("Editor Groups plugin", content, NotificationType.WARNING)
-      .setListener(new NotificationListener.Adapter() {
+      .addAction(new NotificationAction("Open") {
         @Override
-        protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
+        public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
           OpenFileAction.openFile(file, project);
           notification.expire();
         }
@@ -83,17 +83,19 @@ public class Notifications {
     }
     sb.append("]");
     String content = sb.toString();
-    warning(content, new NotificationListener.Adapter() {
+    warning(content, new NotificationAction("") {
       @Override
-      protected void hyperlinkActivated(@NotNull Notification notification, @NotNull HyperlinkEvent e) {
-        OpenFileAction.openFile(e.getDescription(), project);
+      public void actionPerformed(@NotNull AnActionEvent e, @NotNull Notification notification) {
+        OpenFileAction.openFile(e.getPresentation().getDescription(), project);
       }
     });
   }
 
-  public static void warning(String content, NotificationListener listener) {
-    Notification notification = getNotificationGroup().createNotification("Editor Groups plugin", content, NotificationType.WARNING)
-      .setListener(listener);
+  public static void warning(String content, NotificationAction action) {
+    Notification notification = getNotificationGroup().createNotification("Editor Groups plugin", content, NotificationType.WARNING);
+    if (action != null) {
+      notification.addAction(action);
+    }
     LOG.warn(new RuntimeException(content));
     show(notification);
   }

@@ -9,8 +9,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-@SuppressWarnings("removal")
-@Deprecated(forRemoval = true)
 public final class KrTablePassInfo extends KrLayoutPassInfo {
   final List<KrTableRow> table = new ArrayList<>();
   public final Rectangle toFitRec;

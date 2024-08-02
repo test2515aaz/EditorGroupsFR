@@ -182,12 +182,6 @@ public class MyJBEditorTabs extends KrEditorTabs {
     return 0;
   }
 
-  @Override
-  public boolean isCycleRoot() {
-    return super.isCycleRoot();
-  }
-
-
   private static class MyMouseAdapter extends MouseAdapter {
     private final MouseListener mouseListener;
 

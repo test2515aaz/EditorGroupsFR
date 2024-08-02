@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
  */
 public class KrEditorTabs extends KrTabsImpl implements KrEditorTabsBase {
   public static final Key<Boolean> MARK_MODIFIED_KEY = Key.create("EDITOR_TABS_MARK_MODIFIED");
-  @Deprecated(forRemoval = true)
   protected KrEditorTabsPainter myDefaultPainter = new KrDefaultEditorTabsPainter(this);
 
   private boolean myAlphabeticalModeChanged = false;
@@ -44,7 +43,6 @@ public class KrEditorTabs extends KrTabsImpl implements KrEditorTabsBase {
   /**
    * @deprecated Use {@link #KrEditorTabs(Project, Disposable)}
    */
-  @Deprecated
   public KrEditorTabs(@Nullable Project project,
                       @SuppressWarnings("unused") @NotNull ActionManager actionManager,
                       @Nullable IdeFocusManager focusManager,

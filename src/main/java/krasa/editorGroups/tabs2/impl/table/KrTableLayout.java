@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-@SuppressWarnings("removal")
 public class KrTableLayout extends KrTabLayout {
   private int myScrollOffset = 0;
 

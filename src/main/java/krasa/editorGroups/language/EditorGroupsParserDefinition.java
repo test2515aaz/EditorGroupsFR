@@ -71,8 +71,4 @@ public class EditorGroupsParserDefinition implements ParserDefinition {
     return new EditorGroupsPsiFile(viewProvider);
   }
 
-  @Override
-  public @NotNull SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {
-    return SpaceRequirements.MAY;
-  }
 }

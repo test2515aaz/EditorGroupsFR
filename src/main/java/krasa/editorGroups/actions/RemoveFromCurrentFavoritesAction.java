@@ -85,7 +85,7 @@ public class RemoveFromCurrentFavoritesAction extends EditorGroupsAction {
   }
 
   private void fail(String name, Set<VirtualFile> selected) {
-    Notifications.warning("Unable to remove, probably the whole folder is favorited. File:" + selected.toString() + "', from '" + name, null);
+    Notifications.warning("Unable to remove, probably the whole folder is favorited. File:" + selected.toString() + "', from '" + name);
   }
 
 
@@ -151,9 +151,9 @@ public class RemoveFromCurrentFavoritesAction extends EditorGroupsAction {
     FileEditorManagerEx instance = (FileEditorManagerEx) FileEditorManager.getInstance(eventProject);
     EditorWindow currentWindow = instance.getCurrentWindow();
     if (currentWindow != null) {
-      EditorComposite editor = currentWindow.getSelectedEditor(true);
+      EditorComposite editor = currentWindow.getSelectedComposite(true);
       if (editor != null) {
-        FileEditor selectedEditor = editor.getSelectedWithProvider().getFileEditor();
+        FileEditor selectedEditor = Objects.requireNonNull(editor.getSelectedWithProvider()).getFileEditor();
         editorGroupPanel = selectedEditor.getUserData(EditorGroupPanel.EDITOR_PANEL);
       }
 

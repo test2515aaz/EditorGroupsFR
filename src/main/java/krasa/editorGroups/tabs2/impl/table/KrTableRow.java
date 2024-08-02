@@ -6,7 +6,6 @@ import krasa.editorGroups.tabs2.KrTabInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("removal")
 class KrTableRow {
 
   private final KrTablePassInfo myData;
