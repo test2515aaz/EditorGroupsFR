@@ -126,7 +126,7 @@ public class CheckBoxWithColorChooser extends JPanel {
       mouseAdapter = new MouseAdapter() {
         @Override
         public void mousePressed(MouseEvent e) {
-          final Color color = ColorChooserService.getInstance().showDialog(MyColorButton.this, "Chose color",
+          final Color color = ColorChooserService.getInstance().showDialog(MyColorButton.this, "Choose color",
             CheckBoxWithColorChooser.this.myColor);
           if (color != null) {
             if (myCheckbox != null && !myCheckbox.isSelected()) {
