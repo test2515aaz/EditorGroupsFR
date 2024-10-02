@@ -69,29 +69,30 @@ import kotlin.Pair
 import kotlin.math.max
 import kotlin.math.min
 
-private val ABC_COMPARATOR: Comparator<KrTabInfo> = Comparator { o1, o2 -> NaturalComparator.INSTANCE.compare(o1.text, o2.text) }
+private val ABC_COMPARATOR: Comparator<KrTabInfo> =
+  Comparator { o1, o2 -> NaturalComparator.INSTANCE.compare(o1.text, o2.text) }
 private val LOG = logger<KrTabsImpl>()
 private const val SCROLL_BAR_THICKNESS = 3
 private const val ADJUST_BORDERS = true
 private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 
-@Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage", "SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
   parentDisposable: Disposable
 ) : JComponent(),
-  KrTabsEx,
-  PropertyChangeListener,
-  TimerListener,
-  DataProvider,
-  PopupMenuListener,
-  KrTabsPresentation,
-  Queryable,
-  UISettingsListener,
-  QuickActionProvider,
-  MorePopupAware,
-  Accessible {
+    KrTabsEx,
+    PropertyChangeListener,
+    TimerListener,
+    DataProvider,
+    PopupMenuListener,
+    KrTabsPresentation,
+    Queryable,
+    UISettingsListener,
+    QuickActionProvider,
+    MorePopupAware,
+    Accessible {
   companion object {
     @JvmField
     val PINNED: Key<Boolean> = Key.create("pinned")
@@ -214,7 +215,7 @@ open class KrTabsImpl(
   internal val attractions: MutableSet<KrTabInfo> = HashSet()
 
   private val animator = lazy {
-    val result = object : Animator("KrTabs Attractions", 2, 500, true) {
+    val result = object : Animator("KrTabs Attractions", 2, 500, true), Disposable {
       override fun paintNow(frame: Int, totalFrames: Int, cycle: Int) {
         repaintAttractions()
       }
@@ -327,8 +328,9 @@ open class KrTabsImpl(
     Disposer.register(parentDisposable) { setTitleProducer(null) }
 
     // This scroll pane won't be shown on screen, it is needed only to handle scrolling events and properly update a scrolling model
-    val fakeScrollPane = JBScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
-    scrollBar = object : JBScrollBar(if (isHorizontalTabs) Adjustable.HORIZONTAL else Adjustable.VERTICAL) {
+    val fakeScrollPane =
+      JBScrollPane(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
+    scrollBar = object : JBScrollBar(if (isHorizontalTabs) HORIZONTAL else VERTICAL) {
       override fun updateUI() {
         super.updateUI()
         val fontSize = JBFont.labelFontSize()
@@ -367,10 +369,10 @@ open class KrTabsImpl(
       gp.addMouseMotionPreprocessor(tabActionsAutoHideListener, tabActionsAutoHideListenerDisposable)
       glassPane = gp
       StartupUiUtil.addAwtListener({
-        if (JBPopupFactory.getInstance().getChildPopups(this@KrTabsImpl).isEmpty()) {
-          processFocusChange()
-        }
-      }, AWTEvent.FOCUS_EVENT_MASK, parentDisposable)
+                                     if (JBPopupFactory.getInstance().getChildPopups(this@KrTabsImpl).isEmpty()) {
+                                       processFocusChange()
+                                     }
+                                   }, AWTEvent.FOCUS_EVENT_MASK, parentDisposable)
       dragHelper = createDragHelper(child, parentDisposable)
       dragHelper!!.start()
     }
@@ -418,10 +420,10 @@ open class KrTabsImpl(
         afterScroll.cancelAllRequests()
         if (!inside) {
           afterScroll.addRequest({
-            if (!isMouseInsideTabsArea) {
-              relayout(false, false)
-            }
-          }, 500)
+                                   if (!isMouseInsideTabsArea) {
+                                     relayout(false, false)
+                                   }
+                                 }, 500)
         }
       }
     }, AWTEvent.MOUSE_MOTION_EVENT_MASK, parentDisposable)
@@ -480,7 +482,8 @@ open class KrTabsImpl(
   private val isWithScrollBar: Boolean
     get() = effectiveLayout!!.isWithScrollBar
 
-  protected open fun createDragHelper(tabs: KrTabsImpl, parentDisposable: Disposable): KrDragHelper = KrDragHelper(tabs, parentDisposable)
+  protected open fun createDragHelper(tabs: KrTabsImpl, parentDisposable: Disposable): KrDragHelper =
+    KrDragHelper(tabs, parentDisposable)
 
   override fun uiSettingsChanged(uiSettings: UISettings) {
     for ((info, label) in infoToLabel) {
@@ -798,10 +801,10 @@ open class KrTabsImpl(
     titleWrapper.removeAll()
     if (titleProducer != null) {
       val toolbar = ActionManager.getInstance().createActionToolbar(/* place = */ ActionPlaces.TABS_MORE_TOOLBAR,
-        /* group = */DefaultActionGroup(
+                                                                    /* group = */DefaultActionGroup(
           TitleAction(tabs = this, titleProvider = titleProducer)
         ),
-        /* horizontal = */ true
+                                                                    /* horizontal = */ true
       )
       toolbar.targetComponent = null
       toolbar.setMiniMode(true)
@@ -1276,7 +1279,11 @@ open class KrTabsImpl(
     }
   }
 
-  private fun executeSelectionChange(info: KrTabInfo, requestFocus: Boolean, requestFocusInWindow: Boolean): ActionCallback {
+  private fun executeSelectionChange(
+    info: KrTabInfo,
+    requestFocus: Boolean,
+    requestFocusInWindow: Boolean
+  ): ActionCallback {
     if (mySelectedInfo != null && mySelectedInfo == info) {
       if (!requestFocus) {
         return ActionCallback.DONE
@@ -1329,12 +1336,12 @@ open class KrTabsImpl(
       return result
     } else {
       ApplicationManager.getApplication().invokeLater({
-        if (requestFocusInWindow) {
-          requestFocusInWindow()
-        } else {
-          focusManager.requestFocusInProject(this, project)
-        }
-      }, ModalityState.nonModal())
+                                                        if (requestFocusInWindow) {
+                                                          requestFocusInWindow()
+                                                        } else {
+                                                          focusManager.requestFocusInProject(this, project)
+                                                        }
+                                                      }, ModalityState.nonModal())
       return removeDeferred()
     }
   }
@@ -1399,7 +1406,7 @@ open class KrTabsImpl(
   }
 
   private fun removeDeferred(): ActionCallback {
-    if (deferredToRemove.isEmpty()) {
+    if (deferredToRemove.isEmpty) {
       return ActionCallback.DONE
     }
 
@@ -1538,10 +1545,10 @@ open class KrTabsImpl(
     revalidateAndRepaint(true)
   }
 
-  override fun isOpaque(): Boolean = super.isOpaque() && !visibleInfos.isEmpty()
+  override fun isOpaque(): Boolean = !visibleInfos.isEmpty
 
   open fun revalidateAndRepaint(layoutNow: Boolean) {
-    if (visibleInfos.isEmpty() && parent != null) {
+    if (visibleInfos.isEmpty && parent != null) {
       val nonOpaque = ComponentUtil.findUltimateParent(this)
       val toRepaint = SwingUtilities.convertRectangle(parent, bounds, nonOpaque)
       nonOpaque.repaint(toRepaint.x, toRepaint.y, toRepaint.width, toRepaint.height)
@@ -1596,7 +1603,7 @@ open class KrTabsImpl(
       }
 
       mySelectedInfo == null                -> {
-        if (visibleInfos.isEmpty()) null else visibleInfos[0]
+        if (visibleInfos.isEmpty) null else visibleInfos[0]
       }
 
       visibleInfos.contains(mySelectedInfo) -> {
@@ -1610,7 +1617,7 @@ open class KrTabsImpl(
     }
   }
 
-  public fun setSelectedInfo(info: KrTabInfo?) {
+  fun setSelectedInfo(info: KrTabInfo?) {
     mySelectedInfo = info
     for ((tabInfo, toolbar) in infoToToolbar) {
       toolbar.isVisible = info == tabInfo
@@ -1744,7 +1751,11 @@ open class KrTabsImpl(
       if (group != null) {
         val place = info.place
         val toolbar = ActionManager.getInstance()
-          .createActionToolbar(if (place != null && place != ActionPlaces.UNKNOWN) place else "KrTabs", group, tabs.horizontalSide)
+          .createActionToolbar(
+            if (place != null && place != ActionPlaces.UNKNOWN) place else "KrTabs",
+            group,
+            tabs.horizontalSide
+          )
         toolbar.targetComponent = info.actionsContextComponent
         add(toolbar.component, BorderLayout.CENTER)
       }
@@ -1808,7 +1819,8 @@ open class KrTabsImpl(
         each.setTabActionsAutoHide(tabLabelActionsAutoHide)
       }
       val moreBoundsBeforeLayout = moreToolbar!!.component.bounds
-      val entryPointBoundsBeforeLayout = if (entryPointToolbar == null) Rectangle(0, 0, 0, 0) else entryPointToolbar!!.component.bounds
+      val entryPointBoundsBeforeLayout =
+        if (entryPointToolbar == null) Rectangle(0, 0, 0, 0) else entryPointToolbar!!.component.bounds
       headerFitSize = computeHeaderFitSize()
       val visible = getVisibleInfos().toMutableList()
       if (dropInfo != null && !visible.contains(dropInfo) && showDropLocation) {
@@ -1939,7 +1951,13 @@ open class KrTabsImpl(
     }
   }
 
-  fun layoutComp(componentX: Int, componentY: Int, component: JComponent, deltaWidth: Int, deltaHeight: Int): Rectangle {
+  fun layoutComp(
+    componentX: Int,
+    componentY: Int,
+    component: JComponent,
+    deltaWidth: Int,
+    deltaHeight: Int
+  ): Rectangle {
     return layoutComp(
       bounds = Rectangle(componentX, componentY, width, height),
       component = component,
@@ -2000,7 +2018,7 @@ open class KrTabsImpl(
 
   override fun paintComponent(g: Graphics) {
     super.paintComponent(g)
-    if (visibleInfos.isEmpty()) {
+    if (visibleInfos.isEmpty) {
       if (emptyText != null) {
         UISettings.setupAntialiasing(g)
         UIUtil.drawCenteredString((g as Graphics2D), Rectangle(0, 0, width, height), emptyText!!)
@@ -2114,7 +2132,10 @@ open class KrTabsImpl(
     )
   }
 
-  private fun computeSize(transform: com.intellij.util.Function<in JComponent, out Dimension>, tabCount: Int): Dimension {
+  private fun computeSize(
+    transform: com.intellij.util.Function<in JComponent, out Dimension>,
+    tabCount: Int
+  ): Dimension {
     val size = Dimension()
     for (each in visibleInfos) {
       val c = each.component
@@ -2185,7 +2206,11 @@ open class KrTabsImpl(
   }
 
   @RequiresEdt
-  private fun doRemoveTab(info: KrTabInfo?, forcedSelectionTransfer: KrTabInfo?, isDropTarget: Boolean): ActionCallback {
+  private fun doRemoveTab(
+    info: KrTabInfo?,
+    forcedSelectionTransfer: KrTabInfo?,
+    isDropTarget: Boolean
+  ): ActionCallback {
     if (removeNotifyInProgress) {
       LOG.warn(IllegalStateException("removeNotify in progress"))
     }
@@ -2215,7 +2240,7 @@ open class KrTabsImpl(
       processRemove(info, true)
       removeDeferred().notifyWhenDone(result)
     }
-    if (visibleInfos.isEmpty()) {
+    if (visibleInfos.isEmpty) {
       removeDeferredNow()
     }
     revalidateAndRepaint(true)
@@ -2369,7 +2394,13 @@ open class KrTabsImpl(
         tabActionGroup.getChildren(null).isNotEmpty() &&
         (!KrTabLayout.showPinnedTabsSeparately() || tabs.all { !it.isPinned })
       ) {
-        DefaultActionGroup(FakeEmptyAction(), Separator.create(), tabActionGroup, Separator.create(), entryPointActionGroup)
+        DefaultActionGroup(
+          FakeEmptyAction(),
+          Separator.create(),
+          tabActionGroup,
+          Separator.create(),
+          entryPointActionGroup
+        )
       } else {
         DefaultActionGroup(tabActionGroup, Separator.create(), entryPointActionGroup)
       }
@@ -2599,7 +2630,7 @@ open class KrTabsImpl(
       shadowAction.reconnect(ActionManager.getInstance().getAction(actionId!!))
     }
 
-    protected abstract fun doUpdate(e: AnActionEvent, tabs: KrTabsImpl, selectedIndex: Int)
+    abstract fun doUpdate(e: AnActionEvent, tabs: KrTabsImpl, selectedIndex: Int)
 
     override fun actionPerformed(e: AnActionEvent) {
       var tabs = e.getData(KrTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
@@ -2623,9 +2654,9 @@ open class KrTabsImpl(
       doActionPerformed(e = e, tabs = tabs, selectedIndex = index)
     }
 
-    protected abstract fun borderIndex(infos: List<KrTabInfo?>, index: Int): Boolean
+    abstract fun borderIndex(infos: List<KrTabInfo?>, index: Int): Boolean
 
-    protected abstract fun doActionPerformed(e: AnActionEvent?, tabs: KrTabsImpl?, selectedIndex: Int)
+    abstract fun doActionPerformed(e: AnActionEvent?, tabs: KrTabsImpl?, selectedIndex: Int)
   }
 
   private class SelectNextAction(tabs: KrTabsImpl, parentDisposable: Disposable) : BaseNavigationAction(
@@ -2836,7 +2867,10 @@ open class KrTabsImpl(
         return it
       }
     }
-    if (QuickActionProvider.KEY.`is`(dataId) || MorePopupAware.KEY.`is`(dataId) || KrTabsEx.NAVIGATION_ACTIONS_KEY.`is`(dataId)) {
+    if (QuickActionProvider.KEY.`is`(dataId) || MorePopupAware.KEY.`is`(dataId) || KrTabsEx.NAVIGATION_ACTIONS_KEY.`is`(
+        dataId
+      )
+    ) {
       return this
     }
     return null
@@ -2969,8 +3003,10 @@ open class KrTabsImpl(
     val label = infoToLabel[dropInfo]
     val size = label!!.preferredSize
     label.setBounds(0, 0, size.width, size.height)
-    val img = ImageUtil.createImage(/* gc = */ graphicsConfiguration, /* width = */ size.width, /* height = */ size.height, /* type = */
-      BufferedImage.TYPE_INT_ARGB
+    val img = ImageUtil.createImage(/* gc = */ graphicsConfiguration, /* width = */
+                                    size.width, /* height = */
+                                    size.height, /* type = */
+                                    BufferedImage.TYPE_INT_ARGB
     )
     val g = img.createGraphics()
     label.paintOffscreen(g)
@@ -2982,7 +3018,7 @@ open class KrTabsImpl(
   override fun processDropOver(over: KrTabInfo, point: RelativePoint) {
     val pointInMySpace = point.getPoint(this)
     val index = effectiveLayout!!.getDropIndexFor(pointInMySpace)
-    val side: Int = if (visibleInfos.isEmpty()) {
+    val side: Int = if (visibleInfos.isEmpty) {
       SwingConstants.CENTER
     } else {
       if (index != -1) -1 else effectiveLayout!!.getDropSideFor(pointInMySpace)
@@ -2998,7 +3034,7 @@ open class KrTabsImpl(
   }
 
   override val isEmptyVisible: Boolean
-    get() = visibleInfos.isEmpty()
+    get() = visibleInfos.isEmpty
 
   val tabHGap: Int
     get() = -myBorder.thickness
@@ -3095,12 +3131,15 @@ private fun updateToolbarIfVisibilityChanged(toolbar: ActionToolbar?, previousBo
 
 private const val ARC_SIZE = 4
 
-private fun createToolbar(group: ActionGroup, targetComponent: JComponent, actionManager: ActionManager): ActionToolbar {
+private fun createToolbar(
+  group: ActionGroup,
+  targetComponent: JComponent,
+  actionManager: ActionManager
+): ActionToolbar {
   val toolbar = actionManager.createActionToolbar(ActionPlaces.TABS_MORE_TOOLBAR, group, true)
   toolbar.targetComponent = targetComponent
   toolbar.component.border = JBUI.Borders.empty()
   toolbar.component.isOpaque = false
-  toolbar.layoutPolicy = ActionToolbar.NOWRAP_LAYOUT_POLICY
   return toolbar
 }
 
