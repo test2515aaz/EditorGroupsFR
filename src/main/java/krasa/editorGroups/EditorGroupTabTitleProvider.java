@@ -54,7 +54,7 @@ public class EditorGroupTabTitleProvider implements EditorTabTitleProvider {
       group = textEditor.getUserData(EditorGroupPanel.EDITOR_GROUP);
     }
 
-    if (group != null && group.isValid() && !(group instanceof AutoGroup)) {
+    if (group != null && group.isValid && !(group instanceof AutoGroup)) {
       presentableNameForUI = group.getPresentableTitle(project, presentableNameForUI, EditorGroupsSettingsState.state().isShowSize());
     }
     return presentableNameForUI;

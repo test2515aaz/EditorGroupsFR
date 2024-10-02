@@ -9,7 +9,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.ui.PopupHandler;
 import krasa.editorGroups.EditorGroupManager;
 import krasa.editorGroups.EditorGroupPanel;
-import krasa.editorGroups.icons.MyIcons;
+import krasa.editorGroups.icons.EditorGroupsIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -42,7 +42,7 @@ public class RefreshAction extends EditorGroupsAction implements CustomComponent
         PopupMenu.popupInvoked(comp, x, y);
       }
     });
-    presentation.setIcon(MyIcons.refresh);
+    presentation.setIcon(EditorGroupsIcons.refresh);
 
     return refresh;
   }
