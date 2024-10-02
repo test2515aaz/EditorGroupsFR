@@ -2,7 +2,7 @@ package krasa.editorGroups.model;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.support.Utils;
 import org.jetbrains.annotations.NotNull;
 
@@ -141,7 +141,7 @@ public abstract class EditorGroup {
     if (title.isEmpty()) {
       title = Utils.toPresentableName(getOwnerPath());
     }
-    if (ApplicationConfiguration.state().isShowSize()) {
+    if (EditorGroupsSettingsState.state().isShowSize()) {
       title += ":" + size(project);
     }
     return title;

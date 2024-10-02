@@ -28,14 +28,14 @@ public class IndexCache {
   @NotNull
   private final Project project;
   private final Map<String, EditorGroups> groupsByLinks = new ConcurrentHashMap<>();
-  private final ApplicationConfigurationComponent configuration;
+  private final EditorGroupsSettings configuration;
 
   private final ExternalGroupProvider externalGroupProvider;
 
   public IndexCache(@NotNull Project project) {
     this.project = project;
     this.externalGroupProvider = ExternalGroupProvider.getInstance(project);
-    this.configuration = ApplicationConfigurationComponent.getInstance();
+    this.configuration = EditorGroupsSettings.getInstance();
   }
 
   public EditorGroup getOwningOrSingleGroup(@NotNull String canonicalPath) {
@@ -164,7 +164,7 @@ public class IndexCache {
     }
 
     EditorGroups groups = groupsByLinks.get(currentFilePath);
-    ApplicationConfiguration config = configuration.getState();
+    EditorGroupsSettingsState config = configuration.getState();
 
     if (groups != null) {
       String last = groups.getLast();

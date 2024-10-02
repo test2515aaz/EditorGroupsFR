@@ -51,7 +51,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
         <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
-        <!-- Add your extensions here -->
+
         <projectService serviceImplementation="krasa.editorGroups.EditorGroupManager"/>
         <projectService serviceImplementation="krasa.editorGroups.AutoGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.RegexGroupProvider"/>
@@ -62,7 +62,7 @@
 
         <!--<fileBasedIndex implementation="krasa.editorGroups.EditorGroupFileBasedIndexExtension"/>-->
 
-        <applicationService serviceImplementation="krasa.editorGroups.ApplicationConfigurationComponent"/>
+        <applicationService serviceImplementation="krasa.editorGroups.EditorGroupsSettings"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
         <projectService serviceImplementation="krasa.editorGroups.PanelRefresher"/>

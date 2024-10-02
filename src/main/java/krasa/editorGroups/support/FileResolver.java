@@ -4,7 +4,6 @@ import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationListener;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
@@ -18,7 +17,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.index.MyFileNameIndexService;
 import krasa.editorGroups.language.EditorGroupsLanguage;
 import krasa.editorGroups.model.EditorGroupIndexValue;
@@ -49,7 +48,7 @@ public class FileResolver {
   protected final Project project;
   protected final boolean excludeEditorGroupsFiles;
   private final Set<String> links;
-  protected ApplicationConfiguration config;
+  protected EditorGroupsSettingsState config;
 
 
   @NotNull
@@ -68,14 +67,14 @@ public class FileResolver {
 
   public FileResolver(Project project) {
     this.project = project;
-    excludeEditorGroupsFiles = ApplicationConfiguration.state().isExcludeEditorGroupsFiles();
+    excludeEditorGroupsFiles = EditorGroupsSettingsState.state().isExcludeEditorGroupsFiles();
     links = new LinkedHashSet<>() {
       @Override
       public boolean add(String o) {
         return super.add(sanitize(o));
       }
     };
-    config = ApplicationConfiguration.state();
+    config = EditorGroupsSettingsState.state();
   }
 
   protected FileResolver() {
@@ -87,7 +86,7 @@ public class FileResolver {
         return super.add(sanitize(o));
       }
     };
-    config = ApplicationConfiguration.state();
+    config = EditorGroupsSettingsState.state();
   }
 
 

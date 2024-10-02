@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.patterns.StringPattern;
 import com.intellij.util.indexing.DataIndexer;
 import com.intellij.util.indexing.FileContent;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.IndexCache;
 import krasa.editorGroups.PanelRefresher;
 import krasa.editorGroups.language.EditorGroupsLanguage;
@@ -46,7 +46,7 @@ public class EditorGroupIndexer implements DataIndexer<String, EditorGroupIndexV
   public Map<String, EditorGroupIndexValue> map(@NotNull final FileContent inputData) {
     VirtualFile file = inputData.getFile();
     boolean isEGroup = EditorGroupsLanguage.isEditorGroupsLanguage(file);
-    if (ApplicationConfiguration.state().isIndexOnlyEditorGroupsFiles() && !isEGroup) {
+    if (EditorGroupsSettingsState.state().isIndexOnlyEditorGroupsFiles() && !isEGroup) {
       return Collections.emptyMap();
     }
 

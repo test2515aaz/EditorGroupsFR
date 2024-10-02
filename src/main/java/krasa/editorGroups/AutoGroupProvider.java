@@ -56,7 +56,7 @@ public class AutoGroupProvider {
       if (LOG.isDebugEnabled()) {
         LOG.debug("getVirtualFilesByName=" + virtualFilesByName);
       }
-      int groupSizeLimitInt = ApplicationConfiguration.state().getGroupSizeLimitInt();
+      int groupSizeLimitInt = EditorGroupsSettingsState.state().getGroupSizeLimitInt();
       int size = virtualFilesByName.size();
       paths = new ArrayList<>(Math.min(size + 1, groupSizeLimitInt + 1));
 

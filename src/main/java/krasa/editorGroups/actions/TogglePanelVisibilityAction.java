@@ -3,7 +3,7 @@ package krasa.editorGroups.actions;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.PanelRefresher;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ public class TogglePanelVisibilityAction extends DumbAwareAction {
 
   @Override
   public void actionPerformed(AnActionEvent e) {
-    ApplicationConfiguration state = ApplicationConfiguration.state();
+    EditorGroupsSettingsState state = EditorGroupsSettingsState.state();
     state.setShowPanel(state.isShowPanel());
     PanelRefresher.getInstance(Objects.requireNonNull(getEventProject(e))).refresh();
   }
@@ -26,7 +26,7 @@ public class TogglePanelVisibilityAction extends DumbAwareAction {
   @Override
   public void update(@NotNull AnActionEvent e) {
     super.update(e);
-    ApplicationConfiguration state = ApplicationConfiguration.state();
+    EditorGroupsSettingsState state = EditorGroupsSettingsState.state();
     if (state.isShowPanel()) {
       e.getPresentation().setText("Hide Panel");
     } else {

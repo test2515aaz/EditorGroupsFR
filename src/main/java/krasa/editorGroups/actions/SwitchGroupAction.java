@@ -103,7 +103,7 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
       fillGlobalRegexGroups(tempGroup, project, editorGroups, displayedGroup, regexGroups);
 
 
-      if (ApplicationConfiguration.state().isGroupSwitchGroupAction()) {
+      if (EditorGroupsSettingsState.state().isGroupSwitchGroupAction()) {
         defaultActionGroup.addAll(tempGroup.getChildActionsOrStubs());
       } else {
         AnAction[] childActionsOrStubs = tempGroup.getChildActionsOrStubs();
