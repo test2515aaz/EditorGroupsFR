@@ -118,7 +118,7 @@ public class RegexModelTable extends JBTable {
 
   private void obtainRegexModels(@NotNull List<RegexGroupModel> regexModels, EditorGroupsSettingsState settings) {
     regexModels.clear();
-    List<RegexGroupModel> regexGroupModels = settings.regexGroupModels.getRegexGroupModels();
+    List<RegexGroupModel> regexGroupModels = settings.regexGroupModels.regexGroupModels;
     for (RegexGroupModel regexGroupModel : regexGroupModels) {
       regexModels.add(regexGroupModel.copy());
     }
