@@ -8,10 +8,10 @@ import javax.swing.Icon
 
 class EditorGroups : EditorGroup, GroupsHolder {
 
-  private val groupsMap: MutableMap<String, EditorGroup?> = ConcurrentHashMap()
+  private val groupsMap: MutableMap<String, EditorGroup> = ConcurrentHashMap()
   var last: String? = null
 
-  val all: Collection<EditorGroup?>
+  val all: Collection<EditorGroup>
     get() = groupsMap.values
 
   override val id: String
@@ -21,7 +21,7 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   override val isValid: Boolean = true
 
-  override val groups: Collection<EditorGroup?>
+  override val groups: Collection<EditorGroup>
     get() = groupsMap.values
 
   constructor()
@@ -40,26 +40,21 @@ class EditorGroups : EditorGroup, GroupsHolder {
   }
 
   private fun addGroup(group: EditorGroup) {
-    if (group is GroupsHolder) {
-      val groups = (group as GroupsHolder).groups
-      for (editorGroup in groups!!) {
-        groupsMap[editorGroup!!.id] = editorGroup
+    when (group) {
+      is GroupsHolder -> group.groups?.let { groups ->
+        groups.filterNotNull().associateByTo(groupsMap, EditorGroup::id)
       }
-    } else {
-      groupsMap[group.id] = group
+
+      else            -> groupsMap[group.id] = group
     }
   }
 
   fun add(editorGroup: EditorGroup) {
     when (editorGroup) {
       is AutoGroup      -> return
-
       is EditorGroups   -> return
-
       is FavoritesGroup -> return
-
       is BookmarkGroup  -> return
-
       else              -> addGroup(editorGroup)
     }
   }
@@ -68,67 +63,39 @@ class EditorGroups : EditorGroup, GroupsHolder {
     groupsMap.remove(editorGroup.id)
   }
 
-  override fun icon(): Icon? {
-    return EditorGroupsIcons.groupBy
-  }
+  override fun icon(): Icon? = EditorGroupsIcons.groupBy
 
-  override fun invalidate() {
-  }
+  override fun invalidate() = Unit
 
-  override fun size(project: Project): Int {
-    return groupsMap.size
-  }
+  override fun size(project: Project): Int = groupsMap.size
 
-  override fun getLinks(project: Project): List<Link> {
-    return emptyList()
-  }
+  override fun getLinks(project: Project): List<Link> = emptyList()
 
-  override fun isOwner(ownerPath: String): Boolean {
-    return false
-  }
+  override fun isOwner(ownerPath: String): Boolean = false
 
   fun validate(indexCache: IndexCache) {
     var iterator = groupsMap.values.iterator()
     while (iterator.hasNext()) {
       val next = iterator.next()
-      indexCache.validate(next!!)
+      indexCache.validate(next)
     }
     // IndexCache.validate accesses index which can triggers indexing which updates this map,
     // removing it in one cycle would remove a key with new validvalue
     iterator = groupsMap.values.iterator()
     while (iterator.hasNext()) {
       val next = iterator.next()
-      if (next!!.isInvalid) {
+      if (next.isInvalid) {
         iterator.remove()
       }
     }
   }
 
-  fun first(): EditorGroup? {
-    for (editorGroup in groupsMap.values) {
-      return editorGroup
-    }
-    return EMPTY
-  }
+  fun first(): EditorGroup? = groupsMap.values.iterator().next()
 
-  fun getById(id: String): EditorGroup {
-    var editorGroup = groupsMap[id]
-    if (editorGroup == null) {
-      editorGroup = EMPTY
-    }
-    return editorGroup
-  }
+  fun getById(id: String): EditorGroup = groupsMap[id] ?: EMPTY
 
   fun ownerOrLast(currentFilePath: String?): EditorGroup? {
-    val iterator: Iterator<EditorGroup?> = groupsMap.values.iterator()
-    var group: EditorGroup? = EMPTY
-    while (iterator.hasNext()) {
-      group = iterator.next()
-      if (group!!.isOwner(currentFilePath!!)) {
-        break
-      }
-    }
-    return group
+    return groupsMap.values.firstOrNull { it!!.isOwner(currentFilePath!!) } ?: EMPTY
   }
 
   override fun toString(): String = "EditorGroups{map=$groupsMap, last='$last'}"
