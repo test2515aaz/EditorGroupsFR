@@ -50,7 +50,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
-        <editorNotificationProvider implementation="krasa.editorGroups.support.MyEditorNotificationsProvider"/>
+        <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
         <!-- Add your extensions here -->
         <projectService serviceImplementation="krasa.editorGroups.EditorGroupManager"/>
         <projectService serviceImplementation="krasa.editorGroups.AutoGroupProvider"/>

@@ -82,17 +82,17 @@ open class KrTabsImpl(
   private var project: Project?,
   parentDisposable: Disposable
 ) : JComponent(),
-    KrTabsEx,
-    PropertyChangeListener,
-    TimerListener,
-    DataProvider,
-    PopupMenuListener,
-    KrTabsPresentation,
-    Queryable,
-    UISettingsListener,
-    QuickActionProvider,
-    MorePopupAware,
-    Accessible {
+  KrTabsEx,
+  PropertyChangeListener,
+  TimerListener,
+  DataProvider,
+  PopupMenuListener,
+  KrTabsPresentation,
+  Queryable,
+  UISettingsListener,
+  QuickActionProvider,
+  MorePopupAware,
+  Accessible {
   companion object {
     @JvmField
     val PINNED: Key<Boolean> = Key.create("pinned")
@@ -369,10 +369,10 @@ open class KrTabsImpl(
       gp.addMouseMotionPreprocessor(tabActionsAutoHideListener, tabActionsAutoHideListenerDisposable)
       glassPane = gp
       StartupUiUtil.addAwtListener({
-                                     if (JBPopupFactory.getInstance().getChildPopups(this@KrTabsImpl).isEmpty()) {
-                                       processFocusChange()
-                                     }
-                                   }, AWTEvent.FOCUS_EVENT_MASK, parentDisposable)
+        if (JBPopupFactory.getInstance().getChildPopups(this@KrTabsImpl).isEmpty()) {
+          processFocusChange()
+        }
+      }, AWTEvent.FOCUS_EVENT_MASK, parentDisposable)
       dragHelper = createDragHelper(child, parentDisposable)
       dragHelper!!.start()
     }
@@ -420,10 +420,10 @@ open class KrTabsImpl(
         afterScroll.cancelAllRequests()
         if (!inside) {
           afterScroll.addRequest({
-                                   if (!isMouseInsideTabsArea) {
-                                     relayout(false, false)
-                                   }
-                                 }, 500)
+            if (!isMouseInsideTabsArea) {
+              relayout(false, false)
+            }
+          }, 500)
         }
       }
     }, AWTEvent.MOUSE_MOTION_EVENT_MASK, parentDisposable)
@@ -801,10 +801,10 @@ open class KrTabsImpl(
     titleWrapper.removeAll()
     if (titleProducer != null) {
       val toolbar = ActionManager.getInstance().createActionToolbar(/* place = */ ActionPlaces.TABS_MORE_TOOLBAR,
-                                                                    /* group = */DefaultActionGroup(
+        /* group = */DefaultActionGroup(
           TitleAction(tabs = this, titleProvider = titleProducer)
         ),
-                                                                    /* horizontal = */ true
+        /* horizontal = */ true
       )
       toolbar.targetComponent = null
       toolbar.setMiniMode(true)
@@ -1336,12 +1336,12 @@ open class KrTabsImpl(
       return result
     } else {
       ApplicationManager.getApplication().invokeLater({
-                                                        if (requestFocusInWindow) {
-                                                          requestFocusInWindow()
-                                                        } else {
-                                                          focusManager.requestFocusInProject(this, project)
-                                                        }
-                                                      }, ModalityState.nonModal())
+        if (requestFocusInWindow) {
+          requestFocusInWindow()
+        } else {
+          focusManager.requestFocusInProject(this, project)
+        }
+      }, ModalityState.nonModal())
       return removeDeferred()
     }
   }
@@ -1406,7 +1406,7 @@ open class KrTabsImpl(
   }
 
   private fun removeDeferred(): ActionCallback {
-    if (deferredToRemove.isEmpty) {
+    if (deferredToRemove.isEmpty()) {
       return ActionCallback.DONE
     }
 
@@ -1545,10 +1545,10 @@ open class KrTabsImpl(
     revalidateAndRepaint(true)
   }
 
-  override fun isOpaque(): Boolean = !visibleInfos.isEmpty
+  override fun isOpaque(): Boolean = !visibleInfos.isEmpty()
 
   open fun revalidateAndRepaint(layoutNow: Boolean) {
-    if (visibleInfos.isEmpty && parent != null) {
+    if (visibleInfos.isEmpty() && parent != null) {
       val nonOpaque = ComponentUtil.findUltimateParent(this)
       val toRepaint = SwingUtilities.convertRectangle(parent, bounds, nonOpaque)
       nonOpaque.repaint(toRepaint.x, toRepaint.y, toRepaint.width, toRepaint.height)
@@ -1603,7 +1603,7 @@ open class KrTabsImpl(
       }
 
       mySelectedInfo == null                -> {
-        if (visibleInfos.isEmpty) null else visibleInfos[0]
+        if (visibleInfos.isEmpty()) null else visibleInfos[0]
       }
 
       visibleInfos.contains(mySelectedInfo) -> {
@@ -2018,7 +2018,7 @@ open class KrTabsImpl(
 
   override fun paintComponent(g: Graphics) {
     super.paintComponent(g)
-    if (visibleInfos.isEmpty) {
+    if (visibleInfos.isEmpty()) {
       if (emptyText != null) {
         UISettings.setupAntialiasing(g)
         UIUtil.drawCenteredString((g as Graphics2D), Rectangle(0, 0, width, height), emptyText!!)
@@ -2240,7 +2240,7 @@ open class KrTabsImpl(
       processRemove(info, true)
       removeDeferred().notifyWhenDone(result)
     }
-    if (visibleInfos.isEmpty) {
+    if (visibleInfos.isEmpty()) {
       removeDeferredNow()
     }
     revalidateAndRepaint(true)
@@ -3004,9 +3004,9 @@ open class KrTabsImpl(
     val size = label!!.preferredSize
     label.setBounds(0, 0, size.width, size.height)
     val img = ImageUtil.createImage(/* gc = */ graphicsConfiguration, /* width = */
-                                    size.width, /* height = */
-                                    size.height, /* type = */
-                                    BufferedImage.TYPE_INT_ARGB
+      size.width, /* height = */
+      size.height, /* type = */
+      BufferedImage.TYPE_INT_ARGB
     )
     val g = img.createGraphics()
     label.paintOffscreen(g)
@@ -3018,7 +3018,7 @@ open class KrTabsImpl(
   override fun processDropOver(over: KrTabInfo, point: RelativePoint) {
     val pointInMySpace = point.getPoint(this)
     val index = effectiveLayout!!.getDropIndexFor(pointInMySpace)
-    val side: Int = if (visibleInfos.isEmpty) {
+    val side: Int = if (visibleInfos.isEmpty()) {
       SwingConstants.CENTER
     } else {
       if (index != -1) -1 else effectiveLayout!!.getDropSideFor(pointInMySpace)
@@ -3034,7 +3034,7 @@ open class KrTabsImpl(
   }
 
   override val isEmptyVisible: Boolean
-    get() = visibleInfos.isEmpty
+    get() = visibleInfos.isEmpty()
 
   val tabHGap: Int
     get() = -myBorder.thickness
