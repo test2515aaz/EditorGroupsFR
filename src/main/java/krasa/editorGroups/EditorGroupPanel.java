@@ -329,7 +329,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       addCurrentFileTab(path_name);
 
       if (displayedGroup instanceof GroupsHolder) {
-        createGroupLinks(((GroupsHolder) displayedGroup).getGroups());
+        createGroupLinks(((GroupsHolder) displayedGroup).groups);
       }
       if (displayedGroup.isStub()) {
         LOG.debug("#reloadTabs: stub - Adding Loading...");
