@@ -2,7 +2,7 @@ package krasa.editorGroups.gui;
 
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.ui.table.JBTable;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.model.RegexGroupModel;
 import org.jetbrains.annotations.NotNull;
 
@@ -95,12 +95,12 @@ public class RegexModelTable extends JBTable {
     }
   }
 
-  public void commit(ApplicationConfiguration settings) {
-    settings.getRegexGroupModels().setRegexGroupModels(new ArrayList<>(myRegexGroupModels));
+  public void commit(EditorGroupsSettingsState settings) {
+    settings.regexGroupModels.setRegexGroupModels(new ArrayList<>(myRegexGroupModels));
   }
 
 
-  public void reset(ApplicationConfiguration settings) {
+  public void reset(EditorGroupsSettingsState settings) {
     obtainRegexModels(myRegexGroupModels, settings);
     myTableModel.fireTableDataChanged();
   }
@@ -116,9 +116,9 @@ public class RegexModelTable extends JBTable {
     return -1;
   }
 
-  private void obtainRegexModels(@NotNull List<RegexGroupModel> regexModels, ApplicationConfiguration settings) {
+  private void obtainRegexModels(@NotNull List<RegexGroupModel> regexModels, EditorGroupsSettingsState settings) {
     regexModels.clear();
-    List<RegexGroupModel> regexGroupModels = settings.getRegexGroupModels().getRegexGroupModels();
+    List<RegexGroupModel> regexGroupModels = settings.regexGroupModels.regexGroupModels;
     for (RegexGroupModel regexGroupModel : regexGroupModels) {
       regexModels.add(regexGroupModel.copy());
     }
@@ -140,7 +140,7 @@ public class RegexModelTable extends JBTable {
     return true;
   }
 
-  public boolean isModified(ApplicationConfiguration settings) {
+  public boolean isModified(EditorGroupsSettingsState settings) {
     final ArrayList<RegexGroupModel> regexGroupModels = new ArrayList<>();
     obtainRegexModels(regexGroupModels, settings);
     return !regexGroupModels.equals(myRegexGroupModels);

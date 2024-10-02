@@ -105,7 +105,7 @@ public class ProjectComponent implements com.intellij.openapi.components.Project
   @Nullable
   @Override
   public State getState() {
-    if (ApplicationConfiguration.state().isRememberLastGroup()) {
+    if (EditorGroupsSettingsState.state().isRememberLastGroup()) {
       long start = System.currentTimeMillis();
       State state = IndexCache.getInstance(project).getState();
       if (LOG.isDebugEnabled())
@@ -118,7 +118,7 @@ public class ProjectComponent implements com.intellij.openapi.components.Project
 
   @Override
   public void loadState(@NotNull State state) {
-    if (ApplicationConfiguration.state().isRememberLastGroup()) {
+    if (EditorGroupsSettingsState.state().isRememberLastGroup()) {
       long start = System.currentTimeMillis();
       IndexCache.getInstance(project).loadState(state);
       if (LOG.isDebugEnabled())

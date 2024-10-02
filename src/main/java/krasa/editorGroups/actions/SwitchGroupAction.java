@@ -16,7 +16,7 @@ import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.PopupHandler;
 import krasa.editorGroups.*;
-import krasa.editorGroups.icons.MyIcons;
+import krasa.editorGroups.icons.EditorGroupsIcons;
 import krasa.editorGroups.model.*;
 import krasa.editorGroups.support.Notifications;
 import krasa.editorGroups.support.Utils;
@@ -59,7 +59,7 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
   @Override
   public @NotNull JComponent createCustomComponent(@NotNull Presentation presentation) {
     ActionButton button = new ActionButton(this, presentation, ActionPlaces.UNKNOWN, ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE);
-    presentation.setIcon(MyIcons.groupBy);
+    presentation.setIcon(EditorGroupsIcons.groupBy);
     button.addMouseListener(new PopupHandler() {
       public void invokePopup(Component comp, int x, int y) {
         popupInvoked(comp, x, y);
@@ -103,7 +103,7 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
       fillGlobalRegexGroups(tempGroup, project, editorGroups, displayedGroup, regexGroups);
 
 
-      if (ApplicationConfiguration.state().isGroupSwitchGroupAction()) {
+      if (EditorGroupsSettingsState.state().isGroupSwitchGroupAction()) {
         defaultActionGroup.addAll(tempGroup.getChildActionsOrStubs());
       } else {
         AnAction[] childActionsOrStubs = tempGroup.getChildActionsOrStubs();
@@ -216,15 +216,15 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
 
     Set<String> alreadyDisplayed = new HashSet<>();
     for (RegexGroup group : alreadyFilledRegexGroups) {
-      if (group.getRegexGroupModel().getScope() == RegexGroupModel.Scope.WHOLE_PROJECT) {
-        alreadyDisplayed.add(group.getRegexGroupModel().getRegex());
+      if (group.regexGroupModel.getScope() == RegexGroupModel.Scope.WHOLE_PROJECT) {
+        alreadyDisplayed.add(group.regexGroupModel.getRegex());
       }
     }
 
     if (!regexGroups.isEmpty()) {
       defaultActionGroup.add(new Separator("Regexps"));
       for (RegexGroup group : regexGroups) {
-        if (!alreadyDisplayed.contains(group.getRegexGroupModel().getRegex())) {
+        if (!alreadyDisplayed.contains(group.regexGroupModel.getRegex())) {
           defaultActionGroup.add(createAction(displayedGroup, group, project, new Handler() {
             @Override
             void run(EditorGroup groupLink) {

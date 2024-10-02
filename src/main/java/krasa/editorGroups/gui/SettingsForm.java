@@ -5,7 +5,7 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.AnActionButtonRunnable;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -87,25 +87,25 @@ public class SettingsForm {
 
   }
 
-  public boolean isSettingsModified(ApplicationConfiguration data) {
-    if (tabsColors.isModified(data, data.getTabs())) return true;
+  public boolean isSettingsModified(EditorGroupsSettingsState data) {
+    if (tabsColors.isModified(data, data.tabs)) return true;
     if (regexModelTable.isModified(data)) return true;
     return isModified(data);
   }
 
-  public void importFrom(ApplicationConfiguration data) {
+  public void importFrom(EditorGroupsSettingsState data) {
     setData(data);
-    tabsColors.setData(data, data.getTabs());
+    tabsColors.setData(data, data.tabs);
     regexModelTable.reset(data);
   }
 
   public void apply() {
     if (LOG.isDebugEnabled()) LOG.debug("apply ");
-    ApplicationConfiguration data = ApplicationConfiguration.state();
+    EditorGroupsSettingsState data = EditorGroupsSettingsState.state();
 
     getData(data);
     regexModelTable.commit(data);
-    tabsColors.getData(data, data.getTabs());
+    tabsColors.getData(data, data.tabs);
   }
 
 
@@ -114,7 +114,7 @@ public class SettingsForm {
     tabColors = tabsColors.getRoot();
   }
 
-  public void setData(ApplicationConfiguration data) {
+  public void setData(EditorGroupsSettingsState data) {
     initializeSynchronously.setSelected(data.isInitializeSynchronously());
     indexOnlyEditorGroupsFileCheckBox.setSelected(data.isIndexOnlyEditorGroupsFiles());
     groupSizeLimit.setText(data.getGroupSizeLimit());
@@ -133,7 +133,7 @@ public class SettingsForm {
     showPanel.setSelected(data.isShowPanel());
   }
 
-  public void getData(ApplicationConfiguration data) {
+  public void getData(EditorGroupsSettingsState data) {
     data.setInitializeSynchronously(initializeSynchronously.isSelected());
     data.setIndexOnlyEditorGroupsFiles(indexOnlyEditorGroupsFileCheckBox.isSelected());
     data.setGroupSizeLimit(groupSizeLimit.getText());
@@ -152,7 +152,7 @@ public class SettingsForm {
     data.setShowPanel(showPanel.isSelected());
   }
 
-  public boolean isModified(ApplicationConfiguration data) {
+  public boolean isModified(EditorGroupsSettingsState data) {
     if (initializeSynchronously.isSelected() != data.isInitializeSynchronously()) return true;
     if (indexOnlyEditorGroupsFileCheckBox.isSelected() != data.isIndexOnlyEditorGroupsFiles()) return true;
     if (groupSizeLimit.getText() != null ? !groupSizeLimit.getText().equals(data.getGroupSizeLimit()) : data.getGroupSizeLimit() != null)

@@ -3,7 +3,7 @@ package krasa.editorGroups.gui;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBDimension;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.support.CheckBoxWithColorChooser;
 
 import javax.swing.*;
@@ -38,8 +38,8 @@ public class TabsColors {
     darcula.setVisible(!JBColor.isBright());
     classic.setVisible(JBColor.isBright());
 
-    opacityDefault.addActionListener(e -> opacity.setText(String.valueOf(ApplicationConfiguration.Tabs.DEFAULT_OPACITY)));
-    darcula_opacityDefault.addActionListener(e -> opacity.setText(String.valueOf(ApplicationConfiguration.Tabs.DEFAULT_DARCULA_OPACITY)));
+    opacityDefault.addActionListener(e -> opacity.setText(String.valueOf(EditorGroupsSettingsState.Tabs.DEFAULT_OPACITY)));
+    darcula_opacityDefault.addActionListener(e -> opacity.setText(String.valueOf(EditorGroupsSettingsState.Tabs.DEFAULT_DARK_OPACITY)));
     ideTabs.setVisible(false);
   }
 
@@ -48,65 +48,65 @@ public class TabsColors {
     tabBgColor = new CheckBoxWithColorChooser("Default selected tab background color ", null);
 
     Dimension colorDimension = new JBDimension(30, 30);
-    mask = new CheckBoxWithColorChooser(null, null, ApplicationConfiguration.Tabs.DEFAULT_MASK).setColorDimension(colorDimension);
-    CheckBoxWithColorChooser defaultTabColor = new CheckBoxWithColorChooser(null, null, ApplicationConfiguration.Tabs.DEFAULT_TAB_COLOR).setColorDimension(colorDimension);
+    mask = new CheckBoxWithColorChooser(null, null, EditorGroupsSettingsState.Tabs.DEFAULT_MASK).setColorDimension(colorDimension);
+    CheckBoxWithColorChooser defaultTabColor = new CheckBoxWithColorChooser(null, null, EditorGroupsSettingsState.Tabs.DEFAULT_TAB_COLOR).setColorDimension(colorDimension);
 
-    darcula_mask = new CheckBoxWithColorChooser(null, null, ApplicationConfiguration.Tabs.DEFAULT_DARCULA_MASK).setColorDimension(colorDimension);
-    CheckBoxWithColorChooser darcula_defaultTabColor = new CheckBoxWithColorChooser(null, null, ApplicationConfiguration.Tabs.DEFAULT_DARCULA_TAB_COLOR).setColorDimension(colorDimension);
+    darcula_mask = new CheckBoxWithColorChooser(null, null, EditorGroupsSettingsState.Tabs.DEFAULT_DARK_MASK).setColorDimension(colorDimension);
+    CheckBoxWithColorChooser darcula_defaultTabColor = new CheckBoxWithColorChooser(null, null, EditorGroupsSettingsState.Tabs.DEFAULT_DARK_TAB_COLOR).setColorDimension(colorDimension);
   }
 
-  public void setData(ApplicationConfiguration applicationConfiguration, ApplicationConfiguration.Tabs data) {
-    tabBgColor.setColor(applicationConfiguration.getTabBgColorAsAWT());
-    tabBgColor.setSelected(applicationConfiguration.isTabBgColorEnabled());
+  public void setData(EditorGroupsSettingsState editorGroupsSettingsState, EditorGroupsSettingsState.Tabs data) {
+    tabBgColor.setColor(editorGroupsSettingsState.getTabBgColorAsColor());
+    tabBgColor.setSelected(editorGroupsSettingsState.isTabBgColorEnabled());
 
-    tabFgColor.setColor(applicationConfiguration.getTabFgColorAsAWT());
-    tabFgColor.setSelected(applicationConfiguration.isTabFgColorEnabled());
+    tabFgColor.setColor(editorGroupsSettingsState.getTabFgColorAsColor());
+    tabFgColor.setSelected(editorGroupsSettingsState.isTabFgColorEnabled());
 
 
     enabledCheckBox.setSelected(data.isPatchPainter());
 
-    mask.setColor(data.getMask());
-    opacity.setText(String.valueOf(data.getOpacity()));
+    mask.setColor(data.mask);
+    opacity.setText(String.valueOf(data.opacity));
 
-    darcula_mask.setColor(data.getDarcula_mask());
-    darcula_opacity.setText(String.valueOf(data.getDarcula_opacity()));
+    darcula_mask.setColor(data.darkMask);
+    darcula_opacity.setText(String.valueOf(data.darkOpacity));
   }
 
-  public void getData(ApplicationConfiguration applicationConfiguration, ApplicationConfiguration.Tabs data) {
-    applicationConfiguration.setTabBgColorAWT(tabBgColor.getColor());
-    applicationConfiguration.setTabBgColorEnabled(tabBgColor.isSelected());
+  public void getData(EditorGroupsSettingsState editorGroupsSettingsState, EditorGroupsSettingsState.Tabs data) {
+    editorGroupsSettingsState.setTabBgColorAsColor(tabBgColor.getColor());
+    editorGroupsSettingsState.setTabBgColorEnabled(tabBgColor.isSelected());
 
-    applicationConfiguration.setTabFgColorAWT(tabFgColor.getColor());
-    applicationConfiguration.setTabFgColorEnabled(tabFgColor.isSelected());
+    editorGroupsSettingsState.setTabFgColorAsColor(tabFgColor.getColor());
+    editorGroupsSettingsState.setTabFgColorEnabled(tabFgColor.isSelected());
 
 
     data.setPatchPainter(enabledCheckBox.isSelected());
 
-    data.setMask(mask.getColorAsRGB());
+    data.mask = mask.getColorAsRGB();
     data.setOpacity(opacity.getText());
 
-    data.setDarcula_mask(darcula_mask.getColorAsRGB());
-    data.setDarcula_opacity(darcula_opacity.getText());
+    data.darkMask = darcula_mask.getColorAsRGB();
+    data.setDarkOpacity(darcula_opacity.getText());
 
-    setData(applicationConfiguration, data);
+    setData(editorGroupsSettingsState, data);
   }
 
 
-  public boolean isModified(ApplicationConfiguration applicationConfiguration, ApplicationConfiguration.Tabs data) {
-    if (tabBgColor.isSelected() != applicationConfiguration.isTabBgColorEnabled()) return true;
-    if (!Objects.equals(tabBgColor.getColor(), applicationConfiguration.getTabBgColorAsAWT())) return true;
+  public boolean isModified(EditorGroupsSettingsState editorGroupsSettingsState, EditorGroupsSettingsState.Tabs data) {
+    if (tabBgColor.isSelected() != editorGroupsSettingsState.isTabBgColorEnabled()) return true;
+    if (!Objects.equals(tabBgColor.getColor(), editorGroupsSettingsState.getTabBgColorAsColor())) return true;
 
-    if (tabFgColor.isSelected() != applicationConfiguration.isTabFgColorEnabled()) return true;
-    if (!Objects.equals(tabFgColor.getColor(), applicationConfiguration.getTabFgColorAsAWT())) return true;
+    if (tabFgColor.isSelected() != editorGroupsSettingsState.isTabFgColorEnabled()) return true;
+    if (!Objects.equals(tabFgColor.getColor(), editorGroupsSettingsState.getTabFgColorAsColor())) return true;
 
 
     if (enabledCheckBox.isSelected() != data.isPatchPainter()) return true;
 
 
-    if (!Objects.equals(mask.getColorAsRGB(), data.getMask())) return true;
-    if (!Objects.equals(opacity.getText(), String.valueOf(data.getOpacity()))) return true;
+    if (!Objects.equals(mask.getColorAsRGB(), data.mask)) return true;
+    if (!Objects.equals(opacity.getText(), String.valueOf(data.opacity))) return true;
 
-    if (!Objects.equals(darcula_mask.getColorAsRGB(), data.getDarcula_mask())) return true;
-    return !Objects.equals(darcula_opacity.getText(), String.valueOf(data.getDarcula_opacity()));
+    if (!Objects.equals(darcula_mask.getColorAsRGB(), data.darkMask)) return true;
+    return !Objects.equals(darcula_opacity.getText(), String.valueOf(data.darkOpacity));
   }
 }

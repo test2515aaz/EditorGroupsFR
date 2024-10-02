@@ -26,7 +26,7 @@ public class RegexGroupProvider {
 
     long start = System.currentTimeMillis();
     String fileName = file.getName();
-    RegexGroupModel matching = ApplicationConfiguration.state().getRegexGroupModels().findFirstMatching(fileName);
+    RegexGroupModel matching = EditorGroupsSettingsState.state().regexGroupModels.findFirstMatching(fileName);
 
     EditorGroup result;
     if (matching == null) {
@@ -50,7 +50,7 @@ public class RegexGroupProvider {
 
     long start = System.currentTimeMillis();
     String fileName = file.getName();
-    List<RegexGroupModel> matching = ApplicationConfiguration.state().getRegexGroupModels().findMatching(fileName);
+    List<RegexGroupModel> matching = EditorGroupsSettingsState.state().regexGroupModels.findMatching(fileName);
     if (LOG.isDebugEnabled()) LOG.debug("findMatchingRegexGroups: " + (System.currentTimeMillis() - start) + "ms");
 
 
@@ -58,7 +58,7 @@ public class RegexGroupProvider {
   }
 
   public List<RegexGroup> findProjectRegexGroups_stub() {
-    List<RegexGroupModel> globalRegexGroups = ApplicationConfiguration.state().getRegexGroupModels().findProjectRegexGroups();
+    List<RegexGroupModel> globalRegexGroups = EditorGroupsSettingsState.state().regexGroupModels.findProjectRegexGroups();
     return toRegexGroups_stub(globalRegexGroups);
   }
 
@@ -86,11 +86,11 @@ public class RegexGroupProvider {
     if (currentFile != null && links.isEmpty()) {
       LOG.error("should contain the current file at least: " + group);
     }
-    return new RegexGroup(group.getRegexGroupModel(), group.getFolder(), links, group.getFileName());
+    return new RegexGroup(group.regexGroupModel, group.folder, links, group.fileName);
   }
 
   public EditorGroup findRegexGroup_stub(VirtualFile file, String substring) {
-    RegexGroupModels regexGroupModels = ApplicationConfiguration.state().getRegexGroupModels();
+    RegexGroupModels regexGroupModels = EditorGroupsSettingsState.state().regexGroupModels;
     RegexGroupModel regexGroupModel = regexGroupModels.find(substring);
     if (regexGroupModel == null) {
       return EditorGroup.EMPTY;

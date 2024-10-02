@@ -207,7 +207,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       }
     });
 
-    int tabHeight = ApplicationConfiguration.state().isCompactTabs() ? 26 : JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get();
+    int tabHeight = EditorGroupsSettingsState.state().isCompactTabs() ? 26 : JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get();
     setPreferredSize(new Dimension(0, tabHeight));
     JComponent component = tabs.getComponent();
     add(component, BorderLayout.CENTER);
@@ -221,12 +221,12 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
   }
 
   public void postConstruct() {
-    ApplicationConfiguration applicationConfiguration = ApplicationConfiguration.state();
+    EditorGroupsSettingsState editorGroupsSettingsState = EditorGroupsSettingsState.state();
 
     EditorGroup editorGroup = toBeRendered;
 
     //minimize flicker for the price of latency
-    boolean preferLatencyOverFlicker = applicationConfiguration.isInitializeSynchronously();
+    boolean preferLatencyOverFlicker = editorGroupsSettingsState.isInitializeSynchronously();
     if (editorGroup == null && preferLatencyOverFlicker && !DumbService.isDumb(project)) {
       long start = System.currentTimeMillis();
       try {
@@ -348,7 +348,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
   private void createTabs(List<Link> links, Map<Link, String> path_name) {
     int start = 0;
     int end = links.size();
-    int tabSizeLimitInt = ApplicationConfiguration.state().getTabSizeLimitInt();
+    int tabSizeLimitInt = EditorGroupsSettingsState.state().getTabSizeLimitInt();
 
     if (links.size() > tabSizeLimitInt) {
       int currentFilePosition = -1;
@@ -402,7 +402,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       && !(displayedGroup instanceof HidePanelGroup)
     ) {
 
-      if (!displayedGroup.isStub() && !FileResolver.excluded(new File(file.getPath()), ApplicationConfiguration.state().isExcludeEditorGroupsFiles())) {
+      if (!displayedGroup.isStub() && !FileResolver.excluded(new File(file.getPath()), EditorGroupsSettingsState.state().isExcludeEditorGroupsFiles())) {
         String message = "current file is not contained in group. file=" + file + ", group=" + displayedGroup + ", links=" + displayedGroup.getLinks(project);
         if (ApplicationManager.getApplication().isInternal()) {
           LOG.error(message);
@@ -484,7 +484,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
       int index = currentIndex - iterations;
 
-      if (!ApplicationConfiguration.state().isContinuousScrolling() && currentIndex - iterations < 0) {
+      if (!EditorGroupsSettingsState.state().isContinuousScrolling() && currentIndex - iterations < 0) {
         return newTab;
       }
 
@@ -528,7 +528,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     while (link == null && iterations < tabs.size()) {
       iterations++;
 
-      if (!ApplicationConfiguration.state().isContinuousScrolling() && currentIndex + iterations >= tabs.size()) {
+      if (!EditorGroupsSettingsState.state().isContinuousScrolling() && currentIndex + iterations >= tabs.size()) {
         return false;
       }
 
@@ -731,7 +731,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       }
       boolean skipRefresh = !brokenScroll && !request.refresh && (group == toBeRendered || group.equalsVisually(project, displayedGroup, displayedLinks, stub));
       //noinspection DoubleNegation
-      boolean updateVisibility = hideGlobally != !ApplicationConfiguration.state().isShowPanel();
+      boolean updateVisibility = hideGlobally != !EditorGroupsSettingsState.state().isShowPanel();
       if (updateVisibility) {
         skipRefresh = false;
       }
@@ -821,7 +821,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       try {
         EditorGroup editorGroup = ReadAction.nonBlocking(() -> {
           try {
-            return groupManager.getGroup(project, fileEditor, lastGroup, requestedGroup, file, refresh, !ApplicationConfiguration.state().isShowPanel());
+            return groupManager.getGroup(project, fileEditor, lastGroup, requestedGroup, file, refresh, !EditorGroupsSettingsState.state().isShowPanel());
           } catch (ProcessCanceledException e) {
             if (LOG.isDebugEnabled()) LOG.debug("getGroupInReadActionWithRetries - " + e, e);
             throw e;
@@ -926,11 +926,11 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
   private boolean updateVisibility(@NotNull EditorGroup rendering) {
     boolean visible;
-    ApplicationConfiguration applicationConfiguration = ApplicationConfiguration.state();
-    hideGlobally = !applicationConfiguration.isShowPanel();
-    if (!applicationConfiguration.isShowPanel() || rendering instanceof HidePanelGroup) {
+    EditorGroupsSettingsState editorGroupsSettingsState = EditorGroupsSettingsState.state();
+    hideGlobally = !editorGroupsSettingsState.isShowPanel();
+    if (!editorGroupsSettingsState.isShowPanel() || rendering instanceof HidePanelGroup) {
       visible = false;
-    } else if (applicationConfiguration.isHideEmpty() && !rendering.isStub()) {
+    } else if (editorGroupsSettingsState.isHideEmpty() && !rendering.isStub()) {
       boolean hide = rendering instanceof AutoGroup && ((AutoGroup) rendering).isEmpty() || rendering == EditorGroup.EMPTY;
       visible = !hide;
     } else {
@@ -977,19 +977,19 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
 
   private void customizeSelectedColor(MyTabInfo tab) {
-    ApplicationConfiguration config = ApplicationConfiguration.state();
+    EditorGroupsSettingsState config = EditorGroupsSettingsState.state();
     Color bgColor = displayedGroup.getBgColor();
     if (bgColor != null) {
       tab.setTabColor(bgColor);
     } else if (config.isTabBgColorEnabled()) {
-      tab.setTabColor(config.getTabBgColorAsAWT());
+      tab.setTabColor(config.getTabBgColorAsColor());
     }
 
     Color fgColor = displayedGroup.getFgColor();
     if (fgColor != null) {
       tab.setDefaultForeground(fgColor);
     } else if (config.isTabFgColorEnabled()) {
-      tab.setDefaultForeground(config.getTabFgColorAsAWT());
+      tab.setDefaultForeground(config.getTabFgColorAsColor());
     }
 
   }

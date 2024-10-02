@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileVisitor;
-import krasa.editorGroups.ApplicationConfiguration;
+import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.model.Link;
 import krasa.editorGroups.model.RegexGroup;
 import krasa.editorGroups.model.RegexGroupModel;
@@ -24,17 +24,17 @@ public class RegexFileResolver {
   private static final Logger LOG = Logger.getInstance(RegexFileResolver.class);
   private final Project project;
   protected Set<VirtualFile> links = new HashSet<>();
-  protected ApplicationConfiguration config;
+  protected EditorGroupsSettingsState config;
 
   public RegexFileResolver(Project project) {
     this.project = project;
-    config = ApplicationConfiguration.state();
+    config = EditorGroupsSettingsState.state();
   }
 
   public List<Link> resolveRegexGroupLinks(@NotNull RegexGroup regexGroup, @Nullable VirtualFile currentFile) {
     LOG.debug(">resolveRegexGroupLinks");
     long start = System.currentTimeMillis();
-    RegexGroupModel regexGroupModel = regexGroup.getRegexGroupModel();
+    RegexGroupModel regexGroupModel = regexGroup.regexGroupModel;
     Matcher referenceMatcher = regexGroup.getReferenceMatcher();
 
     if (currentFile != null) {
