@@ -216,15 +216,15 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
 
     Set<String> alreadyDisplayed = new HashSet<>();
     for (RegexGroup group : alreadyFilledRegexGroups) {
-      if (group.getRegexGroupModel().getScope() == RegexGroupModel.Scope.WHOLE_PROJECT) {
-        alreadyDisplayed.add(group.getRegexGroupModel().getRegex());
+      if (group.regexGroupModel.getScope() == RegexGroupModel.Scope.WHOLE_PROJECT) {
+        alreadyDisplayed.add(group.regexGroupModel.getRegex());
       }
     }
 
     if (!regexGroups.isEmpty()) {
       defaultActionGroup.add(new Separator("Regexps"));
       for (RegexGroup group : regexGroups) {
-        if (!alreadyDisplayed.contains(group.getRegexGroupModel().getRegex())) {
+        if (!alreadyDisplayed.contains(group.regexGroupModel.getRegex())) {
           defaultActionGroup.add(createAction(displayedGroup, group, project, new Handler() {
             @Override
             void run(EditorGroup groupLink) {

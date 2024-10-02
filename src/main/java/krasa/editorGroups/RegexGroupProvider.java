@@ -86,7 +86,7 @@ public class RegexGroupProvider {
     if (currentFile != null && links.isEmpty()) {
       LOG.error("should contain the current file at least: " + group);
     }
-    return new RegexGroup(group.getRegexGroupModel(), group.getFolder(), links, group.getFileName());
+    return new RegexGroup(group.regexGroupModel, group.folder, links, group.fileName);
   }
 
   public EditorGroup findRegexGroup_stub(VirtualFile file, String substring) {

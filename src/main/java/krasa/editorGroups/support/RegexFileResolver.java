@@ -34,7 +34,7 @@ public class RegexFileResolver {
   public List<Link> resolveRegexGroupLinks(@NotNull RegexGroup regexGroup, @Nullable VirtualFile currentFile) {
     LOG.debug(">resolveRegexGroupLinks");
     long start = System.currentTimeMillis();
-    RegexGroupModel regexGroupModel = regexGroup.getRegexGroupModel();
+    RegexGroupModel regexGroupModel = regexGroup.regexGroupModel;
     Matcher referenceMatcher = regexGroup.getReferenceMatcher();
 
     if (currentFile != null) {
