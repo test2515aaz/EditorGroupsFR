@@ -19,7 +19,7 @@ public class Notifications {
   private static final Logger LOG = Logger.getInstance(Notifications.class);
 
   public static void notifyMissingFile(EditorGroup group, String path) {
-    String content = "Path='" + path + "'; Owner='" + group.getId() + "'";
+    String content = "Path='" + path + "'; Owner='" + group.id + "'";
     Notification notification = getNotificationGroup().createNotification("File does not exist", content, NotificationType.WARNING);
     show(notification);
   }

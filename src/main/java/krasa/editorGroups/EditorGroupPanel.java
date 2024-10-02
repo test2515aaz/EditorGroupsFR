@@ -435,7 +435,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
         name += ":" + line;
       }
       setText(name);
-      setTooltipText(link.getPath());
+      setTooltipText(link.path);
       setIcon(link.getFileIcon());
       if (!link.exists()) {
         setEnabled(false);
