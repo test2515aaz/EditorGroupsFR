@@ -37,7 +37,7 @@ public class MyListDataListener implements ListDataListener {
   }
 
   private void listChanged() {
-    List<RegexGroupModel> list = this.models.getRegexGroupModels();
+    List<RegexGroupModel> list = this.models.regexGroupModels;
     list.clear();
     for (int i = 0; i < model.getSize(); i++) {
       list.add(model.getElementAt(i));

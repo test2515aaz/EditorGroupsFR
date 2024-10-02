@@ -329,7 +329,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       addCurrentFileTab(path_name);
 
       if (displayedGroup instanceof GroupsHolder) {
-        createGroupLinks(((GroupsHolder) displayedGroup).getGroups());
+        createGroupLinks(((GroupsHolder) displayedGroup).groups);
       }
       if (displayedGroup.isStub()) {
         LOG.debug("#reloadTabs: stub - Adding Loading...");
@@ -435,7 +435,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
         name += ":" + line;
       }
       setText(name);
-      setTooltipText(link.getPath());
+      setTooltipText(link.path);
       setIcon(link.getFileIcon());
       if (!link.exists()) {
         setEnabled(false);

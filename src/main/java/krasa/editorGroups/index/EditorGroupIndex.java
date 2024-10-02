@@ -52,7 +52,7 @@ public class EditorGroupIndex extends FileBasedIndexExtension<String, EditorGrou
 
       int i = in.readInt();
       for (int j = 0; j < i; j++) {
-        value.addRelated(in.readUTF());
+        value.addRelatedPath(in.readUTF());
       }
       return value;
     }

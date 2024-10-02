@@ -116,7 +116,7 @@ public class SwitchFileAction extends QuickSwitchSchemeAction implements DumbAwa
   @NotNull
   private OpenFileAction newAction(Project project, EditorGroupPanel panel, String currentFile, Link link, String text) {
     OpenFileAction action = new OpenFileAction(link, project, panel, text);
-    if (link.getPath().equals(currentFile)) {
+    if (link.path.equals(currentFile)) {
       action.getTemplatePresentation().setEnabled(false);
       action.getTemplatePresentation().setText(text + " - current", false);
       action.getTemplatePresentation().setIcon(null);
@@ -132,7 +132,7 @@ public class SwitchFileAction extends QuickSwitchSchemeAction implements DumbAwa
     private final Project project;
 
     public OpenFileAction(Link link, Project project, EditorGroupPanel panel, String text) {
-      super(text, link.getPath(), link.getFileIcon());
+      super(text, link.path, link.getFileIcon());
       this.link = link;
       this.panel = panel;
       this.virtualFile = link.getVirtualFile();

@@ -78,7 +78,7 @@ public class RegexFileResolver {
         if (child.isDirectory()) {
           ProgressManager.checkCanceled();
           if (regexGroupModel.getScope() == RegexGroupModel.Scope.CURRENT_FOLDER) {
-            if (!child.equals(regexGroup.getFolder())) {
+            if (!child.equals(regexGroup.folder)) {
               return SKIP_CHILDREN;
             }
           } else {

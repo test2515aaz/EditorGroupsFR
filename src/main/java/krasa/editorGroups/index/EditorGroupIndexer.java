@@ -199,7 +199,7 @@ public class EditorGroupIndexer implements DataIndexer<String, EditorGroupIndexV
         return object;
       }
       object = init(object);
-      object.addRelated(filePath);
+      object.addRelatedPath(filePath);
       return object;
     }
   }

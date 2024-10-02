@@ -31,7 +31,7 @@ public class UniqueTabNameBuilder {
 
     if (currentFile != null) {
       String currentFilePath = currentFile.getPath();
-      boolean containsCurrentFile = path_name.keySet().stream().anyMatch(link1 -> link1.getPath().equals(currentFilePath));
+      boolean containsCurrentFile = path_name.keySet().stream().anyMatch(link1 -> link1.path.equals(currentFilePath));
       if (!containsCurrentFile) {
         Link link = new VirtualFileLink(currentFile, project);
         put(path_name, name_path, paths_withDuplicateName, link);
@@ -39,7 +39,7 @@ public class UniqueTabNameBuilder {
     }
 
     for (Link link : paths_withDuplicateName) {
-      uniqueNameBuilder.addPath(link, link.getPath());
+      uniqueNameBuilder.addPath(link, link.path);
     }
 
     for (Link link : paths_withDuplicateName) {
