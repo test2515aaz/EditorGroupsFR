@@ -103,7 +103,13 @@ class EditorGroupManager(private val project: Project) {
 
       // Next try to get the last group
       if (result.isInvalid) {
-        result = cache.getLastEditorGroup(currentFile, currentFilePath, true, true, stub)
+        result = cache.getLastEditorGroup(
+          currentFile = currentFile,
+          currentFilePath = currentFilePath,
+          includeAutoGroups = true,
+          includeFavorites = true,
+          stub = stub
+        )
       }
 
       // If nothing is found, try to match by regex if the option is on
@@ -147,7 +153,7 @@ class EditorGroupManager(private val project: Project) {
         e
       )
     } catch (e: Throwable) {
-      LOG.debug(e.toString())
+      LOG.warn(e.toString())
       throw e
     }
 

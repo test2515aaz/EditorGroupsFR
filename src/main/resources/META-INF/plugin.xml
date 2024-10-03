@@ -70,7 +70,7 @@
         <applicationConfigurable instance="krasa.editorGroups.MyConfigurable" id="EditorGroups"
                                  displayName="Editor Groups"/>
         <!--<fileTypeFactory implementation="krasa.editorGroups.language.EditorGroupsTypeFactory"/>-->
-        <defaultLiveTemplatesProvider implementation="krasa.editorGroups.support.EditorGroupsLiveTemplatesProvider"/>
+        <!--<defaultLiveTemplatesProvider implementation="krasa.editorGroups.support.EditorGroupsLiveTemplatesProvider"/>-->
 
         <lang.parserDefinition language="EditorGroups"
                                implementationClass="krasa.editorGroups.language.EditorGroupsParserDefinition"/>
