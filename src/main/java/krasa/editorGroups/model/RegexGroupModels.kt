@@ -3,7 +3,7 @@ package krasa.editorGroups.model
 import krasa.editorGroups.model.RegexGroupModel.Companion.deserialize
 
 class RegexGroupModels {
-  var regexGroupModels: List<RegexGroupModel> = ArrayList()
+  var regexGroupModels: MutableList<RegexGroupModel> = MutableList(0) { RegexGroupModel() }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

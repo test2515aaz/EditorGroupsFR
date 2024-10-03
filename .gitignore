@@ -5,6 +5,7 @@
 
 # Idea files
 .idea
+.intellijPlatform
 out
 target/
 build/
