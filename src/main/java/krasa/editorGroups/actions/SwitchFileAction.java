@@ -148,7 +148,7 @@ public class SwitchFileAction extends QuickSwitchSchemeAction implements DumbAwa
         EditorGroupManager instance = EditorGroupManager.getInstance(project);
         instance.open(panel, virtualFile, null, window, tab, Splitters.from(e));
       } else {
-        Notifications.warning("File not found " + link);
+        Notifications.showWarning("File not found " + link);
       }
     }
   }

@@ -79,8 +79,8 @@ class EditorGroups : EditorGroup, GroupsHolder {
       val next = iterator.next()
       indexCache.validate(next)
     }
-    // IndexCache.validate accesses index which can triggers indexing which updates this map,
-    // removing it in one cycle would remove a key with new validvalue
+    // IndexCache.validate accesses index which can triggers indexing which updates this map, removing it in one cycle would remove a key
+    // with new valid value
     iterator = groupsMap.values.iterator()
     while (iterator.hasNext()) {
       val next = iterator.next()
@@ -94,9 +94,7 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   fun getById(id: String): EditorGroup = groupsMap[id] ?: EMPTY
 
-  fun ownerOrLast(currentFilePath: String?): EditorGroup? {
-    return groupsMap.values.firstOrNull { it!!.isOwner(currentFilePath!!) } ?: EMPTY
-  }
+  fun ownerOrLast(currentFilePath: String?): EditorGroup = groupsMap.values.firstOrNull { it.isOwner(currentFilePath!!) } ?: EMPTY
 
   override fun toString(): String = "EditorGroups{map=$groupsMap, last='$last'}"
 

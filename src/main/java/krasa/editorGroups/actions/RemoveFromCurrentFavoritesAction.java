@@ -85,7 +85,7 @@ public class RemoveFromCurrentFavoritesAction extends EditorGroupsAction {
   }
 
   private void fail(String name, Set<VirtualFile> selected) {
-    Notifications.warning("Unable to remove, probably the whole folder is favorited. File:" + selected.toString() + "', from '" + name);
+    Notifications.showWarning("Unable to remove, probably the whole folder is favorited. File:" + selected.toString() + "', from '" + name);
   }
 
 

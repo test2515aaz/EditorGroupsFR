@@ -262,7 +262,7 @@ public class SwitchGroupAction extends QuickSwitchSchemeAction implements DumbAw
           if (virtualFileByAbsolutePath != null) {
             EditorGroupManager.getInstance(Objects.requireNonNull(project)).open(virtualFileByAbsolutePath, false, true, Splitters.NONE, editorGroup, null);
           } else {
-            Notifications.warning("No matching file found");
+            Notifications.showWarning("No matching file found");
             if (LOG.isDebugEnabled())
               LOG.debug("opening failed, no file and not even owner exist " + editorGroup);
           }

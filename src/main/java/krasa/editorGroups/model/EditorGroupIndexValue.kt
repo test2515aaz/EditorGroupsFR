@@ -11,6 +11,7 @@ import java.util.*
 import javax.swing.Icon
 import kotlin.concurrent.Volatile
 
+/** Represents an editorGroup but for indexing. */
 class EditorGroupIndexValue : EditorGroup {
   override var id = ""
     set(value) {
@@ -74,7 +75,7 @@ class EditorGroupIndexValue : EditorGroup {
       return fgColorInstance
     }
 
-  private val relatedPaths: MutableList<String> = ArrayList()
+  val relatedPaths: MutableList<String> = ArrayList()
 
   override val isValid: Boolean
     get() = valid
@@ -160,12 +161,5 @@ class EditorGroupIndexValue : EditorGroup {
   }
 
   override fun toString(): String =
-    "EditorGroupIndexValue{id='$id', " +
-      "ownerFile='$ownerPath', " +
-      "root='$root', " +
-      "title='$title', " +
-      "backgroundColor='$backgroundColor', " +
-      "foregroundColor='$foregroundColor', " +
-      "relatedPaths=$relatedPaths, " +
-      "valid=$valid}"
+    "EditorGroupIndexValue{id='$id', ownerFile='$ownerPath', root='$root', title='$title', backgroundColor='$backgroundColor', foregroundColor='$foregroundColor', relatedPaths=$relatedPaths, valid=$valid}"
 }
