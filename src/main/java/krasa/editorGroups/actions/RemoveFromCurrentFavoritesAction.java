@@ -41,7 +41,7 @@ public class RemoveFromCurrentFavoritesAction extends EditorGroupsAction {
   public void actionPerformed(@NotNull AnActionEvent e) {
     FavoritesGroup favoritesGroup = getFavoritesGroup(e);
     if (favoritesGroup != null) {
-      String name = favoritesGroup.getName();
+      String name = favoritesGroup.getTitle();
       VirtualFile[] selectedFiles = CommonDataKeys.VIRTUAL_FILE_ARRAY.getData(e.getDataContext());
       if (selectedFiles == null || selectedFiles.length == 0) {
         return;
@@ -129,7 +129,7 @@ public class RemoveFromCurrentFavoritesAction extends EditorGroupsAction {
     FavoritesGroup favoritesGroup = getFavoritesGroup(e);
     presentation.setVisible(favoritesGroup != null);
     if (favoritesGroup != null) {
-      presentation.setText("Remove from Favorites - " + favoritesGroup.getName());
+      presentation.setText("Remove from Favorites - " + favoritesGroup.getTitle());
     }
     if (favoritesGroup != null) {
       presentation.setEnabled(isEnabled(e, favoritesGroup));

@@ -100,8 +100,8 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     this.file = file;
     uniqueNameBuilder = new UniqueTabNameBuilder(project);
 
-    this.myScrollOffset = switchRequest == null ? 0 : switchRequest.myScrollOffset;
-    toBeRendered = switchRequest == null ? null : switchRequest.group;
+    this.myScrollOffset = switchRequest == null ? 0 : switchRequest.getMyScrollOffset();
+    toBeRendered = switchRequest == null ? null : switchRequest.getGroup();
     line = switchRequest == null ? null : switchRequest.getLine();
 
     groupManager = EditorGroupManager.getInstance(this.project);
@@ -329,7 +329,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       addCurrentFileTab(path_name);
 
       if (displayedGroup instanceof GroupsHolder) {
-        createGroupLinks(((GroupsHolder) displayedGroup).groups);
+        createGroupLinks(((GroupsHolder) displayedGroup).getGroups());
       }
       if (displayedGroup.isStub()) {
         LOG.debug("#reloadTabs: stub - Adding Loading...");
@@ -390,7 +390,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
   private void addCurrentFileTab(Map<Link, String> path_name) {
     if (currentIndex < 0 && (EditorGroupsLanguage.isEditorGroupsLanguage(file))) {
-      Link link = Link.from(file, project);
+      Link link = Link.fromFile(file, project);
       MyTabInfo info = new MyTabInfo(link, path_name.get(link));
       customizeSelectedColor(info);
       currentIndex = 0;
@@ -435,7 +435,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
         name += ":" + line;
       }
       setText(name);
-      setTooltipText(link.path);
+      setTooltipText(link.getPath());
       setIcon(link.getFileIcon());
       if (!link.exists()) {
         setEnabled(false);

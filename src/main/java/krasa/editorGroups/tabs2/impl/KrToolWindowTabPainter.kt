@@ -8,7 +8,15 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 
 class KrToolWindowTabPainter : KrDefaultTabPainter(KrToolWindowTabTheme()) {
-  override fun paintTab(position: KrTabsPosition, g: Graphics2D, rect: Rectangle, borderThickness: Int, tabColor: Color?, active: Boolean, hovered: Boolean) {
+  override fun paintTab(
+    position: KrTabsPosition,
+    g: Graphics2D,
+    rect: Rectangle,
+    borderThickness: Int,
+    tabColor: Color?,
+    active: Boolean,
+    hovered: Boolean
+  ) {
     rect.y += borderThickness
     rect.height -= borderThickness
 
@@ -19,7 +27,15 @@ class KrToolWindowTabPainter : KrDefaultTabPainter(KrToolWindowTabTheme()) {
     super.paintTab(position, g, rect, borderThickness, tabColor, active, hovered)
   }
 
-  override fun paintSelectedTab(position: KrTabsPosition, g: Graphics2D, rect: Rectangle, borderThickness: Int, tabColor: Color?, active: Boolean, hovered: Boolean) {
+  override fun paintSelectedTab(
+    position: KrTabsPosition,
+    g: Graphics2D,
+    rect: Rectangle,
+    borderThickness: Int,
+    tabColor: Color?,
+    active: Boolean,
+    hovered: Boolean
+  ) {
     rect.y += borderThickness
     rect.height -= borderThickness
 

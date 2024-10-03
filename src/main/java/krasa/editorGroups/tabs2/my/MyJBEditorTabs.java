@@ -148,7 +148,7 @@ public class MyJBEditorTabs extends KrEditorTabs {
     }
     SwitchRequest switchingRequest = EditorGroupManager.getInstance(project).getSwitchingRequest(file);
     if (switchingRequest != null) {
-      int myScrollOffset = switchingRequest.myScrollOffset;
+      int myScrollOffset = switchingRequest.getMyScrollOffset();
       int relativeScroll = myScrollOffset - getMyScrollOffset();
       mySingleRowLayout.scroll(relativeScroll);
     }

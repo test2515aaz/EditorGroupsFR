@@ -315,7 +315,7 @@ public class KrTableLayout extends KrTabLayout {
   }
 
   @Override
-  public int getDropIndexFor(Point point) {
+  public int getDropIndexFor(@NotNull Point point) {
     if (lastTableLayout == null) return -1;
     int result = -1;
 

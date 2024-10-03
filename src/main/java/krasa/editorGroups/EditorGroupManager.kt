@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.swing.SwingUtilities
 import kotlin.concurrent.Volatile
 
+@Suppress("detekt:ArgumentListWrapping")
 class EditorGroupManager(private val project: Project) {
 
   private var cache: IndexCache = IndexCache.getInstance(project)
@@ -65,7 +66,7 @@ class EditorGroupManager(private val project: Project) {
     project: Project,
     fileEditor: FileEditor,
     displayedGroup: EditorGroup,
-    requestedGroup: EditorGroup = displayedGroup,
+    requestedGroup: EditorGroup?,
     currentFile: VirtualFile
   ): EditorGroup {
     val stub = true
@@ -77,19 +78,22 @@ class EditorGroupManager(private val project: Project) {
     var result = EditorGroup.EMPTY
 
     try {
+      val requestedOrDisplayedGroup = requestedGroup ?: displayedGroup
       val currentFilePath = currentFile.path
 
       // First try to take the requestedGroup or displayedGroup
       if (result.isInvalid) {
-        cache.validate(requestedGroup)
+        cache.validate(requestedOrDisplayedGroup)
 
-        if (requestedGroup.isValid
+        if (requestedOrDisplayedGroup.isValid
           && (
-            requestedGroup is AutoGroup ||
-              requestedGroup.containsLink(project, currentFile) ||
-              requestedGroup.isOwner(currentFilePath)
+            requestedOrDisplayedGroup is AutoGroup ||
+              requestedOrDisplayedGroup.containsLink(project, currentFile) ||
+              requestedOrDisplayedGroup.isOwner(currentFilePath)
             )
-        ) result = requestedGroup
+        ) {
+          result = requestedOrDisplayedGroup
+        }
       }
 
       // Next, try to retrieve the owning group of the current file path
@@ -104,7 +108,7 @@ class EditorGroupManager(private val project: Project) {
 
       // If nothing is found, try to match by regex if the option is on
       if (result.isInvalid && config.state.isSelectRegexGroup) {
-        result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup_stub(currentFile)
+        result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup(currentFile)
       }
 
       // If nothing is found, try to get the same name group if the option is on
@@ -159,7 +163,7 @@ class EditorGroupManager(private val project: Project) {
     project: Project,
     fileEditor: FileEditor,
     displayedGroup: EditorGroup,
-    requestedGroup: EditorGroup = displayedGroup,
+    requestedGroup: EditorGroup?,
     currentFile: VirtualFile,
     refresh: Boolean,
     stub: Boolean
@@ -170,11 +174,12 @@ class EditorGroupManager(private val project: Project) {
     var result = EditorGroup.EMPTY
 
     try {
+      val requestedOrDisplayedGroup = requestedGroup ?: displayedGroup
       val currentFilePath = currentFile.path
       val force = refresh && EditorGroupsSettingsState.state().isForceSwitch
 
       // If force switch is on, force switching
-      if (force && requestedGroup !is FavoritesGroup && requestedGroup !is BookmarkGroup) {
+      if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarkGroup) {
         // First try to get the owning grouo
         if (result.isInvalid) {
           result = cache.getOwningOrSingleGroup(currentFilePath)
@@ -187,21 +192,23 @@ class EditorGroupManager(private val project: Project) {
 
         // If not found, try with regex
         if (result.isInvalid) {
-          result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup_stub(currentFile)
+          result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup(currentFile)
         }
       }
 
       // Then, try to get the requested or displayed group
       if (result.isInvalid) {
-        cache.validate(requestedGroup)
+        cache.validate(requestedOrDisplayedGroup)
 
-        if (requestedGroup.isValid
+        if (requestedOrDisplayedGroup.isValid
           && (
-            requestedGroup is AutoGroup
-              || requestedGroup.containsLink(project, currentFile)
-              || requestedGroup.isOwner(currentFilePath)
+            requestedOrDisplayedGroup is AutoGroup
+              || requestedOrDisplayedGroup.containsLink(project, currentFile)
+              || requestedOrDisplayedGroup.isOwner(currentFilePath)
             )
-        ) result = requestedGroup
+        ) {
+          result = requestedOrDisplayedGroup
+        }
       }
 
       if (!force) {
@@ -219,7 +226,7 @@ class EditorGroupManager(private val project: Project) {
       // Next, try to match by regex, same name or folder
       if (result.isInvalid) {
         if (config.state.isSelectRegexGroup) {
-          result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup_stub(currentFile)
+          result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup(currentFile)
         }
 
         if (result.isInvalid && config.state.isAutoSameName) {
@@ -237,22 +244,26 @@ class EditorGroupManager(private val project: Project) {
 
         //_refresh
         when {
-          !stub && result === requestedGroup && result is EditorGroupIndexValue -> cache.initGroup(result)
-          !stub && result is SameNameGroup                                      -> result = autoGroupProvider.getSameNameGroup(currentFile)
-          !stub && result is RegexGroup                                         -> result =
+          !stub && result === requestedOrDisplayedGroup && result is EditorGroupIndexValue -> cache.initGroup(result)
+          !stub && result is SameNameGroup                                                 -> result =
+            autoGroupProvider.getSameNameGroup(currentFile)
+
+          !stub && result is RegexGroup                                                    -> result =
             regexGroupProvider.getRegexGroup(result, project, currentFile)
 
-          result is FolderGroup                                                 -> result = autoGroupProvider.getFolderGroup(currentFile)
-          result is FavoritesGroup                                              -> result =
+          result is FolderGroup                                                            -> result =
+            autoGroupProvider.getFolderGroup(currentFile)
+
+          result is FavoritesGroup                                                         -> result =
             externalGroupProvider.getFavoritesGroup(result.title)
 
-          result is BookmarkGroup                                               -> result = externalGroupProvider.bookmarkGroup
+          result is BookmarkGroup                                                          -> result = externalGroupProvider.bookmarkGroup
         }
 
         // Last resort, try multigroup
         if (!stub &&
-          sameNameGroupIsEmpty(project, result, requestedGroup) &&
-          !(requestedGroup is SameNameGroup && !requestedGroup.isStub)
+          sameNameGroupIsEmpty(project, result, requestedOrDisplayedGroup!!) &&
+          !(requestedOrDisplayedGroup is SameNameGroup && !requestedOrDisplayedGroup.isStub)
         ) {
           val multiGroup = cache.getMultiGroup(currentFile)
           when {
@@ -302,7 +313,7 @@ class EditorGroupManager(private val project: Project) {
     this.switchRequest = switchRequest
     switching = true
 
-    if (LOG.isDebugEnabled) LOG.debug("switching switching = [$switching], group = [${switchRequest.getGroup()}], fileToOpen = [${switchRequest.getFileToOpen()}], myScrollOffset = [${switchRequest.getMyScrollOffset()}]")
+    if (LOG.isDebugEnabled) LOG.debug("switching switching = [$switching], group = [${switchRequest.group}], fileToOpen = [${switchRequest.fileToOpen}], myScrollOffset = [${switchRequest.myScrollOffset}]")
   }
 
   fun enableSwitching() {
@@ -409,9 +420,8 @@ class EditorGroupManager(private val project: Project) {
     split: Splitters,
     group: EditorGroup,
     current: VirtualFile?
-  ): Result {
-    return open2(null, current, virtualFileByAbsolutePath, null, group, window, tab, split, SwitchRequest(group, virtualFileByAbsolutePath))
-  }
+  ): Result =
+    open2(null, current, virtualFileByAbsolutePath, null, group, window, tab, split, SwitchRequest(group, virtualFileByAbsolutePath))
 
   private fun open2(
     currentWindowParam: EditorWindow?,
@@ -477,7 +487,7 @@ class EditorGroupManager(private val project: Project) {
 
           val splitter = currentWindow.split(splitters.orientation, true, fileToOpen, true)
           if (splitter == null) {
-            if (LOG.isDebugEnabled) LOG.debug("no editors opened")
+            if (LOG.isDebugEnabled) LOG.debug("no editors opened.")
             resetSwitching()
           }
         }
@@ -489,7 +499,7 @@ class EditorGroupManager(private val project: Project) {
           scroll(line, *pair.first)
 
           if (pair.first.size == 0) {
-            if (LOG.isDebugEnabled) LOG.debug("no editors opened")
+            if (LOG.isDebugEnabled) LOG.debug("no editors opened..")
             resetSwitching()
           }
         }
@@ -569,6 +579,7 @@ class EditorGroupManager(private val project: Project) {
     switchRequest = null
   }
 
+  @Suppress("detekt:UseDataClass")
   class Result(var isScrolledOnly: Boolean)
 
   companion object {

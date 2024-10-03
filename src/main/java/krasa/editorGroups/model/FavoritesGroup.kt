@@ -27,10 +27,9 @@ class FavoritesGroup(
   override val id: String
     get() = ID_PREFIX + title
 
-  override fun switchTitle(project: Project): String = title
+  override val isValid: Boolean = true
 
-  override val isValid: Boolean
-    get() = true
+  override fun switchTitle(project: Project): String = title
 
   override fun icon(): Icon = AllIcons.Toolwindows.ToolWindowFavorites
 
@@ -42,71 +41,71 @@ class FavoritesGroup(
 
   override fun isOwner(ownerPath: String): Boolean = false
 
-  override fun equals(other: Any?): Boolean = (other is FavoritesGroup) && (other.id == this.id)
+  override fun equals(other: Any?): Boolean = other is FavoritesGroup && other.id == this.id
 
   override fun needSmartMode(): Boolean = true
 
   override fun toString(): String = "FavoritesGroup{files=$files, name='$title'}"
-  
+
   override fun hashCode(): Int {
     var result = title.hashCode()
     result = 31 * result + files.hashCode()
     return result
   }
 
+  private fun add(
+    validBookmark: List<TreeItem<Pair<AbstractUrl, String>>>,
+    project: Project,
+    projectFileIndex: ProjectFileIndex
+  ): List<VirtualFile> {
+    val files: MutableList<VirtualFile> = ArrayList()
+    // fixes ConcurrentModificationException
+    val treeItems = ArrayList(validBookmark)
+
+    for (pairTreeItem in treeItems) {
+      val data = pairTreeItem.data
+      val first = data.first
+      val path = first.createPath(project)
+      if (path.isNullOrEmpty() || path[0] == null) continue
+
+      val element = path[0]
+      if (element is SmartPsiElementPointer<*>) {
+        add(projectFileIndex, element.element, files)
+      }
+
+      if (element is PsiElement) {
+        add(projectFileIndex, element, files)
+      }
+      add(pairTreeItem.children, project, projectFileIndex)
+    }
+    return files
+  }
+
+  private fun add(projectFileIndex: ProjectFileIndex, element1: PsiElement?, files: MutableList<VirtualFile>) {
+    val virtualFile = PsiUtilCore.getVirtualFile(element1) ?: return
+    when {
+      virtualFile.isDirectory -> iterateContentUnderDirectory(projectFileIndex, virtualFile, files)
+      else                    -> files.add(virtualFile)
+    }
+  }
+
+  private fun iterateContentUnderDirectory(
+    projectFileIndex: ProjectFileIndex,
+    virtualFile: VirtualFile,
+    files: MutableList<VirtualFile>
+  ) {
+    val contentIterator = ContentIterator { fileOrDir: VirtualFile ->
+      when {
+        fileOrDir.isDirectory && fileOrDir != virtualFile -> iterateContentUnderDirectory(projectFileIndex, fileOrDir, files)
+        !fileOrDir.isDirectory                            -> files.add(fileOrDir)
+      }
+      true
+    }
+
+    projectFileIndex.iterateContentUnderDirectory(virtualFile, contentIterator)
+  }
+
   companion object {
     const val ID_PREFIX: String = "Favorites: "
-
-    private fun add(
-      validBookmark: List<TreeItem<Pair<AbstractUrl, String>>>,
-      project: Project,
-      projectFileIndex: ProjectFileIndex
-    ): List<VirtualFile> {
-      val files: MutableList<VirtualFile> = ArrayList()
-      // fixes ConcurrentModificationException
-      val treeItems = ArrayList(validBookmark)
-
-      for (pairTreeItem in treeItems) {
-        val data = pairTreeItem.data
-        val first = data.first
-        val path = first.createPath(project)
-        if (path.isNullOrEmpty() || path[0] == null) continue
-
-        val element = path[0]
-        if (element is SmartPsiElementPointer<*>) {
-          add(projectFileIndex, element.element, files)
-        }
-
-        if (element is PsiElement) {
-          add(projectFileIndex, element, files)
-        }
-        add(pairTreeItem.children, project, projectFileIndex)
-      }
-      return files
-    }
-
-    private fun add(projectFileIndex: ProjectFileIndex, element1: PsiElement?, files: MutableList<VirtualFile>) {
-      val virtualFile = PsiUtilCore.getVirtualFile(element1) ?: return
-      when {
-        virtualFile.isDirectory -> iterateContentUnderDirectory(projectFileIndex, virtualFile, files)
-        else                    -> files.add(virtualFile)
-      }
-    }
-
-    private fun iterateContentUnderDirectory(
-      projectFileIndex: ProjectFileIndex,
-      virtualFile: VirtualFile,
-      files: MutableList<VirtualFile>
-    ) {
-      val contentIterator = ContentIterator { fileOrDir: VirtualFile ->
-        when {
-          fileOrDir.isDirectory && fileOrDir != virtualFile -> iterateContentUnderDirectory(projectFileIndex, fileOrDir, files)
-          !fileOrDir.isDirectory                            -> files.add(fileOrDir)
-        }
-        true
-      }
-
-      projectFileIndex.iterateContentUnderDirectory(virtualFile, contentIterator)
-    }
   }
 }

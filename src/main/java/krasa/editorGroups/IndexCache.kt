@@ -250,7 +250,7 @@ class IndexCache(private val project: Project) {
 
           includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                            -> {
             val groupName = last.substring(RegexGroup.ID_PREFIX.length)
-            result = RegexGroupProvider.getInstance(project).findRegexGroup_stub(currentFile, groupName)
+            result = RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
           }
 
           includeFavorites && last == BookmarkGroup.ID                                         -> result =
