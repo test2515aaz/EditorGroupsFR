@@ -52,7 +52,6 @@
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
         <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
 
-        <projectService serviceImplementation="krasa.editorGroups.EditorGroupManager"/>
         <projectService serviceImplementation="krasa.editorGroups.AutoGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.RegexGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.ExternalGroupProvider"/>

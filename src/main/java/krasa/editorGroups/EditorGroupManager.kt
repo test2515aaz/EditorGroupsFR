@@ -2,7 +2,8 @@ package krasa.editorGroups
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.ScrollType
@@ -29,8 +30,8 @@ import javax.swing.SwingUtilities
 import kotlin.concurrent.Volatile
 
 @Suppress("detekt:ArgumentListWrapping")
+@Service(Service.Level.PROJECT)
 class EditorGroupManager(private val project: Project) {
-
   private var cache: IndexCache = IndexCache.getInstance(project)
   private val config: EditorGroupsSettings = EditorGroupsSettings.instance
   private val panelRefresher: PanelRefresher = PanelRefresher.getInstance(project)
@@ -56,7 +57,7 @@ class EditorGroupManager(private val project: Project) {
 
       allGroups.sortedWith(COMPARATOR)
 
-      if (LOG.isDebugEnabled) LOG.debug("<getAllGroups ${System.currentTimeMillis() - start}")
+      thisLogger().debug("<getAllGroups ${System.currentTimeMillis() - start}")
 
       return allGroups
     }
@@ -72,7 +73,7 @@ class EditorGroupManager(private val project: Project) {
     val stub = true
     val refresh = false
 
-    if (LOG.isDebugEnabled) LOG.debug("<getStubGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
+    thisLogger().debug("<getStubGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
 
     val start = System.currentTimeMillis()
     var result = EditorGroup.EMPTY
@@ -129,7 +130,7 @@ class EditorGroupManager(private val project: Project) {
 
       // If the group is empty or is indexing, try other groups
       if (isEmptyAutogroup(project, result) || isIndexingAutoGroup(project, result)) {
-        if (LOG.isDebugEnabled) LOG.debug("refreshing result")
+        thisLogger().debug("refreshing result")
 
         //_refresh
         when (result) {
@@ -141,19 +142,17 @@ class EditorGroupManager(private val project: Project) {
 
       result.isStub = stub
 
-      if (LOG.isDebugEnabled) {
-        LOG.debug("<getStubGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
-      }
+      thisLogger().debug("<getStubGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
 
       cache.setLast(currentFilePath, result)
     } catch (e: IndexNotReadyException) {
-      LOG.debug(e.toString())
+      thisLogger().debug(e.toString())
       throw IndexNotReady(
         "<getStubGroup project = [${project.name}], fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh]",
         e
       )
     } catch (e: Throwable) {
-      LOG.warn(e.toString())
+      thisLogger().warn(e.toString())
       throw e
     }
 
@@ -174,7 +173,7 @@ class EditorGroupManager(private val project: Project) {
     refresh: Boolean,
     stub: Boolean
   ): EditorGroup {
-    if (LOG.isDebugEnabled) LOG.debug("<getGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
+    thisLogger().debug("<getGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
 
     val start = System.currentTimeMillis()
     var result = EditorGroup.EMPTY
@@ -246,7 +245,7 @@ class EditorGroupManager(private val project: Project) {
 
       // If force refresh or the found group is empty or indexing
       if (refresh || isEmptyAutogroup(project, result) || isIndexingAutoGroup(project, result)) {
-        if (LOG.isDebugEnabled) LOG.debug("refreshing result")
+        thisLogger().debug("refreshing result")
 
         //_refresh
         when {
@@ -282,20 +281,18 @@ class EditorGroupManager(private val project: Project) {
 
       result.isStub = stub
 
-      if (LOG.isDebugEnabled) {
-        LOG.debug("<getGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
-      }
+      thisLogger().debug("<getGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
 
       cache.setLast(currentFilePath, result)
     } catch (e: IndexNotReadyException) {
-      if (LOG.isDebugEnabled) LOG.debug(e.toString())
+      thisLogger().debug(e.toString())
 
       throw IndexNotReady(
         "<getGroup project = [${project.name}], fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh]",
         e
       )
     } catch (e: Throwable) {
-      LOG.debug(e.toString())
+      thisLogger().warn(e.toString())
       throw e
     }
 
@@ -319,13 +316,13 @@ class EditorGroupManager(private val project: Project) {
     this.switchRequest = switchRequest
     switching = true
 
-    if (LOG.isDebugEnabled) LOG.debug("switching switching = [$switching], group = [${switchRequest.group}], fileToOpen = [${switchRequest.fileToOpen}], myScrollOffset = [${switchRequest.myScrollOffset}]")
+    thisLogger().debug("switching switching = [$switching], group = [${switchRequest.group}], fileToOpen = [${switchRequest.fileToOpen}], myScrollOffset = [${switchRequest.myScrollOffset}]")
   }
 
   fun enableSwitching() {
     SwingUtilities.invokeLater {
       ideFocusManager.doWhenFocusSettlesDown {
-        if (LOG.isDebugEnabled) LOG.debug("enabling switching")
+        thisLogger().debug("enabling switching")
         this.switching = false
       }
     }
@@ -340,11 +337,11 @@ class EditorGroupManager(private val project: Project) {
     if (file == switchingFile) {
       val switchingGroup = switchRequest
       clearSwitchingRequest()
-      if (LOG.isDebugEnabled) LOG.debug("<getSwitchingRequest $switchingGroup")
+      thisLogger().debug("<getSwitchingRequest $switchingGroup")
       return switchingGroup
     }
 
-    if (LOG.isDebugEnabled) LOG.debug("<getSwitchingRequest=null, file=[$file], switchingFile=$switchingFile")
+    thisLogger().debug("<getSwitchingRequest=null, file=[$file], switchingFile=$switchingFile")
     return null
   }
 
@@ -355,7 +352,7 @@ class EditorGroupManager(private val project: Project) {
   }
 
   fun isSwitching(): Boolean {
-    if (LOG.isDebugEnabled) LOG.debug("isSwitching switchRequest=$switchRequest, switching=$switching")
+    thisLogger().debug("isSwitching switchRequest=$switchRequest, switching=$switching")
 
     return switchRequest != null || switching
   }
@@ -440,7 +437,7 @@ class EditorGroupManager(private val project: Project) {
     splitters: Splitters,
     switchRequest: SwitchRequest
   ): Result? {
-    if (LOG.isDebugEnabled) LOG.debug("open2 fileToOpen = [$fileToOpen], currentFile = [$currentFile], group = [$group], newWindow = [$newWindow], newTab = [$newTab], splitters = [$splitters], switchingRequest = [$switchRequest]")
+    thisLogger().debug("open2 fileToOpen = [$fileToOpen], currentFile = [$currentFile], group = [$group], newWindow = [$newWindow], newTab = [$newTab], splitters = [$splitters], switchingRequest = [$switchRequest]")
 
     val resultAtomicReference = AtomicReference<Result>()
     switching(switchRequest)
@@ -455,7 +452,7 @@ class EditorGroupManager(private val project: Project) {
       try {
         initialEditorIndex = Key.create<Any>("initial editor index")
       } catch (e: Exception) {
-        LOG.error(e)
+        thisLogger().error(e)
         initialEditorIndex = Key.create<Any>("initial editor index not found")
       }
     }
@@ -473,9 +470,7 @@ class EditorGroupManager(private val project: Project) {
           resultAtomicReference.set(Result(true))
         }
 
-        if (LOG.isDebugEnabled) {
-          LOG.debug("fileToOpen.equals(selectedFile) [fileToOpen=$fileToOpen, selectedFile=$selectedFile, currentFile=$currentFile]")
-        }
+        thisLogger().debug("fileToOpen.equals(selectedFile) [fileToOpen=$fileToOpen, selectedFile=$selectedFile, currentFile=$currentFile]")
 
         resetSwitching()
         return@executeCommand
@@ -489,23 +484,23 @@ class EditorGroupManager(private val project: Project) {
 
       when {
         splitters.isSplit && currentWindow != null -> {
-          if (LOG.isDebugEnabled) LOG.debug("openFileInSplit $fileToOpen")
+          thisLogger().debug("openFileInSplit $fileToOpen")
 
           val splitter = currentWindow.split(splitters.orientation, true, fileToOpen, true)
           if (splitter == null) {
-            if (LOG.isDebugEnabled) LOG.debug("no editors opened.")
+            thisLogger().debug("no editors opened.")
             resetSwitching()
           }
         }
 
         newWindow                                  -> {
-          if (LOG.isDebugEnabled) LOG.debug("openFileInNewWindow fileToOpen = $fileToOpen")
+          thisLogger().debug("openFileInNewWindow fileToOpen = $fileToOpen")
 
           val pair = manager.openFileInNewWindow(fileToOpen)
           scroll(line, *pair.first)
 
-          if (pair.first.size == 0) {
-            if (LOG.isDebugEnabled) LOG.debug("no editors opened..")
+          if (pair.first.isEmpty()) {
+            thisLogger().debug("no editors opened..")
             resetSwitching()
           }
         }
@@ -515,7 +510,7 @@ class EditorGroupManager(private val project: Project) {
           try {
             if (newTab) UISettings.getInstance().reuseNotModifiedTabs = false
 
-            if (LOG.isDebugEnabled) LOG.debug("openFile $fileToOpen")
+            thisLogger().debug("openFile $fileToOpen")
 
             val pair = when (currentWindow) {
               null -> manager.openFile(fileToOpen, null, FileEditorOpenOptions(requestFocus = true, reuseOpen = true))
@@ -524,16 +519,16 @@ class EditorGroupManager(private val project: Project) {
 
             val fileEditors = pair.allEditors
 
-            if (fileEditors.size == 0) {  // directory or some fail
+            if (fileEditors.isEmpty()) {  // directory or some fail
               Notifications.showWarning("Unable to open editor for file " + fileToOpen.name)
-              if (LOG.isDebugEnabled) LOG.debug("no editors opened")
+              thisLogger().debug("no editors opened")
 
               resetSwitching()
               return@executeCommand
             }
 
             for (fileEditor in fileEditors) {
-              if (LOG.isDebugEnabled) LOG.debug("opened fileEditor = $fileEditor")
+              thisLogger().debug("opened fileEditor = $fileEditor")
             }
 
             scroll(line, *fileEditors.toTypedArray())
@@ -542,7 +537,7 @@ class EditorGroupManager(private val project: Project) {
 
             // not sure, but it seems to mess order of tabs less if we do it after opening a new tab
             if (selectedFile != null && !newTab) {
-              if (LOG.isDebugEnabled) LOG.debug("closeFile $selectedFile")
+              thisLogger().debug("closeFile $selectedFile")
               checkNotNull(currentWindow)
               manager.closeFile(selectedFile, currentWindow)
             }
@@ -581,7 +576,7 @@ class EditorGroupManager(private val project: Project) {
   }
 
   private fun clearSwitchingRequest() {
-    if (LOG.isDebugEnabled) LOG.debug("clearSwitchingRequest")
+    thisLogger().debug("clearSwitchingRequest")
     switchRequest = null
   }
 
@@ -589,8 +584,6 @@ class EditorGroupManager(private val project: Project) {
   class Result(var isScrolledOnly: Boolean)
 
   companion object {
-    private val LOG = Logger.getInstance(EditorGroupManager::class.java)
-
     val COMPARATOR: Comparator<EditorGroup> = Comparator.comparing { o: EditorGroup -> o.title.lowercase(Locale.getDefault()) }
 
     @JvmStatic
