@@ -1,6 +1,5 @@
 package krasa.editorGroups
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
@@ -248,7 +247,13 @@ class IndexCache(private val project: Project) {
       thisLogger().debug("last = $last")
 
       if (last != null && config.state.isRememberLastGroup) {
-        result = getResultGroup(last, includeAutoGroups, includeFavorites, stub, currentFile)
+        result = getResultGroup(
+          last = last,
+          includeAutoGroups = includeAutoGroups,
+          includeFavorites = includeFavorites,
+          stub = stub,
+          currentFile = currentFile
+        )
       }
 
       if (result.isInvalid) {

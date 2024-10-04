@@ -186,14 +186,14 @@ class EditorGroupManager(private val project: Project) {
 
       // If force switch is on, force switching
       if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarkGroup) {
-        // First try to get the owning grouo
+        // First try to get the owning group
         if (result.isInvalid) {
           result = cache.getOwningOrSingleGroup(currentFilePath)
         }
 
         // Otherwise try the last group
         if (result.isInvalid) {
-          result = cache.getLastEditorGroup(currentFile, currentFilePath, false, true, stub)
+          result = cache.getLastEditorGroup(currentFile, currentFilePath, includeAutoGroups = false, includeFavorites = true, stub = stub)
         }
 
         // If not found, try with regex
@@ -225,7 +225,7 @@ class EditorGroupManager(private val project: Project) {
 
         // If not found, try to get the last group
         if (result.isInvalid) {
-          result = cache.getLastEditorGroup(currentFile, currentFilePath, true, true, stub)
+          result = cache.getLastEditorGroup(currentFile, currentFilePath, includeAutoGroups = true, includeFavorites = true, stub = stub)
         }
       }
 
