@@ -7,4 +7,8 @@ class PreviousInNewTabAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
     getEditorGroupPanel(anActionEvent)?.previous(true, false, Splitters.NONE)
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.PreviousInNewTab"
+  }
 }

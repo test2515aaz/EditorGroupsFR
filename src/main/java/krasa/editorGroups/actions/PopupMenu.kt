@@ -7,29 +7,41 @@ import com.intellij.openapi.actionSystem.Separator
 import java.awt.Component
 
 object PopupMenu {
-  val defaultActionGroup: DefaultActionGroup
-    get() {
-      val group = DefaultActionGroup()
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.SwitchGroup"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.SwitchFile"))
-      group.add(Separator())
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.Refresh"))
-      group.add(Separator())
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.Next"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.Previous"))
-      group.add(Separator())
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ReindexThisFile"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.Reindex"))
-      group.add(Separator())
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ToggleAutoSameNameGroups"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ToggleFolderEditorGroups"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ToggleForce"))
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ToggleHideEmpty"))
-      //		group.add(ActionManager.getInstance().getAction("krasa.editorGroups.ToggleShowSize"));
-      group.add(Separator())
-      group.add(ActionManager.getInstance().getAction("krasa.editorGroups.OpenConfiguration"))
-      return group
+  val actions = listOf(
+    SwitchGroupAction.ID,
+    SwitchFileAction.ID,
+    "-",
+    RefreshAction.ID,
+    "-",
+    NextAction.ID,
+    PreviousAction.ID,
+    "-",
+    ReindexThisFileAction.ID,
+    ReindexAction.ID,
+    "-",
+    ToggleAutoSameNameGroupsAction.ID,
+    ToggleAutoFolderGroupsAction.ID,
+    ToggleForceAction.ID,
+    ToggleHideEmptyAction.ID,
+    "-",
+    OpenConfigurationAction.ID
+  )
+
+  private val defaultActionGroup: DefaultActionGroup = DefaultActionGroup()
+
+  init {
+    addActionsToGroup()
+  }
+
+  private fun addActionsToGroup() {
+    val actionManager = ActionManager.getInstance()
+    actions.forEach {
+      when (it) {
+        "-"  -> defaultActionGroup.add(Separator())
+        else -> defaultActionGroup.add(actionManager.getAction(it))
+      }
     }
+  }
 
   @JvmStatic
   fun popupInvoked(component: Component?, x: Int, y: Int) {

@@ -42,7 +42,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       return
     }
 
-    val component = inputEvent.getComponent()
+    val component = inputEvent.component
     when (component) {
       is ActionMenuItem -> popup.showInBestPositionFor(e.dataContext)
       else              -> popup.showUnderneathOf(component)
@@ -353,5 +353,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
   companion object {
     private val LOG = Logger.getInstance(SwitchGroupAction::class.java)
+
+    const val ID = "krasa.editorGroups.SwitchGroup"
   }
 }

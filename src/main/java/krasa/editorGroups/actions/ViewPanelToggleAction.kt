@@ -18,4 +18,8 @@ class ViewPanelToggleAction : ToggleAction("Editor Groups Panel"), DumbAware {
 
     PanelRefresher.getInstance(event.project!!).refresh()
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.ViewPanelToggleAction"
+  }
 }

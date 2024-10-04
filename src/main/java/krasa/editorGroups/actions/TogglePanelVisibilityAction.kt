@@ -10,8 +10,6 @@ class TogglePanelVisibilityAction : DumbAwareAction() {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
   override fun actionPerformed(e: AnActionEvent) {
-    val state = state()
-    state.isShowPanel = state.isShowPanel
     PanelRefresher.getInstance(getEventProject(e)!!).refresh()
   }
 
@@ -23,5 +21,9 @@ class TogglePanelVisibilityAction : DumbAwareAction() {
       state.isShowPanel -> e.presentation.text = "Hide Panel"
       else              -> e.presentation.text = "Show Panel"
     }
+  }
+
+  companion object {
+    const val ID = "krasa.editorGroups.TogglePanelVisibility"
   }
 }

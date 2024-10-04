@@ -8,7 +8,7 @@ import com.intellij.ide.projectView.impl.ModuleGroup
 import com.intellij.ide.projectView.impl.nodes.*
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -79,7 +79,7 @@ class AddToFavoritesAction(val chosenList: String?) : AnAction() {
 
     val psiManager = PsiManager.getInstance(project)
     val currentViewId = ProjectView.getInstance(project).currentViewId
-    val pane = ProjectView.getInstance(project).getProjectViewPaneById(currentViewId)
+    ProjectView.getInstance(project).getProjectViewPaneById(currentViewId)
 
     // on psi elements
     if (obj is Array<*> && obj.isArrayOf<PsiElement>()) {
@@ -173,7 +173,7 @@ class AddToFavoritesAction(val chosenList: String?) : AnAction() {
         result.add(ProjectViewNode.createTreeNode(klass, project, value, favoritesConfig))
       }
     } catch (e: Exception) {
-      LOG.error(e)
+      thisLogger().error(e)
     }
   }
 
@@ -187,6 +187,6 @@ class AddToFavoritesAction(val chosenList: String?) : AnAction() {
   }
 
   companion object {
-    private val LOG = Logger.getInstance(AddToFavoritesAction::class.java)
+    const val ID = "krasa.editorGroups.AddToFavoritesAction"
   }
 }

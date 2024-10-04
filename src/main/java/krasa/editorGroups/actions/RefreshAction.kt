@@ -42,4 +42,7 @@ class RefreshAction : EditorGroupsAction(), CustomComponentAction {
 
   private fun getDocument(e: AnActionEvent): Document? = e.getData(CommonDataKeys.EDITOR)?.document
 
+  companion object {
+    const val ID = "krasa.editorGroups.Refresh"
+  }
 }

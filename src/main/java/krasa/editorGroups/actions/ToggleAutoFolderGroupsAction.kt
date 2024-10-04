@@ -14,4 +14,8 @@ class ToggleAutoFolderGroupsAction : ToggleAction(), DumbAware {
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     state().isAutoFolders = state
   }
+  
+  companion object {
+    const val ID = "krasa.editorGroups.ToggleFolderEditorGroups"
+  }
 }

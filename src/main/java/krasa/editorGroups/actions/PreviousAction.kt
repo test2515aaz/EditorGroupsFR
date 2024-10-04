@@ -36,4 +36,8 @@ class PreviousAction : EditorGroupsAction(), CustomComponentAction {
 
     return button
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.Previous"
+  }
 }

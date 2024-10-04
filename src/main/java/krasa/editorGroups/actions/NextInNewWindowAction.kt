@@ -7,4 +7,8 @@ class NextInNewWindowAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
     getEditorGroupPanel(anActionEvent)?.next(true, true, Splitters.NONE)
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.NextInNewWindow"
+  }
 }

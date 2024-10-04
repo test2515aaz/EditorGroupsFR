@@ -14,4 +14,8 @@ class ToggleShowSizeAction : ToggleAction(), DumbAware {
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     state().isShowSize = state
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.ToggleShowSize"
+  }
 }

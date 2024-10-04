@@ -7,4 +7,8 @@ class PreviousInNewWindowAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
     getEditorGroupPanel(anActionEvent)?.previous(true, true, Splitters.NONE)
   }
+
+  companion object {
+    const val ID = "krasa.editorGroups.PreviousInNewWindow"
+  }
 }
