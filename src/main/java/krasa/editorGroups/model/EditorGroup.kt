@@ -185,14 +185,13 @@ abstract class EditorGroup {
   /** Whether smart mode (i.e. not dumb mode) is required for this group type. */
   open fun needSmartMode(): Boolean = false
 
+  fun exists(): Boolean = id != NOT_EXISTS
+
   companion object {
-    const val NOT_EXISTS = "NOT_EXISTS"
+    private const val NOT_EXISTS: String = "NOT_EXISTS"
 
     /** EMPTY group placeholder. */
     @JvmField
     val EMPTY: EditorGroup = EditorGroupIndexValue(NOT_EXISTS, NOT_EXISTS, false).setLinks(emptyList())
-
-    @JvmStatic
-    fun exists(group: EditorGroup): Boolean = group.id != NOT_EXISTS
   }
 }

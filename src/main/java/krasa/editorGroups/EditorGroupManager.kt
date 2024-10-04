@@ -268,7 +268,7 @@ class EditorGroupManager(private val project: Project) {
 
         // Last resort, try multigroup
         if (!stub &&
-          sameNameGroupIsEmpty(project, result, requestedOrDisplayedGroup!!) &&
+          sameNameGroupIsEmpty(project, result, requestedOrDisplayedGroup) &&
           !(requestedOrDisplayedGroup is SameNameGroup && !requestedOrDisplayedGroup.isStub)
         ) {
           val multiGroup = cache.getMultiGroup(currentFile)
@@ -396,7 +396,7 @@ class EditorGroupManager(private val project: Project) {
     newWindow: Boolean,
     newTab: Boolean,
     split: Splitters
-  ): Result {
+  ): Result? {
     val displayedGroup = groupPanel.displayedGroup
     val tabs = groupPanel.tabs
 
@@ -426,7 +426,7 @@ class EditorGroupManager(private val project: Project) {
     split: Splitters,
     group: EditorGroup,
     current: VirtualFile?
-  ): Result =
+  ): Result? =
     open2(null, current, virtualFileByAbsolutePath, null, group, window, tab, split, SwitchRequest(group, virtualFileByAbsolutePath))
 
   private fun open2(
@@ -439,7 +439,7 @@ class EditorGroupManager(private val project: Project) {
     newTab: Boolean,
     splitters: Splitters,
     switchRequest: SwitchRequest
-  ): Result {
+  ): Result? {
     if (LOG.isDebugEnabled) LOG.debug("open2 fileToOpen = [$fileToOpen], currentFile = [$currentFile], group = [$group], newWindow = [$newWindow], newTab = [$newTab], splitters = [$splitters], switchingRequest = [$switchRequest]")
 
     val resultAtomicReference = AtomicReference<Result>()

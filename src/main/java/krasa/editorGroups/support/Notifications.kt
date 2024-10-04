@@ -60,7 +60,7 @@ object Notifications {
 
   fun href(name: String): String = "<a href=\"$name\">$name<a/>"
 
-  fun duplicateId(project: Project, id: String, values: List<EditorGroupIndexValue>) {
+  fun notifyDuplicateId(project: Project, id: String, values: List<EditorGroupIndexValue>) {
     val content = values.joinToString(
       prefix = "Duplicate Group ID '$id' in: [",
       postfix = "]"

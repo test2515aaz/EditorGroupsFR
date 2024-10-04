@@ -1,6 +1,7 @@
 package krasa.editorGroups
 
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
@@ -23,38 +24,45 @@ class IndexCache(private val project: Project) {
   @get:Throws(IndexNotReadyException::class)
   val allGroups: List<EditorGroupIndexValue>
     get() {
-      val instance = FileBasedIndex.getInstance()
-      val allKeys = instance.getAllKeys(EditorGroupIndex.NAME, project)
+      val fileBasedIndex = FileBasedIndex.getInstance()
       val scope = GlobalSearchScope.projectScope(project)
+      val all = mutableListOf<EditorGroupIndexValue>()
 
-      val all: MutableList<EditorGroupIndexValue> = ArrayList(allKeys.size)
+      // Process index keys
+      fileBasedIndex.getAllKeys(EditorGroupIndex.NAME, project)
+        .forEach {
+          fileBasedIndex.processValues(
+            /* indexId = */ EditorGroupIndex.NAME,
+            /* dataKey = */ it,
+            /* inFile = */ null,
+            /* processor = */ { _: VirtualFile?, value: EditorGroupIndexValue ->
+              all.add(value)
+              true
+            },
+            /* filter = */ scope
+          )
+        }
 
-      for (allKey in allKeys) {
-        instance.processValues(EditorGroupIndex.NAME, allKey, null, { file: VirtualFile?, value: EditorGroupIndexValue ->
-          all.add(value)
-          true
-        }, scope)
-      }
       return all
     }
 
   val state: ProjectComponent.State
     get() {
       val state = ProjectComponent.State()
-      val entries: Set<Map.Entry<String, EditorGroups>> = groupsByLinks.entries
       val autoSameName = config.state.isAutoSameName
       val autoFolders = config.state.isAutoFolders
 
-      for ((key, value) in entries) {
+      groupsByLinks.entries.forEach { (key, value) ->
         val last = value.last
         when {
-          last == null                                     -> continue
-          autoSameName && last == AutoGroup.SAME_FILE_NAME -> continue
-          autoFolders && last == AutoGroup.DIRECTORY       -> continue
+          last == null                                     -> return@forEach
+          autoSameName && last == AutoGroup.SAME_FILE_NAME -> return@forEach
+          autoFolders && last == AutoGroup.DIRECTORY       -> return@forEach
         }
 
-        if (state.lastGroup.size > MAX_HISTORY_SIZE) break
+        if (state.lastGroup.size > MAX_HISTORY_SIZE) return@forEach
 
+        // Keep a history of the last group
         state.lastGroup.add(StringPair(key, last))
       }
       return state
@@ -63,36 +71,38 @@ class IndexCache(private val project: Project) {
   /** Return the EditorGroups of the given path. */
   fun getOwningOrSingleGroup(canonicalPath: String): EditorGroup {
     var result: EditorGroup = EditorGroup.EMPTY
-    val editorGroups = groupsByLinks[canonicalPath]
+    val editorGroups = groupsByLinks[canonicalPath] ?: return result
+    val values = editorGroups.all
 
-    if (editorGroups != null) {
-      val values = editorGroups.all
-
-      when (values.size) {
-        1    -> result = values.first()
-        else -> {
-          // Try to find all groups that own this path
-          val matchedValues = values.filter { it.ownerPath == canonicalPath }
-          when {
-            matchedValues.size > 1  -> result = EditorGroup.EMPTY // More than one matching group, return empty
-            matchedValues.size == 1 -> result = matchedValues[0]
-          }
-        }
-      }
+    result = when (values.size) {
+      1    -> values.first()
+      else -> getMatchingGroup(values, canonicalPath)
     }
 
     // init
     result.getLinks(project)
 
-    if (LOG.isDebugEnabled) LOG.debug("<getOwningOrSingleGroup result = $result")
+    thisLogger().debug("<getOwningOrSingleGroup result = $result")
 
     return result
   }
 
-  /** Get by id. */
-  fun getById(id: String): EditorGroup {
+  private fun getMatchingGroup(values: Collection<EditorGroup>, canonicalPath: String): EditorGroup {
+    val matchedValues = values.filter { it.ownerPath == canonicalPath }
+    return when (matchedValues.size) {
+      1    -> matchedValues.first()
+      else -> EditorGroup.EMPTY // More than one or no matching group, return empty
+    }
+  }
+
+  /**
+   * Retrieves the [EditorGroup] from the index based on the provided id.
+   *
+   * @param id The id of the [EditorGroup].
+   * @return The [EditorGroup] with the matching id.
+   */
+  private fun getById(id: String): EditorGroup {
     val result = getGroupFromIndexById(id)
-    // init
     result.getLinks(project)
 
     return result
@@ -125,7 +135,7 @@ class IndexCache(private val project: Project) {
 
     val valid = group.isValid
 
-    if (LOG.isDebugEnabled) LOG.debug("<validate $valid")
+    thisLogger().debug("<validate $valid")
   }
 
   /**
@@ -135,20 +145,22 @@ class IndexCache(private val project: Project) {
    * @return The EditorGroup with the matching id.
    */
   private fun getGroupFromIndexById(id: String): EditorGroup {
-    // Fetch the values from the index
     val values = FileBasedIndex.getInstance().getValues(
-      EditorGroupIndex.NAME,
-      id,
-      GlobalSearchScope.projectScope(project)
+      /* indexId = */ EditorGroupIndex.NAME,
+      /* dataKey = */ id,
+      /* filter = */ GlobalSearchScope.projectScope(project)
     )
 
     if (values.size > 1) {
-      Notifications.duplicateId(project, id, values)
+      Notifications.notifyDuplicateId(project, id, values)
     }
 
-    val editorGroup = if (values.isEmpty()) EditorGroup.EMPTY else values[0]
+    val editorGroup = when {
+      values.isEmpty() -> EditorGroup.EMPTY
+      else             -> values[0]
+    }
 
-    if (LOG.isDebugEnabled) LOG.debug("<getGroupFromIndexById $editorGroup")
+    thisLogger().debug("<getGroupFromIndexById $editorGroup")
 
     return editorGroup
   }
@@ -159,16 +171,10 @@ class IndexCache(private val project: Project) {
    * @param group The [EditorGroupIndexValue] to add.
    * @param path The path to associate with the [EditorGroupIndexValue].
    */
-  private fun add(group: EditorGroupIndexValue, path: String) {
-    val editorGroups = groupsByLinks[path]
-
-    if (editorGroups == null) {
-      val groups = EditorGroups()
-      groups.add(group)
-      groupsByLinks[path] = groups
-    } else {
-      editorGroups.add(group)
-    }
+  private fun addToCache(group: EditorGroupIndexValue, path: String) {
+    // Retrieve or add an editorGroup to the map, then add this group to it
+    val editorGroups = groupsByLinks.getOrPut(path) { EditorGroups() }
+    editorGroups.add(group)
   }
 
   /**
@@ -179,7 +185,9 @@ class IndexCache(private val project: Project) {
    * @return The updated editor group.
    */
   fun onIndexingDone(ownerPath: String, group: EditorGroupIndexValue): EditorGroupIndexValue {
-    val updatedGroup = groupsByLinks[ownerPath]?.getById(group.id).takeIf { it == group } as? EditorGroupIndexValue
+    val updatedGroup = groupsByLinks[ownerPath]
+      ?.getById(group.id)
+      .takeIf { it == group } as? EditorGroupIndexValue
 
     return updatedGroup ?: run {
       initGroup(group)
@@ -196,15 +204,17 @@ class IndexCache(private val project: Project) {
    */
   @Throws(ProcessCanceledException::class)
   fun initGroup(group: EditorGroupIndexValue) {
-    if (LOG.isDebugEnabled) LOG.debug("<initGroup = [$group]")
-    if (!EditorGroup.exists(group)) return
+    thisLogger().debug("<initGroup = [$group]")
 
-    add(group, group.ownerPath)
+    if (!group.exists()) return
+    // Add the group to the cache
+    addToCache(group, group.ownerPath)
 
-    val links = FileResolver.resolveLinks(group, project)
-    group.setLinks(links)
+    val resolvedLinks = FileResolver.resolveLinks(group, project)
+    group.setLinks(resolvedLinks)
 
-    links.forEach { add(group, it.path) }
+    // Add the group to the cache for each resolved link
+    resolvedLinks.forEach { addToCache(group, it.path) }
   }
 
   /**
@@ -228,41 +238,17 @@ class IndexCache(private val project: Project) {
   ): EditorGroup {
     var result = EditorGroup.EMPTY
     if (!config.state.isRememberLastGroup) {
-      if (LOG.isDebugEnabled) LOG.debug("<getLastEditorGroup $result (isRememberLastGroup=false)")
+      thisLogger().debug("<getLastEditorGroup $result (isRememberLastGroup=false)")
       return result
     }
 
     val groups = groupsByLinks[currentFilePath]
     if (groups != null) {
       val last = groups.last
-      if (LOG.isDebugEnabled) LOG.debug("last = $last")
+      thisLogger().debug("last = $last")
 
       if (last != null && config.state.isRememberLastGroup) {
-        when {
-          includeAutoGroups && config.state.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> result = SameNameGroup.INSTANCE
-          includeAutoGroups && config.state.isAutoFolders && last == AutoGroup.DIRECTORY       -> result = FolderGroup.INSTANCE
-          last == HidePanelGroup.ID                                                            -> result = HidePanelGroup.INSTANCE
-
-          includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                        -> {
-            val favoritesGroup = externalGroupProvider.getFavoritesGroup(last.substring(FavoritesGroup.ID_PREFIX.length))
-            if (favoritesGroup.containsLink(project, currentFile)) result = favoritesGroup
-          }
-
-          includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                            -> {
-            val groupName = last.substring(RegexGroup.ID_PREFIX.length)
-            result = RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
-          }
-
-          includeFavorites && last == BookmarkGroup.ID                                         -> result =
-            externalGroupProvider.bookmarkGroup
-
-          stub                                                                                 -> result = StubGroup()
-
-          else                                                                                 -> {
-            val lastGroup = getById(last)
-            if (lastGroup.containsLink(project, currentFile) || lastGroup.isOwner(currentFilePath)) result = lastGroup
-          }
-        }
+        result = getResultGroup(last, includeAutoGroups, includeFavorites, stub, currentFile)
       }
 
       if (result.isInvalid) {
@@ -270,9 +256,55 @@ class IndexCache(private val project: Project) {
       }
     }
 
-    if (LOG.isDebugEnabled) LOG.debug("<getLastEditorGroup $result")
+    thisLogger().debug("<getLastEditorGroup $result")
 
     return result
+  }
+
+  /**
+   * Returns the appropriate [EditorGroup] based on the provided parameters.
+   *
+   * @param last The last group identifier.
+   * @param includeAutoGroups Whether to include auto groups in the result.
+   * @param includeFavorites Whether to include favorite groups in the
+   *    result.
+   * @param stub Whether to return a stub group if no other valid group is
+   *    found.
+   * @param currentFile The VirtualFile currently open in the editor.
+   * @return The calculated EditorGroup based on the input parameters.
+   */
+  private fun getResultGroup(
+    last: String,
+    includeAutoGroups: Boolean,
+    includeFavorites: Boolean,
+    stub: Boolean,
+    currentFile: VirtualFile
+  ): EditorGroup {
+    return when {
+      includeAutoGroups && config.state.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> SameNameGroup.INSTANCE
+      includeAutoGroups && config.state.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
+      last == HidePanelGroup.ID                                                            -> HidePanelGroup.INSTANCE
+
+      includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                        -> {
+        val favoritesGroup = externalGroupProvider.getFavoritesGroup(last.substring(FavoritesGroup.ID_PREFIX.length))
+        if (favoritesGroup.containsLink(project, currentFile)) favoritesGroup else EditorGroup.EMPTY
+      }
+
+      includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                            -> {
+        val groupName = last.substring(RegexGroup.ID_PREFIX.length)
+        RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
+      }
+
+      includeFavorites && last == BookmarkGroup.ID                                         ->
+        externalGroupProvider.bookmarkGroup
+
+      stub                                                                                 -> StubGroup()
+
+      else                                                                                 -> {
+        val lastGroup = getById(last)
+        if (lastGroup.containsLink(project, currentFile) || lastGroup.isOwner(currentFile.path)) lastGroup else EditorGroup.EMPTY
+      }
+    }
   }
 
   /**
@@ -293,7 +325,7 @@ class IndexCache(private val project: Project) {
 
     result.addAll(externalGroupProvider.findGroups(currentFile))
 
-    if (LOG.isDebugEnabled) LOG.debug("<findGroups $result")
+    thisLogger().debug("<findGroups $result")
     return result
   }
 
@@ -314,7 +346,7 @@ class IndexCache(private val project: Project) {
       favouriteGroups.size > 1  -> result = EditorGroups(favouriteGroups)
     }
 
-    if (LOG.isDebugEnabled) LOG.debug("<getMultiGroup $result")
+    thisLogger().debug("<getMultiGroup $result")
 
     return result
   }
@@ -322,20 +354,11 @@ class IndexCache(private val project: Project) {
   /** called very often! */
   fun getEditorGroupForColor(currentFile: VirtualFile): EditorGroup {
     var result = EditorGroup.EMPTY
-    val groups = groupsByLinks[currentFile.path]
-
-    if (groups == null) return result
-
+    val groups = groupsByLinks[currentFile.path] ?: return result
     val last = groups.last
-    if (last != null && config.state.isRememberLastGroup) {
-      val lastEditorGroups = groupsByLinks[last]
 
-      if (lastEditorGroups != null) {
-        val lastGroup = lastEditorGroups.getById(last)
-        if (lastGroup.isValid && lastGroup.containsLink(project, currentFile)) {
-          result = lastGroup
-        }
-      }
+    if (last != null && shouldUseLastGroup(last, currentFile)) {
+      result = groups.getById(last)
     }
 
     if (result.isInvalid) {
@@ -345,14 +368,21 @@ class IndexCache(private val project: Project) {
     return result
   }
 
+  private fun shouldUseLastGroup(last: String?, currentFile: VirtualFile): Boolean {
+    if (last == null || !config.state.isRememberLastGroup) return false
+
+    val lastEditorGroups = groupsByLinks[last]
+    val lastGroup = lastEditorGroups?.getById(last) ?: return false
+
+    return lastGroup.isValid && lastGroup.containsLink(project, currentFile)
+  }
+
   fun setLast(currentFile: String, result: EditorGroup) {
     if (!result.isValid || result.isStub) return
 
-    var editorGroups = groupsByLinks[currentFile]
-    if (editorGroups == null) {
-      editorGroups = EditorGroups()
-      editorGroups.add(result)
-      groupsByLinks[currentFile] = editorGroups
+    val editorGroups = groupsByLinks.putIfAbsent(currentFile, EditorGroups()) ?: EditorGroups().also {
+      it.add(result)
+      groupsByLinks[currentFile] = it
     }
 
     editorGroups.last = result.id
@@ -368,31 +398,31 @@ class IndexCache(private val project: Project) {
     }
   }
 
+  /**
+   * Removes all editor groups associated with the provided owner path.
+   *
+   * @param ownerPath The path of the owner for which editor groups need to
+   *    be removed.
+   */
   fun removeGroup(ownerPath: String) {
-    for ((_, value) in groupsByLinks) {
-      value.all.forEach { editorGroup ->
-        if (editorGroup.isOwner(ownerPath)) {
-          if (LOG.isDebugEnabled) LOG.debug("removeFromIndex invalidating$editorGroup")
+    groupsByLinks.values.forEach { editorGroups ->
+      editorGroups.all
+        .filter { it.isOwner(ownerPath) }
+        .forEach { editorGroup ->
+          thisLogger().debug("removeGroup invalidating $editorGroup")
 
           editorGroup.invalidate()
 
-          val links = editorGroup.getLinks(project)
-          for (link in links) {
-            val editorGroups = groupsByLinks[link.path]
-            editorGroups?.remove(editorGroup)
+          editorGroup.getLinks(project).forEach { link ->
+            groupsByLinks[link.path]?.remove(editorGroup)
           }
         }
-      }
     }
 
     PanelRefresher.getInstance(project).refresh(ownerPath)
   }
 
-  fun getCached(userData: EditorGroup): EditorGroup = groupsByLinks[userData.ownerPath]?.getById(userData.id) ?: EditorGroup.EMPTY
-
   companion object {
-    private val LOG = Logger.getInstance(IndexCache::class.java)
-
     const val MAX_HISTORY_SIZE: Int = 1000
 
     @JvmStatic

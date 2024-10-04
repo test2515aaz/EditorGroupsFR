@@ -876,8 +876,8 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       requestedGroup = request.requestedGroup;
     }
 
-    return (requestedGroup != null && EditorGroup.exists(requestedGroup) && requestedGroup.needSmartMode()) ||
-      (requestedGroup == null && EditorGroup.exists(lastGroup) && lastGroup.needSmartMode()) ||
+    return (requestedGroup != null && requestedGroup.exists() && requestedGroup.needSmartMode()) ||
+      (requestedGroup == null && lastGroup.exists() && lastGroup.needSmartMode()) ||
       requestedGroup == null;
   }
 
