@@ -1,6 +1,5 @@
 package krasa.editorGroups;
 
-import com.intellij.ide.DataManager;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.customization.CustomActionsSchema;
 import com.intellij.openapi.Disposable;
@@ -15,7 +14,6 @@ import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorImpl;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
@@ -31,7 +29,6 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import krasa.editorGroups.actions.PopupMenu;
-import krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction;
 import krasa.editorGroups.language.EditorGroupsLanguage;
 import krasa.editorGroups.model.*;
 import krasa.editorGroups.support.FileResolver;
@@ -105,7 +102,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     line = switchRequest == null ? null : switchRequest.getLine();
 
     groupManager = EditorGroupManager.getInstance(this.project);
-    fileEditorManager = (FileEditorManagerImpl) FileEditorManagerEx.getInstance(project);
+    fileEditorManager = FileEditorManagerEx.getInstance(project);
     fileEditor.putUserData(EDITOR_PANEL, this);
     if (fileEditor instanceof TextEditorImpl) {
       Editor editor = ((TextEditorImpl) fileEditor).getEditor();
@@ -158,7 +155,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
             IdeEventQueue.getInstance().blockNextEvents(e);
             tabs.setMyPopupInfo(info);
             try {
-              ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(AnActionEvent.createFromInputEvent(e, ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(tabs)));
+//              ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(AnActionEvent.createFromInputEvent(e, ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(tabs)));
             } finally {
               tabs.setMyPopupInfo(null);
             }
