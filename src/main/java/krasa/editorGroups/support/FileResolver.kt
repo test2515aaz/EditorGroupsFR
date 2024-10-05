@@ -32,6 +32,7 @@ import java.io.FileFilter
 import java.io.FilenameFilter
 import java.io.IOException
 import java.util.*
+import kotlin.Throws
 
 class FileResolver {
   protected val project: Project?
@@ -239,7 +240,7 @@ class FileResolver {
     if (links.size > config.groupSizeLimitInt) throw TooManyFilesException()
 
     if (file.isFile && !(!definedManually && excluded(file, excludeEditorGroupsFiles))) {
-      links.add(Utils.getCanonicalPath(file))
+      links.add(getCanonicalPath(file))
     }
   }
 
@@ -303,8 +304,8 @@ class FileResolver {
 
     @JvmStatic
     fun excluded(file: File, excludeEditorGroupsFiles: Boolean): Boolean = when {
-      excludeEditorGroupsFiles && EditorGroupsLanguage.isEditorGroupsLanguage(Utils.getCanonicalPath(file)) -> true
-      else                                                                                                  -> FileUtil.isJarOrZip(file)
+      excludeEditorGroupsFiles && EditorGroupsLanguage.isEditorGroupsLanguage(getCanonicalPath(file)) -> true
+      else                                                                                            -> FileUtil.isJarOrZip(file)
     }
   }
 }

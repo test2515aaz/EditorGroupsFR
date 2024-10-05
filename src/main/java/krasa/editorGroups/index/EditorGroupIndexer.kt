@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils
 import java.io.File
 
 class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileContent> {
-  private val MAIN_PATTERN = MyIndexPattern("@(idea|group)\\.\\w+.*", false)
+  private val mainPattern = MyIndexPattern("@(idea|group)\\.\\w+.*", false)
 
   val indexPatterns: Array<Pair<MyIndexPattern, Consumer>> = arrayOf<Pair<MyIndexPattern, Consumer>>(
     Pair(MyIndexPattern("^@(idea|group)\\.root\\s(.*)", false), RootConsumer()),
@@ -49,7 +49,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
 
       val chars = inputData.contentAsText.toString() // matching strings is faster than HeapCharBuffer
       val input = StringPattern.newBombedCharSequence(chars)
-      val optimizedIndexingPattern = MAIN_PATTERN.optimizedIndexingPattern
+      val optimizedIndexingPattern = mainPattern.optimizedIndexingPattern
       val matcher = optimizedIndexingPattern!!.matcher(input)
 
       while (matcher.find()) {
