@@ -9,6 +9,7 @@ object EditorGroupsIcons {
   val folder: Icon = AllIcons.Nodes.Folder
   val settings: Icon = AllIcons.General.Settings
   val refresh: Icon = AllIcons.Actions.Refresh
+  val bookmarks: Icon = AllIcons.Nodes.Bookmark
   val copy: Icon = AllIcons.Actions.Copy
   val groupBy: Icon = AllIcons.Actions.GroupBy
   val listFiles: Icon = AllIcons.Actions.ListFiles
