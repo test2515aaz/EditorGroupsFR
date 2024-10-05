@@ -2,6 +2,7 @@ package krasa.editorGroups
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectCoreUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -87,7 +88,10 @@ class AutoGroupProvider(private val project: Project) {
 
         paths.sortedWith(VirtualFileComparator.INSTANCE)
       }.onFailure { e ->
-        thisLogger().error(e)
+        when (e) {
+          is ProcessCanceledException -> throw e
+          else                        -> thisLogger().error(e)
+        }
 
         val vf = LightVirtualFile(INDEXING)
         vf.isValid = false

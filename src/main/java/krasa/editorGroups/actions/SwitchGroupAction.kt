@@ -199,17 +199,12 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       }
     }
 
-    val action = createAction(
+    val action = createBookmarkGroupAction(
       displayedGroup = displayedGroup,
       targetGroup = bookmarkGroup,
       project = project,
-      actionHandler = actionHandler
+      actionHandler = actionHandler,
     )
-
-    if (bookmarkGroup.size(project) == 0) {
-      action.templatePresentation.isEnabled = false
-      action.templatePresentation.setText("${bookmarkGroup.title} - empty")
-    }
 
     defaultActionGroup.add(action)
   }
@@ -493,9 +488,44 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
     val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
+      override fun getActionUpdateThread(): ActionUpdateThread = super.getActionUpdateThread()
+
+      override fun update(e: AnActionEvent) {
+        e.presentation.isEnabled = !isSelected
+      }
     }
 
-    dumbAwareAction.templatePresentation.isEnabled = !isSelected
+    return dumbAwareAction
+  }
+
+  private fun createBookmarkGroupAction(
+    displayedGroup: EditorGroup,
+    targetGroup: EditorGroup,
+    project: Project,
+    actionHandler: Handler
+  ): DumbAwareAction {
+    val isSelected = displayedGroup.isSelected(targetGroup)
+    val description = targetGroup.switchDescription
+
+    var title = targetGroup.switchTitle(project)
+    if (isSelected) {
+      title += " - Current"
+    }
+
+    val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
+      override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
+      override fun getActionUpdateThread(): ActionUpdateThread = super.getActionUpdateThread()
+
+      override fun update(e: AnActionEvent) {
+        e.presentation.isEnabled = !isSelected
+
+        if (targetGroup.size(project) == 0) {
+          e.presentation.isEnabled = false
+          e.presentation.setText("${targetGroup.title} - empty")
+        }
+      }
+    }
+
     return dumbAwareAction
   }
 
