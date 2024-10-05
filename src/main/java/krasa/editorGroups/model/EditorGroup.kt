@@ -5,6 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.support.Utils
+import krasa.editorGroups.support.getFileByPath
 import krasa.editorGroups.support.toPresentableName
 import java.awt.Color
 import javax.swing.Icon
@@ -126,12 +127,9 @@ abstract class EditorGroup {
    * @param project the project from which to retrieve the file
    * @return the first existing file, or null if not found
    */
-  fun getFirstExistingFile(project: Project): VirtualFile? {
-    val links = getLinks(project)
-    return links
-      .map { Utils.getFileByPath(it) }
-      .firstOrNull { it != null && it.exists() && !it.isDirectory }
-  }
+  fun getFirstExistingFile(project: Project): VirtualFile? = getLinks(project)
+    .map { getFileByPath(it) }
+    .firstOrNull { it != null && it.exists() && !it.isDirectory }
 
   /**
    * Returns the tab title for the editor group.

@@ -5,8 +5,7 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.actionSystem.impl.ActionMenuItem
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.IndexNotReadyException
@@ -63,39 +62,71 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   override fun fillActions(project: Project, defaultActionGroup: DefaultActionGroup, dataContext: DataContext) {
     try {
       val data = dataContext.getData(PlatformDataKeys.FILE_EDITOR)
-      var panel: EditorGroupPanel? = null
+      var editorGroupPanel: EditorGroupPanel? = null
       var displayedGroup = EditorGroup.EMPTY
-      var editorGroups = emptyList<EditorGroup>()
+      var currentFileGroups = emptyList<EditorGroup>()
       val tempGroup = DefaultActionGroup()
       var file: VirtualFile? = null
       var regexGroups = emptyList<RegexGroup>()
 
+      // Fill the actions
       if (data != null) {
-        panel = data.getUserData(EditorGroupPanel.EDITOR_PANEL)
-        if (panel != null) {
-          file = panel.file
-          displayedGroup = panel.displayedGroup
+        editorGroupPanel = data.getUserData(EditorGroupPanel.EDITOR_PANEL)
+        if (editorGroupPanel != null) {
+          file = editorGroupPanel.file
+          displayedGroup = editorGroupPanel.displayedGroup
 
+          // Same file name
           defaultActionGroup.add(
             createAction(
-              displayedGroup,
-              SameNameGroup(file.nameWithoutExtension, emptyList()),
-              project,
-              refreshHandler(panel)
+              displayedGroup = displayedGroup,
+              targetGroup = SameNameGroup(fileNameWithoutExtension = file.nameWithoutExtension, links = emptyList()),
+              project = project,
+              actionHandler = refreshHandler(editorGroupPanel)
             )
           )
-          defaultActionGroup.add(createAction(displayedGroup, FolderGroup(file.parent, emptyList()), project, refreshHandler(panel)))
-          defaultActionGroup.add(createAction(displayedGroup, HidePanelGroup(), project, refreshHandler(panel)))
+          // Current folder
+          defaultActionGroup.add(
+            createAction(
+              displayedGroup = displayedGroup,
+              targetGroup = FolderGroup(folder = file.parent, links = emptyList()),
+              project = project,
+              actionHandler = refreshHandler(editorGroupPanel)
+            )
+          )
+          // Hide panel
+          defaultActionGroup.add(
+            createAction(
+              displayedGroup = displayedGroup,
+              targetGroup = HidePanelGroup(),
+              project = project,
+              actionHandler = refreshHandler(editorGroupPanel)
+            )
+          )
 
-          editorGroups = fillCurrentFileGroups(project, tempGroup, panel, file)
-          regexGroups = fillRegexGroups(project, tempGroup, panel, file)
+          // Current file custom groups
+          currentFileGroups = fillCurrentFileGroups(
+            project = project,
+            tempGroup = tempGroup,
+            panel = editorGroupPanel,
+            file = file
+          )
+          // Current file related regex groups
+          regexGroups = fillRegexGroups(
+            project = project,
+            tempGroup = tempGroup,
+            panel = editorGroupPanel,
+            file = file
+          )
         }
       }
 
-      addBookmarkGroup(project, defaultActionGroup, panel, displayedGroup, file)
-      fillOtherIndexedGroups(tempGroup, editorGroups, displayedGroup, project)
-      fillFavorites(tempGroup, project, editorGroups, displayedGroup)
-      fillGlobalRegexGroups(tempGroup, project, editorGroups, displayedGroup, regexGroups)
+      // Bookmark group
+      addBookmarkGroup(project, defaultActionGroup, editorGroupPanel, displayedGroup, file)
+
+      fillOtherIndexedGroups(tempGroup, currentFileGroups, displayedGroup, project)
+      fillFavorites(tempGroup, project, currentFileGroups, displayedGroup)
+      fillGlobalRegexGroups(tempGroup, project, displayedGroup, regexGroups)
 
 
       if (state().isGroupSwitchGroupAction) {
@@ -115,10 +146,22 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       //			defaultActionGroup.add(ActionManager.getInstance().getAction("krasa.editorGroups.TogglePanelVisibility"));
       defaultActionGroup.add(ActionManager.getInstance().getAction("krasa.editorGroups.OpenConfiguration"))
     } catch (e: IndexNotReadyException) {
-      LOG.error("That should not happen", e)
+      thisLogger().error("That should not happen", e)
     }
   }
 
+  /**
+   * Adds a bookmark group action to the given action group.
+   *
+   * TODO use new bookmark system
+   *
+   * @param project The current project instance.
+   * @param defaultActionGroup The action group to which the bookmark action
+   *    will be added.
+   * @param panel Optional panel to be updated upon bookmark action.
+   * @param displayedGroup The editor group to be displayed.
+   * @param file Optional virtual file to check for bookmark availability.
+   */
   private fun addBookmarkGroup(
     project: Project,
     defaultActionGroup: DefaultActionGroup,
@@ -127,15 +170,22 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     file: VirtualFile?
   ) {
     val bookmarkGroup = ExternalGroupProvider.getInstance(project).bookmarkGroup
-    val action = createAction(displayedGroup, bookmarkGroup, project, object : Handler() {
+
+    val actionHandler = object : Handler() {
       override fun run(editorGroup: EditorGroup) {
-        if (panel != null && file != null && bookmarkGroup.containsLink(project, file)) {
-          refreshHandler(panel).run(bookmarkGroup)
-        } else {
-          otherGroupHandler(project).run(bookmarkGroup)
+        when {
+          panel != null && file != null && bookmarkGroup.containsLink(project, file) -> refreshHandler(panel).run(bookmarkGroup)
+          else                                                                       -> otherGroupHandler(project).run(bookmarkGroup)
         }
       }
-    })
+    }
+
+    val action = createAction(
+      displayedGroup = displayedGroup,
+      targetGroup = bookmarkGroup,
+      project = project,
+      actionHandler = actionHandler
+    )
 
     if (bookmarkGroup.size(project) == 0) {
       action.templatePresentation.isEnabled = false
@@ -145,9 +195,18 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     defaultActionGroup.add(action)
   }
 
+  /**
+   * Appends the file's related custom groups to the tempGroup
+   *
+   * @param project The current project.
+   * @param tempGroup The temporary action group to populate.
+   * @param panel The panel associated with editor groups.
+   * @param file The currently open file.
+   * @return A list of editor groups associated with the current file.
+   */
   private fun fillCurrentFileGroups(
     project: Project,
-    group: DefaultActionGroup,
+    tempGroup: DefaultActionGroup,
     panel: EditorGroupPanel,
     file: VirtualFile?
   ): List<EditorGroup> {
@@ -155,25 +214,64 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val manager = EditorGroupManager.getInstance(project)
     val groups = manager.getGroups(file!!)
 
-    group.add(Separator("Groups for the Current File"))
+    tempGroup.add(Separator("Groups for the Current File"))
 
-    for (g in groups) {
-      group.add(createAction(displayedGroup, g, project, refreshHandler(panel)))
+    groups.forEach {
+      tempGroup.add(
+        createAction(
+          displayedGroup = displayedGroup,
+          targetGroup = it,
+          project = project,
+          actionHandler = refreshHandler(panel)
+        )
+      )
     }
 
     return groups
   }
 
-  private fun fillRegexGroups(project: Project, group: DefaultActionGroup, panel: EditorGroupPanel, file: VirtualFile?): List<RegexGroup> {
+  /**
+   * Appends the file related regex groups to the tempGroup
+   *
+   * @param project the current project context.
+   * @param tempGroup the action group to which the actions will be added.
+   * @param panel the editor panel containing the displayed group.
+   * @param file the virtual file to be matched against regex groups.
+   * @return a list of matching regex groups for the specified file.
+   */
+  private fun fillRegexGroups(
+    project: Project,
+    tempGroup: DefaultActionGroup,
+    panel: EditorGroupPanel,
+    file: VirtualFile?
+  ): List<RegexGroup> {
     val regexGroups = RegexGroupProvider.getInstance(project).findMatchingRegexGroups(file!!)
 
-    for (regexGroup in regexGroups) {
-      group.add(createAction(panel.displayedGroup, regexGroup, project, refreshHandler(panel)))
+    regexGroups.forEach { regexGroup ->
+      tempGroup.add(
+        createAction(
+          displayedGroup = panel.displayedGroup,
+          targetGroup = regexGroup,
+          project = project,
+          actionHandler = refreshHandler(panel)
+        )
+      )
     }
 
     return regexGroups
   }
 
+  /**
+   * Fills the provided action group with actions for all editor groups that
+   * are indexed but not currently displayed.
+   *
+   * @param group The action group to fill with actions.
+   * @param currentGroups A list of editor groups that are currently
+   *    displayed.
+   * @param displayedGroup The editor group that is currently being
+   *    displayed.
+   * @param project The current project.
+   */
   private fun fillOtherIndexedGroups(
     group: DefaultActionGroup,
     currentGroups: List<EditorGroup>,
@@ -181,34 +279,46 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     project: Project
   ) {
     val manager = EditorGroupManager.getInstance(project)
+    val currentGroupSet = currentGroups.toSet()
+    val indexingAction: AnAction = object : AnAction("Indexing...") {
+      override fun actionPerformed(anActionEvent: AnActionEvent) = Unit
+    }
 
     group.add(Separator("Other Groups"))
 
-    try {
-      val allGroups = manager.allIndexedGroups
-      for (g in allGroups) {
-        if (!(currentGroups as Collection<EditorGroup>).contains(g)) {
-          group.add(createAction(displayedGroup, g, project, otherGroupHandler(project)))
-        }
+    runCatching { manager.allIndexedGroups }
+      .onSuccess { allGroups ->
+        allGroups
+          .filterNot { g -> currentGroupSet.contains(g) }
+          .forEach { g ->
+            group.add(
+              createAction(
+                displayedGroup = displayedGroup,
+                targetGroup = g,
+                project = project,
+                actionHandler = otherGroupHandler(project)
+              )
+            )
+          }
       }
-
-    } catch (e: ProcessCanceledException) {
-      val action: AnAction = object : AnAction("Indexing...") {
-        override fun actionPerformed(anActionEvent: AnActionEvent) = Unit
+      .onFailure { exception ->
+        indexingAction.templatePresentation.isEnabled = false
+        group.add(indexingAction)
       }
-
-      action.templatePresentation.isEnabled = false
-      group.add(action)
-    } catch (e: IndexNotReadyException) {
-      val action: AnAction = object : AnAction("Indexing...") {
-        override fun actionPerformed(anActionEvent: AnActionEvent) = Unit
-      }
-
-      action.templatePresentation.isEnabled = false
-      group.add(action)
-    }
   }
 
+  /**
+   * Populates the given `defaultActionGroup` with favorite editor groups
+   * that are not already displayed in the provided `editorGroups`.
+   *
+   * TODO deprecate favorites
+   *
+   * @param defaultActionGroup The action group to which favorite groups will
+   *    be added.
+   * @param project The current project context.
+   * @param editorGroups The list of current editor groups.
+   * @param displayedGroup The editor group that is currently displayed.
+   */
   private fun fillFavorites(
     defaultActionGroup: DefaultActionGroup,
     project: Project,
@@ -216,70 +326,100 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     displayedGroup: EditorGroup
   ) {
     val favoritesGroups = ExternalGroupProvider.getInstance(project).favoritesGroups
+    val alreadyDisplayed = editorGroups.filterIsInstance<FavoritesGroup>().mapTo(HashSet()) { it.title }
 
-    val alreadyDisplayed: MutableSet<String> = HashSet()
-    for (group in editorGroups) {
-      if (group is FavoritesGroup) {
-        alreadyDisplayed.add(group.title)
-      }
-    }
-
-    if (!favoritesGroups.isEmpty()) {
-      defaultActionGroup.add(Separator("Favourites"))
-      for (favoritesGroup in favoritesGroups) {
-        if (!alreadyDisplayed.contains(favoritesGroup.title)) {
-          defaultActionGroup.add(createAction(displayedGroup, favoritesGroup, project, otherGroupHandler(project)))
+    if (favoritesGroups.isNotEmpty()) {
+      defaultActionGroup.add(Separator("Favorites"))
+      favoritesGroups
+        .filterNot { it.title in alreadyDisplayed }
+        .forEach { favoritesGroup ->
+          defaultActionGroup.add(
+            createAction(
+              displayedGroup = displayedGroup,
+              targetGroup = favoritesGroup,
+              project = project,
+              actionHandler = otherGroupHandler(project)
+            )
+          )
         }
-      }
     }
   }
 
+  /**
+   * Add regex groups that do not belong to the current file
+   *
+   * @param defaultActionGroup The action group to which regex actions will
+   *    be added.
+   * @param project The current project context.
+   * @param displayedGroup The currently displayed editor group.
+   * @param alreadyFilledRegexGroups List of regex groups that are already
+   *    filled/displayed.
+   */
   private fun fillGlobalRegexGroups(
     defaultActionGroup: DefaultActionGroup,
     project: Project,
-    editorGroups: List<EditorGroup>,
     displayedGroup: EditorGroup,
     alreadyFilledRegexGroups: List<RegexGroup>
   ) {
     val regexGroups = RegexGroupProvider.getInstance(project).findProjectRegexGroups()
 
-    val alreadyDisplayed: MutableSet<String?> = HashSet()
-    for (group in alreadyFilledRegexGroups) {
-      if (group.regexGroupModel.scope == RegexGroupModel.Scope.WHOLE_PROJECT) {
-        alreadyDisplayed.add(group.regexGroupModel.regex)
-      }
-    }
+    val alreadyDisplayed: MutableSet<String?> = alreadyFilledRegexGroups
+      .filter { it.regexGroupModel.scope == RegexGroupModel.Scope.WHOLE_PROJECT }
+      .mapTo(HashSet()) { it.regexGroupModel.regex }
 
-    if (!regexGroups.isEmpty()) {
+
+    if (regexGroups.isNotEmpty()) {
       defaultActionGroup.add(Separator("Regexps"))
 
       regexGroups
         .asSequence()
         .filterNot { alreadyDisplayed.contains(it.regexGroupModel.regex) }
-        .forEach {
-          defaultActionGroup.add(createAction(displayedGroup, it, project, object : Handler() {
-            override fun run(editorGroup: EditorGroup) {
-              val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(it, project, null)
-              otherGroupHandler(project).run(regexGroup)
-            }
-          }))
+        .forEach { group ->
+
+          defaultActionGroup.add(
+            createAction(
+              displayedGroup = displayedGroup,
+              targetGroup = group,
+              project = project,
+              actionHandler = otherRegexGroupHandler(project, group)
+            )
+          )
         }
     }
   }
 
   private fun refreshHandler(panel: EditorGroupPanel): Handler = object : Handler() {
     override fun run(editorGroup: EditorGroup) {
-      if (LOG.isDebugEnabled) LOG.debug("switching group")
+      thisLogger().debug("switching group")
       panel._refresh(false, editorGroup)
     }
   }
 
-  private fun otherGroupHandler(project: Project?): Handler = object : Handler() {
+  private fun otherRegexGroupHandler(project: Project, group: RegexGroup) = object : Handler() {
     override fun run(editorGroup: EditorGroup) {
-      val file = editorGroup.getFirstExistingFile(project!!)
+      val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(group = group, project = project, currentFile = null)
+      otherGroupHandler(project).run(regexGroup)
+    }
+  }
 
+  /**
+   * Handles the given editor group by attempting to open the first existing
+   * file in the group within the specified project. If the file does not
+   * exist, it uses the owner path of the group to find a corresponding
+   * virtual file and attempts to open it. Displays a warning if neither the
+   * file nor the owner path exists.
+   *
+   * @param project The project context within which the editor group is
+   *    handled.
+   * @return A newly instantiated handler for the specified editor group.
+   */
+  private fun otherGroupHandler(project: Project): Handler = object : Handler() {
+    override fun run(editorGroup: EditorGroup) {
+      val editorGroupManager = EditorGroupManager.getInstance(project)
+
+      val file = editorGroup.getFirstExistingFile(project)
       if (file != null) {
-        EditorGroupManager.getInstance(project).open(
+        editorGroupManager.open(
           virtualFileByAbsolutePath = file,
           window = false,
           tab = true,
@@ -287,40 +427,53 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           group = editorGroup,
           current = null
         )
-      } else {
-        val ownerPath = editorGroup.ownerPath
-        val virtualFileByAbsolutePath = getVirtualFileByAbsolutePath(ownerPath)
-
-        if (virtualFileByAbsolutePath != null) {
-          EditorGroupManager.getInstance(project).open(
-            virtualFileByAbsolutePath = virtualFileByAbsolutePath,
-            window = false,
-            tab = true,
-            split = Splitters.NONE,
-            group = editorGroup,
-            current = null
-          )
-        } else {
-          showWarning("No matching file found")
-          if (LOG.isDebugEnabled) LOG.debug("opening failed, no file and not even owner exist $editorGroup")
-        }
-
-        if (LOG.isDebugEnabled) LOG.debug("opening failed, no file exists $editorGroup")
+        return
       }
+
+      val ownerPath = editorGroup.ownerPath
+      val virtualFileByAbsolutePath = getVirtualFileByAbsolutePath(ownerPath)
+      if (virtualFileByAbsolutePath != null) {
+        editorGroupManager.open(
+          virtualFileByAbsolutePath = virtualFileByAbsolutePath,
+          window = false,
+          tab = true,
+          split = Splitters.NONE,
+          group = editorGroup,
+          current = null
+        )
+        return
+      }
+
+      showWarning("No matching file found")
+      thisLogger().debug("opening failed, no file and not even owner exist $editorGroup")
     }
   }
 
-  private fun createAction(displayedGroup: EditorGroup, groupLink: EditorGroup, project: Project, actionHandler: Handler): DumbAwareAction {
-    val isSelected = displayedGroup.isSelected(groupLink)
-    var title = groupLink.switchTitle(project)
-    val description = groupLink.switchDescription
+  /**
+   * Creates a new action for switching the editor group.
+   *
+   * @param displayedGroup the currently displayed editor group
+   * @param targetGroup the target editor group to switch to
+   * @param project the project in which the switch is to be made
+   * @param actionHandler the handler for the action to be performed
+   * @return a new DumbAwareAction configured for the switch action
+   */
+  private fun createAction(
+    displayedGroup: EditorGroup,
+    targetGroup: EditorGroup,
+    project: Project,
+    actionHandler: Handler
+  ): DumbAwareAction {
+    val isSelected = displayedGroup.isSelected(targetGroup)
+    val description = targetGroup.switchDescription
 
+    var title = targetGroup.switchTitle(project)
     if (isSelected) {
       title += " - Current"
     }
 
-    val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, groupLink.icon()) {
-      override fun actionPerformed(e1: AnActionEvent) = actionHandler.run(groupLink)
+    val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
+      override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
     }
 
     dumbAwareAction.templatePresentation.isEnabled = !isSelected
@@ -329,22 +482,19 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
   override fun update(e: AnActionEvent) {
     super.update(e)
-    val presentation = e.presentation
-    val data = e.getData(PlatformDataKeys.FILE_EDITOR)
+    val data = e.getData(PlatformDataKeys.FILE_EDITOR) ?: return
 
-    if (data != null) {
-      val panel = data.getUserData(EditorGroupPanel.EDITOR_PANEL)
-      if (panel != null) {
-        var displayedGroup = panel.displayedGroup
-        if (displayedGroup === EditorGroup.EMPTY) {
-          val toBeRendered = panel.toBeRendered
-          if (toBeRendered != null) {
-            displayedGroup = toBeRendered // to remove flicker when switching
-          }
-        }
-        presentation.icon = displayedGroup.icon()
-      }
+    val presentation = e.presentation
+    val panel = data.getUserData(EditorGroupPanel.EDITOR_PANEL) ?: return
+
+    var displayedGroup = panel.displayedGroup
+    val toBeRendered = panel.toBeRendered
+
+    if (displayedGroup === EditorGroup.EMPTY && toBeRendered != null) {
+      displayedGroup = toBeRendered // to remove flicker when switching
     }
+
+    presentation.icon = displayedGroup.icon()
   }
 
   internal abstract class Handler {
@@ -352,8 +502,6 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   companion object {
-    private val LOG = Logger.getInstance(SwitchGroupAction::class.java)
-
     const val ID = "krasa.editorGroups.SwitchGroup"
   }
 }

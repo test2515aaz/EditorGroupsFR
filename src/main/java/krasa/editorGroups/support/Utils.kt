@@ -18,6 +18,7 @@ import com.intellij.ui.ColorUtil
 import com.intellij.util.IconUtil.computeFileIcon
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.ui.NamedColorUtil
+import krasa.editorGroups.model.Link
 import java.awt.Color
 import java.io.File
 import java.io.IOException
@@ -337,6 +338,16 @@ fun getFileByPath(path: String, currentFile: VirtualFile?): VirtualFile? {
  * @return the resolved VirtualFile, or null if the file is not found
  */
 fun getFileByPath(path: String): VirtualFile? = getFileByPath(path, null)
+
+/**
+ * Retrieves a VirtualFile instance corresponding to the given link's file
+ * path.
+ *
+ * @param link The Link object containing the file path.
+ * @return The VirtualFile found at the specified path, or null if no file
+ *    is found.
+ */
+fun getFileByPath(link: Link): VirtualFile? = getFileByPath(link.path)
 
 /**
  * Resolves a file by its path in the whole file system
