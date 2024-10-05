@@ -1,5 +1,6 @@
 package krasa.editorGroups
 
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
@@ -13,11 +14,13 @@ import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver
 import krasa.editorGroups.support.Notifications
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.Throws
 
+@Service(Service.Level.PROJECT)
 class IndexCache(private val project: Project) {
 
   private val groupsByLinks: MutableMap<String, EditorGroups> = ConcurrentHashMap()
-  private val config = EditorGroupsSettings.instance
+  private val config = EditorGroupsSettings.instance.state
   private val externalGroupProvider = ExternalGroupProvider.getInstance(project)
 
   @get:Throws(IndexNotReadyException::class)
@@ -48,8 +51,8 @@ class IndexCache(private val project: Project) {
   val state: ProjectComponent.State
     get() {
       val state = ProjectComponent.State()
-      val autoSameName = config.state.isAutoSameName
-      val autoFolders = config.state.isAutoFolders
+      val autoSameName = config.isAutoSameName
+      val autoFolders = config.isAutoFolders
 
       groupsByLinks.entries.forEach { (key, value) ->
         val last = value.last
@@ -236,7 +239,7 @@ class IndexCache(private val project: Project) {
     stub: Boolean
   ): EditorGroup {
     var result = EditorGroup.EMPTY
-    if (!config.state.isRememberLastGroup) {
+    if (!config.isRememberLastGroup) {
       thisLogger().debug("<getLastEditorGroup $result (isRememberLastGroup=false)")
       return result
     }
@@ -246,7 +249,7 @@ class IndexCache(private val project: Project) {
       val last = groups.last
       thisLogger().debug("last = $last")
 
-      if (last != null && config.state.isRememberLastGroup) {
+      if (last != null && config.isRememberLastGroup) {
         result = getResultGroup(
           last = last,
           includeAutoGroups = includeAutoGroups,
@@ -286,26 +289,26 @@ class IndexCache(private val project: Project) {
     currentFile: VirtualFile
   ): EditorGroup {
     return when {
-      includeAutoGroups && config.state.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> SameNameGroup.INSTANCE
-      includeAutoGroups && config.state.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
-      last == HidePanelGroup.ID                                                            -> HidePanelGroup.INSTANCE
+      includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> SameNameGroup.INSTANCE
+      includeAutoGroups && config.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
+      last == HidePanelGroup.ID                                                      -> HidePanelGroup.INSTANCE
 
-      includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                        -> {
+      includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                  -> {
         val favoritesGroup = externalGroupProvider.getFavoritesGroup(last.substring(FavoritesGroup.ID_PREFIX.length))
         if (favoritesGroup.containsLink(project, currentFile)) favoritesGroup else EditorGroup.EMPTY
       }
 
-      includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                            -> {
+      includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                      -> {
         val groupName = last.substring(RegexGroup.ID_PREFIX.length)
         RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
       }
 
-      includeFavorites && last == BookmarkGroup.ID                                         ->
+      includeFavorites && last == BookmarkGroup.ID                                   ->
         externalGroupProvider.bookmarkGroup
 
-      stub                                                                                 -> StubGroup()
+      stub                                                                           -> StubGroup()
 
-      else                                                                                 -> {
+      else                                                                           -> {
         val lastGroup = getById(last)
         if (lastGroup.containsLink(project, currentFile) || lastGroup.isOwner(currentFile.path)) lastGroup else EditorGroup.EMPTY
       }
@@ -320,12 +323,11 @@ class IndexCache(private val project: Project) {
    * @return A List of [EditorGroup] objects found for the currentFile.
    */
   fun findGroups(currentFile: VirtualFile): List<EditorGroup> {
-    val result: MutableList<EditorGroup> = ArrayList()
+    val result = mutableListOf<EditorGroup>()
 
-    val editorGroups = groupsByLinks[currentFile.path]
-    if (editorGroups != null) {
-      editorGroups.validate(this)
-      result.addAll(editorGroups.all)
+    groupsByLinks[currentFile.path]?.let {
+      it.validate(this)
+      result.addAll(it.all)
     }
 
     result.addAll(externalGroupProvider.findGroups(currentFile))
@@ -374,7 +376,7 @@ class IndexCache(private val project: Project) {
   }
 
   private fun shouldUseLastGroup(last: String?, currentFile: VirtualFile): Boolean {
-    if (last == null || !config.state.isRememberLastGroup) return false
+    if (last == null || !config.isRememberLastGroup) return false
 
     val lastEditorGroups = groupsByLinks[last]
     val lastGroup = lastEditorGroups?.getById(last) ?: return false

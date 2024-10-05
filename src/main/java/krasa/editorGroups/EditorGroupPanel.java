@@ -1,5 +1,6 @@
 package krasa.editorGroups;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.customization.CustomActionsSchema;
 import com.intellij.openapi.Disposable;
@@ -433,10 +434,16 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       }
       setText(name);
       setTooltipText(link.getPath());
-      setIcon(link.getFileIcon());
+      setIcon(AllIcons.FileTypes.Any_type); // Placeholder icon
       if (!link.exists()) {
         setEnabled(false);
       }
+
+      // Fetch the actual icon off the UI thread
+      ApplicationManager.getApplication().runWriteAction(() -> {
+        Icon icon = link.getFileIcon();
+        SwingUtilities.invokeLater(() -> setIcon(icon));
+      });
     }
 
     public Link getLink() {

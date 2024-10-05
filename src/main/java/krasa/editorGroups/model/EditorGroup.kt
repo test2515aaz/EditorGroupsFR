@@ -5,6 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.support.Utils
+import krasa.editorGroups.support.getFileByPath
 import krasa.editorGroups.support.toPresentableName
 import java.awt.Color
 import javax.swing.Icon
@@ -55,20 +56,20 @@ abstract class EditorGroup {
    * @param showSize if true, includes the size in the title; false otherwise
    * @return the presentable title
    */
-  open fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String? {
+  open fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String {
     var nameForUI = presentableNameForUI
     val isEmptyTitle = StringUtil.isEmpty(title)
     val size = size(project)
 
-    if (showSize) {
-      nameForUI = when {
+    return when {
+      showSize      -> when {
         !isEmptyTitle -> "[${this.title}:$size] $nameForUI"
         else          -> "[$size] $nameForUI"
       }
-    } else if (!isEmptyTitle) {
-      nameForUI = "[$title] $nameForUI"
+
+      !isEmptyTitle -> "[$title] $nameForUI"
+      else          -> nameForUI
     }
-    return nameForUI
   }
 
   /**
@@ -126,12 +127,9 @@ abstract class EditorGroup {
    * @param project the project from which to retrieve the file
    * @return the first existing file, or null if not found
    */
-  fun getFirstExistingFile(project: Project): VirtualFile? {
-    val links = getLinks(project)
-    return links
-      .map { Utils.getFileByPath(it) }
-      .firstOrNull { it != null && it.exists() && !it.isDirectory }
-  }
+  fun getFirstExistingFile(project: Project): VirtualFile? = getLinks(project)
+    .map { getFileByPath(it) }
+    .firstOrNull { it != null && it.exists() && !it.isDirectory }
 
   /**
    * Returns the tab title for the editor group.
