@@ -1,5 +1,6 @@
 package krasa.editorGroups
 
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.IndexNotReadyException
@@ -15,6 +16,7 @@ import krasa.editorGroups.support.Notifications
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.Throws
 
+@Service(Service.Level.PROJECT)
 class IndexCache(private val project: Project) {
 
   private val groupsByLinks: MutableMap<String, EditorGroups> = ConcurrentHashMap()

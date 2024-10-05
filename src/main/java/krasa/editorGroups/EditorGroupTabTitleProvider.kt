@@ -14,6 +14,7 @@ import krasa.editorGroups.model.EditorGroup
 class EditorGroupTabTitleProvider : EditorTabTitleProvider {
   override fun getEditorTabTitle(project: Project, file: VirtualFile): String? {
     if (!EDT.isCurrentThreadEdt()) return null
+
     val presentableNameForUI = getPresentableNameForUI(project, file)
     val textEditor = FileEditorManagerEx.getInstanceEx(project).getSelectedEditor(file)
 
@@ -21,7 +22,7 @@ class EditorGroupTabTitleProvider : EditorTabTitleProvider {
   }
 
   private fun getTitle(project: Project, textEditor: FileEditor?, presentableNameForUI: String): String? {
-    var result: String? = presentableNameForUI
+    var result: String = presentableNameForUI
     var group: EditorGroup? = null
 
     if (textEditor != null) {
@@ -29,14 +30,17 @@ class EditorGroupTabTitleProvider : EditorTabTitleProvider {
     }
 
     if (group != null && group.isValid && group !is AutoGroup) {
-      result = group.getPresentableTitle(project, result!!, state().isShowSize)
+      result = group.getPresentableTitle(project, result, state().isShowSize)
     }
+
     return result
   }
 
   fun getPresentableNameForUI(project: Project, file: VirtualFile): String {
     val editorTabTitleProviders: List<EditorTabTitleProvider> =
-      DumbService.getInstance(project).filterByDumbAwareness<EditorTabTitleProvider>(EditorTabTitleProvider.EP_NAME.extensionList)
+      DumbService.getInstance(project).filterByDumbAwareness<EditorTabTitleProvider>(
+        EditorTabTitleProvider.EP_NAME.extensionList
+      )
 
     for (provider in editorTabTitleProviders) {
       if (provider is EditorGroupTabTitleProvider) continue

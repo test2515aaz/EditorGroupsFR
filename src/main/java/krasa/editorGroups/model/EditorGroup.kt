@@ -56,20 +56,20 @@ abstract class EditorGroup {
    * @param showSize if true, includes the size in the title; false otherwise
    * @return the presentable title
    */
-  open fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String? {
+  open fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String {
     var nameForUI = presentableNameForUI
     val isEmptyTitle = StringUtil.isEmpty(title)
     val size = size(project)
 
-    if (showSize) {
-      nameForUI = when {
+    return when {
+      showSize      -> when {
         !isEmptyTitle -> "[${this.title}:$size] $nameForUI"
         else          -> "[$size] $nameForUI"
       }
-    } else if (!isEmptyTitle) {
-      nameForUI = "[$title] $nameForUI"
+
+      !isEmptyTitle -> "[$title] $nameForUI"
+      else          -> nameForUI
     }
-    return nameForUI
   }
 
   /**
