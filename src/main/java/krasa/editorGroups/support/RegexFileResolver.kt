@@ -1,6 +1,6 @@
 package krasa.editorGroups.support
 
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -15,12 +15,12 @@ import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
 import java.util.regex.Matcher
 
-class RegexFileResolver(private val project: Project) {
+open class RegexFileResolver(private val project: Project) {
   protected var links: MutableSet<VirtualFile?> = HashSet()
   protected var config: EditorGroupsSettingsState = state()
 
   fun resolveRegexGroupLinks(regexGroup: RegexGroup, currentFile: VirtualFile?): List<Link> {
-    if (LOG.isDebugEnabled) LOG.debug(">resolveRegexGroupLinks")
+    thisLogger().debug("<resolveRegexGroupLinks")
 
     val start = System.currentTimeMillis()
     val regexGroupModel = regexGroup.regexGroupModel
@@ -39,26 +39,23 @@ class RegexFileResolver(private val project: Project) {
       folders
         .asSequence()
         .filterNotNull()
-        .forEach { processFolders2(regexGroup, regexGroupModel, referenceMatcher, groupMatcher, projectFileIndex, it) }
+        .forEach { processFolders(regexGroup, regexGroupModel, referenceMatcher, groupMatcher, projectFileIndex, it) }
 
     } catch (e: TooManyFilesException) {
       e.showNotification()
-      LOG.warn("Found too many matching files, skipping. Size=${links.size} $regexGroup")
-
-      if (LOG.isDebugEnabled) LOG.debug(links.toString())
+      thisLogger().warn("Found too many matching files, skipping. Size=${links.size} $regexGroup")
+      thisLogger().debug(links.toString())
     }
 
     val duration = System.currentTimeMillis() - start
-    if (duration > 500) {
-      LOG.warn("<resolveRegexGroup ${duration}ms $regexGroup; links=$links")
-    } else if (LOG.isDebugEnabled) {
-      LOG.debug("<resolveRegexGroup ${duration}ms links=$links")
-    }
+    if (duration > 500) thisLogger().warn("<resolveRegexGroup ${duration}ms $regexGroup; links=$links")
+
+    thisLogger().debug("<resolveRegexGroup ${duration}ms links=$links")
 
     return fromVirtualFiles(links, project)
   }
 
-  private fun processFolders2(
+  private fun processFolders(
     regexGroup: RegexGroup,
     regexGroupModel: RegexGroupModel,
     referenceMatcher: Matcher?,
@@ -72,11 +69,13 @@ class RegexFileResolver(private val project: Project) {
           child.isDirectory -> {
             ProgressManager.checkCanceled()
 
-            if (regexGroupModel.scope == RegexGroupModel.Scope.CURRENT_FOLDER) {
-              if (child != regexGroup.folder) return SKIP_CHILDREN
-            } else {
-              if (projectFileIndex.isExcluded(child)) return SKIP_CHILDREN
-            }
+            if (shouldSkipDirectory(
+                child = child,
+                regexGroupModel = regexGroupModel,
+                regexGroup = regexGroup,
+                projectFileIndex = projectFileIndex
+              )
+            ) return SKIP_CHILDREN
           }
 
           else              -> {
@@ -93,22 +92,26 @@ class RegexFileResolver(private val project: Project) {
     })
   }
 
+  private fun shouldSkipDirectory(
+    child: VirtualFile,
+    regexGroupModel: RegexGroupModel,
+    regexGroup: RegexGroup,
+    projectFileIndex: ProjectFileIndex
+  ): Boolean = when (regexGroupModel.scope) {
+    RegexGroupModel.Scope.CURRENT_FOLDER -> child != regexGroup.folder
+    else                                 -> projectFileIndex.isExcluded(child)
+  }
+
   private fun matches(regexGroupModel: RegexGroupModel, referenceMatcher: Matcher?, matcher: Matcher): Boolean {
     if (!matcher.matches()) return false
 
     if (referenceMatcher == null) return true
 
-    for (j in 1..matcher.groupCount()) {
-      if (regexGroupModel.isComparingGroup(j)) {
-        val refGroup = referenceMatcher.group(j)
-        val group = matcher.group(j)
-        if (refGroup != group) return false
+    return (1..matcher.groupCount()).all { index ->
+      when {
+        regexGroupModel.isComparingGroup(index) -> referenceMatcher.group(index) == matcher.group(index)
+        else                                    -> true
       }
     }
-    return true
-  }
-
-  companion object {
-    private val LOG = Logger.getInstance(RegexFileResolver::class.java)
   }
 }

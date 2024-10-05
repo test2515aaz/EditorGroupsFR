@@ -7,7 +7,7 @@ import com.intellij.openapi.project.DumbAware
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.PanelRefresher
 
-class ViewPanelToggleAction : ToggleAction("Editor Groups Panel"), DumbAware {
+class ViewPanelToggleAction : ToggleAction(), DumbAware {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
   override fun isSelected(event: AnActionEvent): Boolean = state().isShowPanel

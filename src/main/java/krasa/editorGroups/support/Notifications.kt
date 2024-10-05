@@ -88,7 +88,7 @@ object Notifications {
   }
 
   @JvmStatic
-  fun tooManyFiles() = showWarning(TooManyFilesException.FOUND_TOO_MANY_MATCHING_FILES_SKIPPING)
+  fun notifyTooManyFiles() = showWarning(TooManyFilesException.FOUND_TOO_MANY_MATCHING_FILES_SKIPPING)
 
   private fun show(notification: Notification) = ApplicationManager.getApplication().invokeLater { notify(notification) }
 }

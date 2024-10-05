@@ -48,7 +48,6 @@
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
         <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
 
-        <projectService serviceImplementation="krasa.editorGroups.AutoGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.RegexGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.ExternalGroupProvider"/>
         <projectService serviceImplementation="krasa.editorGroups.IndexCache"/>
@@ -198,7 +197,7 @@
                     icon="AllIcons.General.InlineRefreshHover">
             </action>
 
-            <separator text="Blabla"/>
+            <separator/>
 
             <action id="krasa.editorGroups.ToggleAutoSameNameGroups"
                     class="krasa.editorGroups.actions.ToggleAutoSameNameGroupsAction"
@@ -233,9 +232,10 @@
                     description="Show group size at titles"
                     text="Show Group Size at Titles"/>
 
-            <action id="krasa.editorGroups.ViewPanelToggleAction"
+            <action id="krasa.editorGroups.TogglePanelVisibility"
                     icon="AllIcons.Actions.ToggleVisibility"
                     text="Toggle Panel"
+                    description="Toggle editor groups panel"
                     class="krasa.editorGroups.actions.ViewPanelToggleAction">
                 <add-to-group group-id="UIToggleActions"/>
             </action>

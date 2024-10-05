@@ -22,8 +22,6 @@ import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.getVirtualFileByAbsolutePath
 import java.awt.Component
 import java.awt.event.MouseEvent
-import java.util.*
-import java.util.stream.Collectors
 import javax.swing.JComponent
 
 class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentAction {
@@ -121,30 +119,51 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         }
       }
 
-      // Bookmark group
-      addBookmarkGroup(project, defaultActionGroup, editorGroupPanel, displayedGroup, file)
+      addBookmarkGroup(
+        project = project,
+        defaultActionGroup = defaultActionGroup,
+        panel = editorGroupPanel,
+        displayedGroup = displayedGroup,
+        file = file
+      )
+      fillOtherIndexedGroups(
+        group = tempGroup,
+        currentGroups = currentFileGroups,
+        displayedGroup = displayedGroup,
+        project = project
+      )
+      fillFavorites(
+        defaultActionGroup = tempGroup,
+        project = project,
+        editorGroups = currentFileGroups,
+        displayedGroup = displayedGroup
+      )
+      fillGlobalRegexGroups(
+        defaultActionGroup = tempGroup,
+        project = project,
+        displayedGroup = displayedGroup,
+        alreadyFilledRegexGroups = regexGroups
+      )
 
-      fillOtherIndexedGroups(tempGroup, currentFileGroups, displayedGroup, project)
-      fillFavorites(tempGroup, project, currentFileGroups, displayedGroup)
-      fillGlobalRegexGroups(tempGroup, project, displayedGroup, regexGroups)
 
+      when {
+        // If the option to group the groups is enabled
+        state().isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
+        else                             -> {
+          val childActionsOrStubs = tempGroup.childActionsOrStubs
+          val list = childActionsOrStubs.asSequence()
+            .filterNot { anAction: AnAction? -> anAction is Separator }
+            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.templatePresentation.text })
+            .toList()
 
-      if (state().isGroupSwitchGroupAction) {
-        defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
-      } else {
-        val childActionsOrStubs = tempGroup.childActionsOrStubs
-        val list = Arrays.stream(childActionsOrStubs)
-          .filter { anAction: AnAction? -> anAction !is Separator }
-          .sorted { o1: AnAction, o2: AnAction -> o1.templatePresentation.text.compareTo(o2.templatePresentation.text, ignoreCase = true) }
-          .collect(Collectors.toList())
-
-        defaultActionGroup.add(Separator())
-        defaultActionGroup.addAll(list)
+          defaultActionGroup.add(Separator())
+          defaultActionGroup.addAll(list)
+        }
       }
 
       defaultActionGroup.add(Separator())
-      //			defaultActionGroup.add(ActionManager.getInstance().getAction("krasa.editorGroups.TogglePanelVisibility"));
-      defaultActionGroup.add(ActionManager.getInstance().getAction("krasa.editorGroups.OpenConfiguration"))
+      defaultActionGroup.add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
+      defaultActionGroup.add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
     } catch (e: IndexNotReadyException) {
       thisLogger().error("That should not happen", e)
     }
