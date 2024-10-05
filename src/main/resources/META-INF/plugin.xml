@@ -39,7 +39,7 @@
         <br>
         <p>Thanks to Vojtech Krasa for creating this plugin.</p>
         <br>
-        <p>Copyright (c) 2015-2023 Vojtech Krasa and Elior Boukhobza</p>
+        <p>Copyright (c) 2015-2025 Vojtech Krasa and Elior Boukhobza</p>
         ]]></description>
 
     <depends>com.intellij.modules.lang</depends>
@@ -64,8 +64,15 @@
         <applicationService serviceImplementation="krasa.editorGroups.index.MyFileNameIndexService"/>
         <applicationConfigurable instance="krasa.editorGroups.MyConfigurable" id="EditorGroups"
                                  displayName="Editor Groups"/>
-        <!--<fileTypeFactory implementation="krasa.editorGroups.language.EditorGroupsTypeFactory"/>-->
-        <!--<defaultLiveTemplatesProvider implementation="krasa.editorGroups.support.EditorGroupsLiveTemplatesProvider"/>-->
+
+        <fileType name="EditorGroups"
+                  language="EditorGroups"
+                  id="EditorGroups"
+                  extensions="egroups"
+                  fieldName="INSTANCE"
+                  implementationClass="krasa.editorGroups.language.EditorGroupsFileType"
+        />
+        <defaultLiveTemplates file="liveTemplates/EditorGroups.xml"/>
 
         <lang.parserDefinition language="EditorGroups"
                                implementationClass="krasa.editorGroups.language.EditorGroupsParserDefinition"/>
@@ -98,7 +105,6 @@
                text="Editor Groups" description="Editor groups menu">
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ToolsMenu"/>
-            <add-to-group group-id="ChangeScheme" anchor="last"/>
             <add-to-group group-id="MainToolbarRight"/>
 
             <action id="krasa.editorGroups.SwitchGroup"

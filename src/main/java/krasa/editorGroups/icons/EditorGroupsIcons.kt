@@ -1,6 +1,7 @@
 package krasa.editorGroups.icons
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.util.IconLoader
 import javax.swing.Icon
 
 object EditorGroupsIcons {
@@ -11,4 +12,5 @@ object EditorGroupsIcons {
   val copy: Icon = AllIcons.Actions.Copy
   val groupBy: Icon = AllIcons.Actions.GroupBy
   val listFiles: Icon = AllIcons.Actions.ListFiles
+  val logo = IconLoader.getIcon("/icons/pluginIcon.svg", javaClass)
 }
