@@ -84,8 +84,8 @@ public class ProjectComponent implements com.intellij.openapi.components.Project
             EditorGroupManager instance = EditorGroupManager.getInstance(project);
             SwitchRequest switchRequest = instance.getAndClearSwitchingRequest(panel.getFile());
             if (switchRequest != null) {
-              EditorGroup switchingGroup = switchRequest.group;
-              int scrollOffset = switchRequest.myScrollOffset;
+              EditorGroup switchingGroup = switchRequest.getGroup();
+              int scrollOffset = switchRequest.getMyScrollOffset();
               panel.refreshOnSelectionChanged(false, switchingGroup, scrollOffset);
             } else {
               panel._refresh(false, null);

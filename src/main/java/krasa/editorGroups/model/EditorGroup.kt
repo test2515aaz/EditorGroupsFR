@@ -18,6 +18,7 @@ abstract class EditorGroup {
     get() = id
 
   abstract val title: String
+
   abstract val isValid: Boolean
 
   val isInvalid: Boolean
@@ -79,7 +80,6 @@ abstract class EditorGroup {
    * @return true if the project contains a link with the specified current
    *    file path, false otherwise
    */
-  @Suppress("unused")
   fun containsLink(project: Project, currentFilePath: String): Boolean {
     val links = getLinks(project)
     return links.any { it.path == currentFilePath }
@@ -185,12 +185,13 @@ abstract class EditorGroup {
   /** Whether smart mode (i.e. not dumb mode) is required for this group type. */
   open fun needSmartMode(): Boolean = false
 
+  fun exists(): Boolean = id != NOT_EXISTS
+
   companion object {
+    private const val NOT_EXISTS: String = "NOT_EXISTS"
+
     /** EMPTY group placeholder. */
     @JvmField
-    val EMPTY: EditorGroup = EditorGroupIndexValue("NOT_EXISTS", "NOT_EXISTS", false).setLinks(emptyList())
-
-    @JvmStatic
-    fun exists(group: EditorGroup): Boolean = group.id != "NOT_EXISTS"
+    val EMPTY: EditorGroup = EditorGroupIndexValue(NOT_EXISTS, NOT_EXISTS, false).setLinks(emptyList())
   }
 }

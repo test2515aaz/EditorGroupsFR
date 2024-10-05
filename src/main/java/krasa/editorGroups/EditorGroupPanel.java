@@ -1,6 +1,5 @@
 package krasa.editorGroups;
 
-import com.intellij.ide.DataManager;
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.ide.ui.customization.CustomActionsSchema;
 import com.intellij.openapi.Disposable;
@@ -15,7 +14,6 @@ import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.fileEditor.impl.text.TextEditorImpl;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressManager;
@@ -31,7 +29,6 @@ import com.intellij.util.concurrency.AppExecutorUtil;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
 import krasa.editorGroups.actions.PopupMenu;
-import krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction;
 import krasa.editorGroups.language.EditorGroupsLanguage;
 import krasa.editorGroups.model.*;
 import krasa.editorGroups.support.FileResolver;
@@ -100,12 +97,12 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     this.file = file;
     uniqueNameBuilder = new UniqueTabNameBuilder(project);
 
-    this.myScrollOffset = switchRequest == null ? 0 : switchRequest.myScrollOffset;
-    toBeRendered = switchRequest == null ? null : switchRequest.group;
+    this.myScrollOffset = switchRequest == null ? 0 : switchRequest.getMyScrollOffset();
+    toBeRendered = switchRequest == null ? null : switchRequest.getGroup();
     line = switchRequest == null ? null : switchRequest.getLine();
 
     groupManager = EditorGroupManager.getInstance(this.project);
-    fileEditorManager = (FileEditorManagerImpl) FileEditorManagerEx.getInstance(project);
+    fileEditorManager = FileEditorManagerEx.getInstance(project);
     fileEditor.putUserData(EDITOR_PANEL, this);
     if (fileEditor instanceof TextEditorImpl) {
       Editor editor = ((TextEditorImpl) fileEditor).getEditor();
@@ -158,7 +155,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
             IdeEventQueue.getInstance().blockNextEvents(e);
             tabs.setMyPopupInfo(info);
             try {
-              ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(AnActionEvent.createFromInputEvent(e, ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(tabs)));
+//              ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(AnActionEvent.createFromInputEvent(e, ActionPlaces.UNKNOWN, new Presentation(), DataManager.getInstance().getDataContext(tabs)));
             } finally {
               tabs.setMyPopupInfo(null);
             }
@@ -329,7 +326,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       addCurrentFileTab(path_name);
 
       if (displayedGroup instanceof GroupsHolder) {
-        createGroupLinks(((GroupsHolder) displayedGroup).groups);
+        createGroupLinks(((GroupsHolder) displayedGroup).getGroups());
       }
       if (displayedGroup.isStub()) {
         LOG.debug("#reloadTabs: stub - Adding Loading...");
@@ -390,7 +387,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
   private void addCurrentFileTab(Map<Link, String> path_name) {
     if (currentIndex < 0 && (EditorGroupsLanguage.isEditorGroupsLanguage(file))) {
-      Link link = Link.from(file, project);
+      Link link = Link.fromFile(file, project);
       MyTabInfo info = new MyTabInfo(link, path_name.get(link));
       customizeSelectedColor(info);
       currentIndex = 0;
@@ -435,7 +432,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
         name += ":" + line;
       }
       setText(name);
-      setTooltipText(link.path);
+      setTooltipText(link.getPath());
       setIcon(link.getFileIcon());
       if (!link.exists()) {
         setEnabled(false);
@@ -876,8 +873,8 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       requestedGroup = request.requestedGroup;
     }
 
-    return (requestedGroup != null && EditorGroup.exists(requestedGroup) && requestedGroup.needSmartMode()) ||
-      (requestedGroup == null && EditorGroup.exists(lastGroup) && lastGroup.needSmartMode()) ||
+    return (requestedGroup != null && requestedGroup.exists() && requestedGroup.needSmartMode()) ||
+      (requestedGroup == null && lastGroup.exists() && lastGroup.needSmartMode()) ||
       requestedGroup == null;
   }
 

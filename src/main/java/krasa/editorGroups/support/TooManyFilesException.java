@@ -8,7 +8,7 @@ public class TooManyFilesException extends RuntimeException {
   }
 
   public void showNotification() {
-    Notifications.warning(FOUND_TOO_MANY_MATCHING_FILES_SKIPPING);
+    Notifications.showWarning(FOUND_TOO_MANY_MATCHING_FILES_SKIPPING);
   }
 
 }

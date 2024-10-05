@@ -51,7 +51,5 @@ abstract class AutoGroup(protected var links: List<Link>) : EditorGroup() {
   companion object {
     const val SAME_FILE_NAME: String = "FILE_NAME"
     const val DIRECTORY: String = "DIRECTORY"
-
-    val HIDE_GROUP_INSTANCE: HidePanelGroup = HidePanelGroup()
   }
 }

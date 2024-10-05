@@ -26,7 +26,7 @@ class HidePanelGroup : EditorGroup() {
   override fun isOwner(ownerPath: String): Boolean = true
 
   override fun equals(other: Any?): Boolean = super.equals(other) || other is HidePanelGroup
-  
+
   override fun hashCode(): Int {
     var result = title.hashCode()
     result = 31 * result + isValid.hashCode()
@@ -35,5 +35,7 @@ class HidePanelGroup : EditorGroup() {
 
   companion object {
     const val ID: String = "HidePanelGroup"
+
+    val INSTANCE: HidePanelGroup = HidePanelGroup()
   }
 }

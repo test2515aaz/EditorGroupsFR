@@ -23,43 +23,64 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
 
   override fun getCustomBackground(tabColor: Color?, selected: Boolean, active: Boolean, hovered: Boolean): Color? {
     var bg: Color? = null
-    if (!selected) {
-      if (tabColor != null) {
-        bg = theme.inactiveColoredTabBackground?.let { inactive ->
-          ColorUtil.alphaBlending(inactive, tabColor)
-        } ?: tabColor
-      }
 
-      if (hovered) {
-        (if (active) theme.hoverBackground else theme.hoverInactiveBackground)?.let { hover ->
-          bg = bg?.let { ColorUtil.alphaBlending(hover, it) } ?: hover
+    when {
+      !selected -> {
+        // If the tab has a color, blend it with the inactive theme color
+        if (tabColor != null) {
+          bg = theme.inactiveColoredTabBackground?.let { inactive -> ColorUtil.alphaBlending(inactive, tabColor) } ?: tabColor
+        }
+
+        // If it is hovered, blend the background with the hover color
+        if (hovered) {
+          when {
+            active -> theme.hoverBackground
+            else   -> theme.hoverInactiveBackground
+          }?.let { hover ->
+            bg = bg?.let { ColorUtil.alphaBlending(hover, it) } ?: hover
+          }
         }
       }
-    } else {
-      bg = (tabColor ?: if (active) theme.underlinedTabBackground else theme.underlinedTabInactiveBackground)
-        ?: theme.background
-      if (hovered) {
-        (if (active) theme.hoverSelectedBackground else theme.hoverSelectedInactiveBackground).let { hover ->
-          bg = bg?.let { ColorUtil.alphaBlending(hover, it) } ?: hover
+
+      else      -> {
+        // Get the tab color, the selected tab or selected inactive
+        bg = when {
+          tabColor != null -> tabColor
+          active           -> theme.underlinedTabBackground
+          else             -> theme.underlinedTabInactiveBackground
+        }
+
+        // Or, return the background
+        bg = bg ?: theme.background
+
+        // If it's hovered, blend the background with the hover color
+        if (hovered) {
+          when {
+            active -> theme.hoverSelectedBackground
+            else   -> theme.hoverSelectedInactiveBackground
+          }.let { hover ->
+            bg = bg?.let { ColorUtil.alphaBlending(hover, it) } ?: hover
+          }
         }
       }
     }
+
     return bg
   }
 
   override fun fillBackground(g: Graphics2D, rect: Rectangle) {
-    theme.background?.let {
-      g.fill2DRect(rect, it)
-    }
+    theme.background?.let { g.fill2DRect(rect, it) }
   }
 
-  override fun paintTab(position: KrTabsPosition,
-                        g: Graphics2D,
-                        rect: Rectangle,
-                        borderThickness: Int,
-                        tabColor: Color?,
-                        active: Boolean,
-                        hovered: Boolean) {
+  override fun paintTab(
+    position: KrTabsPosition,
+    g: Graphics2D,
+    rect: Rectangle,
+    borderThickness: Int,
+    tabColor: Color?,
+    active: Boolean,
+    hovered: Boolean
+  ) {
     getCustomBackground(tabColor, selected = false, active, hovered)?.let {
       g.fill2DRect(rect, it)
     }
@@ -67,18 +88,20 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
     paintLeftRightBorders(g, borderThickness, rect, position)
   }
 
-  override fun paintSelectedTab(position: KrTabsPosition,
-                                g: Graphics2D,
-                                rect: Rectangle,
-                                borderThickness: Int,
-                                tabColor: Color?,
-                                active: Boolean,
-                                hovered: Boolean) {
+  override fun paintSelectedTab(
+    position: KrTabsPosition,
+    g: Graphics2D,
+    rect: Rectangle,
+    borderThickness: Int,
+    tabColor: Color?,
+    active: Boolean,
+    hovered: Boolean
+  ) {
     getCustomBackground(tabColor, selected = true, active, hovered)?.let {
       g.fill2DRect(rect, it)
     }
 
-    //this code smells. Remove when animation is default for all tabs
+    // this code smells. Remove when animation is default for all tabs
     if (!KrEditorTabsBorder.hasAnimation() || this !is KrEditorTabPainter) {
       paintUnderline(position, rect, borderThickness, g, active)
     }
@@ -87,39 +110,44 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
 
   private fun paintLeftRightBorders(g: Graphics2D, borderThickness: Int, rect: Rectangle, position: KrTabsPosition) {
     if (!position.isSide && Registry.`is`("ide.new.editor.tabs.vertical.borders")) {
-      paintBorderLine(g,
+      paintBorderLine(
+        g,
         borderThickness,
         Point(rect.x, rect.y),
-        Point(rect.x, rect.y + rect.height - 1))
-      paintBorderLine(g,
+        Point(rect.x, rect.y + rect.height - 1)
+      )
+
+      paintBorderLine(
+        g,
         borderThickness,
         Point(rect.x + rect.width - 1, rect.y),
-        Point(rect.x + rect.width - 1, rect.y + rect.height - 1))
+        Point(rect.x + rect.width - 1, rect.y + rect.height - 1)
+      )
     }
   }
 
-  override fun paintUnderline(position: KrTabsPosition,
-                              rect: Rectangle,
-                              borderThickness: Int,
-                              g: Graphics2D,
-                              active: Boolean) {
+  override fun paintUnderline(
+    position: KrTabsPosition,
+    rect: Rectangle,
+    borderThickness: Int,
+    g: Graphics2D,
+    active: Boolean
+  ) {
     val underline = underlineRectangle(position, rect, theme.underlineHeight)
     val arc = theme.underlineArc
     val color = if (active) theme.underlineColor else theme.inactiveUnderlineColor
-    if (arc > 0) {
-      g.fill2DRoundRect(underline, arc.toDouble(), color)
-    } else {
-      g.fill2DRect(underline, color)
+    when {
+      arc > 0 -> g.fill2DRoundRect(underline, arc.toDouble(), color)
+      else    -> g.fill2DRect(underline, color)
     }
   }
 
-  override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point) {
+  override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point) =
     g.paint2DLine(from, to, LinePainter2D.StrokeType.INSIDE, thickness.toDouble(), theme.borderColor)
-  }
 
-  protected open fun underlineRectangle(position: KrTabsPosition,
-                                        rect: Rectangle,
-                                        thickness: Int): Rectangle {
-    return Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
-  }
+  protected open fun underlineRectangle(
+    position: KrTabsPosition,
+    rect: Rectangle,
+    thickness: Int
+  ): Rectangle = Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
 }

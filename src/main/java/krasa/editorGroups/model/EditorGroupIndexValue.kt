@@ -11,6 +11,7 @@ import java.util.*
 import javax.swing.Icon
 import kotlin.concurrent.Volatile
 
+/** Represents an editorGroup but for indexing. */
 class EditorGroupIndexValue : EditorGroup {
   override var id = ""
     set(value) {
@@ -28,7 +29,6 @@ class EditorGroupIndexValue : EditorGroup {
     }
 
   var root: String? = ""
-    private set
 
   var backgroundColor: String = ""
     set(value) {
@@ -74,7 +74,7 @@ class EditorGroupIndexValue : EditorGroup {
       return fgColorInstance
     }
 
-  private val relatedPaths: MutableList<String> = ArrayList()
+  val relatedPaths: MutableList<String> = ArrayList()
 
   override val isValid: Boolean
     get() = valid
@@ -150,22 +150,15 @@ class EditorGroupIndexValue : EditorGroup {
   /** FOR INDEX STORE. */
   override fun hashCode(): Int {
     var result = id.hashCode()
-    result = 31 * result + (ownerPath.hashCode())
-    result = 31 * result + (if (root != null) root.hashCode() else 0)
-    result = 31 * result + (title.hashCode())
-    result = 31 * result + (backgroundColor.hashCode())
-    result = 31 * result + (foregroundColor.hashCode())
+    result = 31 * result + ownerPath.hashCode()
+    result = 31 * result + if (root != null) root.hashCode() else 0
+    result = 31 * result + title.hashCode()
+    result = 31 * result + backgroundColor.hashCode()
+    result = 31 * result + foregroundColor.hashCode()
     result = 31 * result + relatedPaths.hashCode()
     return result
   }
 
   override fun toString(): String =
-    "EditorGroupIndexValue{id='$id', " +
-      "ownerFile='$ownerPath', " +
-      "root='$root', " +
-      "title='$title', " +
-      "backgroundColor='$backgroundColor', " +
-      "foregroundColor='$foregroundColor', " +
-      "relatedPaths=$relatedPaths, " +
-      "valid=$valid}"
+    "EditorGroupIndexValue{id='$id', ownerFile='$ownerPath', root='$root', title='$title', backgroundColor='$backgroundColor', foregroundColor='$foregroundColor', relatedPaths=$relatedPaths, valid=$valid}"
 }
