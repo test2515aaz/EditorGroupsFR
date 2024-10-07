@@ -1,6 +1,7 @@
 <idea-plugin>
     <id>EditorGroups</id>
     <name>Editor Groups</name>
+    <idea-version since-build="2024.3"/>
     <vendor url="https://github.com/krasa/EditorGroups" email="vojta.krasa@gmail.com">Vojtech Krasa</vendor>
 
     <description><![CDATA[
@@ -84,13 +85,8 @@
                                 implementationClass="krasa.editorGroups.language.MyCompletionContributor"
                                 id="EditorGroups_MyCompletionContributor"/>
         <themeMetadataProvider path="/themes/metadata/EditorGroups.themeMetadata.json"/>
+        <postStartupActivity implementation="krasa.editorGroups.EditorGroupsStartup"/>
     </extensions>
-
-    <project-components>
-        <component>
-            <implementation-class>krasa.editorGroups.ProjectComponent</implementation-class>
-        </component>
-    </project-components>
 
     <actions>
         <group id="EditorGroupsTabPopupMenu">

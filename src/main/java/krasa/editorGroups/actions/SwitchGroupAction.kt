@@ -175,8 +175,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * TODO use new bookmark system
    *
    * @param project The current project instance.
-   * @param defaultActionGroup The action group to which the bookmark action
-   *    will be added.
+   * @param defaultActionGroup The action group to which the bookmark action will be added.
    * @param panel Optional panel to be updated upon bookmark action.
    * @param displayedGroup The editor group to be displayed.
    * @param file Optional virtual file to check for bookmark availability.
@@ -276,14 +275,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Fills the provided action group with actions for all editor groups that
-   * are indexed but not currently displayed.
+   * Fills the provided action group with actions for all editor groups that are indexed but not currently displayed.
    *
    * @param group The action group to fill with actions.
-   * @param currentGroups A list of editor groups that are currently
-   *    displayed.
-   * @param displayedGroup The editor group that is currently being
-   *    displayed.
+   * @param currentGroups A list of editor groups that are currently displayed.
+   * @param displayedGroup The editor group that is currently being displayed.
    * @param project The current project.
    */
   private fun fillOtherIndexedGroups(
@@ -322,13 +318,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Populates the given `defaultActionGroup` with favorite editor groups
-   * that are not already displayed in the provided `editorGroups`.
+   * Populates the given `defaultActionGroup` with favorite editor groups that are not already displayed in the provided `editorGroups`.
    *
    * TODO deprecate favorites
    *
-   * @param defaultActionGroup The action group to which favorite groups will
-   *    be added.
+   * @param defaultActionGroup The action group to which favorite groups will be added.
    * @param project The current project context.
    * @param editorGroups The list of current editor groups.
    * @param displayedGroup The editor group that is currently displayed.
@@ -362,12 +356,10 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   /**
    * Add regex groups that do not belong to the current file
    *
-   * @param defaultActionGroup The action group to which regex actions will
-   *    be added.
+   * @param defaultActionGroup The action group to which regex actions will be added.
    * @param project The current project context.
    * @param displayedGroup The currently displayed editor group.
-   * @param alreadyFilledRegexGroups List of regex groups that are already
-   *    filled/displayed.
+   * @param alreadyFilledRegexGroups List of regex groups that are already filled/displayed.
    */
   private fun fillGlobalRegexGroups(
     defaultActionGroup: DefaultActionGroup,
@@ -417,14 +409,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Handles the given editor group by attempting to open the first existing
-   * file in the group within the specified project. If the file does not
-   * exist, it uses the owner path of the group to find a corresponding
-   * virtual file and attempts to open it. Displays a warning if neither the
-   * file nor the owner path exists.
+   * Handles the given editor group by attempting to open the first existing file in the group within the specified project. If the file
+   * does not exist, it uses the owner path of the group to find a corresponding virtual file and attempts to open it. Displays a warning if
+   * neither the file nor the owner path exists.
    *
-   * @param project The project context within which the editor group is
-   *    handled.
+   * @param project The project context within which the editor group is handled.
    * @return A newly instantiated handler for the specified editor group.
    */
   private fun otherGroupHandler(project: Project): Handler = object : Handler() {
@@ -433,10 +422,10 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       val file = editorGroup.getFirstExistingFile(project)
       if (file != null) {
-        editorGroupManager.open(
-          virtualFileByAbsolutePath = file,
-          window = false,
-          tab = true,
+        editorGroupManager.openFile(
+          fileToOpen = file,
+          newWindow = false,
+          newTab = true,
           split = Splitters.NONE,
           group = editorGroup,
           current = null
@@ -447,10 +436,10 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       val ownerPath = editorGroup.ownerPath
       val virtualFileByAbsolutePath = getVirtualFileByAbsolutePath(ownerPath)
       if (virtualFileByAbsolutePath != null) {
-        editorGroupManager.open(
-          virtualFileByAbsolutePath = virtualFileByAbsolutePath,
-          window = false,
-          tab = true,
+        editorGroupManager.openFile(
+          fileToOpen = virtualFileByAbsolutePath,
+          newWindow = false,
+          newTab = true,
           split = Splitters.NONE,
           group = editorGroup,
           current = null

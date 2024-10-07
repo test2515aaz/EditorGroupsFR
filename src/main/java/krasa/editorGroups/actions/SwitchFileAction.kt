@@ -16,7 +16,7 @@ import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.BitUtil
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.Splitters.Companion.from
+import krasa.editorGroups.Splitters
 import krasa.editorGroups.UniqueTabNameBuilder
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.support.Notifications.showWarning
@@ -30,9 +30,8 @@ import javax.swing.KeyStroke
 /**
  * Represents an action for switching files within a project.
  *
- * This action displays a popup that allows users to switch between files
- * in various ways, such as opening files in new tabs, new windows, or
- * split views.
+ * This action displays a popup that allows users to switch between files in various ways, such as opening files in new tabs, new windows,
+ * or split views.
  */
 class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
   override fun showPopup(e: AnActionEvent, popup: ListPopup) {
@@ -120,8 +119,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
    *
    * @param project The current project within which the method is called.
    * @param defaultActionGroup The group of actions to populate.
-   * @param dataContext The context containing data related to the current
-   *    file editor.
+   * @param dataContext The context containing data related to the current file editor.
    */
   override fun fillActions(project: Project, defaultActionGroup: DefaultActionGroup, dataContext: DataContext) {
     try {
@@ -194,13 +192,13 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
       val openInNewTab = BitUtil.isSet(e.modifiers, InputEvent.CTRL_DOWN_MASK)
       val openInNewWindow = BitUtil.isSet(e.modifiers, InputEvent.SHIFT_DOWN_MASK)
 
-      EditorGroupManager.getInstance(project).open(
+      EditorGroupManager.getInstance(project).openGroupFile(
         groupPanel = panel,
         fileToOpen = virtualFile,
         line = null,
         newWindow = openInNewWindow,
         newTab = openInNewTab,
-        split = from(e)
+        split = Splitters.from(e)
       )
     }
   }
