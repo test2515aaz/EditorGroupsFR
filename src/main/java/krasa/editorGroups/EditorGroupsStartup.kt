@@ -1,28 +1,19 @@
 package krasa.editorGroups
 
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileEditor.*
-import com.intellij.openapi.fileEditor.ex.FileEditorWithProvider
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.support.unwrapPreview
 
-class EditorGroupsStartup : ProjectActivity {
-  override suspend fun execute(project: Project) {
+class EditorGroupsStartup(private val project: Project) : ProjectComponent {
+  override fun projectOpened() {
     EditorGroupManager.getInstance(project).initCache()
 
     project.messageBus.connect()
       .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, object : FileEditorManagerListener {
-        override fun fileOpenedSync(
-          source: FileEditorManager,
-          file: VirtualFile,
-          editorsWithProviders: List<FileEditorWithProvider?>
-        ) {
-          super.fileOpenedSync(source, file, editorsWithProviders)
-        }
-
         override fun fileOpenedSync(
           manager: FileEditorManager,
           file: VirtualFile,

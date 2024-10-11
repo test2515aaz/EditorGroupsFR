@@ -85,8 +85,14 @@
                                 implementationClass="krasa.editorGroups.language.MyCompletionContributor"
                                 id="EditorGroups_MyCompletionContributor"/>
         <themeMetadataProvider path="/themes/metadata/EditorGroups.themeMetadata.json"/>
-        <postStartupActivity implementation="krasa.editorGroups.EditorGroupsStartup"/>
+        <!--<postStartupActivity implementation="krasa.editorGroups.EditorGroupsStartup"/>-->
     </extensions>
+
+    <project-components>
+        <component>
+            <implementation-class>krasa.editorGroups.EditorGroupsStartup</implementation-class>
+        </component>
+    </project-components>
 
     <actions>
         <group id="EditorGroupsTabPopupMenu">
