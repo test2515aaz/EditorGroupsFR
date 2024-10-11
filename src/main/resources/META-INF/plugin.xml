@@ -52,8 +52,6 @@
         <editorTabTitleProvider implementation="krasa.editorGroups.EditorGroupTabTitleProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
 
-        <!--<fileBasedIndex implementation="krasa.editorGroups.EditorGroupFileBasedIndexExtension"/>-->
-
         <applicationService serviceImplementation="krasa.editorGroups.EditorGroupsSettings"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
@@ -85,14 +83,12 @@
                                 implementationClass="krasa.editorGroups.language.MyCompletionContributor"
                                 id="EditorGroups_MyCompletionContributor"/>
         <themeMetadataProvider path="/themes/metadata/EditorGroups.themeMetadata.json"/>
-        <!--<postStartupActivity implementation="krasa.editorGroups.EditorGroupsStartup"/>-->
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>krasa.editorGroups.EditorGroupsStartup</implementation-class>
-        </component>
-    </project-components>
+    <!--suppress PluginXmlValidity -->
+    <projectListeners>
+        <listener class="krasa.editorGroups.EditorGroupsStartup" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
 
     <actions>
         <group id="EditorGroupsTabPopupMenu">
