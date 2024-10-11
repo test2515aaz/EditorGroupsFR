@@ -183,8 +183,7 @@ val colorMap = hashMapOf(
 val colorSet = colorMap.keys
 
 /**
- * Retrieves the presentable name from a given path, e.g. the last element
- * of the path, without the extension.
+ * Retrieves the presentable name from a given path, e.g. the last element of the path, without the extension.
  *
  * @param path the path from which to retrieve the presentable name
  * @return the presentable name
@@ -207,13 +206,10 @@ fun toPresentableName(path: String): String {
 }
 
 /**
- * Retrieves the Color instance based on the specified color name and
- * modifiers.
+ * Retrieves the Color instance based on the specified color name and modifiers.
  *
- * @param color the color name with optional modifiers. Format:
- *    "colorName[+/-tones]". Examples: "red", "blue+2", "green-1".
- * @return the Color instance corresponding to the provided color name and
- *    modifiers, or null if not found.
+ * @param color the color name with optional modifiers. Format: "colorName[+/-tones]". Examples: "red", "blue+2", "green-1".
+ * @return the Color instance corresponding to the provided color name and modifiers, or null if not found.
  */
 fun getColorInstance(color: String): Color? {
   var colorName = color
@@ -261,14 +257,11 @@ fun getColorInstance(color: String): Color? {
 }
 
 /**
- * Removes the extension from the given [result] if it ends with
- * [separator].
+ * Removes the extension from the given [result] if it ends with [separator].
  *
  * @param result The string from which to remove the extension.
- * @param separator The separator used to check if the [result] ends with
- *    it.
- * @return The [result] without the extension if it ends with [separator],
- *    otherwise the [result] itself.
+ * @param separator The separator used to check if the [result] ends with it.
+ * @return The [result] without the extension if it ends with [separator], otherwise the [result] itself.
  */
 fun cutExtension(result: String, separator: String): String {
   val withoutExtension = FileUtil.getNameWithoutExtension(result)
@@ -340,12 +333,10 @@ fun getFileByPath(path: String, currentFile: VirtualFile?): VirtualFile? {
 fun getFileByPath(path: String): VirtualFile? = getFileByPath(path, null)
 
 /**
- * Retrieves a VirtualFile instance corresponding to the given link's file
- * path.
+ * Retrieves a VirtualFile instance corresponding to the given link's file path.
  *
  * @param link The Link object containing the file path.
- * @return The VirtualFile found at the specified path, or null if no file
- *    is found.
+ * @return The VirtualFile found at the specified path, or null if no file is found.
  */
 fun getFileByPath(link: Link): VirtualFile? = getFileByPath(link.path)
 
@@ -369,13 +360,10 @@ fun getVirtualFileByAbsolutePath(path: String): VirtualFile? = if (File(path).ex
 
 /** Get file from text editor. */
 fun getFileFromTextEditor(project: Project?, textEditor: FileEditor): VirtualFile =
-  unwrap(textEditor.file) ?: throw RuntimeException("File not found for $textEditor")
+  unwrapPreview(textEditor.file) ?: throw RuntimeException("File not found for $textEditor")
 
-/**
- * Return the file after trying to unwrap it from another plugin's wrap, if
- * necessary.
- */
-fun unwrap(file: VirtualFile?): VirtualFile? {
+/** Return the file after trying to unwrap it from another plugin's wrap, if necessary. */
+fun unwrapPreview(file: VirtualFile?): VirtualFile? {
   var result = file ?: return null
 
   try {
@@ -396,8 +384,7 @@ fun unwrap(file: VirtualFile?): VirtualFile? {
  *
  * @param file the file to get the canonical path of
  * @return the canonical path of the given file
- * @throws RuntimeException if an IOException occurs while getting the
- *    canonical path
+ * @throws RuntimeException if an IOException occurs while getting the canonical path
  */
 fun getCanonicalPath(file: File): String = try {
   file.canonicalPath
@@ -409,8 +396,7 @@ fun getCanonicalPath(file: File): String = try {
  * Checks whether the given file belongs to the local file system.
  *
  * @param currentFile The file to check.
- * @return `true` if the file is in the local file system, `false`
- *    otherwise.
+ * @return `true` if the file is in the local file system, `false` otherwise.
  */
 fun isInLocalFileSystem(currentFile: VirtualFile): Boolean = currentFile.fileSystem is LocalFileSystem
 
@@ -446,8 +432,7 @@ fun isBlank(cs: CharSequence?): Boolean {
  * Retrieves the content of a file specified by the given URL.
  *
  * @param url the URL of the file to retrieve the content from
- * @return the content of the file as a string, or null if the file does
- *    not exist or cannot be accessed
+ * @return the content of the file as a string, or null if the file does not exist or cannot be accessed
  */
 fun getFileContent(url: VirtualFile): String? = FileDocumentManager.getInstance().getDocument(url)?.text
 
@@ -455,8 +440,7 @@ fun getFileContent(url: VirtualFile): String? = FileDocumentManager.getInstance(
  * Retrieves the content of a file specified by the given ownerPath.
  *
  * @param ownerPath the path of the file to retrieve the content from
- * @return the content of the file as a string, or null if the file does
- *    not exist or cannot be accessed
+ * @return the content of the file as a string, or null if the file does not exist or cannot be accessed
  */
 fun getFileContent(ownerPath: String): String? {
   val fileByPath = getFileByPath(ownerPath) ?: return null
@@ -464,11 +448,9 @@ fun getFileContent(ownerPath: String): String? {
 }
 
 /**
- * Retrieves the virtual file associated with the given URL. Returns `null`
- * if no file is found.
+ * Retrieves the virtual file associated with the given URL. Returns `null` if no file is found.
  *
  * @param url The URL of the file.
- * @return The virtual file associated with the given URL, or `null` if no
- *    file is found.
+ * @return The virtual file associated with the given URL, or `null` if no file is found.
  */
 fun getFileByUrl(url: String): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl(url)

@@ -21,19 +21,15 @@ enum class Splitters {
 
   companion object {
     @JvmStatic
-    fun from(alt: Boolean, shift: Boolean): Splitters {
-      when {
-        alt && shift -> return HORIZONTAL
-        alt          -> return VERTICAL
-        else         -> return NONE
-      }
+    fun from(alt: Boolean, shift: Boolean): Splitters = when {
+      alt && shift -> HORIZONTAL
+      alt          -> VERTICAL
+      else         -> NONE
     }
 
-    fun from(set: Boolean): Splitters {
-      when {
-        set  -> return VERTICAL
-        else -> return NONE
-      }
+    fun from(alt: Boolean): Splitters = when {
+      alt  -> VERTICAL
+      else -> NONE
     }
 
     fun from(e: InputEvent): Splitters = from(BitUtil.isSet(e.modifiersEx, InputEvent.ALT_DOWN_MASK))
@@ -42,9 +38,9 @@ enum class Splitters {
     fun from(e: AnActionEvent): Splitters {
       val alt = BitUtil.isSet(e.modifiers, InputEvent.ALT_DOWN_MASK)
       val shift = BitUtil.isSet(e.modifiers, InputEvent.SHIFT_DOWN_MASK)
-      when {
-        alt && shift -> return HORIZONTAL
-        else         -> return from(alt)
+      return when {
+        alt && shift -> HORIZONTAL
+        else         -> from(alt)
       }
     }
   }

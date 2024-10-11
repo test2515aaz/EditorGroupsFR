@@ -578,7 +578,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       return false;
     }
 
-    EditorGroupManager.Result result = groupManager.open(this, link.getVirtualFile(), link.getLine(), newWindow, newTab, split);
+    EditorGroupManager.Result result = groupManager.openGroupFile(this, link.getVirtualFile(), link.getLine(), newWindow, newTab, split);
 
 
     if (result != null && result.isScrolledOnly()) {
@@ -670,7 +670,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
 
   private void focusGained() {
     _refresh(false, null);
-    groupManager.enableSwitching();
+    groupManager.stopSwitching();
   }
 
   public void refreshOnSelectionChanged(boolean refresh, EditorGroup switchingGroup, int scrollOffset) {
@@ -680,7 +680,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       tabs.scroll(myScrollOffset);
     }
     _refresh(refresh, switchingGroup);
-    groupManager.enableSwitching();
+    groupManager.stopSwitching();
   }
 
   volatile boolean interrupt;
@@ -741,7 +741,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
       }
       if (skipRefresh) {
         if (!(fileEditor instanceof TextEditorImpl)) {
-          groupManager.enableSwitching(); //need for UI forms - when switching to open editors , focus listener does not do that
+          groupManager.stopSwitching(); //need for UI forms - when switching to open editors , focus listener does not do that
         } else {
           //switched by bookmark shortcut -> need to select the right tab
           Editor editor = ((TextEditorImpl) fileEditor).getEditor();
@@ -922,7 +922,7 @@ public class EditorGroupPanel extends JBPanel implements Weighted, Disposable {
     fileEditorManager.updateFilePresentation(file);
     toolbar.updateActionsAsync();
 
-    groupManager.enableSwitching();
+    groupManager.stopSwitching();
     if (LOG.isDebugEnabled())
       LOG.debug("<refreshOnEDT " + (System.currentTimeMillis() - start) + "ms " + fileEditor.getName() + ", displayedGroup=" + displayedGroup);
   }

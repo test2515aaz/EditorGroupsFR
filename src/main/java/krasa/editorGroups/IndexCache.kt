@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
-import krasa.editorGroups.ProjectComponent.StringPair
+import krasa.editorGroups.EditorGroupProjectStorage.StringPair
 import krasa.editorGroups.index.EditorGroupIndex
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver
@@ -48,9 +48,9 @@ class IndexCache(private val project: Project) {
       return all
     }
 
-  val state: ProjectComponent.State
+  val state: EditorGroupProjectStorage.State
     get() {
-      val state = ProjectComponent.State()
+      val state = EditorGroupProjectStorage.State()
       val autoSameName = config.isAutoSameName
       val autoFolders = config.isAutoFolders
 
@@ -114,8 +114,8 @@ class IndexCache(private val project: Project) {
   fun clear() = groupsByLinks.clear()
 
   /**
-   * Validates the given [group]. This method checks if the given [group] is
-   * valid and performs additional validation based on the type of group.
+   * Validates the given [group]. This method checks if the given [group] is valid and performs additional validation based on the type of
+   * group.
    *
    * @param group The [EditorGroup] to validate.
    */
@@ -198,8 +198,7 @@ class IndexCache(private val project: Project) {
   }
 
   /**
-   * Initializes the given group by adding it to the groupsByLinks map,
-   * setting its links, and adding its related paths.
+   * Initializes the given group by adding it to the groupsByLinks map, setting its links, and adding its related paths.
    *
    * @param group The EditorGroupIndexValue to initialize.
    * @throws ProcessCanceledException if the process is canceled.
@@ -225,10 +224,8 @@ class IndexCache(private val project: Project) {
    * @param currentFile The VirtualFile currently open in the editor.
    * @param currentFilePath The path of the current file.
    * @param includeAutoGroups Whether to include auto groups in the result.
-   * @param includeFavorites Whether to include favorite groups in the
-   *    result.
-   * @param stub Whether to return a stub group if no other valid group is
-   *    found.
+   * @param includeFavorites Whether to include favorite groups in the result.
+   * @param stub Whether to return a stub group if no other valid group is found.
    * @return The last EditorGroup based on the provided parameters.
    */
   fun getLastEditorGroup(
@@ -274,10 +271,8 @@ class IndexCache(private val project: Project) {
    *
    * @param last The last group identifier.
    * @param includeAutoGroups Whether to include auto groups in the result.
-   * @param includeFavorites Whether to include favorite groups in the
-   *    result.
-   * @param stub Whether to return a stub group if no other valid group is
-   *    found.
+   * @param includeFavorites Whether to include favorite groups in the result.
+   * @param stub Whether to return a stub group if no other valid group is found.
    * @param currentFile The VirtualFile currently open in the editor.
    * @return The calculated EditorGroup based on the input parameters.
    */
@@ -318,8 +313,7 @@ class IndexCache(private val project: Project) {
   /**
    * Finds all EditorGroups associated with the given currentFile.
    *
-   * @param currentFile The [VirtualFile] for which [EditorGroups] are to be
-   *    found.
+   * @param currentFile The [VirtualFile] for which [EditorGroups] are to be found.
    * @return A List of [EditorGroup] objects found for the currentFile.
    */
   fun findGroups(currentFile: VirtualFile): List<EditorGroup> {
@@ -339,10 +333,8 @@ class IndexCache(private val project: Project) {
   /**
    * Retrieves the EditorGroup associated with the given VirtualFile.
    *
-   * @param currentFile The [VirtualFile] for which the [EditorGroup] is to
-   *    be retrieved.
-   * @return The [EditorGroup] corresponding to the currentFile. Returns an
-   *    empty [EditorGroup] if no groups are found.
+   * @param currentFile The [VirtualFile] for which the [EditorGroup] is to be retrieved.
+   * @return The [EditorGroup] corresponding to the currentFile. Returns an empty [EditorGroup] if no groups are found.
    */
   fun getMultiGroup(currentFile: VirtualFile): EditorGroup {
     var result = EditorGroup.EMPTY
@@ -397,10 +389,12 @@ class IndexCache(private val project: Project) {
 
   fun getLast(currentFilePath: String): String? = groupsByLinks[currentFilePath]?.last
 
-  fun loadState(state: ProjectComponent.State) {
-    for (stringStringPair in state.lastGroup) {
+  fun loadState(state: EditorGroupProjectStorage.State) {
+    state.lastGroup.forEach { stringStringPair ->
+      if (stringStringPair.key == null || stringStringPair.value == null) return@forEach
+
       val editorGroups = EditorGroups()
-      groupsByLinks[stringStringPair.key] = editorGroups
+      groupsByLinks[stringStringPair.key!!] = editorGroups
       editorGroups.last = stringStringPair.value
     }
   }
@@ -408,8 +402,7 @@ class IndexCache(private val project: Project) {
   /**
    * Removes all editor groups associated with the provided owner path.
    *
-   * @param ownerPath The path of the owner for which editor groups need to
-   *    be removed.
+   * @param ownerPath The path of the owner for which editor groups need to be removed.
    */
   fun removeGroup(ownerPath: String) {
     groupsByLinks.values.forEach { editorGroups ->

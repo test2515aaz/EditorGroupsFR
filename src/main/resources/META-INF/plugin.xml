@@ -1,6 +1,7 @@
 <idea-plugin>
     <id>EditorGroups</id>
     <name>Editor Groups</name>
+    <idea-version since-build="2024.3"/>
     <vendor url="https://github.com/krasa/EditorGroups" email="vojta.krasa@gmail.com">Vojtech Krasa</vendor>
 
     <description><![CDATA[
@@ -51,8 +52,6 @@
         <editorTabTitleProvider implementation="krasa.editorGroups.EditorGroupTabTitleProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
 
-        <!--<fileBasedIndex implementation="krasa.editorGroups.EditorGroupFileBasedIndexExtension"/>-->
-
         <applicationService serviceImplementation="krasa.editorGroups.EditorGroupsSettings"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
@@ -86,11 +85,10 @@
         <themeMetadataProvider path="/themes/metadata/EditorGroups.themeMetadata.json"/>
     </extensions>
 
-    <project-components>
-        <component>
-            <implementation-class>krasa.editorGroups.ProjectComponent</implementation-class>
-        </component>
-    </project-components>
+    <!--suppress PluginXmlValidity -->
+    <projectListeners>
+        <listener class="krasa.editorGroups.EditorGroupsStartup" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
 
     <actions>
         <group id="EditorGroupsTabPopupMenu">
