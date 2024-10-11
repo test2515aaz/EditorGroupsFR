@@ -1,18 +1,16 @@
 package krasa.editorGroups
 
 import com.intellij.openapi.diagnostic.thisLogger
-import com.intellij.openapi.fileEditor.*
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent
+import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Pair
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.support.unwrapPreview
 
 class EditorGroupsStartup : FileEditorManagerListener {
-  override fun fileOpenedSync(
-    manager: FileEditorManager,
-    file: VirtualFile,
-    editors: Pair<Array<FileEditor>?, Array<FileEditorProvider?>?>
-  ) {
+  override fun fileOpened(manager: FileEditorManager, file: VirtualFile) {
     val project = manager.project
     thisLogger().debug(">fileOpenedSync [$file]")
 
@@ -20,9 +18,10 @@ class EditorGroupsStartup : FileEditorManagerListener {
     val editorGroupManager = EditorGroupManager.getInstance(project)
 
     val switchRequest = editorGroupManager.getAndClearSwitchingRequest(fileToOpen)
+    val editors = manager.getEditors(fileToOpen)
 
     // Create editor group panel if it doesn't exist'
-    for (fileEditor in editors.getFirst()!!) {
+    for (fileEditor in editors) {
       if (fileEditor.getUserData(EditorGroupPanel.EDITOR_PANEL) != null) continue
 
       val start = System.currentTimeMillis()
