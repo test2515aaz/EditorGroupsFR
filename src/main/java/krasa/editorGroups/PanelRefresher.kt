@@ -12,7 +12,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.indexing.FileBasedIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,15 +20,12 @@ import krasa.editorGroups.model.BookmarkGroup
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.model.FolderGroup
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.BiConsumer
 
 @Service(Service.Level.PROJECT)
 class PanelRefresher(private val project: Project) {
   private val cacheReady = AtomicBoolean()
-  private val ourThreadExecutorsService: ExecutorService =
-    AppExecutorUtil.createBoundedApplicationPoolExecutor("Krasa.editorGroups.PanelRefresher-${project.name}", 1)
   private val cache: IndexCache = IndexCache.getInstance(project)
 
   init {
