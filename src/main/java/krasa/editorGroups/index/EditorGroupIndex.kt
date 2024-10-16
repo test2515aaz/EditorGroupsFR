@@ -48,6 +48,7 @@ class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>(
       return value
     }
   }
+
   private val myIndexer: DataIndexer<String, EditorGroupIndexValue, FileContent> = EditorGroupIndexer()
 
   private val myInputFilter = FileBasedIndex.InputFilter { file: VirtualFile ->

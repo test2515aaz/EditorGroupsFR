@@ -5,6 +5,7 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.progress.ProgressManager
@@ -18,7 +19,7 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import krasa.editorGroups.EditorGroupsSettingsState
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
-import krasa.editorGroups.index.MyFileNameIndexService
+import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.model.Link
@@ -34,7 +35,7 @@ import java.io.IOException
 import java.util.*
 import kotlin.Throws
 
-class FileResolver {
+open class FileResolver {
   protected val project: Project?
   protected val excludeEditorGroupsFiles: Boolean
   private val links: MutableSet<String?>
@@ -71,7 +72,12 @@ class FileResolver {
   }
 
   @Throws(IOException::class)
-  private fun resolve2(ownerFilePath: String?, root: String?, relatedPaths: List<String>, group: EditorGroupIndexValue): List<Link> {
+  private fun resolve2(
+    ownerFilePath: String?,
+    root: String?,
+    relatedPaths: List<String>,
+    group: EditorGroupIndexValue
+  ): List<Link> {
     val start = System.currentTimeMillis()
     val ownerFile = getNullableFileByPath(ownerFilePath)
     val rootFolder = resolveRootFolder(ownerFilePath, root, group, ownerFile)
@@ -102,11 +108,11 @@ class FileResolver {
       val delta = System.currentTimeMillis() - newStart
 
       if (delta > 100) {
-        if (LOG.isDebugEnabled) LOG.debug("resolveLink $filePath ${delta}ms")
+        thisLogger().debug("resolveLink $filePath ${delta}ms")
       }
     }
 
-    if (LOG.isDebugEnabled) LOG.debug("<resolveLinks ${System.currentTimeMillis() - start}ms links=$links")
+    thisLogger().debug("<resolveLinks ${System.currentTimeMillis() - start}ms links=$links")
 
     return Link.from(links, project)
   }
@@ -117,7 +123,7 @@ class FileResolver {
     if (newRoot.startsWith("..")) {
       val file = File(ownerFilePath?.let { File(it).parentFile }, newRoot)
 
-      if (LOG.isDebugEnabled) LOG.debug("root $file exists=${file.exists()}")
+      thisLogger().debug("root $file exists=${file.exists()}")
 
       newRoot = getCanonicalPath(file)
     }
@@ -151,8 +157,7 @@ class FileResolver {
       fileName = StringUtils.substringAfterLast(fileName, "/")
     }
 
-    val virtualFilesByName = MyFileNameIndexService.getVirtualFilesByName(
-      project,
+    val virtualFilesByName = FileNameIndexService.instance.getVirtualFilesByName(
       fileName,
       !SystemInfo.isWindows,
       GlobalSearchScope.allScope(project!!)
@@ -193,13 +198,13 @@ class FileResolver {
   protected fun resolve(file: File) {
     when {
       file.isFile      -> add(file, true)
-      file.isDirectory -> addChilds(file)
+      file.isDirectory -> addChildren(file)
       else             -> addMatching(file)
     }
   }
 
   @Throws(IOException::class)
-  protected fun addChilds(parentDir: File) {
+  protected fun addChildren(parentDir: File) {
     val foundFiles = checkNotNull(parentDir.listFiles(FileFileFilter.INSTANCE as FileFilter))
     for (foundFile in foundFiles) {
       add(foundFile, false)
@@ -267,7 +272,7 @@ class FileResolver {
 
     @Throws(ProcessCanceledException::class)
     fun resolveLinks(group: EditorGroupIndexValue, project: Project): List<Link> {
-      if (LOG.isDebugEnabled) LOG.debug("<resolveLinks [$group], project = [${project.name}]")
+      thisLogger().debug("<resolveLinks [$group], project = [${project.name}]")
 
       return resolveLinks(
         project = project,
@@ -285,7 +290,7 @@ class FileResolver {
       relatedPaths: List<String>,
       group: EditorGroupIndexValue
     ): List<Link> {
-      if (LOG.isDebugEnabled) LOG.debug("<resolveLinks ownerFilePath=$ownerFilePath, root=$root, relatedPaths=$relatedPaths, group = [$group]")
+      thisLogger().debug("<resolveLinks ownerFilePath=$ownerFilePath, root=$root, relatedPaths=$relatedPaths, group = [$group]")
 
       return FileResolver(project).resolve(
         ownerFilePath = ownerFilePath,

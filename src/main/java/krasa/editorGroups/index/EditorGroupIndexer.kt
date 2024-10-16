@@ -168,11 +168,20 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
   }
 
   abstract class Consumer {
-    fun init(value: EditorGroupIndexValue?): EditorGroupIndexValue = when (value) {
-      null -> EditorGroupIndexValue()
-      else -> value
-    }
+    fun init(value: EditorGroupIndexValue?): EditorGroupIndexValue = value ?: EditorGroupIndexValue()
 
+    /**
+     * Processes the given input data and returns an updated or new
+     * EditorGroupIndexValue.
+     *
+     * @param inputData the contents of the egroups file
+     * @param groupIndexValue the current index value of the editor group, may
+     *    be null
+     * @param folder the folder containing the file, may be null
+     * @param value the string value to process
+     * @return the updated or new EditorGroupIndexValue, or null if the input
+     *    data is null
+     */
     abstract fun consume(
       inputData: FileContent?,
       groupIndexValue: EditorGroupIndexValue?,
@@ -181,6 +190,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     ): EditorGroupIndexValue?
   }
 
+  /** Title consumer: Sets the title of the editor group. */
   internal class TitleConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -194,6 +204,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /** Root consumer: Sets the root flag of the editor group. */
   internal class RootConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -207,6 +218,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /** Color consumer: Sets the background color of the editor group. */
   internal class ColorConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -220,6 +232,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /** FgColor consumer: Sets the foreground color of the editor group. */
   internal class FgColorConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -233,6 +246,10 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /**
+   * Id consumer: Sets the id of the editor group. Moreover, if the group
+   * doesn't have a title defined, sets the id as the title.
+   */
   internal class IdConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -249,6 +266,10 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /**
+   * Related files consumer: Adds a related path to the editor group's
+   * related files.
+   */
   internal class RelatedFilesConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,
@@ -265,6 +286,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
+  /** Disable consumer: throws a DisableException, thus discarding the group. */
   private inner class DisableConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,

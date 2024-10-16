@@ -6,21 +6,19 @@ import com.intellij.notification.*
 import com.intellij.notification.Notifications.Bus.notify
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroupIndexValue
 
 object Notifications {
-
-  private val LOG = Logger.getInstance(Notifications::class.java)
+  const val ID = "Editor Groups plugin"
 
   private val notificationGroup: NotificationGroup
     get() = NotificationGroupManager.getInstance().getNotificationGroup("Editor Groups")
 
   fun notifyMissingFile(group: EditorGroup, path: String) {
-    val content = "${("Path='$path'; Owner='${group.id}")}'"
+    val content = "${"Path='$path'; Owner='${group.id}"}'"
     val notification = notificationGroup.createNotification("File does not exist", content, NotificationType.WARNING)
     show(notification)
   }
@@ -30,7 +28,7 @@ object Notifications {
       "Settings | ... | Editor Tabs | 'Open declaration source in the same tab' is enabled.<br/> It may cause problems when switching too fast.<br/><a href=\"#\">Click here to disable it<a/>."
 
     val notification = notificationGroup
-      .createNotification("Editor Groups plugin", content, NotificationType.WARNING)
+      .createNotification(ID, content, NotificationType.WARNING)
       .addAction(object : NotificationAction("") {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
           UISettings.getInstance().reuseNotModifiedTabs = false
@@ -45,7 +43,7 @@ object Notifications {
   fun indexingWarn(project: Project, file: VirtualFile, message: String) {
     val content = "$message in ${href(file)}"
 
-    val notification = notificationGroup.createNotification("Editor Groups plugin", content, NotificationType.WARNING)
+    val notification = notificationGroup.createNotification(ID, content, NotificationType.WARNING)
       .addAction(object : NotificationAction("Open") {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
           openFile(file, project)
@@ -74,7 +72,7 @@ object Notifications {
   }
 
   fun showWarning(content: String, action: NotificationAction?) {
-    val notification = notificationGroup.createNotification("Editor Groups plugin", content, NotificationType.WARNING)
+    val notification = notificationGroup.createNotification(ID, content, NotificationType.WARNING)
     if (action != null) notification.addAction(action)
 
     LOG.warn(RuntimeException(content))
@@ -83,7 +81,7 @@ object Notifications {
 
   @JvmStatic
   fun showWarning(s: String) {
-    val notification = notificationGroup.createNotification("Editor Groups plugin", s, NotificationType.WARNING)
+    val notification = notificationGroup.createNotification(ID, s, NotificationType.WARNING)
     show(notification)
   }
 

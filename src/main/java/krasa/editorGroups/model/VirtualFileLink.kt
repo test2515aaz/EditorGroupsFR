@@ -8,6 +8,12 @@ import javax.swing.Icon
 class VirtualFileLink : Link {
   override val virtualFile: VirtualFile
 
+  override val path: String
+    get() = virtualFile.path
+
+  override val name: String
+    get() = virtualFile.presentableName
+
   constructor(virtualFile: VirtualFile, project: Project) : super(project) {
     this.virtualFile = virtualFile
   }
@@ -18,13 +24,7 @@ class VirtualFileLink : Link {
 
   fun isTheSameFile(file: VirtualFile): Boolean = fileEquals(file)
 
-  override val path: String
-    get() = virtualFile.path
-
   override fun exists(): Boolean = virtualFile.exists()
-
-  override val name: String
-    get() = virtualFile.presentableName
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

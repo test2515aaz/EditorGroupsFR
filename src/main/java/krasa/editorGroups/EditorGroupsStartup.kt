@@ -67,6 +67,7 @@ class EditorGroupsStartup : FileEditorManagerListener {
   /**
    * Creates the editor group panel
    *
+   * @param project The [Project] associated with the editor panel.
    * @param manager The [FileEditorManager] that will manage the newly created panel.
    * @param file The [VirtualFile] associated with the editor panel.
    * @param switchRequest The request that triggered the panel creation, can be null.

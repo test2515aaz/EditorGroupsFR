@@ -33,7 +33,7 @@ class BookmarkGroup(validBookmarks: List<Bookmark>, project: Project) : EditorGr
 
   override fun isOwner(ownerPath: String): Boolean = false
 
-  override fun equals(other: Any?): Boolean = (other is BookmarkGroup) && (other.id == this.id)
+  override fun equals(other: Any?): Boolean = other is BookmarkGroup && other.id == this.id
 
   override fun toString(): String = "BookmarksGroup{links=$links}"
 

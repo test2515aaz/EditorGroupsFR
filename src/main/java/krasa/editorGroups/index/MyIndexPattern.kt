@@ -4,6 +4,7 @@ import com.intellij.openapi.util.text.StringUtil
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
+@Suppress("DataClassShouldBeImmutable", "DataClassContainsFunctions")
 data class MyIndexPattern(
   private var regexPattern: String
 ) {

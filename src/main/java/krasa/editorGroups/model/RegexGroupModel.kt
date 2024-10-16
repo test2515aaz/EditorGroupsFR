@@ -52,7 +52,7 @@ class RegexGroupModel {
 
   fun matches(name: String): Boolean {
     try {
-      return regexPattern?.matcher(name)?.matches() ?: false
+      return regexPattern?.matcher(name)?.matches() == true
     } catch (e: Exception) {
       LOG.error(e)
     }
@@ -68,8 +68,7 @@ class RegexGroupModel {
   }
 
   /**
-   * Split the not comparing groups string and convert it to an int array.
-   * Ex: 1,2 -> [1,2] or 1,,2 -> [1,-1,2]
+   * Split the not comparing groups string and convert it to an int array. Ex: 1,2 -> [1,2] or 1,,2 -> [1,-1,2]
    *
    * @return the int array
    */
@@ -107,15 +106,14 @@ class RegexGroupModel {
 
   override fun hashCode(): Int {
     var result = if (regex != null) regex.hashCode() else 0
-    result = 31 * result + (if (notComparingGroups != null) notComparingGroups.hashCode() else 0)
-    result = 31 * result + (if (scope != null) scope.hashCode() else 0)
-    result = 31 * result + (if (isEnabled) 1 else 0)
+    result = 31 * result + if (notComparingGroups != null) notComparingGroups.hashCode() else 0
+    result = 31 * result + if (scope != null) scope.hashCode() else 0
+    result = 31 * result + if (isEnabled) 1 else 0
     return result
   }
 
-  override fun toString(): String {
-    return "RegexGroupModel{regex='$regex', notComparingGroups='$notComparingGroups', scope=$scope, enabled=$isEnabled}"
-  }
+  override fun toString(): String =
+    "RegexGroupModel{regex='$regex', notComparingGroups='$notComparingGroups', scope=$scope, enabled=$isEnabled}"
 
   enum class Scope {
     CURRENT_FOLDER,
@@ -133,6 +131,7 @@ class RegexGroupModel {
      * @return
      */
     @JvmStatic
+    @Suppress("MagicNumber")
     fun deserialize(str: String): RegexGroupModel? {
       try {
         when {
