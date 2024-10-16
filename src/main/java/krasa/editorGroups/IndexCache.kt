@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
-import krasa.editorGroups.EditorGroupProjectStorage.StringPair
+import krasa.editorGroups.EditorGroupProjectStorage.KeyValuePair
 import krasa.editorGroups.index.EditorGroupIndex
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver
@@ -65,7 +65,7 @@ class IndexCache(private val project: Project) {
         if (state.lastGroup.size > MAX_HISTORY_SIZE) return@forEach
 
         // Keep a history of the last group
-        state.lastGroup.add(StringPair(key, last))
+        state.lastGroup.add(KeyValuePair(key, last))
       }
       return state
     }
@@ -114,8 +114,8 @@ class IndexCache(private val project: Project) {
   fun clear() = groupsByLinks.clear()
 
   /**
-   * Validates the given [group]. This method checks if the given [group] is valid and performs additional validation based on the type of
-   * group.
+   * Validates the given [group]. This method checks if the given [group] is valid and performs additional validation
+   * based on the type of group.
    *
    * @param group The [EditorGroup] to validate.
    */
@@ -130,8 +130,8 @@ class IndexCache(private val project: Project) {
           group.invalidate()
           return
         }
-      } catch (ignored: ProcessCanceledException) {
-      } catch (ignored: IndexNotReadyException) {
+      } catch (_: ProcessCanceledException) {
+      } catch (_: IndexNotReadyException) {
       }
     }
 
@@ -391,10 +391,8 @@ class IndexCache(private val project: Project) {
 
   fun loadState(state: EditorGroupProjectStorage.State) {
     state.lastGroup.forEach { stringStringPair ->
-      if (stringStringPair.key == null || stringStringPair.value == null) return@forEach
-
       val editorGroups = EditorGroups()
-      groupsByLinks[stringStringPair.key!!] = editorGroups
+      groupsByLinks[stringStringPair.key] = editorGroups
       editorGroups.last = stringStringPair.value
     }
   }

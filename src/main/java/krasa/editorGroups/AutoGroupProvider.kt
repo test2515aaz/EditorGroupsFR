@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
-import krasa.editorGroups.index.MyFileNameIndexService
+import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.model.*
 import krasa.editorGroups.model.Link.Companion.fromVirtualFiles
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
@@ -22,10 +22,8 @@ class AutoGroupProvider(private val project: Project) {
   /**
    * Returns the "Same Folder" group
    *
-   * @param file the [VirtualFile] for which the folder group is to be
-   *    created
-   * @return an [EditorGroup] representing the group of files in the same
-   *    folder as the given file
+   * @param file the [VirtualFile] for which the folder group is to be created
+   * @return an [EditorGroup] representing the group of files in the same folder as the given file
    */
   fun getFolderGroup(file: VirtualFile): EditorGroup {
     val parent = file.parent
@@ -45,10 +43,8 @@ class AutoGroupProvider(private val project: Project) {
   /**
    * Retrieves a group of files that have the same name as the given file.
    *
-   * @param currentFile The file for which the same-name group is being
-   *    retrieved.
-   * @return An instance of [EditorGroup] containing the files with the same
-   *    name.
+   * @param currentFile The file for which the same-name group is being retrieved.
+   * @return An instance of [EditorGroup] containing the files with the same name.
    */
   fun getSameNameGroup(currentFile: VirtualFile): EditorGroup {
     val nameWithoutExtension = currentFile.nameWithoutExtension
@@ -57,8 +53,7 @@ class AutoGroupProvider(private val project: Project) {
 
     runCatching {
       // Get related files
-      MyFileNameIndexService.getVirtualFilesByName(
-        project,
+      FileNameIndexService.instance.getVirtualFilesByName(
         nameWithoutExtension,
         true,
         GlobalSearchScope.projectScope(project)
@@ -100,7 +95,7 @@ class AutoGroupProvider(private val project: Project) {
       }
 
     val duration = System.currentTimeMillis() - start
-    if (duration > 500) thisLogger().warn("getSameNameGroup took ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
+    if (duration > DURATION) thisLogger().warn("getSameNameGroup took ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
 
     thisLogger().debug("getSameNameGroup ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
 
@@ -119,6 +114,7 @@ class AutoGroupProvider(private val project: Project) {
 
   companion object {
     const val INDEXING: String = "Indexing..."
+    const val DURATION: Long = 500
 
     fun getInstance(project: Project): AutoGroupProvider = project.getService<AutoGroupProvider>(AutoGroupProvider::class.java)
   }

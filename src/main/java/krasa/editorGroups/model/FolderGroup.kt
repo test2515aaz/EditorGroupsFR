@@ -14,15 +14,15 @@ class FolderGroup(private val folder: VirtualFile?, links: List<Link>) : AutoGro
       field = isValid
     }
 
-  override fun icon(): Icon = EditorGroupsIcons.folder
-
-  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "Current folder"
-
   override val id: String
     get() = DIRECTORY
 
   override val title: String
     get() = DIRECTORY
+
+  override fun icon(): Icon = EditorGroupsIcons.folder
+
+  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "Current folder"
 
   override fun toString(): String = "FolderGroup{links=${links.size}, stub='$isStub'}"
 

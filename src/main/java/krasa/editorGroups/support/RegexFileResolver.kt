@@ -48,7 +48,7 @@ open class RegexFileResolver(private val project: Project) {
     }
 
     val duration = System.currentTimeMillis() - start
-    if (duration > 500) thisLogger().warn("<resolveRegexGroup ${duration}ms $regexGroup; links=$links")
+    if (duration > DURATION) thisLogger().warn("<resolveRegexGroup ${duration}ms $regexGroup; links=$links")
 
     thisLogger().debug("<resolveRegexGroup ${duration}ms links=$links")
 
@@ -75,7 +75,9 @@ open class RegexFileResolver(private val project: Project) {
                 regexGroup = regexGroup,
                 projectFileIndex = projectFileIndex
               )
-            ) return SKIP_CHILDREN
+            ) {
+              return SKIP_CHILDREN
+            }
           }
 
           else              -> {
@@ -113,5 +115,9 @@ open class RegexFileResolver(private val project: Project) {
         else                                    -> true
       }
     }
+  }
+
+  companion object {
+    const val DURATION = 500
   }
 }

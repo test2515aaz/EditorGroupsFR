@@ -9,7 +9,6 @@ import krasa.editorGroups.support.getColorInstance
 import java.awt.Color
 import java.util.*
 import javax.swing.Icon
-import kotlin.concurrent.Volatile
 
 /** Represents an editorGroup but for indexing. */
 class EditorGroupIndexValue : EditorGroup {
@@ -50,7 +49,7 @@ class EditorGroupIndexValue : EditorGroup {
             backgroundColor.startsWith("0x") || backgroundColor.startsWith("#") -> Color.decode(backgroundColor)
             else                                                                -> getColorInstance(backgroundColor)
           }
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
       }
 
@@ -67,7 +66,7 @@ class EditorGroupIndexValue : EditorGroup {
             foregroundColor.startsWith("0x") || foregroundColor.startsWith("#") -> Color.decode(foregroundColor)
             else                                                                -> getColorInstance(foregroundColor)
           }
-        } catch (ignored: Exception) {
+        } catch (_: Exception) {
         }
       }
 
@@ -151,7 +150,7 @@ class EditorGroupIndexValue : EditorGroup {
   override fun hashCode(): Int {
     var result = id.hashCode()
     result = 31 * result + ownerPath.hashCode()
-    result = 31 * result + if (root != null) root.hashCode() else 0
+    result = 31 * result + (root?.hashCode() ?: 0)
     result = 31 * result + title.hashCode()
     result = 31 * result + backgroundColor.hashCode()
     result = 31 * result + foregroundColor.hashCode()

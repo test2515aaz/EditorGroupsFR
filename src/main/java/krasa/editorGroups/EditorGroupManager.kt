@@ -395,7 +395,7 @@ class EditorGroupManager(private val project: Project) {
     stopSwitching()
   }
 
-  fun initCache() = panelRefresher.initCache()
+  suspend fun initCache() = panelRefresher.initCache()
 
   /**
    * Retrieves the background color associated with the specified VirtualFile.

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NonNls
 import java.io.DataInput
 import java.io.DataOutput
 import java.io.IOException
+import kotlin.Throws
 
 class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>() {
 
@@ -47,6 +48,7 @@ class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>(
       return value
     }
   }
+
   private val myIndexer: DataIndexer<String, EditorGroupIndexValue, FileContent> = EditorGroupIndexer()
 
   private val myInputFilter = FileBasedIndex.InputFilter { file: VirtualFile ->
@@ -67,6 +69,7 @@ class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>(
 
   override fun getInputFilter(): FileBasedIndex.InputFilter = myInputFilter
 
+  @Suppress("CompanionObjectInExtension")
   companion object {
     @JvmField
     val NAME: @NonNls ID<String, EditorGroupIndexValue> = ID.create("krasa.EditorGroupIndex")

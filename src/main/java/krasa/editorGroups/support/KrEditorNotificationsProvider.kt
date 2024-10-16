@@ -9,5 +9,8 @@ import java.util.function.Function
 import javax.swing.JComponent
 
 class KrEditorNotificationsProvider : EditorNotificationProvider, DumbAware {
-  override fun collectNotificationData(project: Project, file: VirtualFile): Function<in FileEditor?, out JComponent?>? = null
+  override fun collectNotificationData(
+    project: Project,
+    file: VirtualFile
+  ): Function<in FileEditor?, out JComponent?>? = null
 }

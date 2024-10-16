@@ -25,7 +25,7 @@ class PathLink(path: String, project: Project?) : Link(project!!) {
 
   override fun hashCode(): Int {
     var result = path.hashCode()
-    result = 31 * result + (if (line != null) line.hashCode() else 0)
+    result = 31 * result + if (line != null) line.hashCode() else 0
     return result
   }
 

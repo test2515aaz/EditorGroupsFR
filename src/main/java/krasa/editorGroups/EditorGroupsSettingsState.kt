@@ -31,12 +31,16 @@ class EditorGroupsSettingsState {
   var isRememberLastGroup: Boolean = true
   var isGroupSwitchGroupAction: Boolean = false
   var isShowPanel: Boolean = true
-  var groupSizeLimitInt: Int = 10000
-  var tabSizeLimitInt: Int = 50
+  var groupSizeLimitInt: Int = DEFAULT_GROUP_SIZE_LIMIT
+  var tabSizeLimitInt: Int = DEFAULT_TAB_SIZE_LIMIT
 
   @get:Transient
   val tabBgColorAsColor: Color?
     get() = toColor(tabBgColor)
+
+  @get:Transient
+  val tabFgColorAsColor: Color?
+    get() = toColor(tabFgColor)
 
   @Transient
   fun setTabBgColorAsColor(color: Color?) {
@@ -44,10 +48,6 @@ class EditorGroupsSettingsState {
       this.tabBgColor = color.rgb
     }
   }
-
-  @get:Transient
-  val tabFgColorAsColor: Color?
-    get() = toColor(tabFgColor)
 
   @Transient
   fun setTabFgColorAsColor(color: Color?) {
@@ -92,10 +92,10 @@ class EditorGroupsSettingsState {
       try {
         opacity = opacityString.toInt()
         when {
-          opacity > 100 -> opacity = 100
-          opacity < 0   -> opacity = 0
+          opacity > MAX_OPACITY -> opacity = MAX_OPACITY
+          opacity < 0           -> opacity = 0
         }
-      } catch (e: Exception) {
+      } catch (_: Exception) {
         opacity = DEFAULT_OPACITY
       }
     }
@@ -105,10 +105,10 @@ class EditorGroupsSettingsState {
       try {
         darkOpacity = opacityString.toInt()
         when {
-          darkOpacity > 100 -> darkOpacity = 100
-          darkOpacity < 0   -> darkOpacity = 0
+          darkOpacity > MAX_OPACITY -> darkOpacity = MAX_OPACITY
+          darkOpacity < 0           -> darkOpacity = 0
         }
-      } catch (e: Exception) {
+      } catch (_: Exception) {
         darkOpacity = DEFAULT_DARK_OPACITY
       }
     }
@@ -127,12 +127,17 @@ class EditorGroupsSettingsState {
 
       const val DEFAULT_DARK_OPACITY: Int = 50
 
+      const val MAX_OPACITY: Int = 100
+
       @JvmField
       val DEFAULT_DARK_TAB_COLOR: Color = JBColor(Color(0x515658), Color(0x262626))
     }
   }
 
   companion object {
+    const val DEFAULT_GROUP_SIZE_LIMIT: Int = 10_000
+    const val DEFAULT_TAB_SIZE_LIMIT: Int = 50
+
     // TODO move this file in the EditorGroupsSettings.kt file
     @JvmStatic
     fun state(): EditorGroupsSettingsState = instance.state

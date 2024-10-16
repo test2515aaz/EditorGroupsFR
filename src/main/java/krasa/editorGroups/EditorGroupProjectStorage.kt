@@ -13,11 +13,13 @@ import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 
 @Service(Service.Level.PROJECT)
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")])
-class EditorGroupProjectStorage(private val project: Project) : PersistentStateComponent<EditorGroupProjectStorage.State> {
+class EditorGroupProjectStorage(
+  private val project: Project
+) : PersistentStateComponent<EditorGroupProjectStorage.State> {
 
   class State {
-    @XCollection(propertyElementName = "lastGroup", elementTypes = [StringPair::class])
-    var lastGroup: MutableList<StringPair> = emptyList<StringPair>().toMutableList()
+    @XCollection(propertyElementName = "lastGroup", elementTypes = [KeyValuePair::class])
+    var lastGroup: MutableList<KeyValuePair> = mutableListOf<KeyValuePair>()
 
     override fun equals(o: Any?): Boolean {
       if (this === o) return true
@@ -54,18 +56,9 @@ class EditorGroupProjectStorage(private val project: Project) : PersistentStateC
   }
 
   @Tag("pair")
-  class StringPair {
-    @Attribute("key")
-    var key: String? = null
-
-    @Attribute("value")
-    var value: String? = null
-
-    constructor()
-
-    constructor(key: String?, value: String?) {
-      this.key = key
-      this.value = value
-    }
-  }
+  @Suppress("DataClassShouldBeImmutable")
+  data class KeyValuePair(
+    @Attribute("key") var key: String,
+    @Attribute("value") var value: String?
+  )
 }

@@ -30,12 +30,12 @@ import javax.swing.KeyStroke
 /**
  * Represents an action for switching files within a project.
  *
- * This action displays a popup that allows users to switch between files in various ways, such as opening files in new tabs, new windows,
- * or split views.
+ * This action displays a popup that allows users to switch between files in various ways, such as opening files in new
+ * tabs, new windows, or split views.
  */
 class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
   override fun showPopup(e: AnActionEvent, popup: ListPopup) {
-    registerActions((popup as ListPopupImpl?)!!)
+    registerActions((popup as? ListPopupImpl?)!!)
 
     val project = e.project
     if (project == null) {
@@ -53,9 +53,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
         }
       }
 
-      else          -> {
-        popup.showCenteredInCurrentWindow(project)
-      }
+      else          -> popup.showCenteredInCurrentWindow(project)
     }
   }
 
@@ -77,7 +75,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
   private fun customAction(popup: ListPopupImpl): AbstractAction = object : AbstractAction() {
     override fun actionPerformed(e: ActionEvent) {
       val list = popup.list
-      val selectedValue = list.getSelectedValue() as PopupFactoryImpl.ActionItem?
+      val selectedValue = list.getSelectedValue() as? PopupFactoryImpl.ActionItem
 
       if (selectedValue != null) {
         selectedValue.action.actionPerformed(
