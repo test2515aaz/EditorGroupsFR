@@ -1540,7 +1540,7 @@ open class KrTabsImpl(
   }
 
   private fun updateIcon(tabInfo: KrTabInfo) {
-    infoToLabel[tabInfo]!!.setIcon(tabInfo.icon)
+    infoToLabel[tabInfo]?.setIcon(tabInfo.icon)
   }
 
   fun revalidateAndRepaint() {

@@ -1041,7 +1041,7 @@ class EditorGroupPanel(
    * Checks whether the panel's current file editor is part of the editor manager selected files. This is useful when we
    * have splitters or other windows to detect which group panel is selected.
    */
-  private fun isSelected(): Boolean = fileEditorManager.selectedFiles.any { it == this.fileEditor }
+  private fun isSelected(): Boolean = fileEditorManager.selectedEditors.any { it == this.fileEditor }
 
   /** Represents a tab info in the editor group panel. */
   class EditorGroupTabInfo(val link: Link, var name: String) : KrTabInfo(JLabel("")) {
