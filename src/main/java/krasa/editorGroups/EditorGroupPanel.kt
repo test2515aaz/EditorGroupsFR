@@ -178,7 +178,9 @@ class EditorGroupPanel(
     tabs.setPopupGroup(
       supplier = {
         CustomActionsSchema.getInstance().getCorrectedAction("EditorGroupsTabPopupMenu") as ActionGroup
-      }, place = TAB_PLACE, addNavigationGroup = false
+      },
+      place = TAB_PLACE,
+      addNavigationGroup = false
     )
 
     // Listen to tab selection
@@ -216,7 +218,11 @@ class EditorGroupPanel(
 
       try {
         editorGroup = groupManager.getStubGroup(
-          project = project, fileEditor = fileEditor, displayedGroup = EditorGroup.EMPTY, requestedGroup = editorGroup, currentFile = file
+          project = project,
+          fileEditor = fileEditor,
+          displayedGroup = EditorGroup.EMPTY,
+          requestedGroup = editorGroup,
+          currentFile = file
         )
         this.groupToBeRendered = editorGroup
       } catch (e: Throwable) {
@@ -233,7 +239,11 @@ class EditorGroupPanel(
 
       try {
         editorGroup = groupManager.getStubGroup(
-          project = project, fileEditor = fileEditor, displayedGroup = EditorGroup.EMPTY, requestedGroup = editorGroup, currentFile = file
+          project = project,
+          fileEditor = fileEditor,
+          displayedGroup = EditorGroup.EMPTY,
+          requestedGroup = editorGroup,
+          currentFile = file
         )
         this.groupToBeRendered = editorGroup
 
@@ -333,7 +343,11 @@ class EditorGroupPanel(
       updateVisibility(currentGroup)
 
       // Get the pair of paths to file names
-      val pathsToNames: MutableMap<Link, String> = uniqueNameBuilder.getNamesByPath(paths = links, currentFile = file, project = project)
+      val pathsToNames: MutableMap<Link, String> = uniqueNameBuilder.getNamesByPath(
+        paths = links,
+        currentFile = file,
+        project = project
+      )
       // Create the tabs again
       createTabs(links, pathsToNames)
       // Set the current file tab
@@ -509,7 +523,12 @@ class EditorGroupPanel(
       thisLogger().debug("previous: index=$prevIndex, link=$link")
     }
 
-    return openFile(link = link, newTab = newTab, newWindow = newWindow, split = split)
+    return openFile(
+      link = link,
+      newTab = newTab,
+      newWindow = newWindow,
+      split = split
+    )
   }
 
   /** Go to next tab. */
@@ -654,16 +673,16 @@ class EditorGroupPanel(
   }
 
   private fun focusGained() {
-    refreshPane(false, null)
+    refreshPane(refresh = false, newGroup = null)
     groupManager.stopSwitching()
   }
 
   fun refreshOnSelectionChanged(refresh: Boolean, switchingGroup: EditorGroup?, scrollOffset: Int) {
     thisLogger().debug("refreshOnSelectionChanged")
-    myScrollOffset = scrollOffset
-    if (switchingGroup === displayedGroup) {
-      tabs.scroll(myScrollOffset)
-    }
+    this.myScrollOffset = scrollOffset
+
+    if (switchingGroup === displayedGroup) tabs.scroll(myScrollOffset)
+
     refreshPane(refresh, switchingGroup)
     groupManager.stopSwitching()
   }
