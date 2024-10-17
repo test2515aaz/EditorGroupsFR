@@ -5,7 +5,7 @@ import krasa.editorGroups.Splitters
 
 class NextInNewTabAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
-    getEditorGroupPanel(anActionEvent)?.next(true, false, Splitters.NONE)
+    getEditorGroupPanel(anActionEvent)?.goToNextTab(true, false, Splitters.NONE)
   }
 
   companion object {

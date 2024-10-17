@@ -22,7 +22,7 @@ class PreviousAction : EditorGroupsAction(), CustomComponentAction {
       val e = checkNotNull(anActionEvent.inputEvent)
       val newTab = BitUtil.isSet(e.modifiersEx, InputEvent.CTRL_DOWN_MASK) && e is MouseEvent && e.clickCount > 0
 
-      panel.previous(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
+      panel.goToPreviousTab(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
     }
   }
 

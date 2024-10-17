@@ -22,7 +22,7 @@ class RefreshAction : EditorGroupsAction(), CustomComponentAction {
     }
 
     val panel = getEditorGroupPanel(anActionEvent)
-    panel?._refresh(true, null)
+    panel?.refreshPane(true, null)
 
     val editorGroupManager = getInstance(anActionEvent.project!!)
     editorGroupManager.resetSwitching()

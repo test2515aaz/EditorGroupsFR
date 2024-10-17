@@ -161,9 +161,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         }
       }
 
-      defaultActionGroup.add(Separator())
-      defaultActionGroup.add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
-      defaultActionGroup.add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
+      defaultActionGroup.run {
+        add(Separator())
+        add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
+        add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
+      }
     } catch (e: IndexNotReadyException) {
       thisLogger().error("That should not happen", e)
     }
@@ -318,7 +320,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Populates the given `defaultActionGroup` with favorite editor groups that are not already displayed in the provided `editorGroups`.
+   * Populates the given `defaultActionGroup` with favorite editor groups that are not already displayed in the provided
+   * `editorGroups`.
    *
    * TODO deprecate favorites
    *
@@ -397,7 +400,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   private fun refreshHandler(panel: EditorGroupPanel): Handler = object : Handler() {
     override fun run(editorGroup: EditorGroup) {
       thisLogger().debug("switching group")
-      panel._refresh(false, editorGroup)
+      panel.refreshPane(false, editorGroup)
     }
   }
 
@@ -409,9 +412,9 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Handles the given editor group by attempting to open the first existing file in the group within the specified project. If the file
-   * does not exist, it uses the owner path of the group to find a corresponding virtual file and attempts to open it. Displays a warning if
-   * neither the file nor the owner path exists.
+   * Handles the given editor group by attempting to open the first existing file in the group within the specified
+   * project. If the file does not exist, it uses the owner path of the group to find a corresponding virtual file and
+   * attempts to open it. Displays a warning if neither the file nor the owner path exists.
    *
    * @param project The project context within which the editor group is handled.
    * @return A newly instantiated handler for the specified editor group.
@@ -477,6 +480,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
     val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
+
       override fun getActionUpdateThread(): ActionUpdateThread = super.getActionUpdateThread()
 
       override fun update(e: AnActionEvent) {
@@ -525,8 +529,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val presentation = e.presentation
     val panel = data.getUserData(EditorGroupPanel.EDITOR_PANEL) ?: return
 
-    var displayedGroup = panel.displayedGroup
-    val toBeRendered = panel.toBeRendered
+    var displayedGroup = panel.getDisplayedGroupOrEmpty()
+    val toBeRendered = panel.groupToBeRendered
 
     if (displayedGroup === EditorGroup.EMPTY && toBeRendered != null) {
       displayedGroup = toBeRendered // to remove flicker when switching
