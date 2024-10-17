@@ -124,8 +124,7 @@ class EditorGroupPanel(
 
   /** The currently displayed group. */
   @Volatile
-  var displayedGroup: EditorGroup? = null
-    get() = field ?: EditorGroup.EMPTY
+  private var displayedGroup: EditorGroup? = null
 
   /** Instance of the unique tab name builder. */
   private val uniqueNameBuilder: UniqueTabNameBuilder = UniqueTabNameBuilder(project)
@@ -999,7 +998,7 @@ class EditorGroupPanel(
   }
 
   /** Return the displayed group. */
-  fun getDisplayedGroup(): EditorGroup = displayedGroup ?: EditorGroup.EMPTY
+  fun getDisplayedGroupOrEmpty(): EditorGroup = displayedGroup ?: EditorGroup.EMPTY
 
   /** Sets bg and fg color of the selected tab, according to the settings. */
   private fun customizeSelectedColor(tab: EditorGroupTabInfo) {

@@ -72,7 +72,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         editorGroupPanel = data.getUserData(EditorGroupPanel.EDITOR_PANEL)
         if (editorGroupPanel != null) {
           file = editorGroupPanel.file
-          displayedGroup = editorGroupPanel.displayedGroup
+          displayedGroup = editorGroupPanel.getDisplayedGroupOrEmpty()
 
           // Same file name
           defaultActionGroup.add(
@@ -223,7 +223,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     panel: EditorGroupPanel,
     file: VirtualFile?
   ): List<EditorGroup> {
-    val displayedGroup = panel.displayedGroup
+    val displayedGroup = panel.getDisplayedGroupOrEmpty()
     val manager = EditorGroupManager.getInstance(project)
     val groups = manager.getGroups(file!!)
 
@@ -263,7 +263,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     regexGroups.forEach { regexGroup ->
       tempGroup.add(
         createAction(
-          displayedGroup = panel.displayedGroup,
+          displayedGroup = panel.getDisplayedGroupOrEmpty(),
           targetGroup = regexGroup,
           project = project,
           actionHandler = refreshHandler(panel)
