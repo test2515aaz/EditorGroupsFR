@@ -20,13 +20,14 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
           val file = bookmark.file
           val icon = EditorGroupsIcons.bookmarks
           val line = bookmark.line
-          links.add(VirtualFileLink(file, icon, line, project))
-
+          val desc = bookmarkGroup.getDescription(bookmark)
+          links.add(VirtualFileLink(file, icon, line, project).withDescription(desc))
         }
 
         is FileBookmark -> {
           val file = bookmark.file
-          links.add(VirtualFileLink(file, project))
+          val desc = bookmarkGroup.getDescription(bookmark)
+          links.add(VirtualFileLink(file, project).withDescription(desc))
         }
       }
     }

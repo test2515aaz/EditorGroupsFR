@@ -1052,9 +1052,6 @@ class EditorGroupPanel(
       // Adds the link if needed
       link.line?.let { name += ":${it + 1}" }
 
-      // Adds the mnemonic truncated to 24 if needed
-      link.mnemonic?.let { name += " [${it.substring(0..24)}]" }
-
       setText(name)
       setTooltipText(link.path)
       // Placeholder icon
@@ -1062,6 +1059,13 @@ class EditorGroupPanel(
 
       // Disable the tab if the file does not exist
       if (!link.exists()) setEnabled(false)
+
+      // Custom Names (for bookmarks, regexs, etc)
+      val customName = link.customName ?: ""
+      if (!customName.isBlank()) {
+        setText(customName)
+        setTooltipText("$name - ${link.path}")
+      }
 
       // Fetch the actual icon off the UI thread
       ApplicationManager.getApplication().runWriteAction {

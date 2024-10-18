@@ -20,6 +20,9 @@ abstract class Link(private val project: Project) {
   var line: Int? = null
     protected set
 
+  var customName: String? = null
+    protected set
+
   /** The actual path. */
   abstract val path: String
 
@@ -61,7 +64,9 @@ abstract class Link(private val project: Project) {
     if (other !is Link) return false
 
     if (icon != other.icon) return false
-    return line == other.line
+    if (line != other.line) return false
+    if (path != other.path) return false
+    return customName == other.customName
   }
 
   open fun fileEquals(currentFile: VirtualFile): Boolean = path == currentFile.path
@@ -70,6 +75,7 @@ abstract class Link(private val project: Project) {
     var result = project.hashCode()
     result = 31 * result + (icon?.hashCode() ?: 0)
     result = 31 * result + (line ?: 0)
+    result = 31 * result + (customName?.hashCode() ?: 0)
     result = 31 * result + path.hashCode()
     return result
   }
