@@ -8,7 +8,6 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.FocusChangeListener
@@ -1191,8 +1190,6 @@ class EditorGroupPanel(
     const val TAB_PLACE = "EditorGroupsTabPopup"
     const val COMPACT_TAB_HEIGHT = 26
     val FAVORITE_GROUP: DataKey<FavoritesGroup?> = DataKey.create<FavoritesGroup?>("krasa.FavoritesGroup")
-
-    private val LOG = Logger.getInstance(EditorGroupPanel::class.java)
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
   }
