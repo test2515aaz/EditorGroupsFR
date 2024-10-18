@@ -30,7 +30,7 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.Splitters.Companion.from
-import krasa.editorGroups.actions.PopupMenu.popupInvoked
+import krasa.editorGroups.actions.PopupMenu
 import krasa.editorGroups.actions.RefreshAction
 import krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction
 import krasa.editorGroups.actions.SwitchGroupAction
@@ -82,38 +82,39 @@ class EditorGroupPanel(
    * This variable is used to store an instance of `RefreshRequest`, which contains the refresh status and the requested
    * editor group. It's updated atomically to ensure thread safety during panel refresh operations.
    */
-  internal var atomicRefreshRequest: AtomicReference<RefreshRequest?> = AtomicReference<RefreshRequest?>()
+  internal var atomicRefreshRequest = AtomicReference<RefreshRequest?>()
 
   /** Keep a state indicating that we are in the middle of a refresh. */
   @Volatile
-  var interrupt: Boolean = false
+  var interrupt = false
 
   @Volatile
   private var brokenScroll = false
 
   /** Instance of the DumbService. */
-  private val dumbService: DumbService = DumbService.getInstance(project)
+  private val dumbService = DumbService.getInstance(project)
 
   // A thread executor per file
   private val myTaskExecutor: ExecutorService =
     AppExecutorUtil.createBoundedApplicationPoolExecutor("Krasa.editorGroups.EditorGroupPanel-${file.name}", 1)
 
   /** The current editor's file. */
-  private val fileFromTextEditor: VirtualFile = getFileFromTextEditor(fileEditor)
+  private val fileFromTextEditor = getFileFromTextEditor(fileEditor)
 
   /** The tabs component for this editor panel. */
-  val tabs: KrJBEditorTabs = KrJBEditorTabs(/* project = */ project,/* actionManager = */
-    ActionManager.getInstance(),/* focusManager = */
-    IdeFocusManager.findInstance(),/* parent = */
-    fileEditor,/* file = */
+  val tabs = KrJBEditorTabs(
+    project,
+    ActionManager.getInstance(),
+    IdeFocusManager.findInstance(),
+    fileEditor,
     file
   )
 
   /** Instance of the file editor manager for this project. */
-  private val fileEditorManager: FileEditorManager = FileEditorManager.getInstance(project)
+  private val fileEditorManager = FileEditorManager.getInstance(project)
 
   /** The group manager for this project. */
-  var groupManager: EditorGroupManager = EditorGroupManager.getInstance(project)
+  var groupManager = EditorGroupManager.getInstance(project)
 
   /** The action toolbar. */
   private lateinit var toolbar: ActionToolbar
@@ -126,7 +127,7 @@ class EditorGroupPanel(
   private var displayedGroup: EditorGroup? = null
 
   /** Instance of the unique tab name builder. */
-  private val uniqueNameBuilder: UniqueTabNameBuilder = UniqueTabNameBuilder(project)
+  private val uniqueNameBuilder = UniqueTabNameBuilder(project)
 
   /** The group to be rendered for this file. */
   @Volatile
@@ -134,7 +135,7 @@ class EditorGroupPanel(
 
   /** The scroll offset from the switch request. */
   @Volatile
-  private var myScrollOffset: Int = switchRequest?.myScrollOffset ?: 0
+  private var myScrollOffset = switchRequest?.myScrollOffset ?: 0
 
   /** The line from the switch request. */
   private val line: Int? = switchRequest?.line
@@ -296,7 +297,7 @@ class EditorGroupPanel(
 
   /** Display the popup. */
   private fun getPopupHandler(): PopupHandler = object : PopupHandler() {
-    override fun invokePopup(comp: Component?, x: Int, y: Int) = popupInvoked(comp, x, y)
+    override fun invokePopup(comp: Component?, x: Int, y: Int) = PopupMenu.popupInvoked(comp, x, y)
   }
 
   /** Add the action buttons at the left of the panel. */
@@ -948,7 +949,7 @@ class EditorGroupPanel(
 
     // In case the panel is not selected (e.g. in a split view), the scroll might break
     this.brokenScroll = !isSelected()
-    if (this.brokenScroll) thisLogger().warn("rendering editor that is not selected, scrolling might break: ${file.name}")
+    if (this.brokenScroll) thisLogger().debug("rendering editor that is not selected, scrolling might break: ${file.name}")
 
     // Update the displayed group and reset the groupToBeRendered
     this.displayedGroup = renderingGroup
@@ -1133,7 +1134,7 @@ class EditorGroupPanel(
           AnActionEvent.createEvent(
             DataManager.getInstance().getDataContext(tabs),
             Presentation(),
-            ActionPlaces.UNKNOWN,
+            TAB_PLACE,
             ActionUiKind.NONE,
             e,
           )

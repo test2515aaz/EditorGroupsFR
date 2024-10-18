@@ -1,9 +1,9 @@
 package krasa.editorGroups.actions
 
 import com.intellij.openapi.actionSystem.ActionManager
-import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.Separator
+import krasa.editorGroups.EditorGroupPanel.Companion.TOOLBAR_PLACE
 import java.awt.Component
 
 object PopupMenu {
@@ -46,7 +46,7 @@ object PopupMenu {
   @JvmStatic
   fun popupInvoked(component: Component?, x: Int, y: Int) {
     val group = defaultActionGroup
-    val menu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.UNKNOWN, group)
+    val menu = ActionManager.getInstance().createActionPopupMenu(TOOLBAR_PLACE, group)
     menu.component.show(component, x, y)
   }
 }
