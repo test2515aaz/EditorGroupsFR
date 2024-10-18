@@ -54,7 +54,7 @@ class EditorGroups : EditorGroup, GroupsHolder {
       is AutoGroup      -> return
       is EditorGroups   -> return
       is FavoritesGroup -> return
-      is BookmarkGroup  -> return
+      is BookmarksGroup -> return
       else              -> addGroup(editorGroup)
     }
   }

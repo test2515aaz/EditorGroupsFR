@@ -136,7 +136,7 @@ class EditorGroupManager(private val project: Project) {
         when (result) {
           is FolderGroup    -> result = autoGroupProvider.getFolderGroup(currentFile)
           is FavoritesGroup -> result = externalGroupProvider.getFavoritesGroup(result.title)
-          is BookmarkGroup  -> result = externalGroupProvider.bookmarkGroup
+          is BookmarksGroup -> result = externalGroupProvider.defaultBookmarkGroup
         }
       }
 
@@ -180,7 +180,7 @@ class EditorGroupManager(private val project: Project) {
       val force = refresh && EditorGroupsSettingsState.state().isForceSwitch
 
       // If force switch is on, force switching
-      if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarkGroup) {
+      if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarksGroup) {
         // First try to get the owning group
         if (result.isInvalid) {
           result = cache.getOwningOrSingleGroup(currentFilePath)
@@ -258,7 +258,8 @@ class EditorGroupManager(private val project: Project) {
           result is FavoritesGroup                                                         -> result =
             externalGroupProvider.getFavoritesGroup(result.title)
 
-          result is BookmarkGroup                                                          -> result = externalGroupProvider.bookmarkGroup
+          result is BookmarksGroup                                                         -> result =
+            externalGroupProvider.defaultBookmarkGroup
         }
 
         // Last resort, try multigroup

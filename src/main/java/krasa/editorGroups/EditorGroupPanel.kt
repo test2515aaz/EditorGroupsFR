@@ -433,7 +433,7 @@ class EditorGroupPanel(
    * @param group the group to be checked, or null.
    * @return true if the group is an instance of EditorGroups, BookmarkGroup, or HidePanelGroup; false otherwise.
    */
-  private fun isCustomGroup(group: EditorGroup?): Boolean = group is EditorGroups || group is BookmarkGroup || group is HidePanelGroup
+  private fun isCustomGroup(group: EditorGroup?): Boolean = group is EditorGroups || group is BookmarksGroup || group is HidePanelGroup
 
   /**
    * Adds the current file as a tab in the editor panel.
@@ -1050,7 +1050,10 @@ class EditorGroupPanel(
 
     init {
       // Adds the link if needed
-      link.line?.let { name += ":$it" }
+      link.line?.let { name += ":${it + 1}" }
+
+      // Adds the mnemonic truncated to 24 if needed
+      link.mnemonic?.let { name += " [${it.substring(0..24)}]" }
 
       setText(name)
       setTooltipText(link.path)
