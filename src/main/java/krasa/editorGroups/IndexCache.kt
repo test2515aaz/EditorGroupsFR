@@ -298,8 +298,8 @@ class IndexCache(private val project: Project) {
         RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
       }
 
-      includeFavorites && last == BookmarkGroup.ID                                   ->
-        externalGroupProvider.bookmarkGroup
+      includeFavorites && last == BookmarksGroup.ID_PREFIX                           ->
+        externalGroupProvider.defaultBookmarkGroup
 
       stub                                                                           -> StubGroup()
 

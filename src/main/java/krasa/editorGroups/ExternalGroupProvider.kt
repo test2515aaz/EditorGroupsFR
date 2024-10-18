@@ -1,13 +1,13 @@
 package krasa.editorGroups
 
-import com.intellij.ide.bookmarks.BookmarkManager
+import com.intellij.ide.bookmark.BookmarksManager
 import com.intellij.ide.favoritesTreeView.FavoritesManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.model.BookmarkGroup
+import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.FavoritesGroup
 
@@ -16,11 +16,20 @@ class ExternalGroupProvider(private val project: Project) {
   private val favoritesManager: FavoritesManager = FavoritesManager.getInstance(project)
   private val fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(project)
 
-  val bookmarkGroup: BookmarkGroup
+  val defaultBookmarkGroup: BookmarksGroup
     get() {
-      val validBookmarks =
-        BookmarkManager.getInstance(project).getValidBookmarks()
-      return BookmarkGroup(validBookmarks, project)
+      val defaultGroup = BookmarksManager.getInstance(project)?.defaultGroup
+      return BookmarksGroup(defaultGroup, project)
+    }
+
+  val bookmarkGroups: List<BookmarksGroup>
+    get() {
+      val bookmarksManager = BookmarksManager.getInstance(project)
+      val allGroups = bookmarksManager?.groups ?: return emptyList()
+      val nonDefaultGroups = allGroups.filter { it != bookmarksManager.defaultGroup }
+
+      return nonDefaultGroups
+        .map { BookmarksGroup(it, project) }
     }
 
   val favoritesGroups: List<FavoritesGroup>
