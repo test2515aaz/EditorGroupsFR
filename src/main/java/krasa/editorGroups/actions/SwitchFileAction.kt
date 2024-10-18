@@ -125,7 +125,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
       var panel: EditorGroupPanel = data.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL) ?: return
 
       val currentFile = panel.file.path
-      val group = panel.getDisplayedGroup()
+      val group = panel.getDisplayedGroupOrEmpty()
 
       val links: MutableList<Link> = group.getLinks(project) as MutableList<Link>
       val uniqueTabNameBuilder = UniqueTabNameBuilder(project)

@@ -54,7 +54,7 @@ class PanelRefresher(private val project: Project) {
         iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
           if (displayedGroup is BookmarkGroup) {
             thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
-            panel._refresh(true, displayedGroup)
+            panel.refreshPane(true, displayedGroup)
           }
         })
       }
@@ -62,9 +62,11 @@ class PanelRefresher(private val project: Project) {
   }
 
   /**
-   * Iterates over all editor panels in the current project and applies the given bi-consumer to each panel and its displayed group.
+   * Iterates over all editor panels in the current project and applies the given bi-consumer to each panel and its
+   * displayed group.
    *
-   * @param biConsumer a BiConsumer that accepts an EditorGroupPanel and an EditorGroup and performs an operation on them
+   * @param biConsumer a BiConsumer that accepts an EditorGroupPanel and an EditorGroup and performs an operation on
+   *    them
    */
   private fun iteratePanels(biConsumer: BiConsumer<EditorGroupPanel, EditorGroup>) {
     val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
@@ -72,14 +74,14 @@ class PanelRefresher(private val project: Project) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
       if (panel == null) continue
 
-      val displayedGroup = panel.getDisplayedGroup()
+      val displayedGroup = panel.getDisplayedGroupOrEmpty()
       biConsumer.accept(panel, displayedGroup)
     }
   }
 
   /**
-   * Refreshes the panels for the selected editors if the cache is ready and the project is not disposed. This method is typically used to
-   * handle changes when switching to smart mode in the application.
+   * Refreshes the panels for the selected editors if the cache is ready and the project is not disposed. This method is
+   * typically used to handle changes when switching to smart mode in the application.
    */
   fun onSmartMode() {
     if (!cacheReady.get()) return
@@ -97,12 +99,12 @@ class PanelRefresher(private val project: Project) {
           val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
           if (panel == null) continue
 
-          val displayedGroup = panel.getDisplayedGroup()
+          val displayedGroup = panel.getDisplayedGroupOrEmpty()
           if (displayedGroup is FolderGroup) continue
 
           thisLogger().debug("onSmartMode: refreshing panel for ${panel.file}")
 
-          panel._refresh(false, null)
+          panel.refreshPane(false, null)
         }
 
         thisLogger().debug("onSmartMode ${System.currentTimeMillis() - start}ms ${Thread.currentThread().name}")
@@ -121,8 +123,8 @@ class PanelRefresher(private val project: Project) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
       if (panel == null) continue
 
-      if (panel.getDisplayedGroup().isOwner(owner)) {
-        panel._refresh(false, null)
+      if (panel.getDisplayedGroupOrEmpty().isOwner(owner)) {
+        panel.refreshPane(false, null)
       }
     }
   }
@@ -132,29 +134,27 @@ class PanelRefresher(private val project: Project) {
     val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
     for (selectedEditor in manager.getAllEditors()) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
-      panel?._refresh(true, null)
+      panel?.refreshPane(true, null)
     }
   }
 
   fun onIndexingDone(ownerPath: String, group: EditorGroupIndexValue): EditorGroupIndexValue {
-    var group = group
-    group = cache.onIndexingDone(ownerPath, group)
-    if (DumbService.isDumb(project)) { // optimization
-      return group
-    }
+    var group = cache.onIndexingDone(ownerPath, group)
+
+    if (DumbService.isDumb(project)) return group
 
     val start = System.currentTimeMillis()
     val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
+
     for (selectedEditor in manager.getAllEditors()) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
-      if (panel != null) {
-        panel.onIndexingDone(ownerPath, group)
-      }
+      panel?.onIndexingDone(ownerPath, group)
     }
 
     thisLogger().debug(
       "onIndexingDone $ownerPath - ${System.currentTimeMillis() - start}ms ${Thread.currentThread().name}"
     )
+
     return group
   }
 

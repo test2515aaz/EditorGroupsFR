@@ -22,7 +22,7 @@ class NextAction : EditorGroupsAction(), CustomComponentAction {
       val e = anActionEvent.inputEvent
       val newTab = BitUtil.isSet(e!!.modifiersEx, InputEvent.CTRL_DOWN_MASK) && e is MouseEvent && e.clickCount > 0
 
-      panel.next(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
+      panel.goToNextTab(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
     }
   }
 

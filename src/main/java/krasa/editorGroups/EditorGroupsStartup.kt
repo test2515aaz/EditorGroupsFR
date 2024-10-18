@@ -58,7 +58,7 @@ class EditorGroupsStartup : FileEditorManagerListener {
       // Refresh panel
       panel.refreshOnSelectionChanged(false, switchingGroup, scrollOffset)
     } else {
-      panel._refresh(false, null)
+      panel.refreshPane(false, null)
     }
   }
 
