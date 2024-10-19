@@ -131,12 +131,6 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         displayedGroup = displayedGroup,
         project = project
       )
-      fillFavorites(
-        defaultActionGroup = tempGroup,
-        project = project,
-        editorGroups = currentFileGroups,
-        displayedGroup = displayedGroup
-      )
       fillGlobalRegexGroups(
         defaultActionGroup = tempGroup,
         project = project,
@@ -257,7 +251,10 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     defaultActionGroup: DefaultActionGroup
   ) {
     // Then add the other bookmarks groups
-    val otherBookmarkGroups = ExternalGroupProvider.getInstance(project).bookmarkGroups
+    val externalGroupProvider = ExternalGroupProvider.getInstance(project)
+    val otherBookmarkGroups = externalGroupProvider.bookmarkGroups
+      .filterNot { it == externalGroupProvider.defaultBookmarkGroup }
+    
     otherBookmarkGroups.forEach { bookmarkGroup ->
       val bookmarkGroupActionHandler = createBookmarkActionHandler(
         panel = panel,
@@ -413,43 +410,6 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         indexingAction.templatePresentation.isEnabled = false
         group.add(indexingAction)
       }
-  }
-
-  /**
-   * Populates the given `defaultActionGroup` with favorite editor groups that are not already displayed in the provided
-   * `editorGroups`.
-   *
-   * TODO deprecate favorites
-   *
-   * @param defaultActionGroup The action group to which favorite groups will be added.
-   * @param project The current project context.
-   * @param editorGroups The list of current editor groups.
-   * @param displayedGroup The editor group that is currently displayed.
-   */
-  private fun fillFavorites(
-    defaultActionGroup: DefaultActionGroup,
-    project: Project,
-    editorGroups: List<EditorGroup>,
-    displayedGroup: EditorGroup
-  ) {
-    val favoritesGroups = ExternalGroupProvider.getInstance(project).favoritesGroups
-    val alreadyDisplayed = editorGroups.filterIsInstance<FavoritesGroup>().mapTo(HashSet()) { it.title }
-
-    if (favoritesGroups.isNotEmpty()) {
-      defaultActionGroup.add(Separator("Favorites"))
-      favoritesGroups
-        .filterNot { it.title in alreadyDisplayed }
-        .forEach { favoritesGroup ->
-          defaultActionGroup.add(
-            createAction(
-              displayedGroup = displayedGroup,
-              targetGroup = favoritesGroup,
-              project = project,
-              actionHandler = otherGroupHandler(project)
-            )
-          )
-        }
-    }
   }
 
   /**

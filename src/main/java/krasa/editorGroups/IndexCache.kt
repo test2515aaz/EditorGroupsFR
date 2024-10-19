@@ -288,10 +288,10 @@ class IndexCache(private val project: Project) {
       includeAutoGroups && config.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
       last == HidePanelGroup.ID                                                      -> HidePanelGroup.INSTANCE
 
-      includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                  -> {
-        val favoritesGroup = externalGroupProvider.getFavoritesGroup(last.substring(FavoritesGroup.ID_PREFIX.length))
-        if (favoritesGroup.containsLink(project, currentFile)) favoritesGroup else EditorGroup.EMPTY
-      }
+      // includeFavorites && last.startsWith(FavoritesGroup.ID_PREFIX)                  -> {
+      //   val favoritesGroup = externalGroupProvider.getFavoritesGroup(last.substring(FavoritesGroup.ID_PREFIX.length))
+      //   if (favoritesGroup.containsLink(project, currentFile)) favoritesGroup else EditorGroup.EMPTY
+      // }
 
       includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                      -> {
         val groupName = last.substring(RegexGroup.ID_PREFIX.length)

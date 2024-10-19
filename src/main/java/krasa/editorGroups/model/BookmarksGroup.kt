@@ -14,23 +14,50 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
   override val isValid: Boolean = true
 
   init {
+    loadBookmarks(project)
+  }
+
+  private fun loadBookmarks(project: Project) {
     bookmarkGroup?.getBookmarks()?.forEach { bookmark ->
       when (bookmark) {
-        is LineBookmark -> {
-          val file = bookmark.file
-          val icon = EditorGroupsIcons.bookmarks
-          val line = bookmark.line
-          val desc = bookmarkGroup.getDescription(bookmark)
-          links.add(VirtualFileLink(file, icon, line, project).withDescription(desc))
-        }
-
-        is FileBookmark -> {
-          val file = bookmark.file
-          val desc = bookmarkGroup.getDescription(bookmark)
-          links.add(VirtualFileLink(file, project).withDescription(desc))
-        }
+        is LineBookmark -> loadLineBookmark(bookmark, bookmarkGroup, project)
+        is FileBookmark -> loadFileBookmark(bookmark, bookmarkGroup, project)
       }
     }
+  }
+
+  private fun loadLineBookmark(
+    bookmark: LineBookmark,
+    bookmarkGroup: BookmarkGroup,
+    project: Project
+  ) {
+    val file = bookmark.file
+    val icon = EditorGroupsIcons.bookmarks
+    val line = bookmark.line
+    val desc = bookmarkGroup.getDescription(bookmark)
+
+    if (file.isDirectory) {
+      file.children.forEach { child -> links.add(VirtualFileLink(child, project)) }
+      return
+    }
+
+    links.add(VirtualFileLink(file, icon, line, project).withDescription(desc))
+  }
+
+  private fun loadFileBookmark(
+    bookmark: FileBookmark,
+    bookmarkGroup: BookmarkGroup,
+    project: Project
+  ) {
+    val file = bookmark.file
+    val desc = bookmarkGroup.getDescription(bookmark)
+
+    if (file.isDirectory) {
+      file.children.forEach { child -> links.add(VirtualFileLink(child, project).withDescription(desc)) }
+      return
+    }
+
+    links.add(VirtualFileLink(file, project).withDescription(desc))
   }
 
   override fun isSelected(editorGroup: EditorGroup): Boolean = when (editorGroup) {

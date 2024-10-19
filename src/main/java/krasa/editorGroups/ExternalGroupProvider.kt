@@ -26,29 +26,9 @@ class ExternalGroupProvider(private val project: Project) {
     get() {
       val bookmarksManager = BookmarksManager.getInstance(project)
       val allGroups = bookmarksManager?.groups ?: return emptyList()
-      val nonDefaultGroups = allGroups.filter { it != bookmarksManager.defaultGroup }
 
-      return nonDefaultGroups
+      return allGroups
         .map { BookmarksGroup(it, project) }
-    }
-
-  val favoritesGroups: List<FavoritesGroup>
-    get() {
-      return favoritesManager.availableFavoritesListNames
-        .asSequence()
-        .mapNotNull { name ->
-          val favoritesListRootUrls = favoritesManager.getFavoritesListRootUrls(name)
-          if (favoritesListRootUrls.isEmpty()) return@mapNotNull null
-
-          FavoritesGroup(
-            title = name,
-            validBookmark = favoritesListRootUrls,
-            project = project,
-            projectFileIndex = fileIndex
-          ).takeIf { it.size(project) > 0 }
-        }
-        .toList()
-
     }
 
   fun getFavoritesGroup(title: String): EditorGroup {
@@ -58,15 +38,16 @@ class ExternalGroupProvider(private val project: Project) {
     return FavoritesGroup(title, favoritesListRootUrls, project, fileIndex)
   }
 
-  fun findGroups(currentFile: VirtualFile): List<FavoritesGroup> {
+  /** Find Bookmark groups that contain the file. */
+  fun findGroups(currentFile: VirtualFile): List<BookmarksGroup> {
     val start = System.currentTimeMillis()
 
-    val favoritesGroups = this.favoritesGroups
+    val bookmarkGroups = this.bookmarkGroups
       .filter { it.containsLink(project, currentFile) }
 
     thisLogger().debug("findGroups ${System.currentTimeMillis() - start}ms")
 
-    return favoritesGroups
+    return bookmarkGroups
   }
 
   companion object {
