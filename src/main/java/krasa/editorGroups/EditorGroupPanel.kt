@@ -68,7 +68,7 @@ class EditorGroupPanel(
   val project: Project,
   val switchRequest: SwitchRequest?,
   val file: VirtualFile
-) : JBPanel<EditorGroupPanel>(BorderLayout()), Weighted, Disposable {
+) : JBPanel<EditorGroupPanel>(BorderLayout()), Weighted, Disposable, UiCompatibleDataProvider {
 
   /** Keep state of the showPanel setting to decide whether to update the visibility on refresh. */
   private var hideGlobally = false
@@ -169,7 +169,7 @@ class EditorGroupPanel(
 
     // Create the tabs component
     // Add a data provider to the tabs
-    tabs.setDataProvider(EditorGroupDataProvider(tabs))
+    // tabs.setDataProvider(EditorGroupDataProvider(tabs))
 
     // Add a right click mouse listener to allow remove from favorites
     tabs.addTabMouseListener(EditorTabMouseListener(tabs))
@@ -1043,6 +1043,26 @@ class EditorGroupPanel(
    */
   private fun isSelected(): Boolean = fileEditorManager.selectedEditors.any { it == this.fileEditor }
 
+  override fun uiDataSnapshot(sink: DataSink) {
+    sink[CommonDataKeys.VIRTUAL_FILE] = run {
+      val targetInfo = tabs.getTargetInfo()
+      if (targetInfo is EditorGroupTabInfo) {
+        val path = targetInfo.link
+        return@run path.virtualFile
+      }
+      null
+    }
+
+    sink[BOOKMARK_GROUP] = run {
+      val targetInfo = tabs.getTargetInfo()
+      if (targetInfo is CustomGroupTabInfo) {
+        val group = targetInfo.editorGroup
+        if (group is BookmarksGroup) return@run group
+      }
+      null
+    }
+  }
+
   /** Represents a tab info in the editor group panel. */
   class EditorGroupTabInfo(val link: Link, var name: String) : KrTabInfo(JLabel("")) {
     @JvmField
@@ -1093,33 +1113,6 @@ class EditorGroupPanel(
 
       setToolTipText(editorGroup.getTabGroupTooltipText(this@EditorGroupPanel.project))
       setIcon(editorGroup.icon())
-    }
-  }
-
-  /** Provides data from a tab. */
-  internal inner class EditorGroupDataProvider(val tabs: KrJBEditorTabs) : DataProvider {
-    override fun getData(dataId: String): Any? {
-      when {
-        // If the data requested is of type VIRTUAL_FILE, returns the tab's virtual file
-        CommonDataKeys.VIRTUAL_FILE.`is`(dataId) -> {
-          val targetInfo = tabs.getTargetInfo()
-          if (targetInfo is EditorGroupTabInfo) {
-            val path = targetInfo.link
-            return path.virtualFile
-          }
-        }
-
-        // If the data requested is of type favorite group, returns the group
-        BOOKMARK_GROUP.`is`(dataId)              -> {
-          val targetInfo = tabs.getTargetInfo()
-          if (targetInfo is CustomGroupTabInfo) {
-            val group = targetInfo.editorGroup
-            if (group is FavoritesGroup) return group
-          }
-        }
-      }
-
-      return null
     }
   }
 
@@ -1197,7 +1190,7 @@ class EditorGroupPanel(
     const val TOOLBAR_PLACE = "krasa.editorGroups.EditorGroupPanel"
     const val TAB_PLACE = "EditorGroupsTabPopup"
     const val COMPACT_TAB_HEIGHT = 26
-    val BOOKMARK_GROUP: DataKey<BookmarksGroup?> = DataKey.create<BookmarksGroup?>("krasa.BookmarksGroup")
+    val BOOKMARK_GROUP: DataKey<BookmarksGroup> = DataKey.create<BookmarksGroup>("krasa.BookmarksGroup")
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
   }
