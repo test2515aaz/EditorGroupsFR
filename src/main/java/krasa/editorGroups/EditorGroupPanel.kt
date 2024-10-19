@@ -1165,6 +1165,10 @@ class EditorGroupPanel(
   /** Upon selecting a different tab of the group. */
   internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : KrTabs.SelectionChangeHandler {
     override fun execute(info: KrTabInfo?, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
+
+      // TODO this causes the tab to not proceed with select
+      // doChangeSelection.run()
+
       // First check the mouse modifiers
       val trueCurrentEvent = IdeEventQueue.getInstance().trueCurrentEvent
       val modifiers = when (trueCurrentEvent) {
