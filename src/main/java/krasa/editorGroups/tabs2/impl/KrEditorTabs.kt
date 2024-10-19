@@ -7,26 +7,23 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.ui.ExperimentalUI
 import krasa.editorGroups.tabs2.KrEditorTabsBase
 import krasa.editorGroups.tabs2.KrTabsPresentation
 
 open class KrEditorTabs : KrTabsImpl, KrEditorTabsBase {
-  protected var myDefaultPainter: KrEditorTabsPainter = KrDefaultEditorTabsPainter(this)
-  private var myAlphabeticalModeChanged = false
+  private var isAlphabeticalModeChanged = false
+
   override val isEditorTabs: Boolean = true
 
+  @Suppress("UNUSED_PARAMETER")
   constructor(project: Project?, focusManager: IdeFocusManager?, parentDisposable: Disposable) : super(
     project,
     parentDisposable
-  ) {
-    setSupportsCompression(true)
-  }
+  )
 
-  constructor(project: Project?, parentDisposable: Disposable) : super(project, parentDisposable) {
-    setSupportsCompression(true)
-  }
+  constructor(project: Project?, parentDisposable: Disposable) : super(project, parentDisposable)
 
+  @Deprecated("Use {@link #JBEditorTabs(Project, Disposable)}", level = DeprecationLevel.ERROR)
   constructor(
     project: Project?,
     actionManager: ActionManager,
@@ -36,20 +33,20 @@ open class KrEditorTabs : KrTabsImpl, KrEditorTabsBase {
 
   override fun uiSettingsChanged(uiSettings: UISettings) {
     resetTabsCache()
-    relayout(true, false)
+    relayout(forced = true, layoutNow = false)
 
     super.uiSettingsChanged(uiSettings)
   }
 
-  override fun useSmallLabels(): Boolean = UISettings.getInstance().useSmallLabelsOnTabs && !ExperimentalUI.isNewUI()
+  override fun useSmallLabels(): Boolean = UISettings.getInstance().useSmallLabelsOnTabs
 
   override fun isAlphabeticalMode(): Boolean = when {
-    myAlphabeticalModeChanged -> super.isAlphabeticalMode()
+    isAlphabeticalModeChanged -> super.isAlphabeticalMode()
     else                      -> UISettings.getInstance().sortTabsAlphabetically
   }
 
   override fun setAlphabeticalMode(value: Boolean): KrTabsPresentation {
-    myAlphabeticalModeChanged = true
+    isAlphabeticalModeChanged = true
     return super.setAlphabeticalMode(value)
   }
 
