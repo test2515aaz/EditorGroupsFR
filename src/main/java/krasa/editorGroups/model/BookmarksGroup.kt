@@ -13,6 +13,9 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
   override val title: String = "Bookmarks"
   override val isValid: Boolean = true
 
+  val name: String
+    get() = bookmarkGroup?.name ?: "unnamed"
+
   init {
     loadBookmarks(project)
   }
@@ -65,7 +68,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
     else              -> super.isSelected(editorGroup)
   }
 
-  override fun switchTitle(project: Project): String = "$title - [${bookmarkGroup?.name ?: "unnamed"}]"
+  override fun switchTitle(project: Project): String = "$title - [$name]"
 
   override fun icon(): Icon = EditorGroupsIcons.bookmarks
 
@@ -81,13 +84,14 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
 
   override fun needSmartMode(): Boolean = true
 
-  override fun toString(): String = "BookmarksGroup{links=$links, name='$title'}"
+  override fun toString(): String = "BookmarksGroup{links=$links, name='$name'}"
 
   override fun hashCode(): Int {
     var result = id.hashCode()
     result = 31 * result + links.hashCode()
     result = 31 * result + title.hashCode()
     result = 31 * result + isValid.hashCode()
+    result = 31 * result + name.hashCode()
     return result
   }
 

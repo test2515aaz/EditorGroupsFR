@@ -28,7 +28,7 @@ abstract class EditorGroup {
   val switchDescription: String?
     get() {
       if (this is AutoGroup) return null
-      if (this !is FavoritesGroup && this !is BookmarksGroup) return "Owner:$ownerPath"
+      if (this !is BookmarksGroup) return "Owner:$ownerPath"
       return null
     }
 

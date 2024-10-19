@@ -32,7 +32,7 @@ import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.Splitters.Companion.from
 import krasa.editorGroups.actions.PopupMenu
 import krasa.editorGroups.actions.RefreshAction
-import krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction
+import krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction
 import krasa.editorGroups.actions.SwitchGroupAction
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
@@ -1110,7 +1110,7 @@ class EditorGroupPanel(
         }
 
         // If the data requested is of type favorite group, returns the group
-        FAVORITE_GROUP.`is`(dataId)              -> {
+        BOOKMARK_GROUP.`is`(dataId)              -> {
           val targetInfo = tabs.getTargetInfo()
           if (targetInfo is CustomGroupTabInfo) {
             val group = targetInfo.editorGroup
@@ -1137,7 +1137,7 @@ class EditorGroupPanel(
 
       try {
         // Remove from current favorites
-        ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(
+        ActionManager.getInstance().getAction(RemoveFromCurrentBookmarksAction.ID).actionPerformed(
           AnActionEvent.createEvent(
             DataManager.getInstance().getDataContext(tabs),
             Presentation(),
@@ -1197,7 +1197,7 @@ class EditorGroupPanel(
     const val TOOLBAR_PLACE = "krasa.editorGroups.EditorGroupPanel"
     const val TAB_PLACE = "EditorGroupsTabPopup"
     const val COMPACT_TAB_HEIGHT = 26
-    val FAVORITE_GROUP: DataKey<FavoritesGroup?> = DataKey.create<FavoritesGroup?>("krasa.FavoritesGroup")
+    val BOOKMARK_GROUP: DataKey<BookmarksGroup?> = DataKey.create<BookmarksGroup?>("krasa.BookmarksGroup")
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
   }
