@@ -3,6 +3,7 @@ package krasa.editorGroups
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdeEventQueue
+import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -40,6 +41,7 @@ import krasa.editorGroups.support.FileResolver.Companion.excluded
 import krasa.editorGroups.support.getFileFromTextEditor
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabs
+import krasa.editorGroups.tabs2.KrTabsPosition
 import krasa.editorGroups.tabs2.my.KrJBEditorTabs
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
@@ -57,6 +59,7 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.LockSupport
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.SwingConstants
 import javax.swing.SwingUtilities
 import kotlin.math.abs
 import kotlin.math.max
@@ -171,6 +174,8 @@ class EditorGroupPanel(
     // Add a data provider to the tabs
     // tabs.setDataProvider(EditorGroupDataProvider(tabs))
 
+    setTabPlacement(UISettings.getInstance().editorTabPlacement)
+
     // Add a right click mouse listener to allow remove from favorites
     tabs.addTabMouseListener(EditorTabMouseListener(tabs))
 
@@ -202,6 +207,18 @@ class EditorGroupPanel(
 
     // Add a listener to show the popup on right click the tabs
     tabs.addMouseListener(getPopupHandler())
+  }
+
+  // TODO move to KrJBEditorTabs constructor
+  internal fun setTabPlacement(tabPlacement: Int) {
+    when (tabPlacement) {
+      SwingConstants.TOP    -> tabs.setTabsPosition(KrTabsPosition.top)
+      SwingConstants.BOTTOM -> tabs.setTabsPosition(KrTabsPosition.bottom)
+      SwingConstants.LEFT   -> tabs.setTabsPosition(KrTabsPosition.left)
+      SwingConstants.RIGHT  -> tabs.setTabsPosition(KrTabsPosition.right)
+      UISettings.TABS_NONE  -> tabs.isHideTabs = true
+      else                  -> throw IllegalArgumentException("Unknown tab placement code=$tabPlacement")
+    }
   }
 
   /** Happens once the panel is built and added. */

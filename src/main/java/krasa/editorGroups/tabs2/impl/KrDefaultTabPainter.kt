@@ -82,7 +82,12 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
     active: Boolean,
     hovered: Boolean
   ) {
-    getCustomBackground(tabColor, selected = false, active, hovered)?.let { g.fill2DRect(rect, it) }
+    getCustomBackground(
+      tabColor = tabColor,
+      selected = false,
+      active = active,
+      hovered = hovered
+    )?.let { g.fill2DRect(rect, it) }
   }
 
   override fun paintSelectedTab(
@@ -100,6 +105,14 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
       active = active,
       hovered = hovered
     )?.let { g.fill2DRect(rect, it) }
+
+    paintUnderline(
+      position = position,
+      rect = rect,
+      borderThickness = borderThickness,
+      g = g,
+      active = active
+    )
   }
 
   override fun paintUnderline(
