@@ -1,21 +1,15 @@
 package krasa.editorGroups
 
 import com.intellij.ide.bookmark.BookmarksManager
-import com.intellij.ide.favoritesTreeView.FavoritesManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.model.EditorGroup
-import krasa.editorGroups.model.FavoritesGroup
 
 @Service(Service.Level.PROJECT)
 class ExternalGroupProvider(private val project: Project) {
-  private val favoritesManager: FavoritesManager = FavoritesManager.getInstance(project)
-  private val fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(project)
-
   val defaultBookmarkGroup: BookmarksGroup
     get() {
       val defaultGroup = BookmarksManager.getInstance(project)?.defaultGroup
@@ -31,12 +25,8 @@ class ExternalGroupProvider(private val project: Project) {
         .map { BookmarksGroup(it, project) }
     }
 
-  fun getFavoritesGroup(title: String): EditorGroup {
-    val favoritesListRootUrls = favoritesManager.getFavoritesListRootUrls(title)
-    if (favoritesListRootUrls.isEmpty()) return EditorGroup.EMPTY
-
-    return FavoritesGroup(title, favoritesListRootUrls, project, fileIndex)
-  }
+  /** Get a Bookmark group by title. */
+  fun getBookmarkGroup(title: String): EditorGroup = bookmarkGroups.find { it.title == title } ?: EditorGroup.EMPTY
 
   /** Find Bookmark groups that contain the file. */
   fun findGroups(currentFile: VirtualFile): List<BookmarksGroup> {

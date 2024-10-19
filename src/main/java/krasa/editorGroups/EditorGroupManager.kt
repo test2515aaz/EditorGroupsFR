@@ -135,8 +135,7 @@ class EditorGroupManager(private val project: Project) {
         //_refresh
         when (result) {
           is FolderGroup    -> result = autoGroupProvider.getFolderGroup(currentFile)
-          is FavoritesGroup -> result = externalGroupProvider.getFavoritesGroup(result.title)
-          is BookmarksGroup -> result = externalGroupProvider.defaultBookmarkGroup
+          is BookmarksGroup -> result = externalGroupProvider.getBookmarkGroup(result.title)
         }
       }
 
@@ -255,11 +254,8 @@ class EditorGroupManager(private val project: Project) {
           result is FolderGroup                                                            -> result =
             autoGroupProvider.getFolderGroup(currentFile)
 
-          result is FavoritesGroup                                                         -> result =
-            externalGroupProvider.getFavoritesGroup(result.title)
-
           result is BookmarksGroup                                                         -> result =
-            externalGroupProvider.defaultBookmarkGroup
+            externalGroupProvider.getBookmarkGroup(result.title)
         }
 
         // Last resort, try multigroup
