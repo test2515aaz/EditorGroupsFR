@@ -1,6 +1,5 @@
 package krasa.editorGroups.tabs2.impl.border
 
-import krasa.editorGroups.tabs2.KrTabsBorder
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
 

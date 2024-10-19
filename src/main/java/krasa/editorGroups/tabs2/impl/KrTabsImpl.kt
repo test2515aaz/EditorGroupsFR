@@ -44,6 +44,8 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.update.lazyUiDisposable
 import krasa.editorGroups.tabs2.*
+import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
+import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
 import krasa.editorGroups.tabs2.impl.multiRow.KrMultiRowLayout
 import krasa.editorGroups.tabs2.impl.multiRow.KrWrapMultiRowLayout
 import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
