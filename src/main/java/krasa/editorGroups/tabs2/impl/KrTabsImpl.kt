@@ -2882,8 +2882,6 @@ open class KrTabsImpl(
   val navigationActions: ActionGroup
     get() = myNavigationActions
 
-  override fun getDataProvider(): DataProvider? = dataProvider
-
   override fun setDataProvider(dataProvider: DataProvider): KrTabsImpl {
     this.dataProvider = dataProvider
     return this
