@@ -7,6 +7,6 @@ public class EditorGroupsJBDefaultTabPainter extends KrDefaultTabPainter {
   private static final Logger LOG = com.intellij.openapi.diagnostic.Logger.getInstance(EditorGroupsJBDefaultTabPainter.class);
 
   public EditorGroupsJBDefaultTabPainter() {
-    KrDefaultTabPainter(new EditorGroupsTabTheme());
+    super(new EditorGroupsTabTheme());
   }
 }

@@ -44,6 +44,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.update.lazyUiDisposable
 import krasa.editorGroups.tabs2.*
+import krasa.editorGroups.tabs2.impl.border.KrDefaultTabsBorder
 import krasa.editorGroups.tabs2.impl.multiRow.KrMultiRowLayout
 import krasa.editorGroups.tabs2.impl.multiRow.KrWrapMultiRowLayout
 import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
@@ -1226,7 +1227,7 @@ open class KrTabsImpl(
 
   override fun addTab(info: KrTabInfo): KrTabInfo = addTab(info, -1)
 
-  override fun getTabLabel(info: KrTabInfo): KrTabLabel = infoToLabel[info]!!
+  override fun getTabLabel(info: KrTabInfo): KrTabLabel? = infoToLabel[info]
 
   val popupGroup: ActionGroup?
     get() = popupGroupSupplier?.invoke()

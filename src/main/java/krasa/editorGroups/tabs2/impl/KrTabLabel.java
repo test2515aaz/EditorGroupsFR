@@ -680,7 +680,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
   private void paintBackground(Graphics g) {
-    KrTabPainterAdapter.paintBackground(this, g, myTabs);
+    myTabs.tabPainterAdapter.paintBackground(this, g, myTabs);
   }
 
   protected @NotNull Color getEffectiveBackground() {
