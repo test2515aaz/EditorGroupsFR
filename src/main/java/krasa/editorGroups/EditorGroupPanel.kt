@@ -30,9 +30,9 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.Splitters.Companion.from
-import krasa.editorGroups.actions.PopupMenu.popupInvoked
+import krasa.editorGroups.actions.PopupMenu
 import krasa.editorGroups.actions.RefreshAction
-import krasa.editorGroups.actions.RemoveFromCurrentFavoritesAction
+import krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction
 import krasa.editorGroups.actions.SwitchGroupAction
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
@@ -68,7 +68,7 @@ class EditorGroupPanel(
   val project: Project,
   val switchRequest: SwitchRequest?,
   val file: VirtualFile
-) : JBPanel<EditorGroupPanel>(BorderLayout()), Weighted, Disposable {
+) : JBPanel<EditorGroupPanel>(BorderLayout()), Weighted, Disposable, UiCompatibleDataProvider {
 
   /** Keep state of the showPanel setting to decide whether to update the visibility on refresh. */
   private var hideGlobally = false
@@ -82,38 +82,39 @@ class EditorGroupPanel(
    * This variable is used to store an instance of `RefreshRequest`, which contains the refresh status and the requested
    * editor group. It's updated atomically to ensure thread safety during panel refresh operations.
    */
-  internal var atomicRefreshRequest: AtomicReference<RefreshRequest?> = AtomicReference<RefreshRequest?>()
+  internal var atomicRefreshRequest = AtomicReference<RefreshRequest?>()
 
   /** Keep a state indicating that we are in the middle of a refresh. */
   @Volatile
-  var interrupt: Boolean = false
+  var interrupt = false
 
   @Volatile
   private var brokenScroll = false
 
   /** Instance of the DumbService. */
-  private val dumbService: DumbService = DumbService.getInstance(project)
+  private val dumbService = DumbService.getInstance(project)
 
   // A thread executor per file
   private val myTaskExecutor: ExecutorService =
     AppExecutorUtil.createBoundedApplicationPoolExecutor("Krasa.editorGroups.EditorGroupPanel-${file.name}", 1)
 
   /** The current editor's file. */
-  private val fileFromTextEditor: VirtualFile = getFileFromTextEditor(fileEditor)
+  private val fileFromTextEditor = getFileFromTextEditor(fileEditor)
 
   /** The tabs component for this editor panel. */
-  val tabs: KrJBEditorTabs = KrJBEditorTabs(/* project = */ project,/* actionManager = */
-    ActionManager.getInstance(),/* focusManager = */
-    IdeFocusManager.findInstance(),/* parent = */
-    fileEditor,/* file = */
+  val tabs = KrJBEditorTabs(
+    project,
+    ActionManager.getInstance(),
+    IdeFocusManager.findInstance(),
+    fileEditor,
     file
   )
 
   /** Instance of the file editor manager for this project. */
-  private val fileEditorManager: FileEditorManager = FileEditorManager.getInstance(project)
+  private val fileEditorManager = FileEditorManager.getInstance(project)
 
   /** The group manager for this project. */
-  var groupManager: EditorGroupManager = EditorGroupManager.getInstance(project)
+  var groupManager = EditorGroupManager.getInstance(project)
 
   /** The action toolbar. */
   private lateinit var toolbar: ActionToolbar
@@ -126,7 +127,7 @@ class EditorGroupPanel(
   private var displayedGroup: EditorGroup? = null
 
   /** Instance of the unique tab name builder. */
-  private val uniqueNameBuilder: UniqueTabNameBuilder = UniqueTabNameBuilder(project)
+  private val uniqueNameBuilder = UniqueTabNameBuilder(project)
 
   /** The group to be rendered for this file. */
   @Volatile
@@ -134,7 +135,7 @@ class EditorGroupPanel(
 
   /** The scroll offset from the switch request. */
   @Volatile
-  private var myScrollOffset: Int = switchRequest?.myScrollOffset ?: 0
+  private var myScrollOffset = switchRequest?.myScrollOffset ?: 0
 
   /** The line from the switch request. */
   private val line: Int? = switchRequest?.line
@@ -168,7 +169,7 @@ class EditorGroupPanel(
 
     // Create the tabs component
     // Add a data provider to the tabs
-    tabs.setDataProvider(EditorGroupDataProvider(tabs))
+    // tabs.setDataProvider(EditorGroupDataProvider(tabs))
 
     // Add a right click mouse listener to allow remove from favorites
     tabs.addTabMouseListener(EditorTabMouseListener(tabs))
@@ -296,7 +297,7 @@ class EditorGroupPanel(
 
   /** Display the popup. */
   private fun getPopupHandler(): PopupHandler = object : PopupHandler() {
-    override fun invokePopup(comp: Component?, x: Int, y: Int) = popupInvoked(comp, x, y)
+    override fun invokePopup(comp: Component?, x: Int, y: Int) = PopupMenu.popupInvoked(comp, x, y)
   }
 
   /** Add the action buttons at the left of the panel. */
@@ -432,7 +433,7 @@ class EditorGroupPanel(
    * @param group the group to be checked, or null.
    * @return true if the group is an instance of EditorGroups, BookmarkGroup, or HidePanelGroup; false otherwise.
    */
-  private fun isCustomGroup(group: EditorGroup?): Boolean = group is EditorGroups || group is BookmarkGroup || group is HidePanelGroup
+  private fun isCustomGroup(group: EditorGroup?): Boolean = group is EditorGroups || group is BookmarksGroup || group is HidePanelGroup
 
   /**
    * Adds the current file as a tab in the editor panel.
@@ -948,7 +949,7 @@ class EditorGroupPanel(
 
     // In case the panel is not selected (e.g. in a split view), the scroll might break
     this.brokenScroll = !isSelected()
-    if (this.brokenScroll) thisLogger().warn("rendering editor that is not selected, scrolling might break: ${file.name}")
+    if (this.brokenScroll) thisLogger().debug("rendering editor that is not selected, scrolling might break: ${file.name}")
 
     // Update the displayed group and reset the groupToBeRendered
     this.displayedGroup = renderingGroup
@@ -1042,6 +1043,26 @@ class EditorGroupPanel(
    */
   private fun isSelected(): Boolean = fileEditorManager.selectedEditors.any { it == this.fileEditor }
 
+  override fun uiDataSnapshot(sink: DataSink) {
+    sink[CommonDataKeys.VIRTUAL_FILE] = run {
+      val targetInfo = tabs.getTargetInfo()
+      if (targetInfo is EditorGroupTabInfo) {
+        val path = targetInfo.link
+        return@run path.virtualFile
+      }
+      null
+    }
+
+    sink[BOOKMARK_GROUP] = run {
+      val targetInfo = tabs.getTargetInfo()
+      if (targetInfo is CustomGroupTabInfo) {
+        val group = targetInfo.editorGroup
+        if (group is BookmarksGroup) return@run group
+      }
+      null
+    }
+  }
+
   /** Represents a tab info in the editor group panel. */
   class EditorGroupTabInfo(val link: Link, var name: String) : KrTabInfo(JLabel("")) {
     @JvmField
@@ -1049,7 +1070,7 @@ class EditorGroupPanel(
 
     init {
       // Adds the link if needed
-      link.line?.let { name += ":$it" }
+      link.line?.let { name += ":${it + 1}" }
 
       setText(name)
       setTooltipText(link.path)
@@ -1058,6 +1079,13 @@ class EditorGroupPanel(
 
       // Disable the tab if the file does not exist
       if (!link.exists()) setEnabled(false)
+
+      // Custom Names (for bookmarks, regexs, etc)
+      val customName = link.customName ?: ""
+      if (!customName.isBlank()) {
+        setText(customName)
+        setTooltipText("$name - ${link.path}")
+      }
 
       // Fetch the actual icon off the UI thread
       ApplicationManager.getApplication().runWriteAction {
@@ -1088,33 +1116,6 @@ class EditorGroupPanel(
     }
   }
 
-  /** Provides data from a tab. */
-  internal inner class EditorGroupDataProvider(val tabs: KrJBEditorTabs) : DataProvider {
-    override fun getData(dataId: String): Any? {
-      when {
-        // If the data requested is of type VIRTUAL_FILE, returns the tab's virtual file
-        CommonDataKeys.VIRTUAL_FILE.`is`(dataId) -> {
-          val targetInfo = tabs.getTargetInfo()
-          if (targetInfo is EditorGroupTabInfo) {
-            val path = targetInfo.link
-            return path.virtualFile
-          }
-        }
-
-        // If the data requested is of type favorite group, returns the group
-        FAVORITE_GROUP.`is`(dataId)              -> {
-          val targetInfo = tabs.getTargetInfo()
-          if (targetInfo is CustomGroupTabInfo) {
-            val group = targetInfo.editorGroup
-            if (group is FavoritesGroup) return group
-          }
-        }
-      }
-
-      return null
-    }
-  }
-
   /** Remove favorites on right click. */
   internal inner class EditorTabMouseListener(val tabs: KrJBEditorTabs) : MouseAdapter() {
     override fun mouseReleased(e: MouseEvent) {
@@ -1129,11 +1130,11 @@ class EditorGroupPanel(
 
       try {
         // Remove from current favorites
-        ActionManager.getInstance().getAction(RemoveFromCurrentFavoritesAction.ID).actionPerformed(
+        ActionManager.getInstance().getAction(RemoveFromCurrentBookmarksAction.ID).actionPerformed(
           AnActionEvent.createEvent(
             DataManager.getInstance().getDataContext(tabs),
             Presentation(),
-            ActionPlaces.UNKNOWN,
+            TAB_PLACE,
             ActionUiKind.NONE,
             e,
           )
@@ -1189,7 +1190,7 @@ class EditorGroupPanel(
     const val TOOLBAR_PLACE = "krasa.editorGroups.EditorGroupPanel"
     const val TAB_PLACE = "EditorGroupsTabPopup"
     const val COMPACT_TAB_HEIGHT = 26
-    val FAVORITE_GROUP: DataKey<FavoritesGroup?> = DataKey.create<FavoritesGroup?>("krasa.FavoritesGroup")
+    val BOOKMARK_GROUP: DataKey<BookmarksGroup> = DataKey.create<BookmarksGroup>("krasa.BookmarksGroup")
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
   }

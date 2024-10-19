@@ -15,7 +15,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.PopupHandler
 import krasa.editorGroups.*
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
-import krasa.editorGroups.actions.PopupMenu.popupInvoked
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications.showWarning
@@ -51,7 +50,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     presentation.icon = EditorGroupsIcons.groupBy
 
     button.addMouseListener(object : PopupHandler() {
-      override fun invokePopup(comp: Component, x: Int, y: Int) = popupInvoked(comp, x, y)
+      override fun invokePopup(comp: Component, x: Int, y: Int) = PopupMenu.popupInvoked(comp, x, y)
     })
 
     return button
@@ -119,7 +118,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         }
       }
 
-      addBookmarkGroup(
+      addBookmarkGroups(
         project = project,
         defaultActionGroup = defaultActionGroup,
         panel = editorGroupPanel,
@@ -132,19 +131,12 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         displayedGroup = displayedGroup,
         project = project
       )
-      fillFavorites(
-        defaultActionGroup = tempGroup,
-        project = project,
-        editorGroups = currentFileGroups,
-        displayedGroup = displayedGroup
-      )
       fillGlobalRegexGroups(
         defaultActionGroup = tempGroup,
         project = project,
         displayedGroup = displayedGroup,
         alreadyFilledRegexGroups = regexGroups
       )
-
 
       when {
         // If the option to group the groups is enabled
@@ -156,13 +148,13 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.templatePresentation.text })
             .toList()
 
-          defaultActionGroup.add(Separator())
+          defaultActionGroup.add(Separator("Custom Groups"))
           defaultActionGroup.addAll(list)
         }
       }
 
       defaultActionGroup.run {
-        add(Separator())
+        add(Separator("Settings"))
         add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
         add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
       }
@@ -172,9 +164,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   }
 
   /**
-   * Adds a bookmark group action to the given action group.
-   *
-   * TODO use new bookmark system
+   * Adds bookmark groups action to the given action group.
    *
    * @param project The current project instance.
    * @param defaultActionGroup The action group to which the bookmark action will be added.
@@ -182,32 +172,135 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * @param displayedGroup The editor group to be displayed.
    * @param file Optional virtual file to check for bookmark availability.
    */
-  private fun addBookmarkGroup(
+  private fun addBookmarkGroups(
     project: Project,
     defaultActionGroup: DefaultActionGroup,
     panel: EditorGroupPanel?,
     displayedGroup: EditorGroup,
     file: VirtualFile?
   ) {
-    val bookmarkGroup = ExternalGroupProvider.getInstance(project).bookmarkGroup
+    // add separator
+    defaultActionGroup.add(Separator("Bookmarks"))
+    addDefaultBookmarksGroups(
+      project = project,
+      panel = panel,
+      file = file,
+      displayedGroup = displayedGroup,
+      defaultActionGroup = defaultActionGroup
+    )
+    addOtherBookmarkGroups(
+      project = project,
+      panel = panel,
+      file = file,
+      displayedGroup = displayedGroup,
+      defaultActionGroup = defaultActionGroup
+    )
+  }
 
+  /**
+   * Adds the default bookmark groups to the specified action group.
+   *
+   * @param project The current project instance.
+   * @param panel Optional panel to be updated upon bookmark action.
+   * @param file Optional virtual file to check for bookmark availability.
+   * @param displayedGroup The editor group that is currently displayed.
+   * @param defaultActionGroup The action group to which the bookmark action will be added.
+   */
+  private fun addDefaultBookmarksGroups(
+    project: Project,
+    panel: EditorGroupPanel?,
+    file: VirtualFile?,
+    displayedGroup: EditorGroup,
+    defaultActionGroup: DefaultActionGroup
+  ) {
+    val defaultBookmarkGroup = ExternalGroupProvider.getInstance(project).defaultBookmarkGroup
+
+    // First add the default bookmarks group
+    val defaultBookmarkGroupActionHandler = createBookmarkActionHandler(
+      panel = panel,
+      file = file,
+      bookmarkGroup = defaultBookmarkGroup,
+      project = project
+    )
+
+    val defaultBookmarkGroupAction = createBookmarkGroupAction(
+      displayedGroup = displayedGroup,
+      targetGroup = defaultBookmarkGroup,
+      project = project,
+      actionHandler = defaultBookmarkGroupActionHandler,
+      isDefault = true
+    )
+
+    defaultActionGroup.add(defaultBookmarkGroupAction)
+  }
+
+  /**
+   * Adds other bookmark groups to the given action group.
+   *
+   * @param project The current project instance.
+   * @param panel Optional panel to be updated upon bookmark action.
+   * @param file Optional virtual file to check for bookmark availability.
+   * @param displayedGroup The editor group that is currently displayed.
+   * @param defaultActionGroup The action group to which the bookmark action will be added.
+   */
+  private fun addOtherBookmarkGroups(
+    project: Project,
+    panel: EditorGroupPanel?,
+    file: VirtualFile?,
+    displayedGroup: EditorGroup,
+    defaultActionGroup: DefaultActionGroup
+  ) {
+    // Then add the other bookmarks groups
+    val externalGroupProvider = ExternalGroupProvider.getInstance(project)
+    val otherBookmarkGroups = externalGroupProvider.bookmarkGroups
+      .filterNot { it == externalGroupProvider.defaultBookmarkGroup }
+    
+    otherBookmarkGroups.forEach { bookmarkGroup ->
+      val bookmarkGroupActionHandler = createBookmarkActionHandler(
+        panel = panel,
+        file = file,
+        bookmarkGroup = bookmarkGroup,
+        project = project
+      )
+
+      val bookmarkGroupAction = createBookmarkGroupAction(
+        displayedGroup = displayedGroup,
+        targetGroup = bookmarkGroup,
+        project = project,
+        actionHandler = bookmarkGroupActionHandler
+      )
+
+      defaultActionGroup.add(bookmarkGroupAction)
+    }
+  }
+
+  /**
+   * Creates a handler for bookmark actions within the specified context.
+   *
+   * @param panel The editor group panel associated with the bookmark action, can be null.
+   * @param file The virtual file to check for bookmark availability, can be null.
+   * @param bookmarkGroup The bookmark group to perform actions on.
+   * @param project The current project instance.
+   * @return The handler to execute the bookmark action.
+   */
+  private fun createBookmarkActionHandler(
+    panel: EditorGroupPanel?,
+    file: VirtualFile?,
+    bookmarkGroup: BookmarksGroup,
+    project: Project
+  ): Handler {
     val actionHandler = object : Handler() {
-      override fun run(editorGroup: EditorGroup) {
-        when {
-          panel != null && file != null && bookmarkGroup.containsLink(project, file) -> refreshHandler(panel).run(bookmarkGroup)
-          else                                                                       -> otherGroupHandler(project).run(bookmarkGroup)
+      override fun run(editorGroup: EditorGroup) = when {
+        panel != null && file != null && bookmarkGroup.containsLink(project, file) -> {
+          refreshHandler(panel).run(bookmarkGroup)
+        }
+
+        else                                                                       -> {
+          otherGroupHandler(project).run(bookmarkGroup)
         }
       }
     }
-
-    val action = createBookmarkGroupAction(
-      displayedGroup = displayedGroup,
-      targetGroup = bookmarkGroup,
-      project = project,
-      actionHandler = actionHandler,
-    )
-
-    defaultActionGroup.add(action)
+    return actionHandler
   }
 
   /**
@@ -313,47 +406,10 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             )
           }
       }
-      .onFailure { exception ->
+      .onFailure { _ ->
         indexingAction.templatePresentation.isEnabled = false
         group.add(indexingAction)
       }
-  }
-
-  /**
-   * Populates the given `defaultActionGroup` with favorite editor groups that are not already displayed in the provided
-   * `editorGroups`.
-   *
-   * TODO deprecate favorites
-   *
-   * @param defaultActionGroup The action group to which favorite groups will be added.
-   * @param project The current project context.
-   * @param editorGroups The list of current editor groups.
-   * @param displayedGroup The editor group that is currently displayed.
-   */
-  private fun fillFavorites(
-    defaultActionGroup: DefaultActionGroup,
-    project: Project,
-    editorGroups: List<EditorGroup>,
-    displayedGroup: EditorGroup
-  ) {
-    val favoritesGroups = ExternalGroupProvider.getInstance(project).favoritesGroups
-    val alreadyDisplayed = editorGroups.filterIsInstance<FavoritesGroup>().mapTo(HashSet()) { it.title }
-
-    if (favoritesGroups.isNotEmpty()) {
-      defaultActionGroup.add(Separator("Favorites"))
-      favoritesGroups
-        .filterNot { it.title in alreadyDisplayed }
-        .forEach { favoritesGroup ->
-          defaultActionGroup.add(
-            createAction(
-              displayedGroup = displayedGroup,
-              targetGroup = favoritesGroup,
-              project = project,
-              actionHandler = otherGroupHandler(project)
-            )
-          )
-        }
-    }
   }
 
   /**
@@ -472,11 +528,9 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   ): DumbAwareAction {
     val isSelected = displayedGroup.isSelected(targetGroup)
     val description = targetGroup.switchDescription
-
     var title = targetGroup.switchTitle(project)
-    if (isSelected) {
-      title += " - Current"
-    }
+
+    if (isSelected) title += " - Current"
 
     val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
@@ -495,18 +549,18 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     displayedGroup: EditorGroup,
     targetGroup: EditorGroup,
     project: Project,
-    actionHandler: Handler
+    actionHandler: Handler,
+    isDefault: Boolean = false
   ): DumbAwareAction {
     val isSelected = displayedGroup.isSelected(targetGroup)
     val description = targetGroup.switchDescription
-
     var title = targetGroup.switchTitle(project)
-    if (isSelected) {
-      title += " - Current"
-    }
 
-    val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
+    if (isSelected) title += " - Current"
+
+    return object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
+
       override fun getActionUpdateThread(): ActionUpdateThread = super.getActionUpdateThread()
 
       override fun update(e: AnActionEvent) {
@@ -516,10 +570,13 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           e.presentation.isEnabled = false
           e.presentation.setText("${targetGroup.title} - empty")
         }
+
+        if (isDefault) {
+          // Make text bold
+          e.presentation.text = "<html><b>${e.presentation.text}</b></html>"
+        }
       }
     }
-
-    return dumbAwareAction
   }
 
   override fun update(e: AnActionEvent) {

@@ -1,63 +1,43 @@
 package krasa.editorGroups
 
-import com.intellij.ide.bookmarks.BookmarkManager
-import com.intellij.ide.favoritesTreeView.FavoritesManager
+import com.intellij.ide.bookmark.BookmarksManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.model.BookmarkGroup
+import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.model.EditorGroup
-import krasa.editorGroups.model.FavoritesGroup
 
 @Service(Service.Level.PROJECT)
 class ExternalGroupProvider(private val project: Project) {
-  private val favoritesManager: FavoritesManager = FavoritesManager.getInstance(project)
-  private val fileIndex: ProjectFileIndex = ProjectFileIndex.getInstance(project)
-
-  val bookmarkGroup: BookmarkGroup
+  val defaultBookmarkGroup: BookmarksGroup
     get() {
-      val validBookmarks =
-        BookmarkManager.getInstance(project).getValidBookmarks()
-      return BookmarkGroup(validBookmarks, project)
+      val defaultGroup = BookmarksManager.getInstance(project)?.defaultGroup
+      return BookmarksGroup(defaultGroup, project)
     }
 
-  val favoritesGroups: List<FavoritesGroup>
+  val bookmarkGroups: List<BookmarksGroup>
     get() {
-      return favoritesManager.availableFavoritesListNames
-        .asSequence()
-        .mapNotNull { name ->
-          val favoritesListRootUrls = favoritesManager.getFavoritesListRootUrls(name)
-          if (favoritesListRootUrls.isEmpty()) return@mapNotNull null
+      val bookmarksManager = BookmarksManager.getInstance(project)
+      val allGroups = bookmarksManager?.groups ?: return emptyList()
 
-          FavoritesGroup(
-            title = name,
-            validBookmark = favoritesListRootUrls,
-            project = project,
-            projectFileIndex = fileIndex
-          ).takeIf { it.size(project) > 0 }
-        }
-        .toList()
-
+      return allGroups
+        .map { BookmarksGroup(it, project) }
     }
 
-  fun getFavoritesGroup(title: String): EditorGroup {
-    val favoritesListRootUrls = favoritesManager.getFavoritesListRootUrls(title)
-    if (favoritesListRootUrls.isEmpty()) return EditorGroup.EMPTY
+  /** Get a Bookmark group by title. */
+  fun getBookmarkGroup(title: String): EditorGroup = bookmarkGroups.find { it.title == title } ?: EditorGroup.EMPTY
 
-    return FavoritesGroup(title, favoritesListRootUrls, project, fileIndex)
-  }
-
-  fun findGroups(currentFile: VirtualFile): List<FavoritesGroup> {
+  /** Find Bookmark groups that contain the file. */
+  fun findGroups(currentFile: VirtualFile): List<BookmarksGroup> {
     val start = System.currentTimeMillis()
 
-    val favoritesGroups = this.favoritesGroups
+    val bookmarkGroups = this.bookmarkGroups
       .filter { it.containsLink(project, currentFile) }
 
     thisLogger().debug("findGroups ${System.currentTimeMillis() - start}ms")
 
-    return favoritesGroups
+    return bookmarkGroups
   }
 
   companion object {

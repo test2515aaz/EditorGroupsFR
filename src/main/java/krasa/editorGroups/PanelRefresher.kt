@@ -16,7 +16,7 @@ import com.intellij.util.indexing.FileBasedIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import krasa.editorGroups.index.EditorGroupIndex
-import krasa.editorGroups.model.BookmarkGroup
+import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.model.FolderGroup
@@ -52,7 +52,7 @@ class PanelRefresher(private val project: Project) {
 
       fun refresh() {
         iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
-          if (displayedGroup is BookmarkGroup) {
+          if (displayedGroup is BookmarksGroup) {
             thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
             panel.refreshPane(true, displayedGroup)
           }

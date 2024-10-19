@@ -24,6 +24,11 @@ class VirtualFileLink : Link {
 
   fun isTheSameFile(file: VirtualFile): Boolean = fileEquals(file)
 
+  fun withDescription(desc: String?): VirtualFileLink {
+    if (desc != null) customName = desc
+    return this
+  }
+
   override fun exists(): Boolean = virtualFile.exists()
 
   override fun equals(other: Any?): Boolean {

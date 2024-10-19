@@ -8,11 +8,7 @@ import javax.swing.Icon
 
 class FolderGroup(private val folder: VirtualFile?, links: List<Link>) : AutoGroup(links) {
   override var isValid: Boolean = false
-    get() = folder != null && field && (DIRECTORY_INSTANCE == folder || folder.isDirectory)
-    set(isValid) {
-      super.isValid = isValid
-      field = isValid
-    }
+    get() = folder != null && (DIRECTORY_INSTANCE == folder || folder.isDirectory)
 
   override val id: String
     get() = DIRECTORY
