@@ -1,11 +1,10 @@
-package krasa.editorGroups.tabs2.impl
+package krasa.editorGroups.tabs2.impl.painter
 
 import com.intellij.openapi.rd.fill2DRect
 import com.intellij.openapi.rd.fill2DRoundRect
 import com.intellij.openapi.rd.paint2DLine
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.paint.LinePainter2D
-import krasa.editorGroups.tabs2.KrTabPainter
 import krasa.editorGroups.tabs2.KrTabsPosition
 import krasa.editorGroups.tabs2.impl.themes.KrDefaultTabTheme
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
@@ -14,6 +13,7 @@ import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 
+/** A regular tab painter that uses a [KrTabTheme] to paint the tabs. */
 open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme()) : KrTabPainter {
 
   override fun getTabTheme(): KrTabTheme = theme
@@ -82,7 +82,12 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
     active: Boolean,
     hovered: Boolean
   ) {
-    getCustomBackground(tabColor, selected = false, active, hovered)?.let { g.fill2DRect(rect, it) }
+    getCustomBackground(
+      tabColor = tabColor,
+      selected = false,
+      active = active,
+      hovered = hovered
+    )?.let { g.fill2DRect(rect, it) }
   }
 
   override fun paintSelectedTab(
@@ -100,6 +105,14 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
       active = active,
       hovered = hovered
     )?.let { g.fill2DRect(rect, it) }
+
+    paintUnderline(
+      position = position,
+      rect = rect,
+      borderThickness = borderThickness,
+      g = g,
+      active = active
+    )
   }
 
   override fun paintUnderline(

@@ -1,4 +1,4 @@
-package krasa.editorGroups.tabs2
+package krasa.editorGroups.tabs2.impl.border
 
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
@@ -7,15 +7,13 @@ import java.awt.Insets
 import javax.swing.border.Border
 
 abstract class KrTabsBorder(val tabs: KrTabsImpl) : Border {
-  var thickness: Int = JBUI.scale(1)
-
-  override fun getBorderInsets(c: Component?): Insets = JBUI.emptyInsets()
-
-  override fun isBorderOpaque(): Boolean {
-    return true
-  }
+  val thickness: Int
+    get() = tabs.tabPainter.getTabTheme().topBorderThickness
 
   open val effectiveBorder: Insets
     get() = JBUI.emptyInsets()
 
+  override fun getBorderInsets(c: Component?): Insets = JBUI.emptyInsets()
+
+  override fun isBorderOpaque(): Boolean = true
 }

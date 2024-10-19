@@ -1,6 +1,9 @@
 package krasa.editorGroups
 
 import com.intellij.ide.ui.UISettings
+import com.intellij.ide.ui.UISettingsListener
+import com.intellij.ide.ui.UISettingsListener.TOPIC
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -87,14 +90,35 @@ class EditorGroupsStartup : FileEditorManagerListener {
       return
     }
 
-    val panel = EditorGroupPanel(fileEditor, project, switchRequest, file)
-    val editorTabPlacement = UISettings.getInstance().editorTabPlacement
-    when (editorTabPlacement) {
-      SwingConstants.LEFT, SwingConstants.RIGHT, UISettings.TABS_NONE -> return
-      SwingConstants.BOTTOM                                           -> manager.addBottomComponent(fileEditor, panel.root)
-      else                                                            -> manager.addTopComponent(fileEditor, panel.root)
+    fun renderPanel(): EditorGroupPanel {
+      val panel = EditorGroupPanel(fileEditor, project, switchRequest, file)
+      val editorTabPlacement = UISettings.getInstance().editorTabPlacement
+      when (editorTabPlacement) {
+        SwingConstants.TOP    -> manager.addTopComponent(fileEditor, panel.root)
+        SwingConstants.BOTTOM -> manager.addBottomComponent(fileEditor, panel.root)
+        else                  -> manager.addTopComponent(fileEditor, panel.root)
+      }
+      panel.postConstruct()
+      return panel
     }
 
-    panel.postConstruct()
+    val panel = renderPanel()
+
+    // Listen for UI settings changes on this panel
+    ApplicationManager.getApplication().messageBus.connect(panel)
+      .subscribe(TOPIC, object : UISettingsListener {
+        override fun uiSettingsChanged(uiSettings: UISettings) {
+          when {
+            !panel.isValid                                                               -> return
+            UISettings.getInstance().editorTabPlacement == uiSettings.editorTabPlacement -> return
+            else                                                                         -> {
+              manager.removeTopComponent(fileEditor, panel.root)
+              manager.removeBottomComponent(fileEditor, panel.root)
+              renderPanel()
+            }
+          }
+        }
+      })
+
   }
 }

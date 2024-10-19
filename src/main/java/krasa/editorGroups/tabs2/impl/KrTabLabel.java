@@ -24,6 +24,7 @@ import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.KrTabsEx;
 import krasa.editorGroups.tabs2.KrUiDecorator;
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
