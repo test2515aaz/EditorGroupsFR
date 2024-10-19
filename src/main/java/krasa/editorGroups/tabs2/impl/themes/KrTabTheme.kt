@@ -1,5 +1,9 @@
 package krasa.editorGroups.tabs2.impl.themes
 
+import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.colors.EditorColorsManager
+import com.intellij.openapi.editor.colors.EditorColorsScheme
+import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import java.awt.Color
 
