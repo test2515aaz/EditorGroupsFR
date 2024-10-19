@@ -19,6 +19,8 @@ object PopupMenu {
     ReindexThisFileAction.ID,
     ReindexAction.ID,
     "-",
+    RemoveFromCurrentBookmarksAction.ID,
+    "-",
     ToggleAutoSameNameGroupsAction.ID,
     ToggleAutoFolderGroupsAction.ID,
     ToggleForceAction.ID,

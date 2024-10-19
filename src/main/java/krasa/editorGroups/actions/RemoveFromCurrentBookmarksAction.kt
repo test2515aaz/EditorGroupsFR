@@ -23,7 +23,7 @@ class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
     presentation.setVisible(bookmarksGroup != null)
 
     if (bookmarksGroup != null) {
-      presentation.setText("Remove from Bookmarks - ${bookmarksGroup.title}")
+      presentation.setText("Remove from Bookmarks - ${bookmarksGroup.name}")
       presentation.setEnabled(isEnabled(e, bookmarksGroup))
     }
   }

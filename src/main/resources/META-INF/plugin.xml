@@ -176,13 +176,6 @@
 
             <separator/>
 
-            <action id="krasa.editorGroups.actions.AddToCurrentBookmarks"
-                    class="krasa.editorGroups.actions.AddToCurrentBookmarksAction"
-                    text="Add to Current Bookmarks Group"
-                    description="Add to current bookmarks group"
-                    icon="AllIcons.Nodes.Bookmark">
-            </action>
-
             <action id="krasa.editorGroups.actions.RemoveFromCurrentBookmarks"
                     class="krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction"
                     text="Remove from Current Bookmarks Group"
@@ -202,7 +195,7 @@
             <action id="krasa.editorGroups.Reindex"
                     class="krasa.editorGroups.actions.ReindexAction"
                     text="Reindex All Projects"
-                    icon="AllIcons.General.InlineRefreshHover">
+                    icon="AllIcons.General.Reset">
             </action>
 
             <separator/>
