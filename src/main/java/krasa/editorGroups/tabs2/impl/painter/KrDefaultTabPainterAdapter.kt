@@ -1,6 +1,5 @@
 package krasa.editorGroups.tabs2.impl.painter
 
-import com.intellij.ide.ui.UISettings
 import krasa.editorGroups.tabs2.KrTabsPosition
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
@@ -19,7 +18,6 @@ class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
     val info = label.info
     val isSelected = info == tabs.selectedInfo
     val isHovered = tabs.isHoveredTab(label)
-    val position = UISettings.getInstance().editorTabPlacement
 
     val rect = Rectangle(0, 0, label.width, label.height)
     val g2d = g as Graphics2D

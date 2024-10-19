@@ -1234,9 +1234,9 @@ open class KrTabsImpl(
     get() = popupGroupSupplier?.invoke()
 
   override fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): KrTabs =
-    setPopupGroup({ popupGroup }, place, addNavigationGroup)
+    setPopupGroupWithSupplier({ popupGroup }, place, addNavigationGroup)
 
-  override fun setPopupGroup(
+  override fun setPopupGroupWithSupplier(
     supplier: Supplier<out ActionGroup>,
     place: String,
     addNavigationGroup: Boolean
@@ -1603,26 +1603,22 @@ open class KrTabsImpl(
     infoToLabel[info]!!.setTabActions(info.tabLabelActions)
   }
 
-  override fun getSelectedInfo(): KrTabInfo? {
-    return when {
-      oldSelection != null                  -> {
-        oldSelection
+  override val selectedInfo: KrTabInfo?
+    get() = when {
+      oldSelection != null                  -> oldSelection
+
+      mySelectedInfo == null                -> when {
+        visibleInfos.isEmpty() -> null
+        else                   -> visibleInfos[0]
       }
 
-      mySelectedInfo == null                -> {
-        if (visibleInfos.isEmpty()) null else visibleInfos[0]
-      }
-
-      visibleInfos.contains(mySelectedInfo) -> {
-        mySelectedInfo
-      }
+      visibleInfos.contains(mySelectedInfo) -> mySelectedInfo
 
       else                                  -> {
         setSelectedInfo(null)
         null
       }
     }
-  }
 
   fun setSelectedInfo(info: KrTabInfo?) {
     mySelectedInfo = info
@@ -1700,23 +1696,23 @@ open class KrTabsImpl(
 
   override fun getTabAt(tabIndex: Int): KrTabInfo = tabs[tabIndex]
 
-  @RequiresEdt
-  override fun getTabs(): List<KrTabInfo> {
-    // If allTabs is not null, it means that the tabs are already sorted and we can return them directly.
-    this.allTabs?.let { return it }
+  override val tabs: List<KrTabInfo>
+    get() {
+      // If allTabs is not null, it means that the tabs are already sorted and we can return them directly.
+      this.allTabs?.let { return it }
 
-    val result = visibleInfos.toMutableList()
-    for (tabInfo in hiddenInfos.keys) {
-      result.add(getIndexInVisibleArray(tabInfo), tabInfo)
+      val result = visibleInfos.toMutableList()
+      for (tabInfo in hiddenInfos.keys) {
+        result.add(getIndexInVisibleArray(tabInfo), tabInfo)
+      }
+
+      if (isAlphabeticalMode()) {
+        sortTabsAlphabetically(result)
+      }
+
+      this.allTabs = result
+      return result
     }
-
-    if (isAlphabeticalMode()) {
-      sortTabsAlphabetically(result)
-    }
-
-    this.allTabs = result
-    return result
-  }
 
   override fun getTargetInfo(): KrTabInfo? = popupInfo ?: selectedInfo
 
@@ -2203,7 +2199,8 @@ open class KrTabsImpl(
     return size
   }
 
-  override fun getTabCount(): Int = tabs.size
+  override val tabCount: Int
+    get() = tabs.size
 
   override fun getPresentation(): KrTabsPresentation = this
 

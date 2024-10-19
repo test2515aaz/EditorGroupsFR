@@ -180,7 +180,7 @@ class EditorGroupPanel(
     tabs.addTabMouseListener(EditorTabMouseListener(tabs))
 
     // Add a custom action "Compare file with editor"
-    tabs.setPopupGroup(
+    tabs.setPopupGroupWithSupplier(
       supplier = {
         CustomActionsSchema.getInstance().getCorrectedAction("EditorGroupsTabPopupMenu") as ActionGroup
       },
@@ -518,7 +518,7 @@ class EditorGroupPanel(
       return false
     }
 
-    val allTabs: List<KrTabInfo> = this.tabs.getTabs()
+    val allTabs: List<KrTabInfo> = this.tabs.tabs
     val continuousScrolling = state().isContinuousScrolling
     var iterations = 0
 
@@ -566,7 +566,7 @@ class EditorGroupPanel(
     }
 
     var iterations = 0
-    val allTabs: List<KrTabInfo> = this.tabs.getTabs()
+    val allTabs: List<KrTabInfo> = this.tabs.tabs
     val continuousScrolling = state().isContinuousScrolling
     var link: Link? = null
 
@@ -642,7 +642,7 @@ class EditorGroupPanel(
 
   /** Find the tab with the current `fileFromTextEditor` and select it. */
   private fun selectTabFallback() {
-    val allTabs: List<KrTabInfo> = this.tabs.getTabs()
+    val allTabs: List<KrTabInfo> = this.tabs.tabs
 
     allTabs.indices.forEach { i ->
       val tab = allTabs[i]
@@ -656,7 +656,7 @@ class EditorGroupPanel(
 
   /** Select the tab of the provided link. */
   private fun selectTab(link: Link) {
-    val allTabs: List<KrTabInfo> = this.tabs.getTabs()
+    val allTabs: List<KrTabInfo> = this.tabs.tabs
 
     for (i in allTabs.indices) {
       val tab = allTabs[i]
@@ -1164,7 +1164,7 @@ class EditorGroupPanel(
 
   /** Upon selecting a different tab of the group. */
   internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : KrTabs.SelectionChangeHandler {
-    override fun execute(info: KrTabInfo?, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
+    override fun execute(info: KrTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
 
       // TODO this causes the tab to not proceed with select
       // doChangeSelection.run()
