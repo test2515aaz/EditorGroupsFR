@@ -280,7 +280,7 @@ open class KrTabsImpl(
   private var singleRow = true
   protected fun createTabBorder(): KrTabsBorder = KrDefaultTabsBorder(this)
 
-  protected open fun createTabPainterAdapter(): KrTabPainterAdapter = KrDefaultTabPainterAdapter(KrTabPainter.DEFAULT)
+  protected open fun createTabPainterAdapter(): KrTabPainterAdapter = KrDefaultTabPainterAdapter()
 
   private var tabLabelAtMouse: KrTabLabel? = null
   private val scrollBar: JBScrollBar

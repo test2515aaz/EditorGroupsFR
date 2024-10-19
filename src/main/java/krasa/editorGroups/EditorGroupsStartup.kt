@@ -1,5 +1,6 @@
 package krasa.editorGroups
 
+import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -8,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.support.unwrapPreview
+import javax.swing.SwingConstants
 
 class EditorGroupsStartup : FileEditorManagerListener {
   override fun fileOpened(manager: FileEditorManager, file: VirtualFile) {
@@ -86,7 +88,13 @@ class EditorGroupsStartup : FileEditorManagerListener {
     }
 
     val panel = EditorGroupPanel(fileEditor, project, switchRequest, file)
-    manager.addTopComponent(fileEditor, panel.root)
+    val editorTabPlacement = UISettings.getInstance().editorTabPlacement
+    when (editorTabPlacement) {
+      SwingConstants.LEFT, SwingConstants.RIGHT, UISettings.TABS_NONE -> return
+      SwingConstants.BOTTOM                                           -> manager.addBottomComponent(fileEditor, panel.root)
+      else                                                            -> manager.addTopComponent(fileEditor, panel.root)
+    }
+
     panel.postConstruct()
   }
 }

@@ -3,7 +3,6 @@ package krasa.editorGroups.tabs2.impl
 import com.intellij.openapi.rd.fill2DRect
 import com.intellij.openapi.rd.fill2DRoundRect
 import com.intellij.openapi.rd.paint2DLine
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.paint.LinePainter2D
 import krasa.editorGroups.tabs2.KrTabPainter
@@ -28,7 +27,9 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
       !selected -> {
         // If the tab has a color, blend it with the inactive theme color
         if (tabColor != null) {
-          bg = theme.inactiveColoredTabBackground?.let { inactive -> ColorUtil.alphaBlending(inactive, tabColor) } ?: tabColor
+          bg = theme.inactiveColoredTabBackground?.let { inactive ->
+            ColorUtil.alphaBlending(inactive, tabColor)
+          } ?: tabColor
         }
 
         // If it is hovered, blend the background with the hover color
@@ -81,11 +82,7 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
     active: Boolean,
     hovered: Boolean
   ) {
-    getCustomBackground(tabColor, selected = false, active, hovered)?.let {
-      g.fill2DRect(rect, it)
-    }
-
-    paintLeftRightBorders(g, borderThickness, rect, position)
+    getCustomBackground(tabColor, selected = false, active, hovered)?.let { g.fill2DRect(rect, it) }
   }
 
   override fun paintSelectedTab(
@@ -97,33 +94,12 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
     active: Boolean,
     hovered: Boolean
   ) {
-    getCustomBackground(tabColor, selected = true, active, hovered)?.let {
-      g.fill2DRect(rect, it)
-    }
-
-    // this code smells. Remove when animation is default for all tabs
-    if (!KrEditorTabsBorder.hasAnimation() || this !is KrEditorTabPainter) {
-      paintUnderline(position, rect, borderThickness, g, active)
-    }
-    paintLeftRightBorders(g, borderThickness, rect, position)
-  }
-
-  private fun paintLeftRightBorders(g: Graphics2D, borderThickness: Int, rect: Rectangle, position: KrTabsPosition) {
-    if (!position.isSide && Registry.`is`("ide.new.editor.tabs.vertical.borders")) {
-      paintBorderLine(
-        g,
-        borderThickness,
-        Point(rect.x, rect.y),
-        Point(rect.x, rect.y + rect.height - 1)
-      )
-
-      paintBorderLine(
-        g,
-        borderThickness,
-        Point(rect.x + rect.width - 1, rect.y),
-        Point(rect.x + rect.width - 1, rect.y + rect.height - 1)
-      )
-    }
+    getCustomBackground(
+      tabColor = tabColor,
+      selected = true,
+      active = active,
+      hovered = hovered
+    )?.let { g.fill2DRect(rect, it) }
   }
 
   override fun paintUnderline(
@@ -145,9 +121,8 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
   override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point) =
     g.paint2DLine(from, to, LinePainter2D.StrokeType.INSIDE, thickness.toDouble(), theme.borderColor)
 
-  protected open fun underlineRectangle(
-    position: KrTabsPosition,
-    rect: Rectangle,
-    thickness: Int
-  ): Rectangle = Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
+  private fun underlineRectangle(position: KrTabsPosition, rect: Rectangle, thickness: Int): Rectangle = when (position) {
+    KrTabsPosition.bottom -> Rectangle(rect.x, rect.y, rect.width, thickness)
+    else                  -> Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
+  }
 }
