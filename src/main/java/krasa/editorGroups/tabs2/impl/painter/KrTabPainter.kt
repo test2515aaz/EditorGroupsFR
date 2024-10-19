@@ -1,6 +1,6 @@
-package krasa.editorGroups.tabs2
+package krasa.editorGroups.tabs2.impl.painter
 
-import krasa.editorGroups.tabs2.impl.KrDefaultTabPainter
+import krasa.editorGroups.tabs2.KrTabsPosition
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
 import krasa.editorGroups.tabs2.my.EditorGroupsTabTheme
 import java.awt.Color

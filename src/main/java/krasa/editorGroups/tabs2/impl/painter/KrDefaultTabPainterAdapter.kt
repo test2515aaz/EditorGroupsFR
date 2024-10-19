@@ -1,12 +1,14 @@
-package krasa.editorGroups.tabs2.impl
+package krasa.editorGroups.tabs2.impl.painter
 
 import com.intellij.ide.ui.UISettings
-import krasa.editorGroups.tabs2.KrTabPainter
 import krasa.editorGroups.tabs2.KrTabsPosition
+import krasa.editorGroups.tabs2.impl.KrTabLabel
+import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.Rectangle
 
+/** Holds a tabPainter to paint the tab background. */
 class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
   override val tabPainter: KrTabPainter
     get() = KrTabPainter.DEFAULT

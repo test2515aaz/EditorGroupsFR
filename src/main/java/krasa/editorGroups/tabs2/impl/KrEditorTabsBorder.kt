@@ -11,6 +11,7 @@ import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabsBorder
 import krasa.editorGroups.tabs2.KrTabsListener
 import krasa.editorGroups.tabs2.KrTabsPosition
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
 import java.awt.*
 
 class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
@@ -77,7 +78,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
         color = JBUI.CurrentTheme.EditorTabs.borderColor()
       )
     } else {
-      tabs.tabPainter.paintBorderLine(
+      KrTabPainter.paintBorderLine(
         g = g,
         thickness = thickness,
         from = Point(x, y),
@@ -99,12 +100,12 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
 
         for (eachRow in startRow until lastRow) {
           val yl = eachRow * tabs.headerFitSize!!.height + startY
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
+          KrTabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
         }
 
         if (!NewUI.isEnabled() || (tabs as? KrEditorTabs)?.shouldPaintBottomBorder() == true) {
           val yl = lastRow * tabs.headerFitSize!!.height + startY
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
+          KrTabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
         }
       }
 
@@ -112,24 +113,24 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
         val rowCount = tabs.lastLayoutPass!!.rowCount
         for (rowInd in 0 until rowCount) {
           val curY = height - (rowInd + 1) * tabs.headerFitSize!!.height
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, curY), Point(x + width, curY))
+          KrTabPainter.paintBorderLine(g, thickness, Point(x, curY), Point(x + width, curY))
         }
       }
 
       KrTabsPosition.right -> {
         val lx = firstLabel.x
-        tabs.tabPainter.paintBorderLine(g, thickness, Point(lx, y), Point(lx, y + height))
+        KrTabPainter.paintBorderLine(g, thickness, Point(lx, y), Point(lx, y + height))
       }
 
       KrTabsPosition.left -> {
         val bounds = firstLabel.bounds
         val i = bounds.x + bounds.width - thickness
-        tabs.tabPainter.paintBorderLine(g, thickness, Point(i, y), Point(i, y + height))
+        KrTabPainter.paintBorderLine(g, thickness, Point(i, y), Point(i, y + height))
       }
     }
 
     if (hasAnimation()) {
-      tabs.tabPainter.paintUnderline(
+      KrTabPainter.paintUnderline(
         tabs.position,
         calcRectangle() ?: return,
         thickness,
@@ -138,7 +139,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
       )
     } else {
       val selectedLabel = tabs.selectedLabel ?: return
-      tabs.tabPainter.paintUnderline(
+      KrTabPainter.paintUnderline(
         tabs.position,
         selectedLabel.bounds,
         thickness,

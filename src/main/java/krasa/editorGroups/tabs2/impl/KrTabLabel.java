@@ -24,6 +24,7 @@ import krasa.editorGroups.EditorGroupsSettingsState;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.KrTabsEx;
 import krasa.editorGroups.tabs2.KrUiDecorator;
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -679,7 +680,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
   private void paintBackground(Graphics g) {
-    myTabs.tabPainterAdapter.paintBackground(this, g, myTabs);
+    KrTabPainterAdapter.paintBackground(this, g, myTabs);
   }
 
   protected @NotNull Color getEffectiveBackground() {

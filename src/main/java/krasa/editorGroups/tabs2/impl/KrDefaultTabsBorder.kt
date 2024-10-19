@@ -1,6 +1,7 @@
 package krasa.editorGroups.tabs2.impl
 
 import krasa.editorGroups.tabs2.KrTabsBorder
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
 import java.awt.*
 
 open class KrDefaultTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
@@ -11,6 +12,6 @@ open class KrDefaultTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
     val rect = Rectangle(x, y, width, height)
     val firstLabel = tabs.infoToLabel[tabs.getVisibleInfos()[0]] ?: return
     val maxY = firstLabel.bounds.maxY.toInt() - thickness
-    tabs.tabPainter.paintBorderLine(g, thickness, Point(rect.x, maxY), Point(rect.maxX.toInt(), maxY))
+    KrTabPainter.paintBorderLine(g, thickness, Point(rect.x, maxY), Point(rect.maxX.toInt(), maxY))
   }
 }

@@ -46,6 +46,9 @@ import com.intellij.util.ui.update.lazyUiDisposable
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.multiRow.KrMultiRowLayout
 import krasa.editorGroups.tabs2.impl.multiRow.KrWrapMultiRowLayout
+import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
+import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
