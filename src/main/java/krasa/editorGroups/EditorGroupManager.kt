@@ -539,12 +539,12 @@ class EditorGroupManager(private val project: Project) {
       project,
       {
         val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
-        var currentWindow = currentWindow ?: manager.currentWindow
-        var selectedFile = currentFile ?: currentWindow?.selectedFile
+        var curWindow = currentWindow ?: manager.currentWindow
+        var selectedFile = currentFile ?: curWindow?.selectedFile
 
         // If the file is already open, scroll to it (if line is provided)
         if (!splitters.isSplit && !newWindow && fileToOpen == selectedFile) {
-          val editors = currentWindow!!.manager.getSelectedEditor(fileToOpen)
+          val editors = curWindow!!.manager.getSelectedEditor(fileToOpen)
           val scroll = scroll(line, editors!!)
           if (scroll) {
             resultAtomicReference.set(OpenFileResult(isScrolledOnly = true))
@@ -564,10 +564,10 @@ class EditorGroupManager(private val project: Project) {
 
         when {
           // If the file is requested to open in a split
-          splitters.isSplit && currentWindow != null -> {
+          splitters.isSplit && curWindow != null -> {
             thisLogger().debug("openFileInSplit $fileToOpen")
 
-            val splitter = currentWindow.split(
+            val splitter = curWindow.split(
               orientation = splitters.orientation,
               forceSplit = true,
               virtualFile = fileToOpen,
@@ -580,7 +580,7 @@ class EditorGroupManager(private val project: Project) {
           }
 
           // If requested to open in a new window
-          newWindow                                  -> {
+          newWindow                              -> {
             thisLogger().debug("openFileInNewWindow fileToOpen = $fileToOpen")
 
             val pair = manager.openFileInNewWindow(fileToOpen)
@@ -593,7 +593,7 @@ class EditorGroupManager(private val project: Project) {
             }
           }
 
-          else                                       -> {
+          else                                   -> {
             val reuseNotModifiedTabs = UISettings.getInstance().reuseNotModifiedTabs
             try {
               thisLogger().debug("openFile $fileToOpen")
@@ -601,13 +601,13 @@ class EditorGroupManager(private val project: Project) {
               if (newTab) UISettings.getInstance().reuseNotModifiedTabs = false
 
               // Open the file in the current window or a new window
-              val fileEditor = manager.openFile(
+              val openedFileEditor = manager.openFile(
                 file = fileToOpen,
-                window = currentWindow,
+                window = curWindow,
                 options = FileEditorOpenOptions(requestFocus = true, reuseOpen = true)
               )
               // The window's editors
-              val fileEditors = fileEditor.allEditors
+              val fileEditors = openedFileEditor.allEditors
 
               if (fileEditors.isEmpty()) {  // directory or some fail
                 Notifications.showWarning("Unable to open editor for file ${fileToOpen.name}")
