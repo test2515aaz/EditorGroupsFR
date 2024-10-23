@@ -85,7 +85,10 @@
 
     <!--suppress PluginXmlValidity -->
     <projectListeners>
-        <listener class="krasa.editorGroups.EditorGroupsStartup" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+        <listener class="krasa.editorGroups.listeners.EditorGroupsManagerListener"
+                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+        <listener class="krasa.editorGroups.listeners.EditorGroupsOpenListener"
+                  topic="com.intellij.openapi.fileEditor.FileOpenedSyncListener"/>
     </projectListeners>
 
     <actions>
