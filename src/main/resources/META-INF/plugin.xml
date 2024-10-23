@@ -49,7 +49,7 @@
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
         <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
 
-        <editorTabTitleProvider implementation="krasa.editorGroups.EditorGroupTabTitleProvider" order="first"/>
+        <editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
 
         <applicationService serviceImplementation="krasa.editorGroups.EditorGroupsSettings"/>

@@ -79,7 +79,7 @@ class EditorGroupPanel(
   private var hideGlobally = false
 
   /** Disposed state, to prevent refreshing during disposal. */
-  private var disposed = false
+  var disposed = false
 
   /**
    * A thread-safe reference to the current refresh request.
