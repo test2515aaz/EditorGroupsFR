@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.support
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.util.BitUtil
@@ -36,8 +36,9 @@ enum class Splitters {
 
     @JvmStatic
     fun from(e: AnActionEvent): Splitters {
-      val alt = BitUtil.isSet(e.modifiers, InputEvent.ALT_DOWN_MASK)
-      val shift = BitUtil.isSet(e.modifiers, InputEvent.SHIFT_DOWN_MASK)
+      val inputEvent = e.inputEvent ?: return NONE
+      val alt = BitUtil.isSet(inputEvent.modifiersEx, InputEvent.ALT_DOWN_MASK)
+      val shift = BitUtil.isSet(inputEvent.modifiersEx, InputEvent.SHIFT_DOWN_MASK)
       return when {
         alt && shift -> HORIZONTAL
         else         -> from(alt)

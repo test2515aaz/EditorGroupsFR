@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.ui.PopupHandler
 import com.intellij.util.BitUtil
-import krasa.editorGroups.Splitters
 import krasa.editorGroups.actions.PopupMenu.popupInvoked
+import krasa.editorGroups.support.Splitters
 import java.awt.Component
 import java.awt.event.InputEvent
 import java.awt.event.MouseEvent

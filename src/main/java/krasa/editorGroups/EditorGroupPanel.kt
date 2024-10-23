@@ -30,14 +30,16 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
-import krasa.editorGroups.Splitters.Companion.from
 import krasa.editorGroups.actions.PopupMenu
 import krasa.editorGroups.actions.RefreshAction
 import krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction
+import krasa.editorGroups.actions.SwitchFileAction
 import krasa.editorGroups.actions.SwitchGroupAction
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver.Companion.excluded
+import krasa.editorGroups.support.Splitters
+import krasa.editorGroups.support.Splitters.Companion.from
 import krasa.editorGroups.support.getFileFromTextEditor
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabs
@@ -321,6 +323,7 @@ class EditorGroupPanel(
   private fun createToolbar() {
     val actionGroup = DefaultActionGroup().apply {
       add(ActionManager.getInstance().getAction(RefreshAction.ID))
+      add(ActionManager.getInstance().getAction(SwitchFileAction.ID))
       add(ActionManager.getInstance().getAction(SwitchGroupAction.ID))
     }
 
