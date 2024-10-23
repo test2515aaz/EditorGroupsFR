@@ -9,9 +9,9 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.Splitters
 import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.support.Notifications.showWarning
+import krasa.editorGroups.support.Splitters
 
 class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT

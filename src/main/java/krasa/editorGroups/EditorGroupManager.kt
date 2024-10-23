@@ -23,6 +23,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications
+import krasa.editorGroups.support.Splitters
 import java.awt.Color
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference

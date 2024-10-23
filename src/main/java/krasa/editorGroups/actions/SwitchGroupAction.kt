@@ -18,6 +18,7 @@ import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications.showWarning
+import krasa.editorGroups.support.Splitters
 import krasa.editorGroups.support.getVirtualFileByAbsolutePath
 import java.awt.Component
 import java.awt.event.MouseEvent
@@ -254,7 +255,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val externalGroupProvider = ExternalGroupProvider.getInstance(project)
     val otherBookmarkGroups = externalGroupProvider.bookmarkGroups
       .filterNot { it == externalGroupProvider.defaultBookmarkGroup }
-    
+
     otherBookmarkGroups.forEach { bookmarkGroup ->
       val bookmarkGroupActionHandler = createBookmarkActionHandler(
         panel = panel,

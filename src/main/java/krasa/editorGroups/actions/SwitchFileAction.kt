@@ -16,10 +16,10 @@ import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.BitUtil
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.Splitters
 import krasa.editorGroups.UniqueTabNameBuilder
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.support.Notifications.showWarning
+import krasa.editorGroups.support.Splitters
 import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
@@ -76,25 +76,18 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
     override fun actionPerformed(e: ActionEvent) {
       val list = popup.list
       val selectedValue = list.getSelectedValue() as? PopupFactoryImpl.ActionItem
+      val myTemplatePresentation = templatePresentation.clone()
+      val inputEvent = e.source as InputEvent
 
       if (selectedValue != null) {
         selectedValue.action.actionPerformed(
-          // AnActionEvent(
-          //   null,
-          //   getDataContext(popup),
-          //   myActionPlace,
-          //   getTemplatePresentation(),
-          //   ActionManager.getInstance(),
-          //   e.getModifiers()
-          // )
-
           AnActionEvent(
             getDataContext(popup),
-            getTemplatePresentation(),
-            myActionPlace,
+            myTemplatePresentation,
+            myActionPlace ?: ActionPlaces.POPUP,
             ActionUiKind.NONE,
             null,
-            e.modifiers,
+            inputEvent.modifiersEx,
             ActionManager.getInstance()
           )
         )
@@ -160,10 +153,11 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
       text = text
     )
 
+    val templatePresentation = action.getTemplatePresentation().clone()
     if (link.path == currentFile) {
-      action.getTemplatePresentation().setEnabled(false)
-      action.getTemplatePresentation().setText("$text - current", false)
-      action.getTemplatePresentation().setIcon(null)
+      templatePresentation.setEnabled(false)
+      templatePresentation.setText("$text - current", false)
+      templatePresentation.setIcon(null)
     }
     return action
   }
@@ -173,12 +167,11 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
     private val project: Project,
     private val panel: EditorGroupPanel,
     text: String?
-  ) :
-    DumbAwareAction(text, link.path, link.fileIcon) {
+  ) : DumbAwareAction(text, link.path, link.fileIcon) {
     private val virtualFile = link.virtualFile
 
     init {
-      getTemplatePresentation().setEnabled(virtualFile != null && virtualFile.exists())
+      getTemplatePresentation().clone().setEnabled(virtualFile != null && virtualFile.exists())
     }
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -187,8 +180,9 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
         return
       }
 
-      val openInNewTab = BitUtil.isSet(e.modifiers, InputEvent.CTRL_DOWN_MASK)
-      val openInNewWindow = BitUtil.isSet(e.modifiers, InputEvent.SHIFT_DOWN_MASK)
+      val inputEvent = e.inputEvent ?: return
+      val openInNewTab = BitUtil.isSet(inputEvent.modifiersEx, InputEvent.CTRL_DOWN_MASK)
+      val openInNewWindow = BitUtil.isSet(inputEvent.modifiersEx, InputEvent.SHIFT_DOWN_MASK)
 
       EditorGroupManager.getInstance(project).openGroupFile(
         groupPanel = panel,
