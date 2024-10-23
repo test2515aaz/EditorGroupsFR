@@ -18,6 +18,9 @@ import krasa.editorGroups.support.unwrapPreview
 import javax.swing.SwingConstants
 
 class EditorGroupsOpenListener : FileOpenedSyncListener {
+  var currentTabPlacement: Int = UISettings.getInstance().editorTabPlacement
+  var isLaidOut: Boolean = false
+
   override fun fileOpenedSync(
     manager: FileEditorManager,
     file: VirtualFile,
@@ -75,9 +78,20 @@ class EditorGroupsOpenListener : FileOpenedSyncListener {
       val panel = EditorGroupPanel(fileEditor, project, switchRequest, file)
       val editorTabPlacement = UISettings.getInstance().editorTabPlacement
       when (editorTabPlacement) {
-        SwingConstants.TOP    -> manager.addTopComponent(fileEditor, panel.root)
-        SwingConstants.BOTTOM -> manager.addBottomComponent(fileEditor, panel.root)
-        else                  -> manager.addTopComponent(fileEditor, panel.root)
+        SwingConstants.TOP    -> {
+          manager.addTopComponent(fileEditor, panel.root)
+          isLaidOut = true
+        }
+
+        SwingConstants.BOTTOM -> {
+          manager.addBottomComponent(fileEditor, panel.root)
+          isLaidOut = true
+        }
+
+        else                  -> {
+          thisLogger().warn("Unsupported tab placement: $editorTabPlacement")
+          isLaidOut = false
+        }
       }
       panel.postConstruct()
       return panel
@@ -90,11 +104,16 @@ class EditorGroupsOpenListener : FileOpenedSyncListener {
       .subscribe(TOPIC, object : UISettingsListener {
         override fun uiSettingsChanged(uiSettings: UISettings) {
           when {
-            !panel.isValid                                                               -> return
-            UISettings.getInstance().editorTabPlacement == uiSettings.editorTabPlacement -> return
-            else                                                                         -> {
-              manager.removeTopComponent(fileEditor, panel.root)
-              manager.removeBottomComponent(fileEditor, panel.root)
+            panel.disposed                                       -> return
+            currentTabPlacement == uiSettings.editorTabPlacement -> return
+            else                                                 -> {
+              currentTabPlacement = uiSettings.editorTabPlacement
+
+              if (isLaidOut) {
+                manager.removeTopComponent(fileEditor, panel.root)
+                manager.removeBottomComponent(fileEditor, panel.root)
+              }
+
               renderPanel()
             }
           }
