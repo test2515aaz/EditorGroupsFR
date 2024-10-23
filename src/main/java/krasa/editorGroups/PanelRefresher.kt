@@ -2,11 +2,11 @@ package krasa.editorGroups
 
 import com.intellij.ide.bookmarks.Bookmark
 import com.intellij.ide.bookmarks.BookmarksListener
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.BiConsumer
 
 @Service(Service.Level.PROJECT)
-class PanelRefresher(private val project: Project) {
+class PanelRefresher(private val project: Project) : Disposable {
   private val cacheReady = AtomicBoolean()
   private val cache: IndexCache = IndexCache.getInstance(project)
 
@@ -41,7 +41,7 @@ class PanelRefresher(private val project: Project) {
   }
 
   private fun addBookmarksListener() {
-    project.messageBus.connect(project).subscribe(BookmarksListener.TOPIC, object : BookmarksListener {
+    project.messageBus.connect(this).subscribe(BookmarksListener.TOPIC, object : BookmarksListener {
       override fun bookmarkAdded(b: Bookmark) = refresh()
 
       override fun bookmarkRemoved(b: Bookmark) = refresh()
@@ -54,7 +54,7 @@ class PanelRefresher(private val project: Project) {
         iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
           if (displayedGroup is BookmarksGroup) {
             thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
-            panel.refreshPane(true, displayedGroup)
+            panel.refreshPane(refresh = true, newGroup = displayedGroup)
           }
         })
       }
@@ -69,8 +69,8 @@ class PanelRefresher(private val project: Project) {
    *    them
    */
   private fun iteratePanels(biConsumer: BiConsumer<EditorGroupPanel, EditorGroup>) {
-    val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
-    for (selectedEditor in manager.getAllEditors()) {
+    val manager = FileEditorManager.getInstance(project)
+    for (selectedEditor in manager.allEditors) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
       if (panel == null) continue
 
@@ -93,9 +93,9 @@ class PanelRefresher(private val project: Project) {
         thisLogger().debug(">onSmartMode")
 
         val start = System.currentTimeMillis()
-        val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
+        val manager = FileEditorManager.getInstance(project)
 
-        for (selectedEditor in manager.getSelectedEditors()) {   // refreshing not selected one fucks up tabs scrolling
+        for (selectedEditor in manager.selectedEditors) {   // refreshing not selected one fucks up tabs scrolling
           val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
           if (panel == null) continue
 
@@ -104,7 +104,7 @@ class PanelRefresher(private val project: Project) {
 
           thisLogger().debug("onSmartMode: refreshing panel for ${panel.file}")
 
-          panel.refreshPane(false, null)
+          panel.refreshPane(refresh = false, newGroup = null)
         }
 
         thisLogger().debug("onSmartMode ${System.currentTimeMillis() - start}ms ${Thread.currentThread().name}")
@@ -118,23 +118,23 @@ class PanelRefresher(private val project: Project) {
    * @param owner
    */
   fun refresh(owner: String) {
-    val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
-    for (selectedEditor in manager.getAllEditors()) {
+    val manager = FileEditorManager.getInstance(project)
+    for (selectedEditor in manager.allEditors) {
       val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
       if (panel == null) continue
 
       if (panel.getDisplayedGroupOrEmpty().isOwner(owner)) {
-        panel.refreshPane(false, null)
+        panel.refreshPane(refresh = false, newGroup = null)
       }
     }
   }
 
   /** Refresh all panels. */
   fun refresh() {
-    val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
-    for (selectedEditor in manager.getAllEditors()) {
-      val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
-      panel?.refreshPane(true, null)
+    val manager = FileEditorManager.getInstance(project)
+    for (selectedEditor in manager.allEditors) {
+      selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
+        ?.refreshPane(refresh = true, newGroup = null)
     }
   }
 
@@ -144,11 +144,11 @@ class PanelRefresher(private val project: Project) {
     if (DumbService.isDumb(project)) return group
 
     val start = System.currentTimeMillis()
-    val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
+    val manager = FileEditorManager.getInstance(project)
 
-    for (selectedEditor in manager.getAllEditors()) {
-      val panel = selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
-      panel?.onIndexingDone(ownerPath, group)
+    for (selectedEditor in manager.allEditors) {
+      selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
+        ?.onIndexingDone(ownerPath = ownerPath, group = group)
     }
 
     thisLogger().debug(
@@ -201,13 +201,20 @@ class PanelRefresher(private val project: Project) {
    */
   private suspend fun initializeCache(fileBasedIndex: FileBasedIndex, cache: IndexCache) {
     withContext(Dispatchers.IO) {
-      val keys = fileBasedIndex.getAllKeys<String>(EditorGroupIndex.NAME, project)
-      keys.forEach {
-        val groups =
-          fileBasedIndex.getValues(EditorGroupIndex.NAME, it, GlobalSearchScope.allScope(project))
-        groups.forEach(cache::initGroup)
-      }
+      fileBasedIndex.getAllKeys<String>(EditorGroupIndex.NAME, this@PanelRefresher.project)
+        .forEach {
+          fileBasedIndex.getValues<String, EditorGroupIndexValue>(
+            EditorGroupIndex.NAME,
+            it,
+            GlobalSearchScope.allScope(this@PanelRefresher.project)
+          )
+            .forEach(cache::initGroup)
+        }
     }
+  }
+
+  override fun dispose() {
+
   }
 
   companion object {
