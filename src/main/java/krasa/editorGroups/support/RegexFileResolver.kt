@@ -10,7 +10,6 @@ import com.intellij.openapi.vfs.VirtualFileVisitor
 import krasa.editorGroups.EditorGroupsSettingsState
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.model.Link
-import krasa.editorGroups.model.Link.Companion.fromVirtualFiles
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
 import java.util.regex.Matcher
@@ -52,7 +51,7 @@ open class RegexFileResolver(private val project: Project) {
 
     thisLogger().debug("<resolveRegexGroup ${duration}ms links=$links")
 
-    return fromVirtualFiles(links, project)
+    return Link.fromVirtualFiles(links, project)
   }
 
   private fun processFolders(

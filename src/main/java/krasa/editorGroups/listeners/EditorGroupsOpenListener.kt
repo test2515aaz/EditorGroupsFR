@@ -30,14 +30,14 @@ class EditorGroupsOpenListener : FileOpenedSyncListener {
     thisLogger().debug(">fileOpenedSync [$file]")
 
     val fileToOpen = unwrapPreview(file) ?: return
-    val editorGroupManager = EditorGroupManager.Companion.getInstance(project)
+    val editorGroupManager = EditorGroupManager.getInstance(project)
 
     val switchRequest = editorGroupManager.getAndClearSwitchingRequest(fileToOpen)
     val editors = manager.getEditors(fileToOpen)
 
     // Create editor group panel if it doesn't exist'
     for (fileEditor in editors) {
-      if (fileEditor.getUserData(EditorGroupPanel.Companion.EDITOR_PANEL) != null) continue
+      if (fileEditor.getUserData(EditorGroupPanel.EDITOR_PANEL) != null) continue
 
       val start = System.currentTimeMillis()
 

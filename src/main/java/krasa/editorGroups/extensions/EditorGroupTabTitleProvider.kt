@@ -27,7 +27,7 @@ class EditorGroupTabTitleProvider : EditorTabTitleProvider {
     var group: EditorGroup? = null
 
     if (textEditor != null) {
-      group = textEditor.getUserData(EditorGroupPanel.Companion.EDITOR_GROUP)
+      group = textEditor.getUserData(EditorGroupPanel.EDITOR_GROUP)
     }
 
     if (group != null && group.isValid && group !is AutoGroup) {

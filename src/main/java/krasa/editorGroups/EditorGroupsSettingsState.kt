@@ -2,7 +2,6 @@ package krasa.editorGroups
 
 import com.intellij.ui.JBColor
 import com.intellij.util.xmlb.annotations.Transient
-import krasa.editorGroups.EditorGroupsSettings.Companion.instance
 import krasa.editorGroups.model.RegexGroupModels
 import java.awt.Color
 
@@ -141,7 +140,7 @@ class EditorGroupsSettingsState {
 
     // TODO move this file in the EditorGroupsSettings.kt file
     @JvmStatic
-    fun state(): EditorGroupsSettingsState = instance.state
+    fun state(): EditorGroupsSettingsState = EditorGroupsSettings.instance.state
 
     private fun toColor(color: Int?): Color? {
       if (color == null) return null

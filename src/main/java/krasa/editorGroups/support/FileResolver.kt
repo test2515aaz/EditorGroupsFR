@@ -1,6 +1,6 @@
 package krasa.editorGroups.support
 
-import com.intellij.ide.actions.OpenFileAction.Companion.openFile
+import com.intellij.ide.actions.OpenFileAction
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -137,7 +137,7 @@ open class FileResolver {
         object : NotificationAction("") {
           override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             checkNotNull(project)
-            ownerFile?.let { openFile(it, project) }
+            ownerFile?.let { OpenFileAction.openFile(it, project) }
             notification.expire()
           }
         }

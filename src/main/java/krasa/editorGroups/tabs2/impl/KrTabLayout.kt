@@ -3,8 +3,7 @@ package krasa.editorGroups.tabs2.impl
 
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.options.advanced.AdvancedSettings
-import com.intellij.openapi.util.registry.Registry.Companion.doubleValue
-import com.intellij.openapi.util.registry.Registry.Companion.intValue
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.KrTabInfo
 import org.intellij.lang.annotations.MagicConstant
@@ -48,11 +47,11 @@ abstract class KrTabLayout {
   companion object {
     @JvmStatic
     val dragOutMultiplier: Double
-      get() = doubleValue("ide.tabbedPane.dragOutMultiplier")
+      get() = Registry.doubleValue("ide.tabbedPane.dragOutMultiplier")
 
     @JvmStatic
     val maxPinnedTabWidth: Int
-      get() = JBUI.scale(intValue("ide.editor.max.pinned.tab.width", 2000))
+      get() = JBUI.scale(Registry.intValue("ide.editor.max.pinned.tab.width", 2000))
 
     @JvmStatic
     protected val minTabWidth: Int

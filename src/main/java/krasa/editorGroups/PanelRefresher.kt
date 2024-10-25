@@ -32,7 +32,7 @@ class PanelRefresher(private val project: Project) : Disposable {
   init {
     // When switching from dumb mode to smart mode, refresh all panels.
     project.messageBus.connect()
-      .subscribe(DumbService.Companion.DUMB_MODE, object : DumbService.DumbModeListener {
+      .subscribe(DumbService.DUMB_MODE, object : DumbService.DumbModeListener {
         override fun enteredDumbMode() = Unit
 
         override fun exitDumbMode() = onSmartMode()

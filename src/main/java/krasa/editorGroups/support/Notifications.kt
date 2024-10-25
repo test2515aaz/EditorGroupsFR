@@ -1,6 +1,6 @@
 package krasa.editorGroups.support
 
-import com.intellij.ide.actions.OpenFileAction.Companion.openFile
+import com.intellij.ide.actions.OpenFileAction
 import com.intellij.ide.ui.UISettings
 import com.intellij.notification.*
 import com.intellij.notification.Notifications.Bus.notify
@@ -46,7 +46,7 @@ object Notifications {
     val notification = notificationGroup.createNotification(ID, content, NotificationType.WARNING)
       .addAction(object : NotificationAction("Open") {
         override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-          openFile(file, project)
+          OpenFileAction.openFile(file, project)
           notification.expire()
         }
       })
@@ -66,7 +66,7 @@ object Notifications {
 
     showWarning(content, object : NotificationAction("") {
       override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-        openFile(e.presentation.description, project)
+        OpenFileAction.openFile(e.presentation.description, project)
       }
     })
   }
