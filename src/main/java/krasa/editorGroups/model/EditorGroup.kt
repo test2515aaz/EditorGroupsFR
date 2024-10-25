@@ -81,7 +81,7 @@ abstract class EditorGroup {
    */
   fun containsLink(project: Project, currentFilePath: String): Boolean {
     val links = getLinks(project)
-    return links.any { it.path == currentFilePath }
+    return links.any { it.path.contains(currentFilePath) }
   }
 
   /**

@@ -51,12 +51,14 @@
 
         <editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
+        <editorTabColorProvider implementation="krasa.editorGroups.extensions.CurrentEditorGroupColorProvider" order="last"/>
 
-        <applicationService serviceImplementation="krasa.editorGroups.EditorGroupsSettings"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
         <applicationConfigurable instance="krasa.editorGroups.MyConfigurable" id="EditorGroups"
                                  displayName="Editor Groups"/>
+
+        <customScopesProvider implementation="krasa.editorGroups.extensions.CustomScopesProvider"/>
 
         <fileType name="EditorGroups"
                   language="EditorGroups"

@@ -78,7 +78,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           defaultActionGroup.add(
             createAction(
               displayedGroup = displayedGroup,
-              targetGroup = SameNameGroup(fileNameWithoutExtension = file.nameWithoutExtension, links = emptyList()),
+              targetGroup = SameNameGroup(
+                fileNameWithoutExtension = file.nameWithoutExtension,
+                links = emptyList(),
+                project = project
+              ),
               project = project,
               actionHandler = refreshHandler(editorGroupPanel)
             )
@@ -87,7 +91,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           defaultActionGroup.add(
             createAction(
               displayedGroup = displayedGroup,
-              targetGroup = FolderGroup(folder = file.parent, links = emptyList()),
+              targetGroup = FolderGroup(
+                folder = file.parent,
+                links = emptyList(),
+                project = project
+              ),
               project = project,
               actionHandler = refreshHandler(editorGroupPanel)
             )
