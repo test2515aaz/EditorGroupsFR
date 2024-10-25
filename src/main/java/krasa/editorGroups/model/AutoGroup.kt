@@ -6,14 +6,16 @@ import krasa.editorGroups.support.LinkComparator
 import kotlin.concurrent.Volatile
 
 /** Represents a group that is built automatically. */
-abstract class AutoGroup(protected var links: List<Link>) : EditorGroup() {
+abstract class AutoGroup(
+  protected var links: List<Link>,
+  open val project: Project? = null
+) : EditorGroup() {
 
   @Volatile
   override var isValid: Boolean = true
     protected set
 
   abstract override val id: String
-
   abstract override val title: String
 
   val isEmpty: Boolean

@@ -46,6 +46,9 @@ class EditorGroupManager(private val project: Project) {
   private var initialEditorIndex: Key<*>? = null
 
   @Volatile
+  var lastGroup: EditorGroup = EditorGroup.EMPTY
+
+  @Volatile
   private var switchRequest: SwitchRequest? = null
 
   @Volatile
@@ -280,6 +283,7 @@ class EditorGroupManager(private val project: Project) {
       thisLogger().debug("<getGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
 
       cache.setLast(currentFilePath, result)
+      lastGroup = result
     } catch (e: IndexNotReadyException) {
       thisLogger().debug(e.toString())
 

@@ -37,7 +37,7 @@ class AutoGroupProvider(private val project: Project) {
     )
 
     val links: List<Link> = RegexFileResolver(project).resolveRegexGroupLinks(regexGroup, file)
-    return FolderGroup(parent, links)
+    return FolderGroup(folder = parent, links = links, project = project)
   }
 
   /**
@@ -101,7 +101,8 @@ class AutoGroupProvider(private val project: Project) {
 
     return SameNameGroup(
       fileNameWithoutExtension = nameWithoutExtension,
-      links = fromVirtualFiles(paths, project)
+      links = fromVirtualFiles(paths, project),
+      project = project
     )
   }
 

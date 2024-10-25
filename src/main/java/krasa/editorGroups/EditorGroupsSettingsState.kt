@@ -19,6 +19,7 @@ class EditorGroupsSettingsState {
   var isForceSwitch: Boolean = true
   var isHideEmpty: Boolean = true
   var isShowSize: Boolean = false
+  var isColorTabs: Boolean = true
   var isContinuousScrolling: Boolean = false
   var isInitializeSynchronously: Boolean = false
   var isIndexOnlyEditorGroupsFiles: Boolean = false

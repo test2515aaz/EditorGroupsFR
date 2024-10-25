@@ -1,10 +1,12 @@
 package krasa.editorGroups.listeners
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
+import krasa.editorGroups.services.TabGroupColorizer
 
 class EditorGroupsManagerListener : FileEditorManagerListener {
   /** When a tab is selected, refresh the editor group panel. */
@@ -29,5 +31,10 @@ class EditorGroupsManagerListener : FileEditorManagerListener {
     } else {
       panel.refreshPane(false, null)
     }
+
+    ApplicationManager.getApplication().invokeLater {
+      TabGroupColorizer.getInstance(project).refreshTabs(event)
+    }
   }
+
 }

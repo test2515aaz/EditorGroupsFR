@@ -4,10 +4,13 @@ import com.intellij.ide.bookmark.BookmarkGroup
 import com.intellij.ide.bookmark.FileBookmark
 import com.intellij.ide.bookmark.LineBookmark
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.scope.packageSet.NamedScope
+import com.intellij.ui.FileColorManager
 import krasa.editorGroups.icons.EditorGroupsIcons
+import java.awt.Color
 import javax.swing.Icon
 
-class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : EditorGroup() {
+class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : EditorGroup() {
   private val links: MutableList<Link> = mutableListOf()
   override val id: String = "$ID_PREFIX:${bookmarkGroup?.name}"
   override val title: String = "Bookmarks"
@@ -16,6 +19,12 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
   val name: String
     get() = bookmarkGroup?.name ?: "unnamed"
 
+  override val bgColor: Color?
+    get() {
+      val fileColorManager = FileColorManager.getInstance(project)
+      return fileColorManager.getScopeColor(BOOKMARKS_GROUP_SCOPE_ID)
+    }
+
   init {
     loadBookmarks(project)
   }
@@ -23,8 +32,17 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
   private fun loadBookmarks(project: Project) {
     bookmarkGroup?.getBookmarks()?.forEach { bookmark ->
       when (bookmark) {
-        is LineBookmark -> loadLineBookmark(bookmark, bookmarkGroup, project)
-        is FileBookmark -> loadFileBookmark(bookmark, bookmarkGroup, project)
+        is LineBookmark -> loadLineBookmark(
+          bookmark = bookmark,
+          bookmarkGroup = bookmarkGroup,
+          project = project
+        )
+
+        is FileBookmark -> loadFileBookmark(
+          bookmark = bookmark,
+          bookmarkGroup = bookmarkGroup,
+          project = project
+        )
       }
     }
   }
@@ -44,7 +62,14 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
       return
     }
 
-    links.add(VirtualFileLink(file, icon, line, project).withDescription(desc))
+    links.add(
+      VirtualFileLink(
+        file = file,
+        icon = icon,
+        line = line,
+        project = project
+      ).withDescription(desc)
+    )
   }
 
   private fun loadFileBookmark(
@@ -95,7 +120,20 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, project: Project) : Edit
     return result
   }
 
+  class BookmarksGroupScope : NamedScope(
+    BOOKMARKS_GROUP_SCOPE_ID,
+    EditorGroupsIcons.bookmarks,
+    null
+  ) {
+    override fun getDefaultColorName(): String = "Green"
+
+    override fun getPresentableName(): String = BOOKMARKS_GROUP_SCOPE_NAME
+  }
+
   companion object {
     const val ID_PREFIX: String = "BOOKMARKS"
+    const val BOOKMARKS_GROUP_SCOPE_ID: String = "krasa.editorGroups.model.BookmarksGroup"
+    const val BOOKMARKS_GROUP_SCOPE_NAME: String = "Editor Groups: Bookmarks"
+    val BOOKMARKS_GROUP_SCOPE: NamedScope = BookmarksGroupScope()
   }
 }
