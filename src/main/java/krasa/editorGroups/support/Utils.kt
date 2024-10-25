@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package krasa.editorGroups.support
 
 import com.intellij.icons.AllIcons
@@ -29,6 +31,11 @@ import javax.swing.Icon
 val LOG = Logger.getInstance(Utils::class.java)
 val ERROR_FOREGROUND_COLOR = NamedColorUtil.getErrorForeground()
 
+object EditorGroupsActions {
+  const val EDITOR_GROUP_TAB_MENU = "krasa.editorGroups.EditorGroupsTabPopupMenu"
+}
+
+@Suppress("UseJBColor")
 val colorMap = hashMapOf(
   "black" to Color(0x000000),
   "deepskyblue" to Color(0x00bfff),

@@ -92,10 +92,6 @@
     </projectListeners>
 
     <actions>
-        <group id="EditorGroupsTabPopupMenu">
-            <reference id="CompareFileWithEditor"/>
-        </group>
-
         <group id="krasa.editorGroups.Actions" popup="true" icon="/icons/pluginIcon.svg"
                text="Editor Groups" description="Editor groups menu">
             <add-to-group group-id="MainToolBar" anchor="last"/>
@@ -111,10 +107,11 @@
             </action>
             <action id="krasa.editorGroups.SwitchFile"
                     class="krasa.editorGroups.actions.SwitchFileAction"
-                    text="Switch File"
+                    text="Switch File In Editor Group"
                     description="Switch file in editor group"
                     icon="AllIcons.Actions.ListFiles">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift alt W"/>
+                <add-to-group group-id="EditorContextBarMenu"/>
             </action>
 
             <separator/>
@@ -249,10 +246,23 @@
             <action id="krasa.editorGroups.OpenConfiguration"
                     class="krasa.editorGroups.actions.OpenConfigurationAction"
                     icon="AllIcons.General.Settings"
-                    text="Open Configuration"
-                    description="Open EditorGroups configuration">
+                    text="Open EditorGroups Settings"
+                    description="Open EditorGroups settings">
+                <add-to-group group-id="EditorTabPopupMenu"/>
             </action>
 
+            <!-- Tab Actions -->
+            <group id="krasa.editorGroups.EditorGroupsTabPopupMenu">
+                <reference id="CompareFileWithEditor"/>
+                <separator/>
+                <reference id="krasa.editorGroups.Next"/>
+                <reference id="krasa.editorGroups.NextInNewTab"/>
+                <reference id="krasa.editorGroups.NextInNewWindow"/>
+                <separator/>
+                <reference id="krasa.editorGroups.Previous"/>
+                <reference id="krasa.editorGroups.PreviousInNewTab"/>
+                <reference id="krasa.editorGroups.PreviousInNewWindow"/>
+            </group>
 
         </group>
     </actions>
