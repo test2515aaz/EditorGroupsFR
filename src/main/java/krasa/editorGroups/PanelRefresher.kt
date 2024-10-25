@@ -32,7 +32,7 @@ class PanelRefresher(private val project: Project) : Disposable {
   init {
     // When switching from dumb mode to smart mode, refresh all panels.
     project.messageBus.connect()
-      .subscribe(DumbService.Companion.DUMB_MODE, object : DumbService.DumbModeListener {
+      .subscribe(DumbService.DUMB_MODE, object : DumbService.DumbModeListener {
         override fun enteredDumbMode() = Unit
 
         override fun exitDumbMode() = onSmartMode()
@@ -140,23 +140,23 @@ class PanelRefresher(private val project: Project) : Disposable {
   }
 
   fun onIndexingDone(ownerPath: String, group: EditorGroupIndexValue): EditorGroupIndexValue {
-    var group = cache.onIndexingDone(ownerPath, group)
+    var resultGroup = cache.onIndexingDone(ownerPath, group)
 
-    if (DumbService.isDumb(project)) return group
+    if (DumbService.isDumb(project)) return resultGroup
 
     val start = System.currentTimeMillis()
     val manager = FileEditorManager.getInstance(project)
 
     for (selectedEditor in manager.allEditors) {
       selectedEditor.getUserData<EditorGroupPanel?>(EditorGroupPanel.EDITOR_PANEL)
-        ?.onIndexingDone(ownerPath = ownerPath, group = group)
+        ?.onIndexingDone(ownerPath = ownerPath, group = resultGroup)
     }
 
     thisLogger().debug(
       "onIndexingDone $ownerPath - ${System.currentTimeMillis() - start}ms ${Thread.currentThread().name}"
     )
 
-    return group
+    return resultGroup
   }
 
   /**

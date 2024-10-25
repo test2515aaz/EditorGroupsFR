@@ -1,7 +1,5 @@
 package krasa.editorGroups.model
 
-import krasa.editorGroups.model.RegexGroupModel.Companion.deserialize
-
 class RegexGroupModels {
   var regexGroupModels: MutableList<RegexGroupModel> = MutableList(0) { RegexGroupModel() }
 
@@ -23,7 +21,7 @@ class RegexGroupModels {
   fun findMatching(fileName: String?): List<RegexGroupModel> = regexGroupModels.filter { it.matches(fileName!!) }
 
   fun find(substring: String): RegexGroupModel? {
-    val deserializedGroup = deserialize(substring) ?: return null
+    val deserializedGroup = RegexGroupModel.deserialize(substring) ?: return null
     return regexGroupModels.find { it.isEnabled && it.regex == deserializedGroup.regex }
   }
 

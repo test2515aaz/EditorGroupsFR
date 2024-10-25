@@ -38,9 +38,8 @@ import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.EditorGroupsActions
-import krasa.editorGroups.support.FileResolver.Companion.excluded
+import krasa.editorGroups.support.FileResolver
 import krasa.editorGroups.support.Splitters
-import krasa.editorGroups.support.Splitters.Companion.from
 import krasa.editorGroups.support.getFileFromTextEditor
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabs
@@ -483,7 +482,7 @@ class EditorGroupPanel(
         val excludeEditorGroupsFiles = state().isExcludeEditorGroupsFiles
 
         when {
-          !isStub && !excluded(
+          !isStub && !FileResolver.excluded(
             File(file.path), excludeEditorGroupsFiles
           )       -> thisLogger().warn("current file is not contained in group. file=${file}, group=${displayedGroup}, links=$links")
 
@@ -678,7 +677,7 @@ class EditorGroupPanel(
   }
 
   /** Assign the min weight for a tab. */
-  override fun getWeight(): Double = Double.Companion.MIN_VALUE
+  override fun getWeight(): Double = Double.MIN_VALUE
 
   /** Main refresh action. */
   fun refreshPane(refresh: Boolean, newGroup: EditorGroup?) {
@@ -1202,7 +1201,7 @@ class EditorGroupPanel(
 
       // Finally, open the file, taking into account the modifiers
       panel.openFile(
-        link = editorGroupTabInfo.link, newTab = ctrl, newWindow = shift, split = from(alt, shift)
+        link = editorGroupTabInfo.link, newTab = ctrl, newWindow = shift, split = Splitters.from(alt, shift)
       )
       return ActionCallback.DONE
     }

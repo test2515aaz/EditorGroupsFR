@@ -11,7 +11,6 @@ import com.intellij.testFramework.LightVirtualFile
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.model.*
-import krasa.editorGroups.model.Link.Companion.fromVirtualFiles
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
 import krasa.editorGroups.support.RegexFileResolver
 import krasa.editorGroups.support.Utils
@@ -101,7 +100,7 @@ class AutoGroupProvider(private val project: Project) {
 
     return SameNameGroup(
       fileNameWithoutExtension = nameWithoutExtension,
-      links = fromVirtualFiles(paths, project),
+      links = Link.fromVirtualFiles(paths, project),
       project = project
     )
   }

@@ -9,7 +9,7 @@ import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.ui.PopupHandler
-import krasa.editorGroups.EditorGroupManager.Companion.getInstance
+import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.icons.EditorGroupsIcons
 import java.awt.Component
 import javax.swing.JComponent
@@ -24,7 +24,7 @@ class RefreshAction : EditorGroupsAction(), CustomComponentAction {
     val panel = getEditorGroupPanel(anActionEvent)
     panel?.refreshPane(true, null)
 
-    val editorGroupManager = getInstance(anActionEvent.project!!)
+    val editorGroupManager = EditorGroupManager.getInstance(anActionEvent.project!!)
     editorGroupManager.resetSwitching()
   }
 
