@@ -21,6 +21,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.util.ui.UIUtil
+import krasa.editorGroups.index.IndexCache
+import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Splitters

@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.index
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
+import krasa.editorGroups.EditorGroupProjectStorage
 import krasa.editorGroups.EditorGroupProjectStorage.KeyValuePair
-import krasa.editorGroups.index.EditorGroupIndex
+import krasa.editorGroups.EditorGroupsSettings
+import krasa.editorGroups.ExternalGroupProvider
+import krasa.editorGroups.PanelRefresher
+import krasa.editorGroups.RegexGroupProvider
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver
 import krasa.editorGroups.support.Notifications

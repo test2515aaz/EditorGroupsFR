@@ -16,6 +16,7 @@ import com.intellij.util.indexing.FileBasedIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import krasa.editorGroups.index.EditorGroupIndex
+import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroupIndexValue

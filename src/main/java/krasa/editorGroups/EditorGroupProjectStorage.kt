@@ -10,6 +10,7 @@ import com.intellij.util.xmlb.annotations.Attribute
 import com.intellij.util.xmlb.annotations.Tag
 import com.intellij.util.xmlb.annotations.XCollection
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.index.IndexCache
 
 @Service(Service.Level.PROJECT)
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")])

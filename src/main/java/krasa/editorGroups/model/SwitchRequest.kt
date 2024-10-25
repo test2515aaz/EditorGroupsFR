@@ -1,7 +1,6 @@
-package krasa.editorGroups
+package krasa.editorGroups.model
 
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.model.EditorGroup
 
 /**
  * Data class representing a request to switch between files in an editor group.

@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.indexing.FileBasedIndex
-import krasa.editorGroups.IndexCache
 import krasa.editorGroups.index.EditorGroupIndex
+import krasa.editorGroups.index.IndexCache
 
 class ReindexAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {

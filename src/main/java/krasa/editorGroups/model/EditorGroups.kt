@@ -1,8 +1,8 @@
 package krasa.editorGroups.model
 
 import com.intellij.openapi.project.Project
-import krasa.editorGroups.IndexCache
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.index.IndexCache
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.Icon
 
