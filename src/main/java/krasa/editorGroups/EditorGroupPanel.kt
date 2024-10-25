@@ -35,6 +35,7 @@ import krasa.editorGroups.actions.RefreshAction
 import krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction
 import krasa.editorGroups.actions.SwitchFileAction
 import krasa.editorGroups.actions.SwitchGroupAction
+import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.FileResolver.Companion.excluded

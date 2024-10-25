@@ -13,7 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.SwitchRequest
+import krasa.editorGroups.model.SwitchRequest
 import krasa.editorGroups.support.unwrapPreview
 import javax.swing.SwingConstants
 

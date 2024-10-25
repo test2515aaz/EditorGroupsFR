@@ -7,7 +7,6 @@ import com.intellij.patterns.StringPattern
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
 import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
-import krasa.editorGroups.IndexCache
 import krasa.editorGroups.PanelRefresher
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
@@ -171,16 +170,13 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     fun init(value: EditorGroupIndexValue?): EditorGroupIndexValue = value ?: EditorGroupIndexValue()
 
     /**
-     * Processes the given input data and returns an updated or new
-     * EditorGroupIndexValue.
+     * Processes the given input data and returns an updated or new EditorGroupIndexValue.
      *
      * @param inputData the contents of the egroups file
-     * @param groupIndexValue the current index value of the editor group, may
-     *    be null
+     * @param groupIndexValue the current index value of the editor group, may be null
      * @param folder the folder containing the file, may be null
      * @param value the string value to process
-     * @return the updated or new EditorGroupIndexValue, or null if the input
-     *    data is null
+     * @return the updated or new EditorGroupIndexValue, or null if the input data is null
      */
     abstract fun consume(
       inputData: FileContent?,
@@ -247,8 +243,8 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
   }
 
   /**
-   * Id consumer: Sets the id of the editor group. Moreover, if the group
-   * doesn't have a title defined, sets the id as the title.
+   * Id consumer: Sets the id of the editor group. Moreover, if the group doesn't have a title defined, sets the id as
+   * the title.
    */
   internal class IdConsumer : Consumer() {
     override fun consume(
@@ -266,10 +262,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
-  /**
-   * Related files consumer: Adds a related path to the editor group's
-   * related files.
-   */
+  /** Related files consumer: Adds a related path to the editor group's related files. */
   internal class RelatedFilesConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,

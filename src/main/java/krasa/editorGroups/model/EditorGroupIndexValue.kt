@@ -4,7 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
-import krasa.editorGroups.IndexCache
+import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.support.getColorInstance
 import java.awt.Color
 import java.util.*

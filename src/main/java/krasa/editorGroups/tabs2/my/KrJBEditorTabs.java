@@ -10,7 +10,7 @@ import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.util.BitUtil;
 import krasa.editorGroups.EditorGroupManager;
 import krasa.editorGroups.EditorGroupPanel;
-import krasa.editorGroups.SwitchRequest;
+import krasa.editorGroups.model.SwitchRequest;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.impl.KrEditorTabs;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
