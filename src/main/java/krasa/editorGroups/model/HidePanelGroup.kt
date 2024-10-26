@@ -1,6 +1,7 @@
 package krasa.editorGroups.model
 
 import com.intellij.openapi.project.Project
+import krasa.editorGroups.icons.EditorGroupsIcons
 import javax.swing.Icon
 
 class HidePanelGroup : EditorGroup() {
@@ -13,7 +14,7 @@ class HidePanelGroup : EditorGroup() {
 
   override fun switchTitle(project: Project): String = title
 
-  override fun icon(): Icon? = null
+  override fun icon(): Icon? = EditorGroupsIcons.hide
 
   override fun invalidate() = Unit
 
