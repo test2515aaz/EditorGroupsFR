@@ -50,7 +50,7 @@
         <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
 
         <editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>
-        <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
+        <editorTabColorProvider implementation="krasa.editorGroups.CustomEditorGroupsTabColorProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.extensions.CurrentEditorGroupColorProvider" order="last"/>
 
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
