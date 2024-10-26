@@ -1,5 +1,6 @@
 package krasa.editorGroups.settings
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.SettingsCategory
@@ -7,6 +8,7 @@ import com.intellij.openapi.components.SimplePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
+import com.intellij.util.messages.Topic
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
 
@@ -212,6 +214,17 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
       state.regexGroupModels = value
     }
 
+  fun fireChanged() {
+    ApplicationManager.getApplication().messageBus
+      .syncPublisher(TOPIC)
+      .configChanged(this)
+  }
+
+  interface SettingsNotifier {
+    /** When Config is changed (settings) */
+    fun configChanged(config: EditorGroupsSettings): Unit = Unit
+  }
+
   companion object {
     const val DEFAULT_GROUP_SIZE_LIMIT: Int = 10_000
     const val MIN_GROUP_SIZE_LIMIT: Int = 1
@@ -220,6 +233,10 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     const val DEFAULT_TAB_SIZE_LIMIT: Int = 50
     const val MIN_TAB_SIZE_LIMIT: Int = 1
     const val MAX_TAB_SIZE_LIMIT: Int = 100
+
+    @Topic.AppLevel
+    @JvmField
+    val TOPIC: Topic<SettingsNotifier> = Topic.create("Editor Groups Settings", SettingsNotifier::class.java)
 
     @JvmStatic
     val instance by lazy { service<EditorGroupsSettings>() }

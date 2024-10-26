@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
 import krasa.editorGroups.settings.EditorGroupsSettings
+import krasa.editorGroups.support.Notifications
 
 class ToggleHideEmptyAction : ToggleAction(), DumbAware {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
@@ -13,6 +14,8 @@ class ToggleHideEmptyAction : ToggleAction(), DumbAware {
 
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     EditorGroupsSettings.instance.isHideEmpty = state
+    EditorGroupsSettings.instance.fireChanged()
+    Notifications.notifySimple("Hide Empty Groups ${if (state) "enabled" else "disabled"}")
   }
 
   companion object {
