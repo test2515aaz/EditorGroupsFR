@@ -27,7 +27,8 @@ import java.awt.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static krasa.editorGroups.support.Utils.isBlank;
+import static krasa.editorGroups.support.UtilsKt.isBlank;
+
 
 public class RegexModelEditor extends DialogWrapper {
   private static final Logger LOG = Logger.getInstance(RegexModelEditor.class);

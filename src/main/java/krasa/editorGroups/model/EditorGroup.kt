@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.settings.EditorGroupsSettings
-import krasa.editorGroups.support.Utils
 import krasa.editorGroups.support.getFileByPath
 import krasa.editorGroups.support.toPresentableName
 import java.awt.Color
@@ -131,7 +130,7 @@ abstract class EditorGroup {
   fun tabTitle(project: Project): String {
     var result = this.title
     if (result.isEmpty()) {
-      result = Utils.toPresentableName(ownerPath)
+      result = toPresentableName(ownerPath)
     }
 
     if (EditorGroupsSettings.instance.isShowSize) {

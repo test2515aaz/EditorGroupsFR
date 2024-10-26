@@ -13,8 +13,8 @@ import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
 import krasa.editorGroups.support.RegexFileResolver
-import krasa.editorGroups.support.Utils
 import krasa.editorGroups.support.VirtualFileComparator
+import krasa.editorGroups.support.isJarOrZip
 
 @Service(Service.Level.PROJECT)
 class AutoGroupProvider(private val project: Project) {
@@ -104,7 +104,7 @@ class AutoGroupProvider(private val project: Project) {
 
   private fun shouldSkipFile(virtualFile: VirtualFile): Boolean = when {
     ProjectCoreUtil.isProjectOrWorkspaceFile(virtualFile) -> true
-    Utils.isJarOrZip(virtualFile)                         -> true
+    isJarOrZip(virtualFile)                               -> true
     virtualFile.isDirectory                               -> true
     else                                                  -> false
   }
