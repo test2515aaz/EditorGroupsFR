@@ -1,7 +1,6 @@
 package krasa.editorGroups.services
 
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
@@ -10,15 +9,15 @@ import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 
 @Service(Service.Level.PROJECT)
-class TabGroupColorizer {
-  fun refreshTabs(event: FileEditorManagerEvent) {
-    if (!EditorGroupsSettings.instance.isColorTabs) return
+class TabGroupColorizer(private val project: Project) {
+  fun refreshTabs(force: Boolean = false) {
+    if (!force && !EditorGroupsSettings.instance.isColorTabs) return
 
-    val project = event.manager.project
     FileEditorManagerEx.getInstanceEx(project).windows
       .forEach { window ->
         window.tabbedPane.tabs.tabs.forEach { tabInfo ->
-          tabInfo.setTabColor(getColor(project, tabInfo.text))
+          val color = getColor(project, tabInfo.text)
+          tabInfo.setTabColor(color)
         }
       }
   }

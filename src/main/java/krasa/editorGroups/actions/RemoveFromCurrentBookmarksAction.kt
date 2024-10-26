@@ -15,7 +15,7 @@ import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.Splitters
 
 class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
-  override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
+  override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
 
   override fun update(e: AnActionEvent) {
     val presentation = e.presentation

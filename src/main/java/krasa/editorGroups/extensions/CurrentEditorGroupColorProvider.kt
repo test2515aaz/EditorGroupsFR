@@ -4,6 +4,7 @@ import com.intellij.openapi.fileEditor.impl.EditorTabColorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupManager
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 
 class CurrentEditorGroupColorProvider : EditorTabColorProvider {
@@ -12,9 +13,11 @@ class CurrentEditorGroupColorProvider : EditorTabColorProvider {
     file: VirtualFile
   ): Color? {
     val lastGroup = EditorGroupManager.getInstance(project).lastGroup
-    if (lastGroup.isStub) return null
-    if (!lastGroup.containsLink(project, file.path)) return null
-
-    return lastGroup.bgColor
+    return when {
+      lastGroup.isStub                            -> null
+      !EditorGroupsSettings.instance.isColorTabs  -> null
+      !lastGroup.containsLink(project, file.path) -> null
+      else                                        -> lastGroup.bgColor
+    }
   }
 }

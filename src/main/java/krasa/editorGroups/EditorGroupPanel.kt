@@ -192,11 +192,7 @@ class EditorGroupPanel(
     tabs.setSelectionChangeHandler(TabSelectionChangeHandler(this))
 
     // Custom tab height
-    val tabHeight = when {
-      EditorGroupsSettings.instance.isCompactTabs -> COMPACT_TAB_HEIGHT
-      else                                        -> JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
-    }
-    this.preferredSize = Dimension(0, tabHeight)
+    refreshHeight()
 
     // Add the tabs to the panel
     val tabsComponent = tabs.getComponent()
@@ -209,6 +205,24 @@ class EditorGroupPanel(
 
     // Add a listener to show the popup on right click the tabs
     tabs.addMouseListener(getPopupHandler())
+
+    // Listen to settings change
+    ApplicationManager.getApplication().messageBus.connect(this)
+      .subscribe(EditorGroupsSettings.TOPIC, object : EditorGroupsSettings.SettingsNotifier {
+        override fun configChanged(config: EditorGroupsSettings) {
+          refreshHeight()
+        }
+      })
+  }
+
+  fun refreshHeight() {
+    val tabHeight = getPanelHeight()
+    this.preferredSize = Dimension(0, tabHeight)
+  }
+
+  fun getPanelHeight(): Int = when {
+    EditorGroupsSettings.instance.isCompactTabs -> COMPACT_TAB_HEIGHT
+    else                                        -> JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
   }
 
   // TODO move to KrJBEditorTabs constructor
@@ -1035,11 +1049,13 @@ class EditorGroupPanel(
     val fgColor = displayedGroup!!.fgColor
 
     when {
-      bgColor != null -> tab.setTabColor(bgColor)
+      displayedGroup !is EditorGroups -> return
+      bgColor != null                 -> tab.setTabColor(bgColor)
     }
 
     when {
-      fgColor != null -> tab.setDefaultForeground(fgColor)
+      displayedGroup !is EditorGroups -> return
+      fgColor != null                 -> tab.setDefaultForeground(fgColor)
     }
   }
 
@@ -1199,7 +1215,7 @@ class EditorGroupPanel(
     const val NOT_INITIALIZED: Int = -10_000
     const val TOOLBAR_PLACE = "krasa.editorGroups.EditorGroupPanel"
     const val TAB_PLACE = "EditorGroupsTabPopup"
-    const val COMPACT_TAB_HEIGHT = 26
+    const val COMPACT_TAB_HEIGHT = 30
     val BOOKMARK_GROUP: DataKey<BookmarksGroup> = DataKey.create<BookmarksGroup>("krasa.BookmarksGroup")
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
