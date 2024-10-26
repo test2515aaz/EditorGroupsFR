@@ -4,7 +4,6 @@ import com.intellij.ide.actions.OpenFileAction
 import com.intellij.notification.Notification
 import com.intellij.notification.NotificationAction
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -17,8 +16,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
-import krasa.editorGroups.EditorGroupsSettingsState
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
@@ -39,26 +37,14 @@ open class FileResolver {
   protected val project: Project?
   protected val excludeEditorGroupsFiles: Boolean
   private val links: MutableSet<String?>
-  protected var config: EditorGroupsSettingsState
 
   constructor(project: Project?) {
     this.project = project
-    excludeEditorGroupsFiles = state().isExcludeEditorGroupsFiles
+    excludeEditorGroupsFiles = EditorGroupsSettings.instance.isExcludeEditorGroupsFiles
 
     links = object : LinkedHashSet<String?>() {
       override fun add(element: String?): Boolean = super.add(sanitize(element))
     }
-    config = state()
-  }
-
-  protected constructor() {
-    this.project = null
-    excludeEditorGroupsFiles = false
-
-    links = object : LinkedHashSet<String?>() {
-      override fun add(element: String?): Boolean = super.add(sanitize(element))
-    }
-    config = state()
   }
 
   fun getLinks(): Set<String?> = links
@@ -242,7 +228,7 @@ open class FileResolver {
 
   @Throws(IOException::class)
   protected fun add(file: File, definedManually: Boolean) {
-    if (links.size > config.groupSizeLimitInt) throw TooManyFilesException()
+    if (links.size > EditorGroupsSettings.instance.groupSizeLimit) throw TooManyFilesException()
 
     if (file.isFile && !(!definedManually && excluded(file, excludeEditorGroupsFiles))) {
       links.add(getCanonicalPath(file))
@@ -268,8 +254,6 @@ open class FileResolver {
   }
 
   companion object {
-    private val LOG = Logger.getInstance(FileResolver::class.java)
-
     @Throws(ProcessCanceledException::class)
     fun resolveLinks(group: EditorGroupIndexValue, project: Project): List<Link> {
       thisLogger().debug("<resolveLinks [$group], project = [${project.name}]")

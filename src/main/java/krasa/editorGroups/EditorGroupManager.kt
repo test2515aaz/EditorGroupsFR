@@ -182,7 +182,7 @@ class EditorGroupManager(private val project: Project) {
     try {
       val requestedOrDisplayedGroup = requestedGroup ?: displayedGroup
       val currentFilePath = currentFile.path
-      val force = refresh && EditorGroupsSettingsState.state().isForceSwitch
+      val force = refresh && EditorGroupsSettings.instance.isForceSwitch
 
       // If force switch is on, force switching
       if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarksGroup) {

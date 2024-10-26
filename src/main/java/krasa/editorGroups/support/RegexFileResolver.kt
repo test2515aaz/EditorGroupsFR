@@ -7,8 +7,7 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
-import krasa.editorGroups.EditorGroupsSettingsState
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
@@ -16,7 +15,6 @@ import java.util.regex.Matcher
 
 open class RegexFileResolver(private val project: Project) {
   protected var links: MutableSet<VirtualFile?> = HashSet()
-  protected var config: EditorGroupsSettingsState = state()
 
   fun resolveRegexGroupLinks(regexGroup: RegexGroup, currentFile: VirtualFile?): List<Link> {
     thisLogger().debug("<resolveRegexGroupLinks")
@@ -84,7 +82,7 @@ open class RegexFileResolver(private val project: Project) {
             if (matches(regexGroupModel, referenceMatcher, matcher)) {
               links.add(child)
 
-              if (links.size > config.groupSizeLimitInt) throw TooManyFilesException()
+              if (links.size > EditorGroupsSettings.instance.groupSizeLimit) throw TooManyFilesException()
             }
           }
         }
@@ -98,7 +96,7 @@ open class RegexFileResolver(private val project: Project) {
     regexGroupModel: RegexGroupModel,
     regexGroup: RegexGroup,
     projectFileIndex: ProjectFileIndex
-  ): Boolean = when (regexGroupModel.scope) {
+  ): Boolean = when (regexGroupModel.myScope) {
     RegexGroupModel.Scope.CURRENT_FOLDER -> child != regexGroup.folder
     else                                 -> projectFileIndex.isExcluded(child)
   }

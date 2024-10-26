@@ -6,13 +6,13 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import krasa.editorGroups.EditorGroupManager
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 import java.awt.Color
 
 @Service(Service.Level.PROJECT)
 class TabGroupColorizer {
   fun refreshTabs(event: FileEditorManagerEvent) {
-    if (!state().isColorTabs) return
+    if (!EditorGroupsSettings.instance.isColorTabs) return
 
     val project = event.manager.project
     FileEditorManagerEx.getInstanceEx(project).windows

@@ -14,7 +14,6 @@ import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.PopupHandler
 import krasa.editorGroups.*
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications.showWarning
@@ -149,8 +148,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       when {
         // If the option to group the groups is enabled
-        state().isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
-        else                             -> {
+        EditorGroupsSettings.instance.isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
+        else                                                   -> {
           val childActionsOrStubs = tempGroup.childActionsOrStubs
           val list = childActionsOrStubs.asSequence()
             .filterNot { anAction: AnAction? -> anAction is Separator }
@@ -438,8 +437,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val regexGroups = RegexGroupProvider.getInstance(project).findProjectRegexGroups()
 
     val alreadyDisplayed: MutableSet<String?> = alreadyFilledRegexGroups
-      .filter { it.regexGroupModel.scope == RegexGroupModel.Scope.WHOLE_PROJECT }
-      .mapTo(HashSet()) { it.regexGroupModel.regex }
+      .filter { it.regexGroupModel.myScope == RegexGroupModel.Scope.WHOLE_PROJECT }
+      .mapTo(HashSet()) { it.regexGroupModel.myRegex }
 
 
     if (regexGroups.isNotEmpty()) {
@@ -447,7 +446,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       regexGroups
         .asSequence()
-        .filterNot { alreadyDisplayed.contains(it.regexGroupModel.regex) }
+        .filterNot { alreadyDisplayed.contains(it.regexGroupModel.myRegex) }
         .forEach { group ->
 
           defaultActionGroup.add(

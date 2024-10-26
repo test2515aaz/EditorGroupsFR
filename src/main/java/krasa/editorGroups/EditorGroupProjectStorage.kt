@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.Attribute
 import com.intellij.util.xmlb.annotations.Tag
 import com.intellij.util.xmlb.annotations.XCollection
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.index.IndexCache
 
 @Service(Service.Level.PROJECT)
@@ -35,7 +34,7 @@ class EditorGroupProjectStorage(
 
   override fun getState(): State {
     when {
-      state().isRememberLastGroup -> {
+      EditorGroupsSettings.instance.isRememberLastGroup -> {
         val start = System.currentTimeMillis()
         val state = IndexCache.getInstance(project).state
 
@@ -43,12 +42,12 @@ class EditorGroupProjectStorage(
         return state
       }
 
-      else                        -> return State()
+      else                                              -> return State()
     }
   }
 
   override fun loadState(state: State) {
-    if (state().isRememberLastGroup) {
+    if (EditorGroupsSettings.instance.isRememberLastGroup) {
       val start = System.currentTimeMillis()
       IndexCache.getInstance(project).loadState(state)
 

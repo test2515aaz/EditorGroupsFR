@@ -4,15 +4,15 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 
 class ToggleHideEmptyAction : ToggleAction(), DumbAware {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
-  override fun isSelected(e: AnActionEvent): Boolean = state().isHideEmpty
+  override fun isSelected(e: AnActionEvent): Boolean = EditorGroupsSettings.instance.isHideEmpty
 
   override fun setSelected(e: AnActionEvent, state: Boolean) {
-    state().isHideEmpty = state
+    EditorGroupsSettings.instance.isHideEmpty = state
   }
 
   companion object {
