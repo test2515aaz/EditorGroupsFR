@@ -1,7 +1,8 @@
 package krasa.editorGroups.services
 
-import com.intellij.ide.bookmarks.Bookmark
-import com.intellij.ide.bookmarks.BookmarksListener
+import com.intellij.ide.bookmark.Bookmark
+import com.intellij.ide.bookmark.BookmarkGroup
+import com.intellij.ide.bookmark.BookmarksListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -43,24 +44,39 @@ class PanelRefresher(private val project: Project) : Disposable {
   }
 
   private fun addBookmarksListener() {
-    project.messageBus.connect(this).subscribe(BookmarksListener.TOPIC, object : BookmarksListener {
-      override fun bookmarkAdded(b: Bookmark) = refresh()
+    val connect = project.messageBus.connect(this)
+    connect
+      .subscribe(BookmarksListener.TOPIC, object : BookmarksListener {
+        override fun bookmarkAdded(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-      override fun bookmarkRemoved(b: Bookmark) = refresh()
+        override fun bookmarkRemoved(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-      override fun bookmarkChanged(b: Bookmark) = refresh()
+        override fun bookmarkChanged(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-      override fun bookmarksOrderChanged() = refresh()
+        override fun groupsSorted() = refresh()
 
-      fun refresh() {
-        iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
-          if (displayedGroup is BookmarksGroup) {
+        override fun groupAdded(group: BookmarkGroup) = refresh()
+
+        override fun groupRemoved(group: BookmarkGroup) = refresh()
+
+        override fun groupRenamed(group: BookmarkGroup) = refresh()
+
+        override fun bookmarksSorted(group: BookmarkGroup) = refresh()
+
+        override fun bookmarkTypeChanged(bookmark: Bookmark) = refresh()
+
+        override fun defaultGroupChanged(oldGroup: BookmarkGroup?, newGroup: BookmarkGroup?) = refresh()
+
+        fun refresh() {
+          iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
+            if (displayedGroup !is BookmarksGroup) return@BiConsumer
+
             thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
             panel.refreshPane(refresh = true, newGroup = displayedGroup)
-          }
-        })
-      }
-    })
+          })
+        }
+      })
+
   }
 
   /**
