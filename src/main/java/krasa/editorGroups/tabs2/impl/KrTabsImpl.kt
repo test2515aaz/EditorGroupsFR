@@ -1706,10 +1706,6 @@ open class KrTabsImpl(
         result.add(getIndexInVisibleArray(tabInfo), tabInfo)
       }
 
-      if (isAlphabeticalMode()) {
-        sortTabsAlphabetically(result)
-      }
-
       this.allTabs = result
       return result
     }
@@ -2062,11 +2058,6 @@ open class KrTabsImpl(
   open fun getVisibleInfos(): List<KrTabInfo> {
     if (AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
       groupPinnedFirst(visibleInfos)
-    }
-    if (isAlphabeticalMode()) {
-      val result = ArrayList(visibleInfos)
-      sortTabsAlphabetically(result)
-      return result
     }
     return visibleInfos
   }

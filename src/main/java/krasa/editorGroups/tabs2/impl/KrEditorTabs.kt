@@ -6,6 +6,7 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.wm.IdeFocusManager
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.tabs2.KrTabs
 import krasa.editorGroups.tabs2.KrTabsPresentation
 
@@ -37,12 +38,7 @@ open class KrEditorTabs : KrTabsImpl, KrTabs {
     super.uiSettingsChanged(uiSettings)
   }
 
-  override fun useSmallLabels(): Boolean = UISettings.getInstance().useSmallLabelsOnTabs
-
-  override fun isAlphabeticalMode(): Boolean = when {
-    isAlphabeticalModeChanged -> super.isAlphabeticalMode()
-    else                      -> UISettings.getInstance().sortTabsAlphabetically
-  }
+  override fun useSmallLabels(): Boolean = EditorGroupsSettings.instance.isSmallLabels
 
   override fun setAlphabeticalMode(value: Boolean): KrTabsPresentation {
     isAlphabeticalModeChanged = true
