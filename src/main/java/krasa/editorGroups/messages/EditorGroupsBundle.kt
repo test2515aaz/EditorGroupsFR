@@ -37,10 +37,13 @@ object EditorGroupsBundle : DynamicBundle(BUNDLE) {
   private val localizedBundle: ResourceBundle?
     get() = ResourceBundle.getBundle(BUNDLE, getLocale())
 
-  @NlsContexts.DialogTitle
   @NlsContexts.DialogMessage
   @JvmStatic
   fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any): String =
+    getMessage(key, *params)
+
+  @NlsContexts.DialogTitle
+  fun messageTitle(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any): String =
     getMessage(key, *params)
 
   override fun getMessage(key: String, vararg params: Any?): String = BundleBase.messageOrDefault(localizedBundle, key, null, *params)

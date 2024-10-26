@@ -53,7 +53,8 @@
     <resource-bundle>messages.EditorGroupsBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup id="Editor Groups" displayType="BALLOON"/>
+        <notificationGroup id="Editor Groups" displayType="BALLOON" bundle="messages.EditorGroupsBundle"
+                           key="notification.group.editor.groups"/>
 
         <!-- TODO I'm not sure of the utility of this-->
         <!--<editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>-->
@@ -62,8 +63,9 @@
 
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
-        <applicationConfigurable instance="krasa.editorGroups.MyConfigurable" id="EditorGroups"
-                                 displayName="Editor Groups"/>
+        <applicationConfigurable instance="krasa.editorGroups.MyConfigurable"
+                                 id="krasa.editorGroups.EditorGroupsSettings"
+                                 key="krasa.editorGroups.EditorGroupsSettings"/>
 
         <customScopesProvider implementation="krasa.editorGroups.extensions.CustomScopesProvider"/>
 
@@ -101,23 +103,18 @@
     </projectListeners>
 
     <actions>
-        <group id="krasa.editorGroups.Actions" popup="true" icon="/icons/pluginIcon.svg"
-               text="Editor Groups" description="Editor groups menu">
+        <group id="krasa.editorGroups.Actions" popup="true" icon="/icons/pluginIcon.svg">
             <add-to-group group-id="MainToolBar" anchor="last"/>
             <add-to-group group-id="ToolsMenu"/>
             <add-to-group group-id="MainToolbarRight"/>
 
             <action id="krasa.editorGroups.SwitchGroup"
                     class="krasa.editorGroups.actions.SwitchGroupAction"
-                    text="Switch Editor Group"
-                    description="Switch editor group"
                     icon="AllIcons.Actions.GroupBy">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt W"/>
             </action>
             <action id="krasa.editorGroups.SwitchFile"
                     class="krasa.editorGroups.actions.SwitchFileAction"
-                    text="Switch File In Editor Group"
-                    description="Switch file in editor group"
                     icon="AllIcons.Actions.ListFiles">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift alt W"/>
                 <add-to-group group-id="EditorContextBarMenu"/>
@@ -127,8 +124,6 @@
 
             <action class="krasa.editorGroups.actions.RefreshAction"
                     id="krasa.editorGroups.Refresh"
-                    text="Refresh"
-                    description="Refresh Editor Groups panel in current file"
                     icon="AllIcons.Actions.Refresh">
                 <keyboard-shortcut first-keystroke="ctrl alt Q" keymap="$default"/>
             </action>
@@ -137,49 +132,37 @@
 
             <action class="krasa.editorGroups.actions.NextAction"
                     id="krasa.editorGroups.Next"
-                    text="Open Next File in Editor Group"
-                    description="Open next file in Editor Group"
                     icon="AllIcons.Actions.Forward">
                 <keyboard-shortcut first-keystroke="ctrl  QUOTE" keymap="$default"/>
                 <mouse-shortcut keystroke="ctrl button142" keymap="$default"/>
             </action>
             <action class="krasa.editorGroups.actions.NextInNewTabAction"
                     id="krasa.editorGroups.NextInNewTab"
-                    icon="AllIcons.Actions.MoveToTopLeft"
-                    description="Open next file in Editor Group in a new tab"
-                    text="Open Next File in Editor Group in a New Tab">
+                    icon="AllIcons.Actions.MoveToTopLeft">
                 <keyboard-shortcut first-keystroke="ctrl alt QUOTE" keymap="$default"/>
                 <mouse-shortcut keystroke="ctrl alt button142" keymap="$default"/>
             </action>
             <action class="krasa.editorGroups.actions.NextInNewWindowAction"
                     id="krasa.editorGroups.NextInNewWindow"
-                    icon="AllIcons.Actions.MoveToWindow"
-                    description="Open next file in editor group in a new window"
-                    text="Open Next File in Editor Group in a New Window">
+                    icon="AllIcons.Actions.MoveToWindow">
                 <mouse-shortcut keystroke="ctrl shift button142" keymap="$default"/>
             </action>
 
             <action class="krasa.editorGroups.actions.PreviousAction"
                     id="krasa.editorGroups.Previous"
-                    text="Open Previous File in Editor Group"
-                    description="Open previous file in Editor Group"
                     icon="AllIcons.Actions.Back">
                 <keyboard-shortcut first-keystroke="ctrl  SEMICOLON" keymap="$default"/>
                 <mouse-shortcut keystroke="ctrl button143" keymap="$default"/>
             </action>
             <action class="krasa.editorGroups.actions.PreviousInNewTabAction"
                     id="krasa.editorGroups.PreviousInNewTab"
-                    icon="AllIcons.Actions.MoveToTopRight"
-                    description="Open previous file in editor group in a new tab"
-                    text="Open Previous File in Editor Group in a New Tab">
+                    icon="AllIcons.Actions.MoveToTopRight">
                 <keyboard-shortcut first-keystroke="ctrl alt SEMICOLON" keymap="$default"/>
                 <mouse-shortcut keystroke="ctrl alt button143" keymap="$default"/>
             </action>
             <action class="krasa.editorGroups.actions.PreviousInNewWindowAction"
                     id="krasa.editorGroups.PreviousInNewWindow"
-                    icon="AllIcons.Actions.MoveToWindow"
-                    description="Open previous file in Editor Group in a new window"
-                    text="Open Previous File in Editor Group in a New Window">
+                    icon="AllIcons.Actions.MoveToWindow">
                 <mouse-shortcut keystroke="ctrl shift button143" keymap="$default"/>
             </action>
 
@@ -187,8 +170,6 @@
 
             <action id="krasa.editorGroups.actions.RemoveFromCurrentBookmarks"
                     class="krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction"
-                    text="Remove from Current Bookmarks Group"
-                    description="Remove from current bookmarks group"
                     icon="AllIcons.General.Remove">
             </action>
 
@@ -196,14 +177,12 @@
 
             <action id="krasa.editorGroups.ReindexThisFile"
                     class="krasa.editorGroups.actions.ReindexThisFileAction"
-                    icon="AllIcons.General.InlineRefreshHover"
-                    text="Reindex This File">
+                    icon="AllIcons.General.InlineRefreshHover">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt F3"/>
             </action>
 
             <action id="krasa.editorGroups.Reindex"
                     class="krasa.editorGroups.actions.ReindexAction"
-                    text="Reindex All Projects"
                     icon="AllIcons.General.Reset">
             </action>
 
@@ -211,53 +190,34 @@
 
             <action id="krasa.editorGroups.ToggleAutoSameNameGroups"
                     class="krasa.editorGroups.actions.ToggleAutoSameNameGroupsAction"
-                    text="AutoGroups by the Current File Name"
-                    icon="AllIcons.FileTypes.Text"
-                    description="Automatic Editor Groups by the Current File Name (without extension), if no manually defined exists"
-            />
+                    icon="AllIcons.FileTypes.Text"/>
 
             <action id="krasa.editorGroups.ToggleFolderEditorGroups"
                     class="krasa.editorGroups.actions.ToggleAutoFolderGroupsAction"
-                    text="AutoGroups by the Current Folder"
-                    icon="AllIcons.Nodes.Folder"
-                    description="Automatic Editor Groups by the Current Folder, if no manually defined exists"
-            />
+                    icon="AllIcons.Nodes.Folder"/>
 
             <action id="krasa.editorGroups.ToggleForce"
                     class="krasa.editorGroups.actions.ToggleForceAction"
-                    text="Switch from AutoGroups on Manual Refresh"
-                    icon="AllIcons.FileTypes.Custom"
-                    description="Switches from AutoGroups to manually defined one - if exists for the current file"
-            />
+                    icon="AllIcons.FileTypes.Custom"/>
 
             <action id="krasa.editorGroups.ToggleHideEmpty"
                     class="krasa.editorGroups.actions.ToggleHideEmptyAction"
-                    icon="AllIcons.General.HideToolWindow"
-                    description="Hide the panel when no group exists or is empty"
-                    text="Hide the Panel (When No Group Exists or Is Empty)"/>
+                    icon="AllIcons.General.HideToolWindow"/>
 
             <action id="krasa.editorGroups.ToggleShowSize"
                     class="krasa.editorGroups.actions.ToggleShowSizeAction"
-                    icon="AllIcons.Gutter.Mnemonic"
-                    description="Show group size at titles"
-                    text="Show Group Size at Titles"/>
+                    icon="AllIcons.Gutter.Mnemonic"/>
 
             <action id="krasa.editorGroups.ToggleCompactModeGroupsAction"
                     class="krasa.editorGroups.actions.ToggleCompactModeGroupsAction"
-                    icon="AllIcons.Actions.Collapseall"
-                    description="Toggle compact mode"
-                    text="Toggle Compact Mode"/>
+                    icon="AllIcons.Actions.Collapseall"/>
 
             <action id="krasa.editorGroups.ToggleColorizeGroupsAction"
                     class="krasa.editorGroups.actions.ToggleColorizeGroupsAction"
-                    icon="AllIcons.Actions.Colors"
-                    description="Colorize tabs of the same group"
-                    text="Colorize Tabs of the Same Group"/>
+                    icon="AllIcons.Actions.Colors"/>
 
             <action id="krasa.editorGroups.TogglePanelVisibility"
                     icon="AllIcons.Actions.ToggleVisibility"
-                    text="Toggle Panel"
-                    description="Toggle editor groups panel"
                     class="krasa.editorGroups.actions.ViewPanelToggleAction">
                 <add-to-group group-id="UIToggleActions"/>
             </action>
@@ -266,9 +226,7 @@
 
             <action id="krasa.editorGroups.OpenConfiguration"
                     class="krasa.editorGroups.actions.OpenConfigurationAction"
-                    icon="AllIcons.General.Settings"
-                    text="Open EditorGroups Settings"
-                    description="Open EditorGroups settings">
+                    icon="AllIcons.General.Settings">
                 <add-to-group group-id="EditorTabPopupMenu"/>
             </action>
 

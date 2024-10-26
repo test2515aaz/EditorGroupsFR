@@ -10,12 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroupIndexValue
+import org.jetbrains.annotations.NonNls
 
 object Notifications {
   const val ID = "Editor Groups plugin"
 
   private val notificationGroup: NotificationGroup
-    get() = NotificationGroupManager.getInstance().getNotificationGroup("Editor Groups")
+    get() = NotificationGroupManager.getInstance().getNotificationGroup(ID)
 
   fun notifyMissingFile(group: EditorGroup, path: String) {
     val content = "${"Path='$path'; Owner='${group.id}"}'"
@@ -54,8 +55,9 @@ object Notifications {
     show(notification)
   }
 
-  fun href(file: VirtualFile): String? = file.name.let { href(it) }
+  fun href(file: VirtualFile): String? = href(file.name)
 
+  @NonNls
   fun href(name: String): String = "<a href=\"$name\">$name<a/>"
 
   fun notifyDuplicateId(project: Project, id: String, values: List<EditorGroupIndexValue>) {
