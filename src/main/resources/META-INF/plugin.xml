@@ -50,6 +50,8 @@
 
     <depends>com.intellij.modules.lang</depends>
 
+    <resource-bundle>messages.EditorGroupsBundle</resource-bundle>
+
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
 
