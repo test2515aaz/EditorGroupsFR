@@ -8,10 +8,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
-import krasa.editorGroups.ExternalGroupProvider
-import krasa.editorGroups.RegexGroupProvider
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.ExternalGroupProvider
 import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.services.RegexGroupProvider
 import krasa.editorGroups.settings.EditorGroupProjectStorage
 import krasa.editorGroups.settings.EditorGroupProjectStorage.KeyValuePair
 import krasa.editorGroups.settings.EditorGroupsSettings

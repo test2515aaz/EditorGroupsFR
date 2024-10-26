@@ -1,9 +1,10 @@
-package krasa.editorGroups
+package krasa.editorGroups.extensions
 
 import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.fileEditor.impl.EditorTabColorProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.model.EditorGroup
 import java.awt.Color
 

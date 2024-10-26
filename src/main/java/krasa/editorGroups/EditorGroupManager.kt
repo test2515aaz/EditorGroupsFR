@@ -24,7 +24,10 @@ import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.AutoGroupProvider
+import krasa.editorGroups.services.ExternalGroupProvider
 import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.services.RegexGroupProvider
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Splitters
