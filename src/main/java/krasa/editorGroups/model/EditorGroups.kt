@@ -34,16 +34,12 @@ class EditorGroups : EditorGroup, GroupsHolder {
   /** no filtering by type */
   constructor(result: EditorGroup, editorGroups: List<EditorGroup>) {
     addGroup(result)
-    for (group in editorGroups) {
-      addGroup(group)
-    }
+    editorGroups.forEach { group -> addGroup(group) }
   }
 
   private fun addGroup(group: EditorGroup) {
     when (group) {
-      is GroupsHolder -> group.groups?.let { groups ->
-        groups.filterNotNull().associateByTo(groupsMap, EditorGroup::id)
-      }
+      is GroupsHolder -> group.groups.toList().associateByTo(groupsMap, EditorGroup::id)
 
       else            -> groupsMap[group.id] = group
     }

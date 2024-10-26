@@ -111,6 +111,26 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   override fun toString(): String = "BookmarksGroup{links=$links, name='$name'}"
 
+  override fun getTabTitle(
+    project: Project,
+    presentableNameForUI: String,
+    showSize: Boolean
+  ): String {
+    var nameForUI = presentableNameForUI
+    val size = size(project)
+    val isEmptyName = name.isEmpty()
+
+    return when {
+      showSize     -> when {
+        !isEmptyName -> "[${name}:$size] $nameForUI"
+        else         -> "[$size] $nameForUI"
+      }
+
+      !isEmptyName -> "[$name] $nameForUI"
+      else         -> nameForUI
+    }
+  }
+
   override fun hashCode(): Int {
     var result = id.hashCode()
     result = 31 * result + links.hashCode()
