@@ -174,9 +174,6 @@ class EditorGroupPanel(
     createToolbar()
 
     // Create the tabs component
-    // Add a data provider to the tabs
-    // tabs.setDataProvider(EditorGroupDataProvider(tabs))
-
     setTabPlacement(UISettings.getInstance().editorTabPlacement)
 
     // Add a right click mouse listener to allow remove from favorites
@@ -203,7 +200,9 @@ class EditorGroupPanel(
 
     // Add the tabs to the panel
     val tabsComponent = tabs.getComponent()
-    add(tabsComponent, BorderLayout.CENTER)
+    if (groupToBeRendered !is HidePanelGroup) {
+      add(tabsComponent, BorderLayout.CENTER)
+    }
 
     // Add a listener to show the popup on right click the panel
     addMouseListener(getPopupHandler())
@@ -302,17 +301,6 @@ class EditorGroupPanel(
   override fun dispose() {
     disposed = true
     myTaskExecutor.shutdownNow()
-  }
-
-  private fun renderLater() {
-    SwingUtilities.invokeLater {
-      try {
-        refreshOnEDT(true)
-      } catch (e: Exception) {
-        this.displayedGroup = EditorGroup.EMPTY
-        thisLogger().error(e)
-      }
-    }
   }
 
   /** Display the popup. */
@@ -963,7 +951,7 @@ class EditorGroupPanel(
 
     val renderingGroup = this.groupToBeRendered
     if (renderingGroup == null) {
-      thisLogger().debug("skipping _render2 toBeRendered=$renderingGroup file=${file.name}")
+      thisLogger().debug("skipping refreshOnEDT toBeRendered=$renderingGroup file=${file.name}")
       return
     }
 
@@ -997,10 +985,11 @@ class EditorGroupPanel(
     var visible: Boolean
     val editorGroupsSettingsState = EditorGroupsSettings.instance
     val dontShowPanel = !editorGroupsSettingsState.isShowPanel
+
     this.hideGlobally = dontShowPanel
 
     when {
-      dontShowPanel || groupToRender is HidePanelGroup               -> visible = false
+      dontShowPanel                                                  -> visible = false
 
       // hide empty groups
       editorGroupsSettingsState.isHideEmpty && !groupToRender.isStub -> {
@@ -1041,7 +1030,6 @@ class EditorGroupPanel(
 
   /** Sets bg and fg color of the selected tab, according to the settings. */
   private fun customizeSelectedColor(tab: EditorGroupTabInfo) {
-    val config = EditorGroupsSettings.instance
     // custom group colors
     val bgColor = displayedGroup!!.bgColor
     val fgColor = displayedGroup!!.fgColor

@@ -11,6 +11,7 @@ object EditorGroupsIcons {
   val refresh: Icon = AllIcons.Actions.Refresh
   val bookmarks: Icon = AllIcons.Nodes.Bookmark
   val copy: Icon = AllIcons.Actions.Copy
+  val hide: Icon = AllIcons.Actions.ToggleVisibility
   val groupBy: Icon = AllIcons.Actions.GroupBy
   val listFiles: Icon = AllIcons.Actions.ListFiles
   val logo = IconLoader.getIcon("/icons/pluginIcon.svg", javaClass)
