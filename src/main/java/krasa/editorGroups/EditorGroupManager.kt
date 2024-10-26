@@ -185,7 +185,7 @@ class EditorGroupManager(private val project: Project) {
       val force = refresh && EditorGroupsSettings.instance.isForceSwitch
 
       // If force switch is on, force switching
-      if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarksGroup) {
+      if (force && requestedOrDisplayedGroup !is BookmarksGroup) {
         // First try to get the owning group
         if (result.isInvalid) {
           result = cache.getOwningOrSingleGroup(currentFilePath)
