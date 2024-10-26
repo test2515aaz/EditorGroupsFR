@@ -26,6 +26,20 @@ class SameNameGroup(
 
   override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "By same file name"
 
+  override fun getTabTitle(
+    project: Project,
+    presentableNameForUI: String,
+    showSize: Boolean
+  ): String {
+    var nameForUI = presentableNameForUI
+    val size = size(project)
+
+    return when {
+      showSize -> "[$size] $nameForUI"
+      else     -> nameForUI
+    }
+  }
+
   override fun toString(): String =
     "SameNameGroup{fileNameWithoutExtension='$fileNameWithoutExtension', links=$links, valid=$isValid, stub='$isStub'}"
 

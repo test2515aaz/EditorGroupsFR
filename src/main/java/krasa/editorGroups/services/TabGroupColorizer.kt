@@ -25,11 +25,12 @@ class TabGroupColorizer {
 
   fun getColor(project: Project, tabInfo: @NlsContexts.TabTitle String): Color? {
     val lastGroup = EditorGroupManager.getInstance(project).lastGroup
-    if (lastGroup.isStub) return null
-
-    if (!lastGroup.containsLink(project, tabInfo)) return null
-
-    return lastGroup.bgColor
+    return when {
+      lastGroup.isStub                           -> null
+      !EditorGroupsSettings.instance.isColorTabs -> null
+      !lastGroup.containsLink(project, tabInfo)  -> null
+      else                                       -> lastGroup.bgColor
+    }
   }
 
   companion object {

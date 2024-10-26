@@ -10,49 +10,54 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.ui.EDT
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.model.AutoGroup
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.settings.EditorGroupsSettings
 import java.io.File
 
 class EditorGroupTabTitleProvider : EditorTabTitleProvider {
   override fun getEditorTabTitle(project: Project, file: VirtualFile): String? {
-    if (!EDT.isCurrentThreadEdt()) return null
+    // if (!EDT.isCurrentThreadEdt()) return null
 
     val presentableNameForUI = getPresentableNameForUI(project, file)
     val textEditor = FileEditorManagerEx.getInstanceEx(project).getSelectedEditor(file)
 
-    return getTitle(project, textEditor, presentableNameForUI)
+    return getTitle(
+      project = project,
+      textEditor = textEditor,
+      presentableNameForUI = presentableNameForUI
+    )
   }
 
   private fun getTitle(project: Project, textEditor: FileEditor?, presentableNameForUI: String): String? {
-    var result: String = presentableNameForUI
+    var currentTitle: String = presentableNameForUI
     var group: EditorGroup? = null
 
     if (textEditor != null) {
       group = textEditor.getUserData(EditorGroupPanel.EDITOR_GROUP)
     }
 
-    if (group != null && group.isValid && group !is AutoGroup) {
-      result = group.getPresentableTitle(project, result, EditorGroupsSettings.instance.isShowSize)
+    if (group != null && group.isValid) {
+      currentTitle = group.getTabTitle(
+        project = project,
+        presentableNameForUI = currentTitle,
+        showSize = EditorGroupsSettings.instance.isShowSize
+      )
     }
 
-    return result
+    return currentTitle
   }
 
   /** Simulate the behavior of [com.intellij.openapi.fileEditor.impl.UniqueNameEditorTabTitleProvider]. */
   fun getPresentableNameForUI(project: Project, file: VirtualFile): String =
-    doGetUniqueNameEditorTabTitle(project, file) ?: file.presentableName
+    doGetUniqueNameEditorTabTitle(project = project, file = file) ?: file.presentableName
 
   private fun getEditorTabText(result: String, hideKnownExtensionInTabs: Boolean): String {
-    if (hideKnownExtensionInTabs) {
-      val withoutExtension = FileUtilRt.getNameWithoutExtension(result)
-      if (!withoutExtension.isEmpty() && !withoutExtension.endsWith(File.separator)) {
-        return withoutExtension
-      }
-    }
+    if (!hideKnownExtensionInTabs) return result
+
+    val withoutExtension = FileUtilRt.getNameWithoutExtension(result)
+    if (!withoutExtension.isEmpty() && !withoutExtension.endsWith(File.separator)) return withoutExtension
+
     return result
   }
 

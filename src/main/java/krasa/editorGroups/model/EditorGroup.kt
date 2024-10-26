@@ -71,6 +71,22 @@ abstract class EditorGroup {
     }
   }
 
+  open fun getTabTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String {
+    var nameForUI = presentableNameForUI
+    val isEmptyTitle = StringUtil.isEmpty(title)
+    val size = size(project)
+
+    return when {
+      showSize      -> when {
+        !isEmptyTitle -> "[${title}:$size] $nameForUI"
+        else          -> "[$size] $nameForUI"
+      }
+
+      !isEmptyTitle -> "[$title] $nameForUI"
+      else          -> nameForUI
+    }
+  }
+
   /**
    * Checks if the given project contains a link with the specified current file path.
    *

@@ -30,6 +30,20 @@ class FolderGroup(
 
   override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "Current folder"
 
+  override fun getTabTitle(
+    project: Project,
+    presentableNameForUI: String,
+    showSize: Boolean
+  ): String {
+    var nameForUI = presentableNameForUI
+    val size = size(project)
+
+    return when {
+      showSize -> "[$size] $nameForUI"
+      else     -> nameForUI
+    }
+  }
+
   override fun toString(): String = "FolderGroup{links=${links.size}, stub='$isStub'}"
 
   class FolderGroupScope : NamedScope(
