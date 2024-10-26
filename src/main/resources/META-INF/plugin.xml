@@ -53,7 +53,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
 
-        <editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>
+        <!-- TODO I'm not sure of the utility of this-->
+        <!--<editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>-->
         <editorTabColorProvider implementation="krasa.editorGroups.extensions.CustomEditorGroupsTabColorProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.extensions.CurrentEditorGroupColorProvider" order="last"/>
 
@@ -91,7 +92,7 @@
 
     <!--suppress PluginXmlValidity -->
     <projectListeners>
-        <listener class="krasa.editorGroups.listeners.EditorGroupsManagerListener"
+        <listener class="krasa.editorGroups.listeners.EditorGroupsEditorManagerListener"
                   topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
         <listener class="krasa.editorGroups.listeners.EditorGroupsOpenListener"
                   topic="com.intellij.openapi.fileEditor.FileOpenedSyncListener"/>
@@ -238,6 +239,18 @@
                     icon="AllIcons.Gutter.Mnemonic"
                     description="Show group size at titles"
                     text="Show Group Size at Titles"/>
+
+            <action id="krasa.editorGroups.ToggleCompactModeGroupsAction"
+                    class="krasa.editorGroups.actions.ToggleCompactModeGroupsAction"
+                    icon="AllIcons.Actions.Collapseall"
+                    description="Toggle compact mode"
+                    text="Toggle Compact Mode"/>
+
+            <action id="krasa.editorGroups.ToggleColorizeGroupsAction"
+                    class="krasa.editorGroups.actions.ToggleColorizeGroupsAction"
+                    icon="AllIcons.Actions.Colors"
+                    description="Colorize tabs of the same group"
+                    text="Colorize Tabs of the Same Group"/>
 
             <action id="krasa.editorGroups.TogglePanelVisibility"
                     icon="AllIcons.Actions.ToggleVisibility"
