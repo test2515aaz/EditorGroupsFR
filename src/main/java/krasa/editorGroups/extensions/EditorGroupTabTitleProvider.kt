@@ -12,9 +12,9 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ui.EDT
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.model.AutoGroup
 import krasa.editorGroups.model.EditorGroup
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.io.File
 
 class EditorGroupTabTitleProvider : EditorTabTitleProvider {

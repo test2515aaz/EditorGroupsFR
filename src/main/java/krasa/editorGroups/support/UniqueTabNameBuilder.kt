@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.support
 
 import com.intellij.filename.UniqueNameBuilder
 import com.intellij.openapi.project.Project

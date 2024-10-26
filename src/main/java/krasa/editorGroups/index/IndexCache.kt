@@ -8,13 +8,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
-import krasa.editorGroups.EditorGroupProjectStorage
-import krasa.editorGroups.EditorGroupProjectStorage.KeyValuePair
-import krasa.editorGroups.EditorGroupsSettings
-import krasa.editorGroups.ExternalGroupProvider
-import krasa.editorGroups.PanelRefresher
-import krasa.editorGroups.RegexGroupProvider
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.ExternalGroupProvider
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.services.RegexGroupProvider
+import krasa.editorGroups.settings.EditorGroupProjectStorage
+import krasa.editorGroups.settings.EditorGroupProjectStorage.KeyValuePair
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.FileResolver
 import krasa.editorGroups.support.Notifications
 import java.util.concurrent.ConcurrentHashMap
@@ -24,7 +24,7 @@ import kotlin.Throws
 class IndexCache(private val project: Project) {
 
   private val groupsByLinks: MutableMap<String, EditorGroups> = ConcurrentHashMap()
-  private val config = EditorGroupsSettings.instance.state
+  private val config = EditorGroupsSettings.instance
   private val externalGroupProvider = ExternalGroupProvider.getInstance(project)
 
   @get:Throws(IndexNotReadyException::class)

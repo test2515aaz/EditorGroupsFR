@@ -1,35 +1,15 @@
 package krasa.editorGroups.support;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.ide.ui.UISettings;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Iconable;
-import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.util.io.OSAgnosticPathUtil;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.ui.ColorUtil;
-import com.intellij.util.IconUtil;
-import com.intellij.util.ReflectionUtil;
 import com.intellij.util.ui.NamedColorUtil;
-import krasa.editorGroups.model.Link;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings({"UseJBColor"})
 public class Utils {
@@ -44,135 +24,6 @@ public class Utils {
 
   public static final Color ERROR_FOREGROUND_COLOR = NamedColorUtil.getErrorForeground();
 
-
-  /**
-   * not good enough for UI forms sometimes
-   */
-  @Nullable
-  public static VirtualFile getFileFromTextEditor(Project project, FileEditor textEditor) {
-    VirtualFile file = textEditor.getFile();
-    if (file != null) {
-      return file;
-    }
-    return unwrap(textEditor.getFile());
-  }
-
-  @Nullable
-  public static VirtualFile getFileByUrl(String url) {
-    return VirtualFileManager.getInstance().findFileByUrl(url);
-  }
-
-  public static String getFileContent(String ownerPath) {
-    VirtualFile fileByPath = getFileByPath(ownerPath);
-    if (fileByPath == null) {
-      return null;
-    }
-    return getFileContent(fileByPath);
-  }
-
-  @Nullable
-  public static String getFileContent(VirtualFile url) {
-    Document document = FileDocumentManager.getInstance().getDocument(url);
-    if (document != null) {
-      return document.getText();
-    }
-    return null;
-  }
-
-  @Nullable
-  public static VirtualFile getVirtualFileByAbsolutePath(@NotNull String s) {
-    VirtualFile fileByPath = null;
-    if (new File(s).exists()) {
-      fileByPath = getFileByPath(s);
-    }
-    return fileByPath;
-  }
-
-
-  @Nullable
-  public static VirtualFile getFileByPath(@NotNull String path) {
-    return getFileByPath(path, null);
-  }
-
-  @Nullable
-  public static VirtualFile getNullableFileByPath(@Nullable String path) {
-    if (path == null) {
-      return null;
-    }
-    return getFileByPath(path, null);
-  }
-
-  public static boolean isBlank(final CharSequence cs) {
-    if (cs == null) return true;
-    final int strLen = cs.length();
-    if (strLen == 0) {
-      return true;
-    }
-    for (int i = 0; i < strLen; i++) {
-      if (!Character.isWhitespace(cs.charAt(i))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Nullable
-  public static VirtualFile getFileByPath(@NotNull String path, @Nullable VirtualFile currentFile) {
-    try {
-      return ApplicationManager.getApplication().executeOnPooledThread(() -> {
-        VirtualFile file = null;
-        if (OSAgnosticPathUtil.isAbsolute(path)) {
-          file = LocalFileSystem.getInstance().findFileByPath(path);
-        } else if (currentFile != null) {
-          VirtualFile parent = currentFile.getParent();
-          if (parent != null) {
-            file = parent.findFileByRelativePath(path);
-          }
-          if (file == null) {
-            LOG.warn("file is null for child:" + path + " from parent: " + currentFile.getPath());
-          }
-        } else if (path.startsWith("file://")) {
-          file = VirtualFileManager.getInstance().findFileByUrl(path);
-        } else {
-          file = LocalFileSystem.getInstance().findFileByPath(path);
-        }
-
-        if (file == null && currentFile == null) {
-          LOG.info("#refreshAndFindFileByPath for " + path);
-          file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path);
-        }
-
-        return file;
-      }).get();
-    } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-
-  @NotNull
-  public static String toPresentableName(String path) {
-    String name = path;
-    int i = StringUtil.lastIndexOfAny(path, "\\/");
-    if (i > 0) {
-      name = path.substring(i + 1);
-    }
-
-    UISettings uiSettings = UISettings.getInstanceOrNull();
-    if (uiSettings != null && uiSettings.getHideKnownExtensionInTabs()) {
-      name = cutExtension(name, "/");
-    }
-
-    return name;
-  }
-
-  public static String cutExtension(String result, String separator) {
-    String withoutExtension = FileUtil.getNameWithoutExtension(result);
-    if (StringUtil.isNotEmpty(withoutExtension) && !withoutExtension.endsWith(separator)) {
-      return withoutExtension;
-    }
-    return result;
-  }
 
   static {
     colorMap = new HashMap<>();
@@ -519,53 +370,4 @@ public class Utils {
     return myColor;
   }
 
-  public static @NotNull Icon getFileIcon(String path, Project project) {
-    VirtualFile file = getFileByPath(path);
-    if (file == null) {
-      return AllIcons.FileTypes.Any_type;
-    }
-    return IconUtil.computeFileIcon(Objects.requireNonNull(file), Iconable.ICON_FLAG_READ_STATUS, project);
-  }
-
-  public static boolean isJarOrZip(@NotNull VirtualFile file) {
-    if (file.isDirectory()) {
-      return false;
-    }
-    final String name = file.getName();
-    return StringUtil.endsWithIgnoreCase(name, ".jar") || StringUtil.endsWithIgnoreCase(name, ".zip");
-  }
-
-  public static VirtualFile getFileByPath(Link link) {
-    return getFileByPath(link.getPath());
-  }
-
-  @NotNull
-  public static String getCanonicalPath(File file) {
-    try {
-      return file.getCanonicalPath();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static boolean isInLocalFileSystem(VirtualFile currentFile) {
-    return currentFile.getFileSystem() instanceof LocalFileSystem;
-  }
-
-  public static VirtualFile unwrap(VirtualFile file) {
-    if (file == null) {
-      return null;
-    }
-    try {
-      if (file.getClass().getPackage().getName().startsWith("net.seesharpsoft")) {
-        if (getSource == null) {
-          getSource = ReflectionUtil.getMethod(file.getClass(), "getSource");
-        }
-        file = (VirtualFile) Objects.requireNonNull(getSource).invoke(file);
-      }
-    } catch (Throwable e) {
-      LOG.error(e);
-    }
-    return file;
-  }
 }

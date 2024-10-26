@@ -6,7 +6,7 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.NlsContexts
 import krasa.editorGroups.EditorGroupManager
-import krasa.editorGroups.EditorGroupsSettings
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 
 @Service(Service.Level.PROJECT)

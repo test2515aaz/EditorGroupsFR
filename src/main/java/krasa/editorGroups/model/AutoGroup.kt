@@ -1,7 +1,7 @@
 package krasa.editorGroups.model
 
 import com.intellij.openapi.project.Project
-import krasa.editorGroups.AutoGroupProvider
+import krasa.editorGroups.services.AutoGroupProvider
 import krasa.editorGroups.support.LinkComparator
 import kotlin.concurrent.Volatile
 

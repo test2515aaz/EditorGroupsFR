@@ -5,7 +5,7 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.AnActionButtonRunnable;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
-import krasa.editorGroups.EditorGroupsSettings;
+import krasa.editorGroups.settings.EditorGroupsSettings;
 
 import javax.swing.*;
 import java.awt.*;

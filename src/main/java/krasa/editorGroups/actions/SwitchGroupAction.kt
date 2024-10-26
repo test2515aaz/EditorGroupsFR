@@ -16,6 +16,9 @@ import com.intellij.ui.PopupHandler
 import krasa.editorGroups.*
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.ExternalGroupProvider
+import krasa.editorGroups.services.RegexGroupProvider
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.Splitters
 import krasa.editorGroups.support.getVirtualFileByAbsolutePath

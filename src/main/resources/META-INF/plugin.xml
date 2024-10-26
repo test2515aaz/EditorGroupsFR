@@ -2,7 +2,7 @@
     <id>EditorGroups</id>
     <name>Editor Groups</name>
     <idea-version since-build="2024.3"/>
-    <vendor url="https://github.com/krasa/EditorGroups" email="vojta.krasa@gmail.com">Vojtech Krasa</vendor>
+    <vendor email="elior@material-theme.com" url="https://github.com/mallowigi">AtomMaterial</vendor>
 
     <description><![CDATA[
         <h1>Editor Groups</h1>
@@ -21,36 +21,40 @@
         <h2>Features</h2>
         <ul>
             <li>Quickly switch between files in the current tab</li>
-            <li>Group files by name (ex: classes and tests, css and html, etc)</li>
-            <li>Group files under the same folder</li>
-            <li>Group files by a regular expression (ex: all files containing "test", "yaml", etc)</li>
-            <li>Group by bookmarked files (TODO!)</li>
+            <li>Group files by the same <b>filename</b> (without extension)</li>
+            <li>Group files within the <b>current folder</b></li>
+            <li>Group files by <b>bookmark group</b></li>
+            <li>Group files by a <b>regular expression</b> (like <code>service|controller|interface...</code>)</li>
+            <li>Switch the current file with another file from the same group.</li>
         </ul>
 
         <h2>Advanced Features</h2>
         <ul>
-            <li>Create custom groups and save them in a <code>*.egroups</code> file</li>
-            <li>Colorize tabs belonging to the same group</li>
-            <li>Set custom colors to the selected tab</li>
-            <li>Compact mode</li>
+            <li>Create custom groups and save them in <code>*.egroups</code> files</li>
+            <li>Identify tabs belonging to the same group (see <em>File Colors</em> for more information)</li>
+            <li>Custom File Colors by Editor Group Type</li>
+            <li>Compact Mode</li>
+            <li>Hide Tabs</li>
+            <li>Support for Bottom Tabs</li>
+            <li>Display the group size</li>
+            <li>Add/Remove from the current bookmark group</li>
+            <li>Custom Theme Properties for Theme makers</li>
         </ul>
 
         <p>More information: <a href="https://github.com/mallowigi/EditorGroups">https://github.com/mallowigi/EditorGroups</a>
         </p>
         <br>
-        <p>Thanks to Vojtech Krasa for creating this plugin.</p>
-        <br>
         <p>Copyright (c) 2015-2025 Vojtech Krasa and Elior Boukhobza</p>
-        ]]></description>
+        ]]>
+    </description>
 
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="Editor Groups" displayType="BALLOON"/>
-        <editorNotificationProvider implementation="krasa.editorGroups.support.KrEditorNotificationsProvider"/>
 
         <editorTabTitleProvider implementation="krasa.editorGroups.extensions.EditorGroupTabTitleProvider" order="first"/>
-        <editorTabColorProvider implementation="krasa.editorGroups.MyEditorTabColorProvider" order="first"/>
+        <editorTabColorProvider implementation="krasa.editorGroups.extensions.CustomEditorGroupsTabColorProvider" order="first"/>
         <editorTabColorProvider implementation="krasa.editorGroups.extensions.CurrentEditorGroupColorProvider" order="last"/>
 
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>

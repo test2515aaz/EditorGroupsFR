@@ -16,11 +16,11 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
-import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.model.Link
+import krasa.editorGroups.settings.EditorGroupsSettings
 import org.apache.commons.io.IOCase
 import org.apache.commons.io.filefilter.FileFileFilter
 import org.apache.commons.io.filefilter.PrefixFileFilter

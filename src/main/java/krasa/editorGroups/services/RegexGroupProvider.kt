@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.RegexFileResolver
 
 @Service(Service.Level.PROJECT)

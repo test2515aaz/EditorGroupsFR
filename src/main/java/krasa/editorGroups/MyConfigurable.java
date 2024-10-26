@@ -2,6 +2,7 @@ package krasa.editorGroups;
 
 import com.intellij.openapi.options.Configurable;
 import krasa.editorGroups.gui.SettingsForm;
+import krasa.editorGroups.settings.EditorGroupsSettings;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;

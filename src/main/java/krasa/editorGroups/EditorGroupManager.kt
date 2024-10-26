@@ -24,6 +24,11 @@ import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.AutoGroupProvider
+import krasa.editorGroups.services.ExternalGroupProvider
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.services.RegexGroupProvider
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Splitters
 import java.awt.Color
@@ -37,7 +42,7 @@ import kotlin.Throws
 class EditorGroupManager(private val project: Project) {
   private var cache: IndexCache = IndexCache.getInstance(project)
   private val config: EditorGroupsSettings = EditorGroupsSettings.instance
-  private val panelRefresher: PanelRefresher = PanelRefresher.getInstance(project)
+  private val panelRefresher: PanelRefresher = PanelRefresher.Companion.getInstance(project)
   private val ideFocusManager = IdeFocusManager.findInstance()
   private var warningShown = false
   private val externalGroupProvider: ExternalGroupProvider = ExternalGroupProvider.getInstance(project)
@@ -185,7 +190,7 @@ class EditorGroupManager(private val project: Project) {
       val force = refresh && EditorGroupsSettings.instance.isForceSwitch
 
       // If force switch is on, force switching
-      if (force && requestedOrDisplayedGroup !is FavoritesGroup && requestedOrDisplayedGroup !is BookmarksGroup) {
+      if (force && requestedOrDisplayedGroup !is BookmarksGroup) {
         // First try to get the owning group
         if (result.isInvalid) {
           result = cache.getOwningOrSingleGroup(currentFilePath)

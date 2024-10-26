@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.services
 
 import com.intellij.ide.bookmark.BookmarksManager
 import com.intellij.openapi.components.Service

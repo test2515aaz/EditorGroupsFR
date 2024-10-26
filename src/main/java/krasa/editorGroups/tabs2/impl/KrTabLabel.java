@@ -20,7 +20,7 @@ import com.intellij.util.MathUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.accessibility.ScreenReader;
-import krasa.editorGroups.EditorGroupsSettings;
+import krasa.editorGroups.settings.EditorGroupsSettings;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.KrTabsEx;
 import krasa.editorGroups.tabs2.KrUiDecorator;

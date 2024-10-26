@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.services
 
 import com.intellij.ide.bookmarks.Bookmark
 import com.intellij.ide.bookmarks.BookmarksListener
@@ -15,6 +15,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.index.EditorGroupIndex
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.model.BookmarksGroup
