@@ -16,75 +16,60 @@ import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsStat
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
 class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettingsState>(EditorGroupsSettingsState()) {
   class EditorGroupsSettingsState : BaseState() {
-    @EditorGroupSetting([EditorGroupSetting.Category.REGEX])
     var regexGroupModels by property(RegexGroupModels())
 
     // Select first matching regex group if no group matches
-    @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
     var isSelectRegexGroup by property(false)
 
     // Select current folder group if no other group matches
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
     var isAutoFolders by property(true)
 
     // Select same name group if no other group matches
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
     var isAutoSameName by property(true)
 
     // Refresh button switches to a manual group if exists
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
     var isForceSwitch by property(true)
 
     // Hide the panel if no group matches
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
     var isHideEmpty by property(true)
 
     // Show group size at title
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS, EditorGroupSetting.Category.UI])
     var isShowSize by property(false)
 
     // Color tabs of the current group
-    @EditorGroupSetting([EditorGroupSetting.Category.TABS, EditorGroupSetting.Category.UI])
     var isColorTabs by property(true)
 
+    // Small labels
+    var isSmallLabels by property(true)
+
     // Continuous scrolling
-    @EditorGroupSetting([EditorGroupSetting.Category.TABS])
     var isContinuousScrolling by property(false)
 
     // Index synchronously - less flicker
-    @EditorGroupSetting([EditorGroupSetting.Category.PERFORMANCE])
     var isInitializeSynchronously by property(false)
 
     // Index only egroups file for performance
-    @EditorGroupSetting([EditorGroupSetting.Category.EGROUPS, EditorGroupSetting.Category.PERFORMANCE])
     var isIndexOnlyEditorGroupsFiles by property(false)
 
     // Exclude egroups files from indexing
-    @EditorGroupSetting([EditorGroupSetting.Category.EGROUPS, EditorGroupSetting.Category.PERFORMANCE])
     var isExcludeEditorGroupsFiles by property(false)
 
     // Remember last group
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
     var isRememberLastGroup by property(true)
 
     // Compact tabs
-    @EditorGroupSetting([EditorGroupSetting.Category.TABS, EditorGroupSetting.Category.UI])
     var isCompactTabs by property(false)
 
     // Split the list in groups
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS, EditorGroupSetting.Category.UI])
     var isGroupSwitchGroupAction by property(false)
 
     // Show the panel at all
-    @EditorGroupSetting([EditorGroupSetting.Category.UI])
     var isShowPanel by property(true)
 
     // Limit the number of elements in a group
-    @EditorGroupSetting([EditorGroupSetting.Category.GROUPS, EditorGroupSetting.Category.PERFORMANCE])
     var groupSizeLimitInt: Int by property(DEFAULT_GROUP_SIZE_LIMIT)
 
     // Limit the number of tabs in a group
-    @EditorGroupSetting([EditorGroupSetting.Category.TABS, EditorGroupSetting.Category.PERFORMANCE])
     var tabSizeLimitInt: Int by property(DEFAULT_TAB_SIZE_LIMIT)
   }
 
@@ -135,6 +120,13 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     get() = state.isColorTabs
     set(value) {
       state.isColorTabs = value
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.UI])
+  var isSmallLabels: Boolean
+    get() = state.isSmallLabels
+    set(value) {
+      state.isSmallLabels = value
     }
 
   @EditorGroupSetting([EditorGroupSetting.Category.TABS])
