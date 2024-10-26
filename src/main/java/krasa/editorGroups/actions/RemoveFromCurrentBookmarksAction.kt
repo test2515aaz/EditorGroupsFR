@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.model.BookmarksGroup
+import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.Splitters
 
@@ -68,6 +69,8 @@ class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
       val next = editorGroupPanel.goToNextTab(newTab = false, newWindow = false, split = Splitters.NONE)
       if (!next) editorGroupPanel.goToPreviousTab(newTab = false, newWindow = false, split = Splitters.NONE)
     }
+
+    Notifications.notifySimple("Removed from '$groupTitle': $filesToRemoveSet")
   }
 
   private fun notifyFail(name: String, selected: MutableSet<VirtualFile>) {

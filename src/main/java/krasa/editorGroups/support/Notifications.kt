@@ -88,5 +88,11 @@ object Notifications {
   @JvmStatic
   fun notifyTooManyFiles() = showWarning(TooManyFilesException.FOUND_TOO_MANY_MATCHING_FILES_SKIPPING)
 
+  @JvmStatic
+  fun notifySimple(msg: String) {
+    val notification = notificationGroup.createNotification(ID, msg, NotificationType.INFORMATION)
+    show(notification)
+  }
+
   private fun show(notification: Notification) = ApplicationManager.getApplication().invokeLater { notify(notification) }
 }

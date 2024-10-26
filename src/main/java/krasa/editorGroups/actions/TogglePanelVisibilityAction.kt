@@ -5,12 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
 import krasa.editorGroups.services.PanelRefresher
 import krasa.editorGroups.settings.EditorGroupsSettings
+import krasa.editorGroups.support.Notifications
 
 class TogglePanelVisibilityAction : DumbAwareAction() {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
   override fun actionPerformed(e: AnActionEvent) {
     PanelRefresher.getInstance(getEventProject(e)!!).refresh()
+    Notifications.notifySimple("Editor Groups Panel disabled")
   }
 
   override fun update(e: AnActionEvent) {
