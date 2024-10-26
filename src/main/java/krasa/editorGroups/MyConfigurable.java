@@ -37,7 +37,7 @@ public class MyConfigurable implements Configurable {
 
   @Override
   public boolean isModified() {
-    return form != null && form.isSettingsModified(EditorGroupsSettingsState.state());
+    return form != null && form.isSettingsModified(EditorGroupsSettings.getInstance());
   }
 
   @Override
@@ -51,7 +51,7 @@ public class MyConfigurable implements Configurable {
   @Override
   public void reset() {
     if (form != null) {
-      form.importFrom(EditorGroupsSettingsState.state());
+      form.importFrom(EditorGroupsSettings.getInstance());
     }
   }
 

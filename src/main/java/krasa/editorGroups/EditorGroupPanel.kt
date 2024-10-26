@@ -29,7 +29,6 @@ import com.intellij.util.BitUtil
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.actions.PopupMenu
 import krasa.editorGroups.actions.RefreshAction
 import krasa.editorGroups.actions.RemoveFromCurrentBookmarksAction
@@ -71,7 +70,7 @@ import kotlin.math.min
 class EditorGroupPanel(
   val fileEditor: FileEditor,
   val project: Project,
-  val switchRequest: SwitchRequest?,
+  switchRequest: SwitchRequest?,
   val file: VirtualFile
 ) : JBPanel<EditorGroupPanel>(BorderLayout()), Weighted, Disposable, UiCompatibleDataProvider {
 
@@ -195,8 +194,8 @@ class EditorGroupPanel(
 
     // Custom tab height
     val tabHeight = when {
-      state().isCompactTabs -> COMPACT_TAB_HEIGHT
-      else                  -> JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
+      EditorGroupsSettings.instance.isCompactTabs -> COMPACT_TAB_HEIGHT
+      else                                        -> JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
     }
     this.preferredSize = Dimension(0, tabHeight)
 
@@ -225,7 +224,7 @@ class EditorGroupPanel(
 
   /** Happens once the panel is built and added. */
   fun postConstruct() {
-    val editorGroupsSettingsState = state()
+    val editorGroupsSettingsState = EditorGroupsSettings.instance
     var editorGroup = groupToBeRendered
 
     // minimize flicker for the price of latency
@@ -402,7 +401,7 @@ class EditorGroupPanel(
   private fun createTabs(links: List<Link>, pathToNames: MutableMap<Link, String>) {
     var start = 0
     var end = links.size
-    val tabSizeLimitInt = state().tabSizeLimitInt
+    val tabSizeLimitInt = EditorGroupsSettings.instance.tabSizeLimit
 
     // If there are too many links than allowed tabs, we slice the links by the max number allowed, with the current file as the center
     if (links.size > tabSizeLimitInt) {
@@ -479,7 +478,7 @@ class EditorGroupPanel(
       this.currentIndex < 0 && displayedGroupIsNotCustom    -> {
         val isStub = displayedGroup!!.isStub
         val links = displayedGroup!!.getLinks(project)
-        val excludeEditorGroupsFiles = state().isExcludeEditorGroupsFiles
+        val excludeEditorGroupsFiles = EditorGroupsSettings.instance.isExcludeEditorGroupsFiles
 
         when {
           !isStub && !FileResolver.excluded(
@@ -521,7 +520,7 @@ class EditorGroupPanel(
     }
 
     val allTabs: List<KrTabInfo> = this.tabs.tabs
-    val continuousScrolling = state().isContinuousScrolling
+    val continuousScrolling = EditorGroupsSettings.instance.isContinuousScrolling
     var iterations = 0
 
     var link: Link? = null
@@ -569,7 +568,7 @@ class EditorGroupPanel(
 
     var iterations = 0
     val allTabs: List<KrTabInfo> = this.tabs.tabs
-    val continuousScrolling = state().isContinuousScrolling
+    val continuousScrolling = EditorGroupsSettings.instance.isContinuousScrolling
     var link: Link? = null
 
     while (link == null && iterations < allTabs.size) {
@@ -768,7 +767,7 @@ class EditorGroupPanel(
       ))
 
       // If in the meantime we said to not show panel, stop refreshing
-      val updateVisibility = hideGlobally != !state().isShowPanel
+      val updateVisibility = hideGlobally != !EditorGroupsSettings.instance.isShowPanel
       if (updateVisibility) skipRefresh = false
 
       // If skipping refresh, return early
@@ -882,7 +881,7 @@ class EditorGroupPanel(
               requestedGroup = requestedGroup,
               currentFile = file,
               refresh = refresh,
-              stub = !state().isShowPanel
+              stub = !EditorGroupsSettings.instance.isShowPanel
             )
           } catch (e: ProcessCanceledException) {
             thisLogger().debug("initRefreshRequest - ProcessCanceledException $e", e)
@@ -994,7 +993,7 @@ class EditorGroupPanel(
   /** Hide the panel according to different conditions. */
   private fun updateVisibility(groupToRender: EditorGroup): Boolean {
     var visible: Boolean
-    val editorGroupsSettingsState = state()
+    val editorGroupsSettingsState = EditorGroupsSettings.instance
     val dontShowPanel = !editorGroupsSettingsState.isShowPanel
     this.hideGlobally = dontShowPanel
 
@@ -1040,19 +1039,19 @@ class EditorGroupPanel(
 
   /** Sets bg and fg color of the selected tab, according to the settings. */
   private fun customizeSelectedColor(tab: EditorGroupTabInfo) {
-    val config = state()
+    val config = EditorGroupsSettings.instance
     // custom group colors
     val bgColor = displayedGroup!!.bgColor
     val fgColor = displayedGroup!!.fgColor
 
     when {
       bgColor != null            -> tab.setTabColor(bgColor)
-      config.isTabBgColorEnabled -> tab.setTabColor(config.tabBgColorAsColor)
+      config.isTabBgColorEnabled -> tab.setTabColor(config.tabBgColor)
     }
 
     when {
       fgColor != null            -> tab.setDefaultForeground(fgColor)
-      config.isTabFgColorEnabled -> tab.setDefaultForeground(config.tabFgColorAsColor)
+      config.isTabFgColorEnabled -> tab.setDefaultForeground(config.tabFgColor)
     }
   }
 

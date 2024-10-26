@@ -4,7 +4,6 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
@@ -17,7 +16,7 @@ class RegexGroupProvider {
 
     val start = System.currentTimeMillis()
     val fileName = file.name
-    val matching = state().regexGroupModels.findFirstMatching(fileName)
+    val matching = EditorGroupsSettings.instance.regexGroupModels.findFirstMatching(fileName)
 
     val result = when (matching) {
       null -> EditorGroup.EMPTY
@@ -34,7 +33,7 @@ class RegexGroupProvider {
 
     val start = System.currentTimeMillis()
     val fileName = file.name
-    val matching: List<RegexGroupModel> = state().regexGroupModels.findMatching(fileName)
+    val matching: List<RegexGroupModel> = EditorGroupsSettings.instance.regexGroupModels.findMatching(fileName)
 
     thisLogger().debug("findMatchingRegexGroups: ${System.currentTimeMillis() - start}ms")
 
@@ -42,7 +41,7 @@ class RegexGroupProvider {
   }
 
   fun findProjectRegexGroups(): List<RegexGroup> {
-    val globalRegexGroups = state().regexGroupModels.findProjectRegexGroups()
+    val globalRegexGroups = EditorGroupsSettings.instance.regexGroupModels.findProjectRegexGroups()
     return toRegexGroups(globalRegexGroups)
   }
 
@@ -63,7 +62,7 @@ class RegexGroupProvider {
   }
 
   fun findRegexGroup(file: VirtualFile, substring: String?): EditorGroup {
-    val regexGroupModels = state().regexGroupModels
+    val regexGroupModels = EditorGroupsSettings.instance.regexGroupModels
     val regexGroupModel = regexGroupModels.find(substring!!) ?: return EditorGroup.EMPTY
 
     return RegexGroup(regexGroupModel, file.parent, emptyList(), file.name)

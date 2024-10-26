@@ -5,17 +5,14 @@ import com.intellij.ui.AnActionButton;
 import com.intellij.ui.AnActionButtonRunnable;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.ToolbarDecorator;
-import krasa.editorGroups.EditorGroupsSettingsState;
+import krasa.editorGroups.EditorGroupsSettings;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 
 public class SettingsForm {
-
   private static final Logger LOG = Logger.getInstance(SettingsForm.class);
-
-
   private JPanel root;
   private JCheckBox byName;
   private JCheckBox byFolder;
@@ -87,25 +84,25 @@ public class SettingsForm {
 
   }
 
-  public boolean isSettingsModified(EditorGroupsSettingsState data) {
-    if (tabsColors.isModified(data, data.tabs)) return true;
+  public boolean isSettingsModified(EditorGroupsSettings data) {
+    if (tabsColors.isModified(data, data.getTabs())) return true;
     if (regexModelTable.isModified(data)) return true;
     return isModified(data);
   }
 
-  public void importFrom(EditorGroupsSettingsState data) {
+  public void importFrom(EditorGroupsSettings data) {
     setData(data);
-    tabsColors.setData(data, data.tabs);
+    tabsColors.setData(data, data.getTabs());
     regexModelTable.reset(data);
   }
 
   public void apply() {
     if (LOG.isDebugEnabled()) LOG.debug("apply ");
-    EditorGroupsSettingsState data = EditorGroupsSettingsState.state();
+    EditorGroupsSettings data = EditorGroupsSettings.getInstance();
 
     getData(data);
     regexModelTable.commit(data);
-    tabsColors.getData(data, data.tabs);
+    tabsColors.getData(data, data.getTabs());
   }
 
 
@@ -114,11 +111,11 @@ public class SettingsForm {
     tabColors = tabsColors.getRoot();
   }
 
-  public void setData(EditorGroupsSettingsState data) {
+  public void setData(EditorGroupsSettings data) {
     initializeSynchronously.setSelected(data.isInitializeSynchronously());
     indexOnlyEditorGroupsFileCheckBox.setSelected(data.isIndexOnlyEditorGroupsFiles());
-    groupSizeLimit.setText(data.getGroupSizeLimit());
-    tabSizeLimit.setText(data.getTabSizeLimit());
+    groupSizeLimit.setText(String.valueOf(data.getGroupSizeLimit()));
+    tabSizeLimit.setText(String.valueOf(data.getTabSizeLimit()));
     byName.setSelected(data.isAutoSameName());
     autoSwitch.setSelected(data.isForceSwitch());
     byFolder.setSelected(data.isAutoFolders());
@@ -133,11 +130,11 @@ public class SettingsForm {
     showPanel.setSelected(data.isShowPanel());
   }
 
-  public void getData(EditorGroupsSettingsState data) {
+  public void getData(EditorGroupsSettings data) {
     data.setInitializeSynchronously(initializeSynchronously.isSelected());
     data.setIndexOnlyEditorGroupsFiles(indexOnlyEditorGroupsFileCheckBox.isSelected());
-    data.setGroupSizeLimit(groupSizeLimit.getText());
-    data.setTabSizeLimit(tabSizeLimit.getText());
+    data.setGroupSizeLimit(Integer.parseInt(groupSizeLimit.getText()));
+    data.setTabSizeLimit(Integer.parseInt(tabSizeLimit.getText()));
     data.setAutoSameName(byName.isSelected());
     data.setForceSwitch(autoSwitch.isSelected());
     data.setAutoFolders(byFolder.isSelected());
@@ -152,13 +149,11 @@ public class SettingsForm {
     data.setShowPanel(showPanel.isSelected());
   }
 
-  public boolean isModified(EditorGroupsSettingsState data) {
+  public boolean isModified(EditorGroupsSettings data) {
     if (initializeSynchronously.isSelected() != data.isInitializeSynchronously()) return true;
     if (indexOnlyEditorGroupsFileCheckBox.isSelected() != data.isIndexOnlyEditorGroupsFiles()) return true;
-    if (groupSizeLimit.getText() != null ? !groupSizeLimit.getText().equals(data.getGroupSizeLimit()) : data.getGroupSizeLimit() != null)
-      return true;
-    if (tabSizeLimit.getText() != null ? !tabSizeLimit.getText().equals(data.getTabSizeLimit()) : data.getTabSizeLimit() != null)
-      return true;
+    if (Integer.parseInt(groupSizeLimit.getText()) != data.getGroupSizeLimit()) return true;
+    if (Integer.parseInt(tabSizeLimit.getText()) != data.getTabSizeLimit()) return true;
     if (byName.isSelected() != data.isAutoSameName()) return true;
     if (autoSwitch.isSelected() != data.isForceSwitch()) return true;
     if (byFolder.isSelected() != data.isAutoFolders()) return true;

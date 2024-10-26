@@ -1,8 +1,8 @@
 package krasa.editorGroups.gui
 
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.ui.table.JBTable
-import krasa.editorGroups.EditorGroupsSettingsState
+import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.model.RegexGroupModel
 import java.awt.Component
 import java.util.*
@@ -43,7 +43,7 @@ class RegexModelTable : JBTable() {
       myRegexGroupModels.add(RegexGroupModel(name, regexModelEditor.scopeCombo, regexModelEditor.notComparingGroups))
 
       val index = indexOfRegexModelWithName(name)
-      LOG.assertTrue(index >= 0)
+      thisLogger().assertTrue(index >= 0)
 
       myTableModel.fireTableDataChanged()
       setRowSelectionInterval(index, index)
@@ -92,18 +92,18 @@ class RegexModelTable : JBTable() {
     }
   }
 
-  fun commit(settings: EditorGroupsSettingsState) {
+  fun commit(settings: EditorGroupsSettings) {
     settings.regexGroupModels.regexGroupModels = myRegexGroupModels
   }
 
-  fun reset(settings: EditorGroupsSettingsState) {
+  fun reset(settings: EditorGroupsSettings) {
     obtainRegexModels(myRegexGroupModels, settings)
     myTableModel.fireTableDataChanged()
   }
 
   private fun indexOfRegexModelWithName(name: String): Int = myRegexGroupModels.indexOfFirst { it.regex == name }
 
-  private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: EditorGroupsSettingsState) {
+  private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: EditorGroupsSettings) {
     regexModels.clear()
     val regexGroupModels = settings.regexGroupModels.regexGroupModels
 
@@ -132,7 +132,7 @@ class RegexModelTable : JBTable() {
     return true
   }
 
-  fun isModified(settings: EditorGroupsSettingsState): Boolean {
+  fun isModified(settings: EditorGroupsSettings): Boolean {
     val regexGroupModels = MutableList<RegexGroupModel>(0) { RegexGroupModel() }
     obtainRegexModels(regexGroupModels, settings)
     return regexGroupModels != myRegexGroupModels
@@ -153,7 +153,7 @@ class RegexModelTable : JBTable() {
         SCOPE_COLUMN -> return regexGroupModel.scope!!
       }
 
-      LOG.error("Wrong indices")
+      thisLogger().error("Wrong indices")
       return null
     }
 
@@ -165,7 +165,6 @@ class RegexModelTable : JBTable() {
   }
 
   companion object {
-    private val LOG = Logger.getInstance(RegexModelTable::class.java)
     private const val REGEX_COLUMN = 0
     private const val SCOPE_COLUMN = 1
   }

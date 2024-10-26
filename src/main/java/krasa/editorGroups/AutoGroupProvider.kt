@@ -8,7 +8,6 @@ import com.intellij.openapi.project.ProjectCoreUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
@@ -61,7 +60,7 @@ class AutoGroupProvider(private val project: Project) {
       .onSuccess { virtualFilesByName ->
         thisLogger().debug("<getVirtualFilesByName=$virtualFilesByName")
 
-        val groupSizeLimitInt = state().groupSizeLimitInt
+        val groupSizeLimitInt = EditorGroupsSettings.instance.groupSizeLimit
         val size = virtualFilesByName.size
 
         // collect all files, within the limit

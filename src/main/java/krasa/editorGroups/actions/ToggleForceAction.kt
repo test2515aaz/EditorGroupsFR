@@ -4,15 +4,15 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 
 class ToggleForceAction : ToggleAction(), DumbAware {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
 
-  override fun isSelected(e: AnActionEvent): Boolean = state().isForceSwitch
+  override fun isSelected(e: AnActionEvent): Boolean = EditorGroupsSettings.instance.isForceSwitch
 
   override fun setSelected(e: AnActionEvent, state: Boolean) {
-    state().isForceSwitch = state
+    EditorGroupsSettings.instance.isForceSwitch = state
   }
 
   companion object {

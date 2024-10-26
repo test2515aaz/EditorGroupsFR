@@ -6,7 +6,7 @@ import com.intellij.openapi.util.Pair
 import com.intellij.patterns.StringPattern
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
+import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.PanelRefresher
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
@@ -38,7 +38,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
   override fun map(inputData: FileContent): Map<String, EditorGroupIndexValue> {
     val file = inputData.file
     val isEGroup = EditorGroupsLanguage.isEditorGroupsLanguage(file)
-    if (state().isIndexOnlyEditorGroupsFiles && !isEGroup) return emptyMap()
+    if (EditorGroupsSettings.instance.isIndexOnlyEditorGroupsFiles && !isEGroup) return emptyMap()
 
     val ownerPath = file.path
     try {
@@ -46,7 +46,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
       val folder: File
       try {
         folder = File(inputData.file.parent.path)
-      } catch (e: Exception) {
+      } catch (_: Exception) {
         return emptyMap()
       }
 
@@ -90,7 +90,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
       }
 
       return map
-    } catch (e: DisableException) {
+    } catch (_: DisableException) {
       // if a group is declared disabled, remove it from the index
       IndexCache.getInstance(inputData.project).removeGroup(ownerPath)
       return emptyMap()

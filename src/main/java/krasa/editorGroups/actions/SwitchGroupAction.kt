@@ -14,7 +14,6 @@ import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.PopupHandler
 import krasa.editorGroups.*
-import krasa.editorGroups.EditorGroupsSettingsState.Companion.state
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.model.*
 import krasa.editorGroups.support.Notifications.showWarning
@@ -149,8 +148,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       when {
         // If the option to group the groups is enabled
-        state().isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
-        else                             -> {
+        EditorGroupsSettings.instance.isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
+        else                                                   -> {
           val childActionsOrStubs = tempGroup.childActionsOrStubs
           val list = childActionsOrStubs.asSequence()
             .filterNot { anAction: AnAction? -> anAction is Separator }

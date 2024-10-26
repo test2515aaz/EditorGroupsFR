@@ -20,7 +20,7 @@ import com.intellij.util.MathUtil;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.accessibility.ScreenReader;
-import krasa.editorGroups.EditorGroupsSettingsState;
+import krasa.editorGroups.EditorGroupsSettings;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.KrTabsEx;
 import krasa.editorGroups.tabs2.KrUiDecorator;
@@ -256,7 +256,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       size.width = Math.min(KrTabLayout.getMaxPinnedTabWidth(), size.width);
     }
 
-    if (!EditorGroupsSettingsState.state().isCompactTabs()) {
+    if (!EditorGroupsSettings.getInstance().isCompactTabs()) {
       size.height = JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get();
     }
     return size;

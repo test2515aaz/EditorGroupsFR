@@ -17,6 +17,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.ColorUtil
+import com.intellij.ui.JBColor
 import com.intellij.util.IconUtil.computeFileIcon
 import com.intellij.util.ReflectionUtil
 import com.intellij.util.ui.NamedColorUtil
@@ -462,3 +463,10 @@ fun getFileContent(ownerPath: String): String? {
  * @return The virtual file associated with the given URL, or `null` if no file is found.
  */
 fun getFileByUrl(url: String): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl(url)
+
+/**
+ * Converts an integer to a JBColor instance with both light and dark themes set to the same color.
+ *
+ * @return A JBColor with the specified integer color, or null if the color creation fails.
+ */
+fun Int.toColor(): Color? = JBColor(Color(this), Color(this))
