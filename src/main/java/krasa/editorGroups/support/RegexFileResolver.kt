@@ -96,7 +96,7 @@ open class RegexFileResolver(private val project: Project) {
     regexGroupModel: RegexGroupModel,
     regexGroup: RegexGroup,
     projectFileIndex: ProjectFileIndex
-  ): Boolean = when (regexGroupModel.scope) {
+  ): Boolean = when (regexGroupModel.myScope) {
     RegexGroupModel.Scope.CURRENT_FOLDER -> child != regexGroup.folder
     else                                 -> projectFileIndex.isExcluded(child)
   }

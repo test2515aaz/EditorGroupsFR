@@ -15,8 +15,8 @@ import krasa.editorGroups.settings.EditorGroupSetting
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
 class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettingsState>(EditorGroupsSettingsState()) {
   class EditorGroupsSettingsState : BaseState() {
-    // @EditorGroupSetting([EditorGroupSetting.Category.REGEX])
-    // var regexGroupModels: RegexGroupModels = RegexGroupModels()
+    @EditorGroupSetting([EditorGroupSetting.Category.REGEX])
+    var regexGroupModels by property(RegexGroupModels())
 
     // Select first matching regex group if no group matches
     @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
@@ -208,9 +208,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
   @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
   var regexGroupModels: RegexGroupModels
-    get() = RegexGroupModels() // state.regexGroupModels
+    get() = state.regexGroupModels
     set(value) {
-      // state.regexGroupModels = value
+      state.regexGroupModels = value
     }
 
   companion object {

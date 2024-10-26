@@ -1,18 +1,13 @@
 package krasa.editorGroups.model
 
-class RegexGroupModels {
-  var regexGroupModels: MutableList<RegexGroupModel> = MutableList(0) { RegexGroupModel() }
+import com.intellij.openapi.components.BaseState
+import com.intellij.util.xmlb.annotations.Tag
+import com.intellij.util.xmlb.annotations.XCollection
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other == null || javaClass != other.javaClass) return false
-
-    val that = other as RegexGroupModels
-
-    return regexGroupModels == that.regexGroupModels
-  }
-
-  override fun hashCode(): Int = regexGroupModels.hashCode()
+@Tag("regexGroups")
+class RegexGroupModels : BaseState() {
+  @get:XCollection
+  var regexGroupModels by list<RegexGroupModel>()
 
   override fun toString(): String = "RegExpGroupModels{models=$regexGroupModels}"
 
@@ -22,8 +17,8 @@ class RegexGroupModels {
 
   fun find(substring: String): RegexGroupModel? {
     val deserializedGroup = RegexGroupModel.deserialize(substring) ?: return null
-    return regexGroupModels.find { it.isEnabled && it.regex == deserializedGroup.regex }
+    return regexGroupModels.find { it.isEnabled && it.myRegex == deserializedGroup.myRegex }
   }
 
-  fun findProjectRegexGroups(): List<RegexGroupModel> = regexGroupModels.filter { it.scope == RegexGroupModel.Scope.WHOLE_PROJECT }
+  fun findProjectRegexGroups(): List<RegexGroupModel> = regexGroupModels.filter { it.myScope == RegexGroupModel.Scope.WHOLE_PROJECT }
 }

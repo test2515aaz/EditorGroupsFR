@@ -40,7 +40,14 @@ class RegexModelTable : JBTable() {
 
     if (regexModelEditor.showAndGet()) {
       val name = regexModelEditor.regex
-      myRegexGroupModels.add(RegexGroupModel(name, regexModelEditor.scopeCombo, regexModelEditor.notComparingGroups))
+
+      myRegexGroupModels.add(
+        RegexGroupModel.from(
+          regex = name,
+          scope = regexModelEditor.scopeCombo,
+          notComparingGroups = regexModelEditor.notComparingGroups
+        )
+      )
 
       val index = indexOfRegexModelWithName(name)
       thisLogger().assertTrue(index >= 0)
@@ -101,7 +108,7 @@ class RegexModelTable : JBTable() {
     myTableModel.fireTableDataChanged()
   }
 
-  private fun indexOfRegexModelWithName(name: String): Int = myRegexGroupModels.indexOfFirst { it.regex == name }
+  private fun indexOfRegexModelWithName(name: String): Int = myRegexGroupModels.indexOfFirst { it.myRegex == name }
 
   private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: EditorGroupsSettings) {
     regexModels.clear()
@@ -117,15 +124,15 @@ class RegexModelTable : JBTable() {
     val regexGroupModel = myRegexGroupModels[selectedRow]
     val editor = RegexModelEditor(
       "Edit RegexGroup",
-      regexGroupModel.regex,
-      regexGroupModel.notComparingGroups,
-      regexGroupModel.scope
+      regexGroupModel.myRegex,
+      regexGroupModel.myNotComparingGroups,
+      regexGroupModel.myScope
     )
 
     if (editor.showAndGet()) {
-      regexGroupModel.regex = editor.regex
-      regexGroupModel.notComparingGroups = editor.notComparingGroups
-      regexGroupModel.scope = editor.scopeCombo
+      regexGroupModel.myRegex = editor.regex
+      regexGroupModel.myNotComparingGroups = editor.notComparingGroups
+      regexGroupModel.myScope = editor.scopeCombo
       myTableModel.fireTableDataChanged()
     }
 
@@ -148,9 +155,9 @@ class RegexModelTable : JBTable() {
     override fun getValueAt(rowIndex: Int, columnIndex: Int): Any? {
       val regexGroupModel = myRegexGroupModels[rowIndex]
       when (columnIndex) {
-        REGEX_COLUMN -> return regexGroupModel.regex!!
+        REGEX_COLUMN -> return regexGroupModel.myRegex!!
 
-        SCOPE_COLUMN -> return regexGroupModel.scope!!
+        SCOPE_COLUMN -> return regexGroupModel.myScope!!
       }
 
       thisLogger().error("Wrong indices")

@@ -25,12 +25,9 @@ class AutoGroupProvider(private val project: Project) {
    */
   fun getFolderGroup(file: VirtualFile): EditorGroup {
     val parent = file.parent
+
     val regexGroup = RegexGroup(
-      RegexGroupModel(
-        regex = ".*",
-        scope = RegexGroupModel.Scope.CURRENT_FOLDER,
-        notComparingGroups = ""
-      ),
+      RegexGroupModel.from(regex = ".*", scope = RegexGroupModel.Scope.CURRENT_FOLDER),
       parent
     )
 
