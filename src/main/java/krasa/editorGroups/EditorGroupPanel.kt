@@ -1045,13 +1045,11 @@ class EditorGroupPanel(
     val fgColor = displayedGroup!!.fgColor
 
     when {
-      bgColor != null            -> tab.setTabColor(bgColor)
-      config.isTabBgColorEnabled -> tab.setTabColor(config.tabBgColor)
+      bgColor != null -> tab.setTabColor(bgColor)
     }
 
     when {
-      fgColor != null            -> tab.setDefaultForeground(fgColor)
-      config.isTabFgColorEnabled -> tab.setDefaultForeground(config.tabFgColor)
+      fgColor != null -> tab.setDefaultForeground(fgColor)
     }
   }
 

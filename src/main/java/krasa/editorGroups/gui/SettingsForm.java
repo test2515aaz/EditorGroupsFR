@@ -35,7 +35,6 @@ public class SettingsForm {
   private JTextField groupSizeLimit;
   private JTextField tabSizeLimit;
   private JCheckBox showPanel;
-  private TabsColors tabsColors;
 
   private final RegexModelTable regexModelTable;
 
@@ -85,14 +84,12 @@ public class SettingsForm {
   }
 
   public boolean isSettingsModified(EditorGroupsSettings data) {
-    if (tabsColors.isModified(data, data.getTabs())) return true;
     if (regexModelTable.isModified(data)) return true;
     return isModified(data);
   }
 
   public void importFrom(EditorGroupsSettings data) {
     setData(data);
-    tabsColors.setData(data, data.getTabs());
     regexModelTable.reset(data);
   }
 
@@ -102,14 +99,8 @@ public class SettingsForm {
 
     getData(data);
     regexModelTable.commit(data);
-    tabsColors.getData(data, data.getTabs());
   }
 
-
-  private void createUIComponents() {
-    tabsColors = new TabsColors();
-    tabColors = tabsColors.getRoot();
-  }
 
   public void setData(EditorGroupsSettings data) {
     initializeSynchronously.setSelected(data.isInitializeSynchronously());
