@@ -2,8 +2,8 @@ package krasa.editorGroups.gui
 
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.ui.table.JBTable
-import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Component
 import java.util.*
 import javax.swing.JTable

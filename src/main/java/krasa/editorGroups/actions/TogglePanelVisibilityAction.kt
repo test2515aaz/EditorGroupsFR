@@ -3,8 +3,8 @@ package krasa.editorGroups.actions
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
-import krasa.editorGroups.EditorGroupsSettings
-import krasa.editorGroups.PanelRefresher
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.settings.EditorGroupsSettings
 
 class TogglePanelVisibilityAction : DumbAwareAction() {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT

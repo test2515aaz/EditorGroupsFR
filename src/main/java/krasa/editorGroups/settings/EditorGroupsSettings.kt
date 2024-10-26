@@ -1,4 +1,4 @@
-package krasa.editorGroups
+package krasa.editorGroups.settings
 
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.components.Service
@@ -7,9 +7,8 @@ import com.intellij.openapi.components.SimplePersistentStateComponent
 import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
-import krasa.editorGroups.EditorGroupsSettings.EditorGroupsSettingsState
 import krasa.editorGroups.model.RegexGroupModels
-import krasa.editorGroups.settings.EditorGroupSetting
+import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
 
 @Service(Service.Level.APP)
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)

@@ -4,8 +4,8 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
-import krasa.editorGroups.EditorGroupsSettings
-import krasa.editorGroups.PanelRefresher
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.settings.EditorGroupsSettings
 
 class ViewPanelToggleAction : ToggleAction(), DumbAware {
   override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT

@@ -36,9 +36,11 @@ import krasa.editorGroups.actions.SwitchGroupAction
 import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.EditorGroupsActions
 import krasa.editorGroups.support.FileResolver
 import krasa.editorGroups.support.Splitters
+import krasa.editorGroups.support.UniqueTabNameBuilder
 import krasa.editorGroups.support.getFileFromTextEditor
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabs

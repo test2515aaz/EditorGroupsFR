@@ -10,6 +10,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.model.*
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
 import krasa.editorGroups.support.RegexFileResolver
 import krasa.editorGroups.support.Utils

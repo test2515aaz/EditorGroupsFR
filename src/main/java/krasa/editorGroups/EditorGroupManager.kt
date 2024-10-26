@@ -24,6 +24,8 @@ import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.model.*
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Splitters
 import java.awt.Color
@@ -37,7 +39,7 @@ import kotlin.Throws
 class EditorGroupManager(private val project: Project) {
   private var cache: IndexCache = IndexCache.getInstance(project)
   private val config: EditorGroupsSettings = EditorGroupsSettings.instance
-  private val panelRefresher: PanelRefresher = PanelRefresher.getInstance(project)
+  private val panelRefresher: PanelRefresher = PanelRefresher.Companion.getInstance(project)
   private val ideFocusManager = IdeFocusManager.findInstance()
   private var warningShown = false
   private val externalGroupProvider: ExternalGroupProvider = ExternalGroupProvider.getInstance(project)

@@ -3,7 +3,7 @@ package krasa.editorGroups.model
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.EditorGroupsSettings
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Utils
 import krasa.editorGroups.support.getFileByPath
 import krasa.editorGroups.support.toPresentableName
@@ -134,7 +134,7 @@ abstract class EditorGroup {
       result = Utils.toPresentableName(ownerPath)
     }
 
-    if (EditorGroupsSettings.instance.state.isShowSize) {
+    if (EditorGroupsSettings.instance.isShowSize) {
       result += ":${size(project)}"
     }
 

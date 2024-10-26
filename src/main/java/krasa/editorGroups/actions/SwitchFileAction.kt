@@ -16,10 +16,10 @@ import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.BitUtil
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.UniqueTabNameBuilder
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.Splitters
+import krasa.editorGroups.support.UniqueTabNameBuilder
 import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent

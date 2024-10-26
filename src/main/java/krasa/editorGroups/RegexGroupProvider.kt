@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.RegexFileResolver
 
 @Service(Service.Level.PROJECT)

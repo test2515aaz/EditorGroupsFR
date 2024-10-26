@@ -6,10 +6,10 @@ import com.intellij.openapi.util.Pair
 import com.intellij.patterns.StringPattern
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
-import krasa.editorGroups.EditorGroupsSettings
-import krasa.editorGroups.PanelRefresher
 import krasa.editorGroups.language.EditorGroupsLanguage
 import krasa.editorGroups.model.EditorGroupIndexValue
+import krasa.editorGroups.services.PanelRefresher
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.indexingWarn
 import org.apache.commons.lang3.StringUtils
 import java.io.File

@@ -7,10 +7,10 @@ import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileVisitor
-import krasa.editorGroups.EditorGroupsSettings
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.util.regex.Matcher
 
 open class RegexFileResolver(private val project: Project) {
