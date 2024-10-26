@@ -10,6 +10,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.util.ui.EDT
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.settings.EditorGroupsSettings
@@ -17,7 +18,7 @@ import java.io.File
 
 class EditorGroupTabTitleProvider : EditorTabTitleProvider {
   override fun getEditorTabTitle(project: Project, file: VirtualFile): String? {
-    // if (!EDT.isCurrentThreadEdt()) return null
+    if (EDT.isCurrentThreadEdt()) return null
 
     val presentableNameForUI = getPresentableNameForUI(project, file)
     val textEditor = FileEditorManagerEx.getInstanceEx(project).getSelectedEditor(file)

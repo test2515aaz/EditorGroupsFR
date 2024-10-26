@@ -10,7 +10,7 @@ import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.services.TabGroupColorizer
 
-class EditorGroupsManagerListener : FileEditorManagerListener {
+class EditorGroupsEditorManagerListener : FileEditorManagerListener {
   override fun fileOpened(manager: FileEditorManager, file: VirtualFile) {
     // We add the fileOpened in addition to the EditorGroupsOpenListener to ensure that the panel is added to the editor.
     EditorGroupsPanelBuilder.instance.addPanelToEditor(manager, file)
@@ -40,7 +40,7 @@ class EditorGroupsManagerListener : FileEditorManagerListener {
     }
 
     ApplicationManager.getApplication().invokeLater {
-      TabGroupColorizer.getInstance(project).refreshTabs(event)
+      TabGroupColorizer.getInstance(project).refreshTabs()
     }
   }
 
