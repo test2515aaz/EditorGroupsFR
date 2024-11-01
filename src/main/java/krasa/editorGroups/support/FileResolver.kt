@@ -18,6 +18,7 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import krasa.editorGroups.index.FileNameIndexService
 import krasa.editorGroups.language.EditorGroupsLanguage
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.settings.EditorGroupsSettings
@@ -87,8 +88,8 @@ open class FileResolver {
         }
       } catch (e: TooManyFilesException) {
         e.showNotification()
-        LOG.warn("TooManyFilesException filePath='$filePath rootFolder=$rootFolder, group = [$group]")
-        LOG.debug(e)
+        thisLogger().warn("TooManyFilesException filePath='$filePath rootFolder=$rootFolder, group = [$group]")
+        thisLogger().debug(e)
       }
 
       val delta = System.currentTimeMillis() - newStart
@@ -119,7 +120,7 @@ open class FileResolver {
     val rootFile = File(newRoot)
     if (!rootFile.exists()) {
       Notifications.showWarning(
-        "Root does not exist [$newRoot] in ${ownerFile?.let { Notifications.href(it) }}<br\\>$group",
+        message("notifications.root.does.not.exist", newRoot, ownerFile?.let { Notifications.href(it) }.toString(), group),
         object : NotificationAction("") {
           override fun actionPerformed(e: AnActionEvent, notification: Notification) {
             checkNotNull(project)
@@ -237,23 +238,28 @@ open class FileResolver {
 
   protected fun useMacros(virtualFile: VirtualFile?, folder: String): String {
     when {
-      folder.startsWith("PROJECT")                       -> {
+      folder.startsWith(PROJECT)                       -> {
         val baseDir = project!!.guessProjectDir()
         val canonicalPath = baseDir?.canonicalPath
-        return folder.replace("^PROJECT".toRegex(), canonicalPath ?: "")
+        return folder.replace(PROJECT_REGEX.toRegex(), canonicalPath ?: "")
       }
 
-      virtualFile != null && folder.startsWith("MODULE") -> {
+      virtualFile != null && folder.startsWith(MODULE) -> {
         val moduleForFile = ProjectRootManager.getInstance(project!!).fileIndex.getModuleForFile(virtualFile)
         val moduleDirPath = ModuleUtilCore.getModuleDirPath(moduleForFile!!)
-        return folder.replace("^MODULE".toRegex(), moduleDirPath)
+        return folder.replace(MODULE_REGEX.toRegex(), moduleDirPath)
       }
 
-      else                                               -> return folder
+      else                                             -> return folder
     }
   }
 
   companion object {
+    const val PROJECT_REGEX = "^PROJECT"
+    const val PROJECT = "PROJECT"
+    const val MODULE_REGEX = "^MODULE"
+    const val MODULE = "MODULE"
+
     @Throws(ProcessCanceledException::class)
     fun resolveLinks(group: EditorGroupIndexValue, project: Project): List<Link> {
       thisLogger().debug("<resolveLinks [$group], project = [${project.name}]")

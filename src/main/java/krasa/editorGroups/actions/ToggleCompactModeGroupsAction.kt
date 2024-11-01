@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications
 
@@ -15,7 +16,7 @@ class ToggleCompactModeGroupsAction : ToggleAction(), DumbAware {
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     EditorGroupsSettings.instance.isCompactTabs = state
     EditorGroupsSettings.instance.fireChanged()
-    Notifications.notifySimple("Compact Mode ${if (state) "enabled" else "disabled"}")
+    Notifications.notifyState(message("compact.mode"), state)
   }
 
   companion object {

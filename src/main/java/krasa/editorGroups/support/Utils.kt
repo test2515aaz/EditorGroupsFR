@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package krasa.editorGroups.support
 
 import com.intellij.icons.AllIcons

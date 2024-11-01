@@ -4,15 +4,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import java.util.regex.Matcher
 import javax.swing.Icon
 
 /**
- * Represents a group that matches files based on a regular expression
- * pattern.
+ * Represents a group that matches files based on a regular expression pattern.
  *
- * @property regexGroupModel The model object containing the regular
- *    expression and other parameters.
+ * @property regexGroupModel The model object containing the regular expression and other parameters.
  * @property folder The virtual folder where the group is located.
  * @property links The list of links associated with the group.
  * @property fileName The name of the file associated with the group.
@@ -56,7 +55,7 @@ class RegexGroup(
   override fun icon(): Icon = EditorGroupsIcons.regex
 
   override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String =
-    "Regex: ${regexGroupModel.regexPattern}"
+    message("regex.0", regexGroupModel.regexPattern.toString())
 
   override fun isSelected(editorGroup: EditorGroup): Boolean = when (editorGroup) {
     is RegexGroup -> regexGroupModel == editorGroup.regexGroupModel

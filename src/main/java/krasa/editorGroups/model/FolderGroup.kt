@@ -6,6 +6,8 @@ import com.intellij.psi.search.scope.packageSet.NamedScope
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.FileColorManager
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
 
@@ -28,7 +30,7 @@ class FolderGroup(
 
   override fun icon(): Icon = EditorGroupsIcons.folder
 
-  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "Current folder"
+  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = message("current.folder")
 
   override fun getTabTitle(
     project: Project,
@@ -51,6 +53,7 @@ class FolderGroup(
     EditorGroupsIcons.folder,
     null
   ) {
+    @NonNls
     override fun getDefaultColorName(): String = "Violet"
 
     override fun getPresentableName(): String = FOLDER_GROUP_SCOPE_NAME

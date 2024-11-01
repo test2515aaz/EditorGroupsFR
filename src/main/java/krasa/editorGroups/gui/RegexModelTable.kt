@@ -2,6 +2,7 @@ package krasa.editorGroups.gui
 
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.ui.table.JBTable
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
 import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Component
@@ -36,7 +37,7 @@ class RegexModelTable : JBTable() {
   fun getRegexModelValueAt(row: Int): RegexGroupModel.Scope = getValueAt(row, SCOPE_COLUMN) as RegexGroupModel.Scope
 
   fun addRegexModel() {
-    val regexModelEditor = RegexModelEditor("Add RegexGroup", "", "", RegexGroupModel.Scope.CURRENT_FOLDER)
+    val regexModelEditor = RegexModelEditor(message("add.regexgroup"), "", "", RegexGroupModel.Scope.CURRENT_FOLDER)
 
     if (regexModelEditor.showAndGet()) {
       val name = regexModelEditor.regex
@@ -123,7 +124,7 @@ class RegexModelTable : JBTable() {
     val selectedRow = this.selectedRow
     val regexGroupModel = myRegexGroupModels[selectedRow]
     val editor = RegexModelEditor(
-      "Edit RegexGroup",
+      message("edit.regexgroup"),
       regexGroupModel.myRegex,
       regexGroupModel.myNotComparingGroups,
       regexGroupModel.myScope
@@ -165,8 +166,8 @@ class RegexModelTable : JBTable() {
     }
 
     override fun getColumnName(columnIndex: Int): String? = when (columnIndex) {
-      REGEX_COLUMN -> "Regex"
-      SCOPE_COLUMN -> "Scope"
+      REGEX_COLUMN -> message("regex")
+      SCOPE_COLUMN -> message("scope")
       else         -> null
     }
   }

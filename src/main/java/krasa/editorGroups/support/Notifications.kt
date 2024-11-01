@@ -86,5 +86,12 @@ object Notifications {
     show(notification)
   }
 
+  @JvmStatic
+  fun notifyState(str: String, state: Boolean) {
+    val msg = if (state) message("notification.content.enabled", str) else message("notification.content.disabled", str)
+    val notification = notificationGroup.createNotification(ID, msg, NotificationType.INFORMATION)
+    show(notification)
+  }
+
   private fun show(notification: Notification) = ApplicationManager.getApplication().invokeLater { notify(notification) }
 }

@@ -7,9 +7,7 @@ import org.jetbrains.annotations.Nls
 import javax.swing.Icon
 import javax.swing.SwingConstants
 
-/**
- * @author yole
- */
+/** @author yole */
 interface KrTabsEx : KrTabs {
   companion object {
     @JvmField
@@ -30,21 +28,21 @@ interface KrTabsEx : KrTabs {
 
   val dropInfoIndex: Int
 
-  @get:MagicConstant(intValues = [
-    SwingConstants.TOP.toLong(),
-    SwingConstants.LEFT.toLong(),
-    SwingConstants.BOTTOM.toLong(),
-    SwingConstants.RIGHT.toLong(),
-    -1,
-  ])
+  @get:MagicConstant(
+    intValues = [
+      SwingConstants.TOP.toLong(),
+      SwingConstants.LEFT.toLong(),
+      SwingConstants.BOTTOM.toLong(),
+      SwingConstants.RIGHT.toLong(),
+      -1,
+    ]
+  )
   val dropSide: Int
 
   val isEmptyVisible: Boolean
 
   fun setTitleProducer(titleProducer: (() -> Pair<Icon, @Nls String>)?)
 
-  /**
-   * true if tabs and top toolbar should be hidden from a view
-   */
+  /** true if tabs and top toolbar should be hidden from a view */
   var isHideTopPanel: Boolean
 }

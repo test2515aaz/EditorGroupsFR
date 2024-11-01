@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.project.DumbAware
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.services.TabGroupColorizer
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications
@@ -16,7 +17,7 @@ class ToggleColorizeGroupsAction : ToggleAction(), DumbAware {
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     EditorGroupsSettings.instance.isColorTabs = state
     EditorGroupsSettings.instance.fireChanged()
-    Notifications.notifySimple("Colorize Tabs ${if (state) "enabled" else "disabled"}")
+    Notifications.notifyState(message("colorize.tabs"), state)
 
     TabGroupColorizer.getInstance(e.project ?: return).refreshTabs(force = true)
 

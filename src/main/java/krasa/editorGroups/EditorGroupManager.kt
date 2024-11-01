@@ -23,6 +23,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.util.ui.UIUtil
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.index.IndexNotReady
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.*
 import krasa.editorGroups.services.AutoGroupProvider
 import krasa.editorGroups.services.ExternalGroupProvider
@@ -592,11 +593,14 @@ class EditorGroupManager(private val project: Project) {
           newWindow                              -> {
             thisLogger().debug("openFileInNewWindow fileToOpen = $fileToOpen")
 
-            val pair = manager.openFileInNewWindow(fileToOpen)
-            val fileEditor = pair.first
-            scroll(line, *fileEditor)
+            val fileEditors = manager.openFile(
+              fileToOpen,
+              window = null,
+              options = FileEditorOpenOptions(requestFocus = true, openMode = OpenMode.NEW_WINDOW)
+            )
+            scroll(line, *fileEditors.allEditors.toTypedArray())
 
-            if (fileEditor.isEmpty()) {
+            if (fileEditors.allEditors.isEmpty()) {
               thisLogger().debug("no editors opened..")
               resetSwitching()
             }
@@ -619,7 +623,7 @@ class EditorGroupManager(private val project: Project) {
               val fileEditors = openedFileEditor.allEditors
 
               if (fileEditors.isEmpty()) {  // directory or some fail
-                Notifications.showWarning("Unable to open editor for file ${fileToOpen.name}")
+                Notifications.showWarning(message("unable.to.open.editor.for.file", fileToOpen.name))
                 thisLogger().debug("no editors opened")
 
                 resetSwitching()
@@ -684,7 +688,6 @@ class EditorGroupManager(private val project: Project) {
     switchRequest = null
   }
 
-  @Suppress("detekt:UseDataClass")
   class OpenFileResult(var isScrolledOnly: Boolean)
 
   companion object {

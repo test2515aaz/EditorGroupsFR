@@ -6,6 +6,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import krasa.editorGroups.index.IndexCache
 import krasa.editorGroups.support.getColorInstance
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import java.util.*
 import javax.swing.Icon
@@ -46,8 +47,8 @@ class EditorGroupIndexValue : EditorGroup {
       if (backgroundColor.isNotEmpty()) {
         try {
           bgColorInstance = when {
-            backgroundColor.startsWith("0x") || backgroundColor.startsWith("#") -> Color.decode(backgroundColor)
-            else                                                                -> getColorInstance(backgroundColor)
+            backgroundColor.startsWith(OX) || backgroundColor.startsWith("#") -> Color.decode(backgroundColor)
+            else                                                              -> getColorInstance(backgroundColor)
           }
         } catch (_: Exception) {
         }
@@ -63,8 +64,8 @@ class EditorGroupIndexValue : EditorGroup {
       if (foregroundColor.isNotEmpty()) {
         try {
           fgColorInstance = when {
-            foregroundColor.startsWith("0x") || foregroundColor.startsWith("#") -> Color.decode(foregroundColor)
-            else                                                                -> getColorInstance(foregroundColor)
+            foregroundColor.startsWith(OX) || foregroundColor.startsWith("#") -> Color.decode(foregroundColor)
+            else                                                              -> getColorInstance(foregroundColor)
           }
         } catch (_: Exception) {
         }
@@ -160,4 +161,9 @@ class EditorGroupIndexValue : EditorGroup {
 
   override fun toString(): String =
     "EditorGroupIndexValue{id='$id', ownerFile='$ownerPath', root='$root', title='$title', backgroundColor='$backgroundColor', foregroundColor='$foregroundColor', relatedPaths=$relatedPaths, valid=$valid}"
+
+  companion object {
+    @NonNls
+    const val OX = "0x"
+  }
 }

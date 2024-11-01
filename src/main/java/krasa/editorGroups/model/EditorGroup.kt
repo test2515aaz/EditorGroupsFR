@@ -3,9 +3,11 @@ package krasa.editorGroups.model
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.getFileByPath
 import krasa.editorGroups.support.toPresentableName
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
 
@@ -27,7 +29,7 @@ abstract class EditorGroup {
   val switchDescription: String?
     get() {
       if (this is AutoGroup) return null
-      if (this !is BookmarksGroup) return "Owner:$ownerPath"
+      if (this !is BookmarksGroup) return message("owner.0", ownerPath)
       return null
     }
 
@@ -162,6 +164,7 @@ abstract class EditorGroup {
    * @param project the project for which the title is switched
    * @return the switched title, or null if not found
    */
+  @NonNls
   open fun switchTitle(project: Project): String? {
     val resultOwnerPath = ownerPath
     // Take the last element of the path without the ext
@@ -175,7 +178,7 @@ abstract class EditorGroup {
    * @param project the project for which the tooltip is generated
    * @return the tooltip text for the tab group, or null if not found
    */
-  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(project, "Owner: $ownerPath", true)
+  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(project, message("owner.0", ownerPath), true)
 
   /**
    * Checks if this EditorGroup is selected.

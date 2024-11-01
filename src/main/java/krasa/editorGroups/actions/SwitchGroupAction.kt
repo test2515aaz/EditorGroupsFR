@@ -518,7 +518,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         return
       }
 
-      showWarning("No matching file found")
+      showWarning(message("no.matching.file.found"))
       thisLogger().debug("opening failed, no file and not even owner exist $editorGroup")
     }
   }

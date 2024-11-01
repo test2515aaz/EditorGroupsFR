@@ -4,6 +4,7 @@ import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.xmlb.annotations.Tag
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.annotations.NonNls
 import java.util.regex.Pattern
 
 /** Regex group model. */
@@ -48,6 +49,7 @@ class RegexGroupModel : BaseState() {
   @Transient
   private var notComparingGroupsIntArray: IntArray? = null
 
+  @NonNls
   fun serialize(): String = "v1|$myScope|$myNotComparingGroups|$myRegex"
 
   fun matches(name: String): Boolean {
@@ -106,6 +108,9 @@ class RegexGroupModel : BaseState() {
   }
 
   companion object {
+    const val V0 = "v0"
+    const val V1 = "v1"
+
     /**
      * Creates and returns a `RegexGroupModel` instance with specified parameters.
      *
@@ -140,7 +145,7 @@ class RegexGroupModel : BaseState() {
     fun deserialize(str: String): RegexGroupModel? {
       try {
         when {
-          str.startsWith("v0") -> {
+          str.startsWith(V0) -> {
             val scopeEnd = str.indexOf("|", 3)
             val scope = str.substring(3, scopeEnd)
             val regex = str.substring(scopeEnd + 1)
@@ -151,7 +156,7 @@ class RegexGroupModel : BaseState() {
             )
           }
 
-          str.startsWith("v1") -> {
+          str.startsWith(V1) -> {
             val scopeEnd = str.indexOf("|", 3)
             val scope = str.substring(3, scopeEnd)
 
@@ -167,7 +172,7 @@ class RegexGroupModel : BaseState() {
             )
           }
 
-          else                 -> throw RuntimeException("not supported")
+          else               -> throw RuntimeException("not supported")
         }
       } catch (e: Throwable) {
         thisLogger().warn("$e; source='$str'")

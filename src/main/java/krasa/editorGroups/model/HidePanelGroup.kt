@@ -2,13 +2,14 @@ package krasa.editorGroups.model
 
 import com.intellij.openapi.project.Project
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import javax.swing.Icon
 
 class HidePanelGroup : EditorGroup() {
   override val id: String
     get() = ID
 
-  override val title: String = "Hide panel"
+  override val title: String = message("hide.panel")
 
   override val isValid: Boolean = true
 

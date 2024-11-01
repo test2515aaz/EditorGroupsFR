@@ -9,6 +9,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupPanel
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.BookmarksGroup
 import krasa.editorGroups.support.Notifications
 import krasa.editorGroups.support.Notifications.showWarning
@@ -24,7 +25,7 @@ class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
     presentation.setVisible(bookmarksGroup != null)
 
     if (bookmarksGroup != null) {
-      presentation.setText("Remove from Bookmarks - ${bookmarksGroup.name}")
+      presentation.setText(message("action.remove.from.bookmarks.text", bookmarksGroup.name))
       presentation.setEnabled(isEnabled(e, bookmarksGroup))
     }
   }
@@ -70,11 +71,11 @@ class RemoveFromCurrentBookmarksAction : EditorGroupsAction() {
       if (!next) editorGroupPanel.goToPreviousTab(newTab = false, newWindow = false, split = Splitters.NONE)
     }
 
-    Notifications.notifySimple("Removed from '$groupTitle': $filesToRemoveSet")
+    Notifications.notifySimple(message("removed.from.0.1", groupTitle, filesToRemoveSet))
   }
 
   private fun notifyFail(name: String, selected: MutableSet<VirtualFile>) {
-    showWarning("Unable to remove from the current bookmark group. File:$selected', from '$name")
+    showWarning(message("unable.to.remove.from.the.current.bookmark.group.file.0.from.1", selected, name))
   }
 
   /**
