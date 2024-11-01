@@ -8,10 +8,10 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.fileEditor.FileEditor
-import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx
 import com.intellij.openapi.fileEditor.impl.EditorWindow
 import com.intellij.openapi.fileEditor.impl.EditorWindowHolder
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl
+import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl.OpenMode
 import com.intellij.openapi.fileEditor.impl.FileEditorOpenOptions
 import com.intellij.openapi.fileEditor.impl.text.TextEditorImpl
 import com.intellij.openapi.project.DumbService.Companion.isDumb
@@ -548,13 +548,14 @@ class EditorGroupManager(private val project: Project) {
     CommandProcessor.getInstance().executeCommand(
       project,
       {
-        val manager = FileEditorManager.getInstance(project) as FileEditorManagerImpl
+        val manager = FileEditorManagerEx.getInstanceEx(project)
         var curWindow = currentWindow ?: manager.currentWindow
         var selectedFile = currentFile ?: curWindow?.selectedFile
+        val selectedComposite = curWindow?.getSelectedComposite(ignorePopup = true)
 
         // If the file is already open, scroll to it (if line is provided)
         if (!splitters.isSplit && !newWindow && fileToOpen == selectedFile) {
-          val editors = curWindow!!.manager.getSelectedEditor(fileToOpen)
+          val editors = selectedComposite?.allEditors?.find { it.file == fileToOpen }
           val scroll = scroll(line, editors!!)
           if (scroll) {
             resultAtomicReference.set(OpenFileResult(isScrolledOnly = true))
