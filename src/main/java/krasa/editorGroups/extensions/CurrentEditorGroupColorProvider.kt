@@ -7,7 +7,7 @@ import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 
-class CurrentEditorGroupColorProvider : EditorTabColorProvider {
+internal class CurrentEditorGroupColorProvider : EditorTabColorProvider {
   override fun getEditorTabColor(
     project: Project,
     file: VirtualFile

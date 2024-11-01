@@ -9,10 +9,9 @@ import krasa.editorGroups.model.EditorGroup
 import krasa.editorGroups.model.EditorGroups
 import java.awt.Color
 
-class CustomEditorGroupsTabColorProvider : EditorTabColorProvider {
+internal class CustomEditorGroupsTabColorProvider : EditorTabColorProvider {
   override fun getEditorTabColor(project: Project, file: VirtualFile): Color? = getBgColor(file)
 
-  @Suppress("UnstableApiUsage")
   override fun getEditorTabForegroundColor(project: Project, file: VirtualFile): ColorKey? {
     val fgColor = getFgColor(file) ?: return null
 

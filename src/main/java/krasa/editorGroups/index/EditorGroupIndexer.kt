@@ -124,7 +124,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     try {
       myLastGroup = PanelRefresher.getInstance(inputData.project).onIndexingDone(ownerPath, myLastGroup)
     } catch (e: ProcessCanceledException) {
-      thisLogger().error(e)
+      throw e
     } catch (e: Exception) {
       thisLogger().error(e)
     }

@@ -191,10 +191,8 @@ class PanelRefresher(private val project: Project) : Disposable {
 
     try {
       initializeCache(fileBasedIndex, cache)
-    } catch (_: ProcessCanceledException) {
-      thisLogger().debug("initCache failed on ProcessCanceledException, will be executed again")
-      initCache()
-      return
+    } catch (e: ProcessCanceledException) {
+      throw e
     } catch (_: IndexNotReadyException) {
       thisLogger().debug("initCache failed on IndexNotReadyException, will be executed again")
       initCache()

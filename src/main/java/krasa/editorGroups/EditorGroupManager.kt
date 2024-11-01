@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.swing.SwingUtilities
 import kotlin.Throws
 
-@Suppress("detekt:ArgumentListWrapping")
 @Service(Service.Level.PROJECT)
 class EditorGroupManager(private val project: Project) {
   private var cache: IndexCache = IndexCache.getInstance(project)
@@ -141,7 +140,7 @@ class EditorGroupManager(private val project: Project) {
 
       // If the group is empty or is indexing, try other groups
       if (isEmptyAutoGroup(project, result) || isIndexingAutoGroup(project, result)) {
-        thisLogger().debug("refreshing result")
+        thisLogger().debug("refreshing result...")
 
         //_refresh
         when (result) {
@@ -297,7 +296,6 @@ class EditorGroupManager(private val project: Project) {
         e
       )
     } catch (e: Throwable) {
-      thisLogger().warn(e.toString())
       throw e
     }
 
@@ -515,7 +513,6 @@ class EditorGroupManager(private val project: Project) {
    * @param switchRequest The request for switching editor context.
    * @return Result of the file open operation, if any.
    */
-  @Suppress("UnstableApiUsage")
   private fun open(
     currentWindow: EditorWindow?,
     currentFile: VirtualFile?,

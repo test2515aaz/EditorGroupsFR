@@ -43,6 +43,7 @@ import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.update.lazyUiDisposable
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
 import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
@@ -83,7 +84,7 @@ private const val SCROLL_BAR_THICKNESS = 3
 private const val ADJUST_BORDERS = true
 private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 
-@Suppress("UnstableApiUsage", "SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
+@Suppress("UnstableApiUsage")
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
@@ -292,6 +293,7 @@ open class KrTabsImpl(
   private val scrollBarChangeListener: ChangeListener
   private var scrollBarOn = false
 
+  @Suppress("IncorrectParentDisposable")
   constructor(project: Project) : this(project, project)
 
   init {
@@ -2883,7 +2885,6 @@ open class KrTabsImpl(
   private class DefaultDecorator : KrUiDecorator {
     override fun getDecoration(): KrUiDecorator.UiDecoration {
       return KrUiDecorator.UiDecoration(
-        labelFont = null,
         labelInsets = JBUI.insets(5, 8),
         contentInsetsSupplier = java.util.function.Function { JBUI.insets(0, 4) },
         iconTextGap = JBUI.scale(4)
@@ -3114,7 +3115,7 @@ private fun updateToolbarIfVisibilityChanged(toolbar: ActionToolbar?, previousBo
 
   val bounds = toolbar.component.bounds
   if (bounds.isEmpty != previousBounds.isEmpty) {
-    toolbar.updateActionsImmediately()
+    toolbar.updateActionsAsync()
   }
 }
 
@@ -3321,7 +3322,7 @@ private class AccessibleTabPage(
     // do nothing
   }
 
-  override fun getAccessibleAt(p: Point): Accessible? = if (component is Accessible) component else null
+  override fun getAccessibleAt(p: Point): Accessible? = component as? Accessible
 
   override fun isFocusTraversable(): Boolean = false
 
@@ -3344,7 +3345,7 @@ private class AccessibleTabPage(
   // AccessibleAction methods
   override fun getAccessibleActionCount(): Int = 1
 
-  override fun getAccessibleActionDescription(i: Int): String? = if (i == 0) "Activate" else null
+  override fun getAccessibleActionDescription(i: Int): String? = if (i == 0) message("activate") else null
 
   override fun doAccessibleAction(i: Int): Boolean {
     if (i != 0) {

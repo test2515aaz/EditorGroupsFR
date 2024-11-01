@@ -15,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.PopupHandler
 import krasa.editorGroups.*
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.*
 import krasa.editorGroups.services.ExternalGroupProvider
 import krasa.editorGroups.services.RegexGroupProvider
@@ -159,13 +160,13 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.templatePresentation.text })
             .toList()
 
-          defaultActionGroup.add(Separator("Custom Groups"))
+          defaultActionGroup.add(Separator(message("separator.custom.groups")))
           defaultActionGroup.addAll(list)
         }
       }
 
       defaultActionGroup.run {
-        add(Separator("Settings"))
+        add(Separator(message("separator.settings")))
         add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
         add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
       }
@@ -191,7 +192,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     file: VirtualFile?
   ) {
     // add separator
-    defaultActionGroup.add(Separator("Bookmarks"))
+    defaultActionGroup.add(Separator(message("separator.bookmarks")))
     addDefaultBookmarksGroups(
       project = project,
       panel = panel,
@@ -333,7 +334,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val manager = EditorGroupManager.getInstance(project)
     val groups = manager.getGroups(file!!)
 
-    tempGroup.add(Separator("Groups for the Current File"))
+    tempGroup.add(Separator(message("separator.groups.for.current.file")))
 
     groups.forEach {
       tempGroup.add(
@@ -396,11 +397,11 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   ) {
     val manager = EditorGroupManager.getInstance(project)
     val currentGroupSet = currentGroups.toSet()
-    val indexingAction: AnAction = object : AnAction("Indexing...") {
+    val indexingAction: AnAction = object : AnAction(message("action.indexing.text")) {
       override fun actionPerformed(anActionEvent: AnActionEvent) = Unit
     }
 
-    group.add(Separator("Other Groups"))
+    group.add(Separator(message("separator.other.groups")))
 
     runCatching { manager.allIndexedGroups }
       .onSuccess { allGroups ->
@@ -445,7 +446,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
 
     if (regexGroups.isNotEmpty()) {
-      defaultActionGroup.add(Separator("Regexps"))
+      defaultActionGroup.add(Separator(message("separator.regexps")))
 
       regexGroups
         .asSequence()
@@ -539,9 +540,9 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   ): DumbAwareAction {
     val isSelected = displayedGroup.isSelected(targetGroup)
     val description = targetGroup.switchDescription
-    var title = targetGroup.switchTitle(project)
+    var title = targetGroup.switchTitle(project) // NON-NLS
 
-    if (isSelected) title += " - Current"
+    if (isSelected) title += message("action.current.suffix")
 
     val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
@@ -565,9 +566,9 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   ): DumbAwareAction {
     val isSelected = displayedGroup.isSelected(targetGroup)
     val description = targetGroup.switchDescription
-    var title = targetGroup.switchTitle(project)
+    var title = targetGroup.switchTitle(project) // NON-NLS
 
-    if (isSelected) title += " - Current"
+    if (isSelected) title += message("action.current.suffix")
 
     return object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
@@ -579,7 +580,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
         if (targetGroup.size(project) == 0) {
           e.presentation.isEnabled = false
-          e.presentation.setText("${targetGroup.title} - empty")
+          e.presentation.setText("${targetGroup.title} ${message("action.empty.text")}")
         }
 
         if (isDefault) {
