@@ -1,0 +1,16 @@
+package krasa.editorGroups.language.annotator
+
+import com.intellij.lang.annotation.AnnotationHolder
+import kotlin.collections.mutableListOf
+
+class SourceAnnotationResult() {
+  private val annotations: MutableList<SyntaxHighlightAnnotation> = mutableListOf<SyntaxHighlightAnnotation>()
+
+  fun addAll(sourceAnnotations: MutableList<SyntaxHighlightAnnotation>) {
+    annotations.addAll(sourceAnnotations)
+  }
+
+  fun annotate(holder: AnnotationHolder) {
+    annotations.forEach { annotation -> annotation.annotate(holder, 0) }
+  }
+}

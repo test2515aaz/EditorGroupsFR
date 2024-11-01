@@ -304,7 +304,7 @@ fun getFileByPath(path: String, currentFile: VirtualFile?): VirtualFile? {
           }
         }
 
-        path.startsWith("file://")          -> file = VirtualFileManager.getInstance().findFileByUrl(path)
+        path.startsWith("file://")          -> file = VirtualFileManager.getInstance().findFileByUrl(path) // NON-NLS
 
         else                                -> file = LocalFileSystem.getInstance().findFileByPath(path)
       }

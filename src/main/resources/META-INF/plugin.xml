@@ -95,7 +95,7 @@
                                 implementationClass="krasa.editorGroups.language.MyFilePathCompletionContributor"
                                 id="EditorGroups_filePath"/>
         <completion.contributor language="EditorGroups"
-                                implementationClass="krasa.editorGroups.language.MyCompletionContributor"
+                                implementationClass="krasa.editorGroups.language.EditorGroupsCompletionContributor"
                                 id="EditorGroups_MyCompletionContributor"/>
 
         <!-- Theme -->

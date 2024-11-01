@@ -7,7 +7,7 @@ import krasa.editorGroups.messages.EditorGroupsBundle
 import java.nio.charset.StandardCharsets
 import javax.swing.Icon
 
-object EditorGroupsFileType : LanguageFileType(EditorGroupsLanguage) {
+internal object EditorGroupsFileType : LanguageFileType(EditorGroupsLanguage) {
   override fun getName(): String = "EditorGroups"
 
   override fun getDescription(): String = EditorGroupsBundle.message("label.editorGroups.config.file")
