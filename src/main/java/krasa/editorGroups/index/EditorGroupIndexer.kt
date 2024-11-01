@@ -12,13 +12,16 @@ import krasa.editorGroups.services.PanelRefresher
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.indexingWarn
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.annotations.NonNls
 import java.io.File
 
 class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileContent> {
   /** The main pattern in the files. */
+  @NonNls
   private val mainPattern = MyIndexPattern("@(idea|group)\\.\\w+.*")
 
   /** Index patterns. */
+  @NonNls
   private val indexPatterns: Array<Pair<MyIndexPattern, Consumer>> = arrayOf(
     Pair(MyIndexPattern("^@(idea|group)\\.root\\s(.*)"), RootConsumer()),
     Pair(MyIndexPattern("^@(idea|group)\\.title\\s(.*)"), TitleConsumer()),
@@ -124,7 +127,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     try {
       myLastGroup = PanelRefresher.getInstance(inputData.project).onIndexingDone(ownerPath, myLastGroup)
     } catch (e: ProcessCanceledException) {
-      thisLogger().error(e)
+      throw e
     } catch (e: Exception) {
       thisLogger().error(e)
     }

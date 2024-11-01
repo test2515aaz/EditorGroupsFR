@@ -10,7 +10,6 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.diagnostic.debug
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.DumbAwareAction
@@ -43,6 +42,7 @@ import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.update.lazyUiDisposable
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
 import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
@@ -83,7 +83,7 @@ private const val SCROLL_BAR_THICKNESS = 3
 private const val ADJUST_BORDERS = true
 private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 
-@Suppress("UnstableApiUsage", "SYNTHETIC_PROPERTY_WITHOUT_JAVA_ORIGIN")
+@Suppress("UnstableApiUsage")
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
@@ -292,6 +292,7 @@ open class KrTabsImpl(
   private val scrollBarChangeListener: ChangeListener
   private var scrollBarOn = false
 
+  @Suppress("IncorrectParentDisposable")
   constructor(project: Project) : this(project, project)
 
   init {
@@ -526,7 +527,6 @@ open class KrTabsImpl(
 
   protected open fun createSingleRowLayout(): KrSingleRowLayout = KrScrollableSingleRowLayout(this)
 
-  @Deprecated("override {@link JBTabsImpl#createMultiRowLayout()} instead", ReplaceWith("createMultiRowLayout()"))
   protected open fun createTableLayout(): KrMultiRowLayout = createMultiRowLayout()
 
   override fun setNavigationActionBinding(prevActionId: String, nextActionId: String) {
@@ -886,7 +886,6 @@ open class KrTabsImpl(
               val arc = JBUI.scale(4)
               val theme: KrTabTheme = tabPainter.getTabTheme()
 
-              @Suppress("NAME_SHADOWING")
               val rect = Rectangle(x, y + inset, theme.underlineHeight, height - inset * 2)
               (g as Graphics2D).fill2DRoundRect(rect, arc.toDouble(), theme.underlineColor)
             }
@@ -1145,24 +1144,18 @@ open class KrTabsImpl(
   private val toFocus: JComponent?
     get() {
       val info = selectedInfo
-      LOG.debug { "selected info: $info" }
       if (info == null) return null
       var toFocus: JComponent? = null
       if (isRequestFocusOnLastFocusedComponent && info.lastFocusOwner != null && !isMyChildIsFocusedNow) {
         toFocus = info.lastFocusOwner
-        LOG.debug { "last focus owner: $toFocus" }
       }
       if (toFocus == null) {
         toFocus = info.preferredFocusableComponent
-        if (LOG.isDebugEnabled) {
-          LOG.debug("preferred focusable component: $toFocus")
-        }
         if (toFocus == null || !toFocus.isShowing) {
           return null
         }
 
         val policyToFocus = focusManager.getFocusTargetFor(toFocus)
-        LOG.debug { "focus target: $policyToFocus" }
         if (policyToFocus != null) {
           toFocus = policyToFocus
         }
@@ -2249,7 +2242,6 @@ open class KrTabsImpl(
     val toolbar = infoToToolbar[info]
     val component = info.component
     val ancestorChecker = Predicate<Component?> { focusOwner ->
-      @Suppress("NAME_SHADOWING")
       var focusOwner = focusOwner
       while (focusOwner != null) {
         if (focusOwner === label || focusOwner === toolbar || focusOwner === component) {
@@ -2758,7 +2750,7 @@ open class KrTabsImpl(
   override fun setSideComponentVertical(vertical: Boolean): KrTabsPresentation {
     horizontalSide = !vertical
     for (each in visibleInfos) {
-      each.changeSupport.firePropertyChange(KrTabInfo.ACTION_GROUP, "new1", "new2")
+      each.changeSupport.firePropertyChange(KrTabInfo.ACTION_GROUP, "new1", "new2") // NON-NLS
     }
     relayout(true, false)
     return this
@@ -2883,7 +2875,6 @@ open class KrTabsImpl(
   private class DefaultDecorator : KrUiDecorator {
     override fun getDecoration(): KrUiDecorator.UiDecoration {
       return KrUiDecorator.UiDecoration(
-        labelFont = null,
         labelInsets = JBUI.insets(5, 8),
         contentInsetsSupplier = java.util.function.Function { JBUI.insets(0, 4) },
         iconTextGap = JBUI.scale(4)
@@ -3114,7 +3105,7 @@ private fun updateToolbarIfVisibilityChanged(toolbar: ActionToolbar?, previousBo
 
   val bounds = toolbar.component.bounds
   if (bounds.isEmpty != previousBounds.isEmpty) {
-    toolbar.updateActionsImmediately()
+    toolbar.updateActionsAsync()
   }
 }
 
@@ -3321,7 +3312,7 @@ private class AccessibleTabPage(
     // do nothing
   }
 
-  override fun getAccessibleAt(p: Point): Accessible? = if (component is Accessible) component else null
+  override fun getAccessibleAt(p: Point): Accessible? = component as? Accessible
 
   override fun isFocusTraversable(): Boolean = false
 
@@ -3344,7 +3335,7 @@ private class AccessibleTabPage(
   // AccessibleAction methods
   override fun getAccessibleActionCount(): Int = 1
 
-  override fun getAccessibleActionDescription(i: Int): String? = if (i == 0) "Activate" else null
+  override fun getAccessibleActionDescription(i: Int): String? = if (i == 0) message("activate") else null
 
   override fun doAccessibleAction(i: Int): Boolean {
     if (i != 0) {

@@ -5,11 +5,11 @@ import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.Rectangle
 
-
-class KrMultiRowPassInfo(val tabs: KrTabsImpl,
-                         visibleInfos: List<KrTabInfo>,
-                         val toFitRec: Rectangle,
-                         val scrollOffset: Int
+class KrMultiRowPassInfo(
+  val tabs: KrTabsImpl,
+  visibleInfos: List<KrTabInfo>,
+  val toFitRec: Rectangle,
+  val scrollOffset: Int
 ) : KrLayoutPassInfo(visibleInfos) {
   val rows: MutableList<KrTabsRow> = mutableListOf()
   val lengths: MutableMap<KrTabInfo, Int> = HashMap()

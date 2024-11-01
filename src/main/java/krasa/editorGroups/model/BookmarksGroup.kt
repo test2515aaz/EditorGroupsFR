@@ -7,17 +7,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.scope.packageSet.NamedScope
 import com.intellij.ui.FileColorManager
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
 
 class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : EditorGroup() {
   private val links: MutableList<Link> = mutableListOf()
+
+  @NonNls
   override val id: String = "$ID_PREFIX:${bookmarkGroup?.name}"
-  override val title: String = "Bookmarks"
+
+  override val title: String = message("bookmarks")
+
   override val isValid: Boolean = true
 
   val name: String
-    get() = bookmarkGroup?.name ?: "unnamed"
+    get() = bookmarkGroup?.name ?: message("unnamed")
 
   override val bgColor: Color?
     get() {
@@ -145,6 +151,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
     EditorGroupsIcons.bookmarks,
     null
   ) {
+    @NonNls
     override fun getDefaultColorName(): String = "Green"
 
     override fun getPresentableName(): String = BOOKMARKS_GROUP_SCOPE_NAME

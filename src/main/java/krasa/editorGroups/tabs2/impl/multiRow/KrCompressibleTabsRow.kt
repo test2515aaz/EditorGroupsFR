@@ -10,16 +10,16 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.round
 
-
-class KrCompressibleTabsRow(infos: List<KrTabInfo>,
-                            withTitle: Boolean,
-                            withEntryPointToolbar: Boolean
+class KrCompressibleTabsRow(
+  infos: List<KrTabInfo>,
+  withTitle: Boolean,
+  withEntryPointToolbar: Boolean
 ) : KrTabsRow(infos, withTitle, withEntryPointToolbar) {
   override fun layoutTabs(data: KrMultiRowPassInfo, x: Int, y: Int, maxLength: Int) {
     val tabs = data.tabs
     val decoration = tabs.uiDecorator!!.getDecoration()
     val prefLengths = infos.map {
-      val label = tabs.infoToLabel.get(it)!!
+      val label = tabs.infoToLabel[it]!!
       label.apply(decoration)
       label.preferredSize.width
     }
@@ -32,7 +32,7 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
 
     var curX = x
     for ((index, info) in infos.withIndex()) {
-      val label = tabs.infoToLabel.get(info)!!
+      val label = tabs.infoToLabel[info]!!
       val len = result.lengths[index]
       label.isForcePaintBorders = result.forcePaintBorders
       tabs.layout(label, curX, y, len, data.rowHeight)
@@ -40,10 +40,12 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
     }
   }
 
-  private fun calculateCompressibleLengths(data: KrMultiRowPassInfo,
-                                           prefLengths: List<Int>,
-                                           requiredLen: Int,
-                                           maxLen: Int): CompressionResult {
+  private fun calculateCompressibleLengths(
+    data: KrMultiRowPassInfo,
+    prefLengths: List<Int>,
+    requiredLen: Int,
+    maxLen: Int
+  ): CompressionResult {
     val decreasedLengths = decreaseInsets(data, prefLengths, requiredLen, maxLen)
     return if (decreasedLengths.sum() > maxLen) {
       val resultLengths = decreaseMaxLengths(decreasedLengths, maxLen)
@@ -67,7 +69,7 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
         curExtraLen++
         remainingExtraLen--
       }
-      val label = tabs.infoToLabel.get(info)!!
+      val label = tabs.infoToLabel[info]!!
       val actionsPosition = label.actionsPosition
       val cached = cachedDecorations.find { it.extraLen == curExtraLen && it.actionsPosition == actionsPosition }
       if (cached != null) {
@@ -94,31 +96,39 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
     val middleDecreasableLen = tabInsets.sum() - middleTabInsets.sum()
     val decreasableLen = tabInsets.sum() - minTabInsets.sum()
     return if (lenToDecrease <= middleDecreasableLen) {
-      val insets = decreaseProportionally(lenToDecrease, middleDecreasableLen,
+      val insets = decreaseProportionally(
+        lenToDecrease, middleDecreasableLen,
         tabInsets.actionsInset to middleTabInsets.actionsInset,
-        tabInsets.cornerToActions to middleTabInsets.cornerToActions)
-      TabInsets(actionsPosition = tabInsets.actionsPosition,
+        tabInsets.cornerToActions to middleTabInsets.cornerToActions
+      )
+      TabInsets(
+        actionsPosition = tabInsets.actionsPosition,
         cornerToText = tabInsets.cornerToText,
         iconInset = tabInsets.iconInset,
         actionsInset = insets[0],
-        cornerToActions = insets[1])
+        cornerToActions = insets[1]
+      )
     } else if (lenToDecrease <= decreasableLen) {
-      val insets = decreaseProportionally(lenToDecrease - middleDecreasableLen, decreasableLen - middleDecreasableLen,
+      val insets = decreaseProportionally(
+        lenToDecrease - middleDecreasableLen, decreasableLen - middleDecreasableLen,
         tabInsets.cornerToText to minTabInsets.cornerToText,
         middleTabInsets.cornerToActions to minTabInsets.cornerToActions,
         tabInsets.iconInset to minTabInsets.iconInset,
-        middleTabInsets.actionsInset to minTabInsets.actionsInset)
-      TabInsets(actionsPosition = tabInsets.actionsPosition,
+        middleTabInsets.actionsInset to minTabInsets.actionsInset
+      )
+      TabInsets(
+        actionsPosition = tabInsets.actionsPosition,
         cornerToText = insets[0],
         cornerToActions = insets[1],
         iconInset = insets[2],
-        actionsInset = insets[3])
+        actionsInset = insets[3]
+      )
     } else minTabInsets
   }
 
   /**
-   * Decrease the sum of the provided [lengths] to the [maxLength].
-   * Lengths are decreased starting from the maximum values, so the smallest lengths will be changed last.
+   * Decrease the sum of the provided [lengths] to the [maxLength]. Lengths are decreased starting from the maximum
+   * values, so the smallest lengths will be changed last.
    */
   private fun decreaseMaxLengths(lengths: List<Int>, maxLength: Int): List<Int> {
     val sorted = lengths.withIndex().sortedBy { it.value }
@@ -175,72 +185,87 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
   }
 
   private fun createTabInsets(tabs: KrTabsImpl, info: KrTabInfo): TabInsets {
-    val decoration = KrTabLabel.mergeUiDecorations(tabs.uiDecorator!!.getDecoration(),
-      KrTabsImpl.defaultDecorator.getDecoration())
-    val actionsPosition = tabs.infoToLabel.get(info)!!.actionsPosition
+    val decoration = KrTabLabel.mergeUiDecorations(
+      tabs.uiDecorator!!.getDecoration(),
+      KrTabsImpl.defaultDecorator.getDecoration()
+    )
+    val actionsPosition = tabs.infoToLabel[info]!!.actionsPosition
     val contentInsets = decoration.contentInsetsSupplier.apply(actionsPosition)
     val cornerToText = if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) {
       decoration.labelInsets.left + contentInsets.left
     } else decoration.labelInsets.right + contentInsets.right
     val cornerToActions = when (actionsPosition) {
       KrTabLabel.ActionsPosition.RIGHT -> decoration.labelInsets.right
-      KrTabLabel.ActionsPosition.LEFT -> decoration.labelInsets.left
-      KrTabLabel.ActionsPosition.NONE -> decoration.labelInsets.left + contentInsets.left
+      KrTabLabel.ActionsPosition.LEFT  -> decoration.labelInsets.left
+      KrTabLabel.ActionsPosition.NONE  -> decoration.labelInsets.left + contentInsets.left
     }
     val actionsInset = when (actionsPosition) {
       KrTabLabel.ActionsPosition.RIGHT -> contentInsets.right
-      KrTabLabel.ActionsPosition.LEFT -> contentInsets.left
-      KrTabLabel.ActionsPosition.NONE -> 0
+      KrTabLabel.ActionsPosition.LEFT  -> contentInsets.left
+      KrTabLabel.ActionsPosition.NONE  -> 0
     }
     return TabInsets(
       actionsPosition = actionsPosition,
       cornerToText = cornerToText,
       cornerToActions = cornerToActions,
       iconInset = decoration.iconTextGap,
-      actionsInset = actionsInset)
+      actionsInset = actionsInset
+    )
   }
 
   @Suppress("UseDPIAwareInsets")
   private fun createUiDecoration(tabs: KrTabsImpl, info: KrTabInfo, insets: TabInsets): KrUiDecorator.UiDecoration {
-    val actionsPosition = tabs.infoToLabel.get(info)!!.actionsPosition
-    val cornerToActions = insets.cornerToActions + if (actionsPosition == KrTabLabel.ActionsPosition.NONE && insets.actionsInset > 0) insets.actionsInset else 0
-    val contentInsets = Insets(0, if (actionsPosition == KrTabLabel.ActionsPosition.LEFT) insets.actionsInset else 0,
-      0, if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) insets.actionsInset else 0)
+    val actionsPosition = tabs.infoToLabel[info]!!.actionsPosition
+    val cornerToActions =
+      insets.cornerToActions + if (actionsPosition == KrTabLabel.ActionsPosition.NONE && insets.actionsInset > 0) insets.actionsInset else 0
+    val contentInsets = Insets(
+      0, if (actionsPosition == KrTabLabel.ActionsPosition.LEFT) insets.actionsInset else 0,
+      0, if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) insets.actionsInset else 0
+    )
     val originalDec = KrTabLabel.mergeUiDecorations(tabs.uiDecorator!!.getDecoration(), KrTabsImpl.defaultDecorator.getDecoration())
-    val labelInsets = Insets(originalDec.labelInsets.top,
+    val labelInsets = Insets(
+      originalDec.labelInsets.top,
       if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) insets.cornerToText else cornerToActions,
       originalDec.labelInsets.bottom,
-      if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) cornerToActions else insets.cornerToText)
+      if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) cornerToActions else insets.cornerToText
+    )
     return KrUiDecorator.UiDecoration(
-      labelFont = null,
       labelInsets = labelInsets,
       contentInsetsSupplier = { contentInsets },
       iconTextGap = insets.iconInset
     )
   }
 
-  private class CachedDecoration(val decoration: KrUiDecorator.UiDecoration,
-                                 val extraLen: Int,
-                                 val decreasedLen: Int,
-                                 val actionsPosition: KrTabLabel.ActionsPosition)
+  private class CachedDecoration(
+    val decoration: KrUiDecorator.UiDecoration,
+    val extraLen: Int,
+    val decreasedLen: Int,
+    val actionsPosition: KrTabLabel.ActionsPosition
+  )
 
   private class CompressionResult(val lengths: List<Int>, val forcePaintBorders: Boolean)
 
-  private data class TabInsets(val actionsPosition: KrTabLabel.ActionsPosition,
-                               val cornerToText: Int,
-                               val iconInset: Int,
-                               val actionsInset: Int,
-                               val cornerToActions: Int) {
+  private data class TabInsets(
+    val actionsPosition: KrTabLabel.ActionsPosition,
+    val cornerToText: Int,
+    val iconInset: Int,
+    val actionsInset: Int,
+    val cornerToActions: Int
+  ) {
     fun sum(): Int = cornerToText + iconInset + actionsInset + cornerToActions
   }
 
   private fun getMinTabInsets(curInsets: TabInsets): TabInsets {
     return TabInsets(
       actionsPosition = curInsets.actionsPosition,
-      cornerToText = max(roundToInt(curInsets.cornerToText * CORNER_TO_TEXT_INSET_RATIO),
-        JBUI.scale(CORNER_TO_TEXT_INSET_MIN)),
-      cornerToActions = max(roundToInt(curInsets.cornerToActions * CORNER_TO_ACTIONS_INSET_RATIO),
-        JBUI.scale(CORNER_TO_ACTIONS_INSET_MIN)),
+      cornerToText = max(
+        roundToInt(curInsets.cornerToText * CORNER_TO_TEXT_INSET_RATIO),
+        JBUI.scale(CORNER_TO_TEXT_INSET_MIN)
+      ),
+      cornerToActions = max(
+        roundToInt(curInsets.cornerToActions * CORNER_TO_ACTIONS_INSET_RATIO),
+        JBUI.scale(CORNER_TO_ACTIONS_INSET_MIN)
+      ),
       iconInset = roundToInt(curInsets.iconInset * ICON_INSET_RATIO),
       actionsInset = roundToInt(curInsets.actionsInset * ACTIONS_INSET_RATIO)
     )
@@ -250,8 +275,10 @@ class KrCompressibleTabsRow(infos: List<KrTabInfo>,
     return TabInsets(
       actionsPosition = curInsets.actionsPosition,
       cornerToText = curInsets.cornerToText,
-      cornerToActions = max(roundToInt(curInsets.cornerToActions * CORNER_TO_ACTIONS_MID_INSET_RATIO),
-        JBUI.scale(CORNER_TO_ACTIONS_INSET_MIN)),
+      cornerToActions = max(
+        roundToInt(curInsets.cornerToActions * CORNER_TO_ACTIONS_MID_INSET_RATIO),
+        JBUI.scale(CORNER_TO_ACTIONS_INSET_MIN)
+      ),
       iconInset = curInsets.iconInset,
       actionsInset = roundToInt(curInsets.actionsInset * ACTIONS_INSET_RATIO)
     )

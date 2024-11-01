@@ -1,7 +1,7 @@
 package krasa.editorGroups.model
 
 import com.intellij.ide.ui.UISettings
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.support.LinkComparator
@@ -42,7 +42,7 @@ abstract class Link(private val project: Project) {
       val virtualFile: VirtualFile? = this.virtualFile
 
       if (virtualFile == null) {
-        LOG.warn("VirtualFile is null for $path")
+        thisLogger().warn("VirtualFile is null for $path")
         return path
       }
 
@@ -81,8 +81,6 @@ abstract class Link(private val project: Project) {
   }
 
   companion object {
-    private val LOG = Logger.getInstance(Link::class.java)
-
     @JvmStatic
     fun from(links: Collection<String?>, project: Project?): List<Link> =
       links.map { PathLink(it!!, project) }.sortedWith(LinkComparator.INSTANCE)

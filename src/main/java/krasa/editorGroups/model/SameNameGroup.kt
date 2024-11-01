@@ -4,6 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.scope.packageSet.NamedScope
 import com.intellij.ui.FileColorManager
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
 
@@ -24,7 +26,7 @@ class SameNameGroup(
 
   override fun icon(): Icon = EditorGroupsIcons.copy
 
-  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = "By same file name"
+  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = message("by.same.file.name")
 
   override fun getTabTitle(
     project: Project,
@@ -48,6 +50,7 @@ class SameNameGroup(
     EditorGroupsIcons.groupBy,
     null
   ) {
+    @NonNls
     override fun getDefaultColorName(): String = "Blue"
 
     override fun getPresentableName(): String = SAME_NAME_GROUP_SCOPE_NAME

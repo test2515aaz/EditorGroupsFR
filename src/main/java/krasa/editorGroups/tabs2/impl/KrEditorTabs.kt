@@ -15,7 +15,6 @@ open class KrEditorTabs : KrTabsImpl, KrTabs {
 
   override val isEditorTabs: Boolean = true
 
-  @Suppress("UNUSED_PARAMETER")
   constructor(project: Project?, focusManager: IdeFocusManager?, parentDisposable: Disposable) : super(
     project,
     parentDisposable
@@ -23,7 +22,6 @@ open class KrEditorTabs : KrTabsImpl, KrTabs {
 
   constructor(project: Project?, parentDisposable: Disposable) : super(project, parentDisposable)
 
-  @Deprecated("Use {@link #JBEditorTabs(Project, Disposable)}", level = DeprecationLevel.ERROR)
   constructor(
     project: Project?,
     actionManager: ActionManager,

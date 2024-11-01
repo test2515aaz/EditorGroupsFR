@@ -6,15 +6,16 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.indexing.FileBasedIndex
 import krasa.editorGroups.index.EditorGroupIndex
 import krasa.editorGroups.index.IndexCache
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.support.Notifications
 
 class ReindexAction : AnAction() {
   override fun actionPerformed(e: AnActionEvent) {
-    thisLogger().debug("INDEXING START " + System.currentTimeMillis())
+    thisLogger().debug("INDEXING START ${System.currentTimeMillis()}")
     IndexCache.getInstance(e.project!!).clear()
     FileBasedIndex.getInstance().requestRebuild(EditorGroupIndex.NAME)
 
-    Notifications.notifySimple("Reindexing started")
+    Notifications.notifySimple(message("reindexing.started"))
   }
 
   companion object {

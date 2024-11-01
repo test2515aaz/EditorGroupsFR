@@ -2,9 +2,10 @@ package krasa.editorGroups.tabs2.impl.multiRow
 
 import krasa.editorGroups.tabs2.KrTabInfo
 
-class KrSimpleTabsRow(infos: List<KrTabInfo>,
-                      withTitle: Boolean,
-                      withEntryPointToolbar: Boolean
+class KrSimpleTabsRow(
+  infos: List<KrTabInfo>,
+  withTitle: Boolean,
+  withEntryPointToolbar: Boolean
 ) : KrTabsRow(infos, withTitle, withEntryPointToolbar) {
   override fun layoutTabs(data: KrMultiRowPassInfo, x: Int, y: Int, maxLength: Int) {
     val tabs = data.tabs

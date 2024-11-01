@@ -282,8 +282,8 @@ class EditorGroupPanel(
 
         val delta = System.currentTimeMillis() - start
         thisLogger().debug("#getGroup:stub - on editor opening took $delta ms for $file, group=$editorGroup")
-      } catch (indexNotReady: ProcessCanceledException) {
-        thisLogger().warn("Getting stub group failed: $indexNotReady")
+      } catch (e: ProcessCanceledException) {
+        throw e
       } catch (indexNotReady: IndexNotReady) {
         thisLogger().warn("Getting stub group failed:$indexNotReady")
       }
@@ -888,7 +888,6 @@ class EditorGroupPanel(
               stub = !EditorGroupsSettings.instance.isShowPanel
             )
           } catch (e: ProcessCanceledException) {
-            thisLogger().debug("initRefreshRequest - ProcessCanceledException $e", e)
             throw e
           } catch (e: IndexNotReady) {
             thisLogger().debug("initRefreshRequest - IndexNotReady $e", e)
@@ -1094,7 +1093,7 @@ class EditorGroupPanel(
       // Adds the link if needed
       link.line?.let { name += ":${it + 1}" }
 
-      setText(name)
+      setText(name) // NON-NLS
       setTooltipText(link.path)
       // Placeholder icon
       setIcon(AllIcons.FileTypes.Any_type)
@@ -1102,11 +1101,11 @@ class EditorGroupPanel(
       // Disable the tab if the file does not exist
       if (!link.exists()) setEnabled(false)
 
-      // Custom Names (for bookmarks, regexs, etc)
+      // Custom Names (for bookmarks, regexps, etc)
       val customName = link.customName ?: ""
       if (!customName.isBlank()) {
         setText(customName)
-        setTooltipText("$name - ${link.path}")
+        setTooltipText("$name - ${link.path}") // NON-NLS
       }
 
       // Fetch the actual icon off the UI thread
@@ -1130,10 +1129,10 @@ class EditorGroupPanel(
    */
   internal inner class CustomGroupTabInfo(var editorGroup: EditorGroup) : KrTabInfo(JLabel("")) {
     init {
-      val title = editorGroup.tabTitle(this@EditorGroupPanel.project)
+      val title = editorGroup.tabTitle(this@EditorGroupPanel.project) // NON-NLS
       setText("[$title]")
 
-      setToolTipText(editorGroup.getTabGroupTooltipText(this@EditorGroupPanel.project))
+      setToolTipText(editorGroup.getTabGroupTooltipText(this@EditorGroupPanel.project)) // NON-NLS
       setIcon(editorGroup.icon())
     }
   }

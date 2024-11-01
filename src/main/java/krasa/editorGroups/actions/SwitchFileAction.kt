@@ -16,6 +16,7 @@ import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.BitUtil
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.support.Notifications.showWarning
 import krasa.editorGroups.support.Splitters
@@ -101,7 +102,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
     val dataContext = DataManager.getInstance().getDataContext(popup.owner)
     val project = dataContext.getData<Project?>(CommonDataKeys.PROJECT)
 
-    checkNotNull(project) { "Project is null for ${popup.owner}" }
+    checkNotNull(project) { message("project.is.null.for.0", popup.owner) }
     return dataContext
   }
 
@@ -120,7 +121,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
       val currentFile = panel.file.path
       val group = panel.getDisplayedGroupOrEmpty()
 
-      val links: MutableList<Link> = group.getLinks(project) as MutableList<Link>
+      val links: List<Link> = group.getLinks(project)
       val uniqueTabNameBuilder = UniqueTabNameBuilder(project)
       val namesByPath = uniqueTabNameBuilder.getNamesByPath(
         paths = links,
@@ -156,7 +157,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
     val templatePresentation = action.getTemplatePresentation().clone()
     if (link.path == currentFile) {
       templatePresentation.setEnabled(false)
-      templatePresentation.setText("$text - current", false)
+      templatePresentation.setText(message("action.current.text", text.toString()), false)
       templatePresentation.setIcon(null)
     }
     return action
@@ -176,7 +177,7 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
 
     override fun actionPerformed(e: AnActionEvent) {
       if (virtualFile == null) {
-        showWarning("File not found $link")
+        showWarning(message("file.not.found.0", link))
         return
       }
 

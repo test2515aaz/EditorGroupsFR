@@ -18,8 +18,6 @@ data class SwitchRequest(
   val width: Int = 0,
   val line: Int? = null,
 ) {
-  constructor(group: EditorGroup, fileToOpen: VirtualFile) : this(group, fileToOpen, 0, 0, null)
-
   override fun toString(): String =
     "SwitchRequest{group=$group, fileToOpen=$fileToOpen, myScrollOffset=$myScrollOffset, width=$width, line=$line}"
 }

@@ -66,7 +66,7 @@ abstract class KrMultiRowLayout(
   }
 
   private fun layoutTabComponent(data: KrMultiRowPassInfo, info: KrTabInfo) {
-    val toolbar = tabs.infoToToolbar.get(info)
+    val toolbar = tabs.infoToToolbar[info]
 
     val componentY = when (tabs.position) {
       KrTabsPosition.top    -> data.rowCount * data.rowHeight
@@ -152,8 +152,8 @@ abstract class KrMultiRowLayout(
       for (i in 0 until data.myVisibleInfos.size - 1) {
         val firstInfo = data.myVisibleInfos[i]
         val secondInfo = data.myVisibleInfos[i + 1]
-        val first = tabs.infoToLabel.get(firstInfo)!!
-        val second = tabs.infoToLabel.get(secondInfo)!!
+        val first = tabs.infoToLabel[firstInfo]!!
+        val second = tabs.infoToLabel[secondInfo]!!
         val firstBounds = first.bounds
         val secondBounds = second.bounds
         val between = firstBounds.maxX < point.x

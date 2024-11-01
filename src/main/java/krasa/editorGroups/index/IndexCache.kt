@@ -134,7 +134,8 @@ class IndexCache(private val project: Project) {
           group.invalidate()
           return
         }
-      } catch (_: ProcessCanceledException) {
+      } catch (e: ProcessCanceledException) {
+        throw e
       } catch (_: IndexNotReadyException) {
       }
     }

@@ -12,7 +12,7 @@ import java.io.DataOutput
 import java.io.IOException
 import kotlin.Throws
 
-class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>() {
+internal class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupIndexValue>() {
 
   private val myValueExternalizer: DataExternalizer<EditorGroupIndexValue> = object : DataExternalizer<EditorGroupIndexValue> {
     @Throws(IOException::class)
