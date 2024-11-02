@@ -61,11 +61,12 @@ abstract class EditorGroup {
     var nameForUI = presentableNameForUI
     val isEmptyTitle = StringUtil.isEmpty(title)
     val size = size(project)
+    val doShowSize = EditorGroupsSettings.instance.isShowSize && showSize
 
     return when {
-      showSize      -> when {
-        !isEmptyTitle -> "[${this.title}:$size] $nameForUI"
-        else          -> "[$size] $nameForUI"
+      doShowSize    -> when {
+        !isEmptyTitle -> "[${this.title}] $nameForUI ($size)"
+        else          -> "$nameForUI ($size)"
       }
 
       !isEmptyTitle -> "[$title] $nameForUI"
@@ -73,17 +74,12 @@ abstract class EditorGroup {
     }
   }
 
-  open fun getTabTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String {
+  /** Returns the text to display on the tabs (for the EditorTabTitleProvider) */
+  open fun getTabTitle(project: Project, presentableNameForUI: String): String {
     var nameForUI = presentableNameForUI
     val isEmptyTitle = StringUtil.isEmpty(title)
-    val size = size(project)
 
     return when {
-      showSize      -> when {
-        !isEmptyTitle -> "[${title}:$size] $nameForUI"
-        else          -> "[$size] $nameForUI"
-      }
-
       !isEmptyTitle -> "[$title] $nameForUI"
       else          -> nameForUI
     }
@@ -151,10 +147,6 @@ abstract class EditorGroup {
       result = toPresentableName(ownerPath)
     }
 
-    if (EditorGroupsSettings.instance.isShowSize) {
-      result += ":${size(project)}"
-    }
-
     return result
   }
 
@@ -169,7 +161,7 @@ abstract class EditorGroup {
     val resultOwnerPath = ownerPath
     // Take the last element of the path without the ext
     val name = toPresentableName(resultOwnerPath)
-    return getPresentableTitle(project, name, false)
+    return getPresentableTitle(project = project, presentableNameForUI = name, showSize = true)
   }
 
   /**
@@ -178,7 +170,7 @@ abstract class EditorGroup {
    * @param project the project for which the tooltip is generated
    * @return the tooltip text for the tab group, or null if not found
    */
-  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(project, message("owner.0", ownerPath), true)
+  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(project = project, message("owner.0", ownerPath), true)
 
   /**
    * Checks if this EditorGroup is selected.

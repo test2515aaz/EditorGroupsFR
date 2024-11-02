@@ -31,16 +31,7 @@ class SameNameGroup(
   override fun getTabTitle(
     project: Project,
     presentableNameForUI: String,
-    showSize: Boolean
-  ): String {
-    var nameForUI = presentableNameForUI
-    val size = size(project)
-
-    return when {
-      showSize -> "[$size] $nameForUI"
-      else     -> nameForUI
-    }
-  }
+  ): String = presentableNameForUI
 
   override fun toString(): String =
     "SameNameGroup{fileNameWithoutExtension='$fileNameWithoutExtension', links=$links, valid=$isValid, stub='$isStub'}"
@@ -61,9 +52,8 @@ class SameNameGroup(
       fileNameWithoutExtension = "SAME_NAME_INSTANCE",
       links = emptyList(),
     )
-
     const val SAME_NAME_GROUP_SCOPE_ID: String = "krasa.editorGroups.model.SameNameGroup"
-    const val SAME_NAME_GROUP_SCOPE_NAME: String = "Editor Groups: Same Name"
+    val SAME_NAME_GROUP_SCOPE_NAME: String = message("group.same.name.scope")
     val SAME_NAME_GROUP_SCOPE: NamedScope = SameNameGroupScope()
   }
 }

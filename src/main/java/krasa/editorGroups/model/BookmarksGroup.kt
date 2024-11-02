@@ -120,18 +120,11 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
   override fun getTabTitle(
     project: Project,
     presentableNameForUI: String,
-    showSize: Boolean
   ): String {
     var nameForUI = presentableNameForUI
-    val size = size(project)
     val isEmptyName = name.isEmpty()
 
     return when {
-      showSize     -> when {
-        !isEmptyName -> "[${name}:$size] $nameForUI"
-        else         -> "[$size] $nameForUI"
-      }
-
       !isEmptyName -> "[$name] $nameForUI"
       else         -> nameForUI
     }
@@ -159,8 +152,10 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   companion object {
     const val ID_PREFIX: String = "BOOKMARKS"
+
+    @NonNls
     const val BOOKMARKS_GROUP_SCOPE_ID: String = "krasa.editorGroups.model.BookmarksGroup"
-    const val BOOKMARKS_GROUP_SCOPE_NAME: String = "Editor Groups: Bookmarks"
+    val BOOKMARKS_GROUP_SCOPE_NAME: String = message("group.bookmarks.scope")
     val BOOKMARKS_GROUP_SCOPE: NamedScope = BookmarksGroupScope()
   }
 }
