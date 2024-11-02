@@ -24,6 +24,6 @@ class ToggleColorizeGroupsAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleColorizeGroupsAction"
+    const val ID: String = "krasa.editorGroups.ToggleColorizeGroupsAction"
   }
 }

@@ -20,6 +20,6 @@ class ToggleCompactModeGroupsAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleCompactModeGroupsAction"
+    const val ID: String = "krasa.editorGroups.ToggleCompactModeGroupsAction"
   }
 }

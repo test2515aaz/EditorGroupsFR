@@ -20,6 +20,6 @@ class ToggleAutoFolderGroupsAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleFolderEditorGroups"
+    const val ID: String = "krasa.editorGroups.ToggleFolderEditorGroups"
   }
 }

@@ -5,10 +5,14 @@ import krasa.editorGroups.support.Splitters
 
 class PreviousInNewTabAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
-    getEditorGroupPanel(anActionEvent)?.goToPreviousTab(true, false, Splitters.NONE)
+    getEditorGroupPanel(anActionEvent)?.goToPreviousTab(
+      newTab = true,
+      newWindow = false,
+      split = Splitters.NONE
+    )
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.PreviousInNewTab"
+    const val ID: String = "krasa.editorGroups.PreviousInNewTab"
   }
 }

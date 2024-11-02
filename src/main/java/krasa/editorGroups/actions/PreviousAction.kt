@@ -22,7 +22,11 @@ class PreviousAction : EditorGroupsAction(), CustomComponentAction {
       val e = checkNotNull(anActionEvent.inputEvent)
       val newTab = BitUtil.isSet(e.modifiersEx, InputEvent.CTRL_DOWN_MASK) && e is MouseEvent && e.clickCount > 0
 
-      panel.goToPreviousTab(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
+      panel.goToPreviousTab(
+        newTab = newTab,
+        newWindow = BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK),
+        split = Splitters.from(e)
+      )
     }
   }
 
@@ -38,6 +42,6 @@ class PreviousAction : EditorGroupsAction(), CustomComponentAction {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.Previous"
+    const val ID: String = "krasa.editorGroups.Previous"
   }
 }

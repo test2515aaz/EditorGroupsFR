@@ -20,6 +20,6 @@ class ToggleForceAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleForce"
+    const val ID: String = "krasa.editorGroups.ToggleForce"
   }
 }

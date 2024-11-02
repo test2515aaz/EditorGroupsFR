@@ -26,6 +26,6 @@ class TogglePanelVisibilityAction : DumbAwareAction() {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.TogglePanelVisibility"
+    const val ID: String = "krasa.editorGroups.TogglePanelVisibility"
   }
 }

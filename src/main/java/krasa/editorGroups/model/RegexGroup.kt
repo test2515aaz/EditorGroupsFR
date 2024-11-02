@@ -8,14 +8,6 @@ import krasa.editorGroups.messages.EditorGroupsBundle.message
 import java.util.regex.Matcher
 import javax.swing.Icon
 
-/**
- * Represents a group that matches files based on a regular expression pattern.
- *
- * @property regexGroupModel The model object containing the regular expression and other parameters.
- * @property folder The virtual folder where the group is located.
- * @property links The list of links associated with the group.
- * @property fileName The name of the file associated with the group.
- */
 class RegexGroup(
   regexGroupModel: RegexGroupModel,
   val folder: VirtualFile?,

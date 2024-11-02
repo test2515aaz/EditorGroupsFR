@@ -20,6 +20,6 @@ class ToggleShowSizeAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleShowSize"
+    const val ID: String = "krasa.editorGroups.ToggleShowSize"
   }
 }

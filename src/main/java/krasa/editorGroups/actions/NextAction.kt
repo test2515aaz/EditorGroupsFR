@@ -22,7 +22,11 @@ class NextAction : EditorGroupsAction(), CustomComponentAction {
       val e = anActionEvent.inputEvent
       val newTab = BitUtil.isSet(e!!.modifiersEx, InputEvent.CTRL_DOWN_MASK) && e is MouseEvent && e.clickCount > 0
 
-      panel.goToNextTab(newTab, BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK), Splitters.from(e))
+      panel.goToNextTab(
+        newTab = newTab,
+        newWindow = BitUtil.isSet(e.modifiersEx, InputEvent.SHIFT_DOWN_MASK),
+        split = Splitters.from(e)
+      )
     }
   }
 
@@ -38,6 +42,6 @@ class NextAction : EditorGroupsAction(), CustomComponentAction {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.Next"
+    const val ID: String = "krasa.editorGroups.Next"
   }
 }
