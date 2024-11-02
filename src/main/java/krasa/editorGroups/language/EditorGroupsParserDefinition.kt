@@ -14,7 +14,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.tree.IFileElementType
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiUtilCore
-import java.lang.UnsupportedOperationException
 
 internal class EditorGroupsParserDefinition : ParserDefinition {
   override fun createLexer(project: Project?): Lexer = EmptyLexer()

@@ -2,10 +2,16 @@ package krasa.editorGroups.language.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.ExternalAnnotator
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiFile
+import com.intellij.ui.ColorUtil
+import com.intellij.ui.JBColor
+import krasa.editorGroups.colorscheme.*
 import krasa.editorGroups.language.EditorGroupsPsiFile
+import krasa.editorGroups.support.getColorInstance
+import java.awt.Font
+import java.util.UUID.randomUUID
 import java.util.regex.Pattern
 
 /** An external annotator for the EditorGroups language. */
@@ -26,16 +32,14 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       annotateSyntaxHighlight(
         source = source,
         pattern = LanguagePatternHolder.keywordsPattern,
-        textAttributesKey = DefaultLanguageHighlighterColors.KEYWORD
+        textAttributesKey = EG_KEYWORD
       )
     )
 
     // Matches all colors and assign them the static field attribute
     sourceAnnotationResult.addAll(
-      annotateSyntaxHighlight(
+      annotateColor(
         source = source,
-        pattern = LanguagePatternHolder.colorPattern,
-        textAttributesKey = DefaultLanguageHighlighterColors.STATIC_FIELD
       )
     )
 
@@ -44,7 +48,7 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       annotateSyntaxHighlight(
         source = source,
         pattern = LanguagePatternHolder.macrosPattern,
-        textAttributesKey = DefaultLanguageHighlighterColors.STATIC_METHOD
+        textAttributesKey = EG_MACRO
       )
     )
 
@@ -53,7 +57,7 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       annotateSyntaxHighlight(
         source = source,
         pattern = LanguagePatternHolder.metadataPattern,
-        textAttributesKey = DefaultLanguageHighlighterColors.METADATA
+        textAttributesKey = EG_METADATA
       )
     )
 
@@ -62,7 +66,25 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       annotateSyntaxHighlight(
         source = source,
         pattern = LanguagePatternHolder.commentPattern,
-        textAttributesKey = DefaultLanguageHighlighterColors.LINE_COMMENT
+        textAttributesKey = EG_COMMENT
+      )
+    )
+
+    // Matches constants
+    sourceAnnotationResult.addAll(
+      annotateSyntaxHighlight(
+        source = source,
+        pattern = LanguagePatternHolder.constantsPattern,
+        textAttributesKey = EG_CONSTANT
+      )
+    )
+
+    // Matches paths
+    sourceAnnotationResult.addAll(
+      annotateSyntaxHighlight(
+        source = source,
+        pattern = LanguagePatternHolder.pathPattern,
+        textAttributesKey = EG_PATH
       )
     )
 
@@ -86,6 +108,38 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
           endSourceOffset = matcher.end(),
           text = LanguagePatternHolder.getDescription(matcher.group()),
           textAttributesKey = textAttributesKey
+        )
+      )
+    }
+
+    return result
+  }
+
+  private fun annotateColor(source: String): MutableList<SyntaxHighlightAnnotation> {
+    val result = mutableListOf<SyntaxHighlightAnnotation>()
+    val matcher = LanguagePatternHolder.colorPattern.matcher(source)
+    val fallbackKey = EG_COLOR
+
+    while (matcher.find()) {
+      val color = getColorInstance(matcher.group())
+      val textAttribute = when (color) {
+        null -> fallbackKey
+        else -> {
+          val textAttributes = TextAttributes()
+          textAttributes.backgroundColor = color
+          textAttributes.foregroundColor = if (ColorUtil.isDark(color)) JBColor.white else JBColor.black
+          textAttributes.fontType = Font.ITALIC
+
+          TextAttributesKey.createTempTextAttributesKey("EDITOR_GROUP_COLOR_${randomUUID()}", textAttributes)
+        }
+      }
+
+      result.add(
+        SyntaxHighlightAnnotation(
+          startSourceOffset = matcher.start(),
+          endSourceOffset = matcher.end(),
+          textAttributesKey = textAttribute,
+          isColor = true
         )
       )
     }

@@ -95,10 +95,12 @@
         <!-- Completions -->
         <completion.contributor language="EditorGroups"
                                 implementationClass="krasa.editorGroups.language.EditorGroupsFilePathCompletionContributor"
-                                id="EditorGroups_filePath"/>
+                                id="EditorGroupsFilePathCompletionContributor"/>
         <completion.contributor language="EditorGroups"
                                 implementationClass="krasa.editorGroups.language.EditorGroupsCompletionContributor"
-                                id="EditorGroups_MyCompletionContributor"/>
+                                id="EditorGroupsCompletionContributor"/>
+        <colorSettingsPage implementation="krasa.editorGroups.colorscheme.EditorGroupColorSettings"
+                           id="EditorGroupsColorSettings"/>
 
         <!-- Theme -->
         <themeMetadataProvider path="/themes/metadata/EditorGroups.themeMetadata.json"/>

@@ -5,17 +5,17 @@ import krasa.editorGroups.support.colorSet
 import java.util.regex.Pattern
 
 object LanguagePatternHolder {
-  const val GROUP_ID = "@group.id"
-  const val GROUP_ROOT = "@group.root"
-  const val GROUP_TITLE = "@group.title"
-  const val GROUP_COLOR = "@group.color"
-  const val GROUP_RELATED = "@group.related"
-  const val GROUP_DISABLE = "@group.disable"
-  const val GROUP_FG_COLOR = "@group.fgColor"
+  const val GROUP_ID: String = "@group.id"
+  const val GROUP_ROOT: String = "@group.root"
+  const val GROUP_TITLE: String = "@group.title"
+  const val GROUP_COLOR: String = "@group.color"
+  const val GROUP_RELATED: String = "@group.related"
+  const val GROUP_DISABLE: String = "@group.disable"
+  const val GROUP_FG_COLOR: String = "@group.fgcolor"
 
-  const val MODULE_MACRO = "MODULE/"
-  const val PROJECT_MACRO = "PROJECT/"
-  const val GLOBAL_MACRO = "*/"
+  const val MODULE_MACRO: String = "MODULE/"
+  const val PROJECT_MACRO: String = "PROJECT/"
+  const val GLOBAL_MACRO: String = "*/"
 
   /** The list of autocomplete keywords. */
   val keywords: Set<String> = setOf(
@@ -59,6 +59,12 @@ object LanguagePatternHolder {
     GLOBAL_MACRO to message("anywhere.in.the.project")
   )
 
+  /** Constants. */
+  val constants: Set<String> = setOf(
+    "true",
+    "false"
+  )
+
   /** The list of all autocomplete keywords and macros with their desc. */
   val allWithDescription: MutableMap<String, String> = mutableMapOf<String, String>().apply {
     putAll(keywordsWithDescription)
@@ -84,16 +90,21 @@ object LanguagePatternHolder {
   val macrosPattern: Pattern = createPipePattern(tokens = macros, patternPrefix = "", caseSensitive = true)
 
   @JvmField
+  val constantsPattern: Pattern = createPipePattern(tokens = constants, patternPrefix = "", caseSensitive = true)
+
+  @JvmField
   val commentPattern: Pattern = Pattern.compile("(?m)^\\s*#.*$")
 
+  @JvmField
+  val pathPattern: Pattern = Pattern.compile("(?m)^\\s*/.*$")
+
   /** Create a regex pattern to encapsulate the provided tokens. */
-  private fun createPipePattern(tokens: Set<String>, patternPrefix: String, caseSensitive: Boolean): Pattern = tokens
-    .map { "\\b$it\\b" } // NON-NLS
-    .joinToString("|")
-    .let { piped: String ->
-      when {
-        caseSensitive -> Pattern.compile("(${patternPrefix}${piped})")
-        else          -> Pattern.compile("(?i:${patternPrefix}${piped})")
+  private fun createPipePattern(tokens: Set<String>, patternPrefix: String, caseSensitive: Boolean): Pattern =
+    tokens.joinToString("|") { "\\b$it\\b" } // NON-NLS
+      .let { piped: String ->
+        when {
+          caseSensitive -> Pattern.compile("(${patternPrefix}${piped})")
+          else          -> Pattern.compile("(?i:${patternPrefix}${piped})")
+        }
       }
-    }
 }
