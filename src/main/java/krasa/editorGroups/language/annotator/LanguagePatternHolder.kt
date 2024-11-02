@@ -19,7 +19,6 @@ object LanguagePatternHolder {
 
   /** The list of autocomplete keywords. */
   val keywords: Set<String> = setOf(
-    GROUP_ID,
     GROUP_ROOT,
     GROUP_RELATED,
     GROUP_COLOR,
@@ -83,6 +82,9 @@ object LanguagePatternHolder {
 
   @JvmField
   val colorPattern: Pattern = createPipePattern(tokens = colors, caseSensitive = false)
+
+  @JvmField
+  val hexColorPattern: Pattern = Pattern.compile("\\b#?[0-9a-fA-F]{3,8}\\b")
 
   @JvmField
   val metadataPattern: Pattern = createPipePattern(tokens = metadata, caseSensitive = true)

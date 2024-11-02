@@ -3,9 +3,12 @@ package krasa.editorGroups.support
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.ColorIcon
+import krasa.editorGroups.language.annotator.LanguagePatternHolder
+import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
 
+@NonNls
 val colorMap: HashMap<String, String> = hashMapOf(
   "aliceblue" to "f0f8ff",
   "alizarin" to "e74c3c",
@@ -418,3 +421,19 @@ fun gutterColorIcon(color: Color, size: Int = 12): Icon {
  * @return A string representing the color in hexadecimal format.
  */
 fun Color.toHex(): String = ColorUtil.toHex(this)
+
+/**
+ * Converts the String to a Color object if the String matches the hex color pattern.
+ *
+ * @return The Color object parsed from the hex color string, or null if the string does not match the hex color pattern.
+ */
+fun String.toColor(): Color? = when {
+  !LanguagePatternHolder.hexColorPattern.toRegex().matches(this) -> null
+  else                                                           -> ColorUtil.fromHex(this)
+}
+
+@Suppress("UseJBColor")
+fun getContrastedText(color: Color): Color = when {
+  ColorUtil.isDark(color) -> Color.white
+  else                    -> Color.black
+}

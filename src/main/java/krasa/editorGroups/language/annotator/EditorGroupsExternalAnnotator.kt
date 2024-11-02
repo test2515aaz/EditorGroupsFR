@@ -5,11 +5,11 @@ import com.intellij.lang.annotation.ExternalAnnotator
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiFile
-import com.intellij.ui.ColorUtil
 import krasa.editorGroups.colorscheme.*
 import krasa.editorGroups.language.EditorGroupsPsiFile
 import krasa.editorGroups.support.getColorInstance
-import java.awt.Color
+import krasa.editorGroups.support.getContrastedText
+import krasa.editorGroups.support.toColor
 import java.awt.Font
 import java.util.regex.Pattern
 
@@ -80,9 +80,16 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       )
     )
 
-    // Matches all colors and assign them the static field attribute
+    // Matches colors
     sourceAnnotationResult.addAll(
       annotateColor(
+        source = source,
+      )
+    )
+
+    // Matches hex colors
+    sourceAnnotationResult.addAll(
+      annotateHexColor(
         source = source,
       )
     )
@@ -126,8 +133,7 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       if (color != null) {
         textAttributes = TextAttributes()
         textAttributes.backgroundColor = color
-        @Suppress("UseJBColor")
-        textAttributes.foregroundColor = if (ColorUtil.isDark(color)) Color.white else Color.black
+        textAttributes.foregroundColor = getContrastedText(color)
         textAttributes.fontType = Font.ITALIC
       }
 
@@ -140,6 +146,33 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
           isColor = true
         )
       )
+    }
+
+    return result
+  }
+
+  private fun annotateHexColor(source: String): MutableList<SyntaxHighlightAnnotation> {
+    val result = mutableListOf<SyntaxHighlightAnnotation>()
+    val matcher = LanguagePatternHolder.hexColorPattern.matcher(source)
+
+    while (matcher.find()) {
+      val color = matcher.group().toColor()
+
+      if (color != null) {
+        var textAttributes = TextAttributes()
+        textAttributes.backgroundColor = color
+        textAttributes.foregroundColor = getContrastedText(color)
+        textAttributes.fontType = Font.ITALIC
+
+        result.add(
+          SyntaxHighlightAnnotation(
+            startSourceOffset = matcher.start(),
+            endSourceOffset = matcher.end(),
+            textAttributes = textAttributes,
+            isColor = true
+          )
+        )
+      }
     }
 
     return result

@@ -59,7 +59,10 @@ internal class EditorGroupsCompletionContributor : CompletionContributor() {
           }
 
           // Complete all keywords
-          prefix.contains("@") || StringUtils.isBlank(line) -> values.addAll(LanguagePatternHolder.keywords)
+          prefix.contains("@") || StringUtils.isBlank(line) -> {
+            values.addAll(LanguagePatternHolder.keywords)
+            values.addAll(LanguagePatternHolder.metadata)
+          }
         }
 
         // Instantiate our provider with our values

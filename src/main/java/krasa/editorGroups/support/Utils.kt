@@ -12,11 +12,9 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.ui.ColorUtil
 import com.intellij.util.IconUtil.computeFileIcon
 import com.intellij.util.ReflectionUtil
 import krasa.editorGroups.model.Link
-import java.awt.Color
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -213,9 +211,4 @@ fun isBlank(cs: CharSequence?): Boolean {
   if (strLen == 0) return true
 
   return cs.indices.all { Character.isWhitespace(cs[it]) }
-}
-
-fun String.toColor(): Color {
-  val hex = if (this.startsWith("#")) this else "#${this}"
-  return ColorUtil.fromHex(hex)
 }

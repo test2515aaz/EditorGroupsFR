@@ -13,7 +13,7 @@ import javax.swing.Icon
 class SyntaxHighlightAnnotation(
   private val startSourceOffset: Int,
   private val endSourceOffset: Int,
-  private val textAttributesKey: TextAttributesKey,
+  private val textAttributesKey: TextAttributesKey? = null,
   private val textAttributes: TextAttributes? = null,
   private val text: String = "",
   private val isColor: Boolean = false
@@ -31,7 +31,7 @@ class SyntaxHighlightAnnotation(
 
     when {
       textAttributes != null -> infoAnnotation.enforcedTextAttributes(textAttributes)
-      else                   -> infoAnnotation.textAttributes(textAttributesKey)
+      textAttributesKey != null -> infoAnnotation.textAttributes(textAttributesKey)
     }
 
     if (isColor && textAttributes != null) {
