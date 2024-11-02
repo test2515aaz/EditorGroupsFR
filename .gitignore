@@ -171,3 +171,5 @@ fabric.properties
 chain.crt
 *.pem
 *.hprof
+
+.self-update
