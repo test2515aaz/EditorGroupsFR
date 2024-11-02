@@ -16,8 +16,8 @@ import com.intellij.ui.DocumentAdapter;
 import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.ErrorLabel;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.NamedColorUtil;
 import krasa.editorGroups.model.RegexGroupModel;
-import krasa.editorGroups.support.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,8 +66,7 @@ public class RegexModelEditor extends DialogWrapper {
     fileNameField = new JBTextField(_fileName);
     fileNamePanel.add(fileNameField, BorderLayout.CENTER);
 
-
-    error.setForeground(Utils.ERROR_FOREGROUND_COLOR);
+    error.setForeground(NamedColorUtil.getErrorForeground());
     setTitle(title);
     this.regex.setNextFocusableComponent(this.regex);
     scopeCombo.setModel(new EnumComboBoxModel<>(RegexGroupModel.Scope.class));
@@ -212,7 +211,7 @@ public class RegexModelEditor extends DialogWrapper {
 
   @Nullable
   protected String getDimensionServiceKey() {
-//		return null; 	
+//		return null;
     return "krasa.editorGroups.ModelEditor3";
   }
 

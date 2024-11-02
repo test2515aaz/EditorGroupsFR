@@ -14,5 +14,5 @@ object EditorGroupsIcons {
   val hide: Icon = AllIcons.Actions.ToggleVisibility
   val groupBy: Icon = AllIcons.Actions.GroupBy
   val listFiles: Icon = AllIcons.Actions.ListFiles
-  val logo = IconLoader.getIcon("/icons/pluginIcon.svg", javaClass)
+  val logo: Icon = IconLoader.getIcon("/icons/pluginIcon.svg", javaClass)
 }
