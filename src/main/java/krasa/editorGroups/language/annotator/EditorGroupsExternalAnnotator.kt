@@ -6,10 +6,10 @@ import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiFile
 import com.intellij.ui.ColorUtil
-import com.intellij.ui.JBColor
 import krasa.editorGroups.colorscheme.*
 import krasa.editorGroups.language.EditorGroupsPsiFile
 import krasa.editorGroups.support.getColorInstance
+import java.awt.Color
 import java.awt.Font
 import java.util.regex.Pattern
 
@@ -126,7 +126,8 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       if (color != null) {
         textAttributes = TextAttributes()
         textAttributes.backgroundColor = color
-        textAttributes.foregroundColor = if (ColorUtil.isDark(color)) JBColor.white else JBColor.black
+        @Suppress("UseJBColor")
+        textAttributes.foregroundColor = if (ColorUtil.isDark(color)) Color.white else Color.black
         textAttributes.fontType = Font.ITALIC
       }
 
