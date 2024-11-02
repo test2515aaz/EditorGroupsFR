@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.model.EditorGroup
-import krasa.editorGroups.model.EditorGroups
+import krasa.editorGroups.model.EditorGroupIndexValue
 import java.awt.Color
 
 internal class CustomEditorGroupsTabColorProvider : EditorTabColorProvider {
@@ -21,14 +21,14 @@ internal class CustomEditorGroupsTabColorProvider : EditorTabColorProvider {
   private fun getFgColor(file: VirtualFile): Color? {
     var group: EditorGroup = file.getUserData(EditorGroupPanel.EDITOR_GROUP) ?: return null
     if (group.isStub) return null
-    if (group !is EditorGroups) return null
+    if (group !is EditorGroupIndexValue) return null
     return group.fgColor
   }
 
   private fun getBgColor(file: VirtualFile): Color? {
     var group: EditorGroup = file.getUserData(EditorGroupPanel.EDITOR_GROUP) ?: return null
     if (group.isStub) return null
-    if (group !is EditorGroups) return null
+    if (group !is EditorGroupIndexValue) return null
     return group.bgColor
   }
 

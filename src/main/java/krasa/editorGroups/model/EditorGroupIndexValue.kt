@@ -131,14 +131,6 @@ class EditorGroupIndexValue : EditorGroup {
     return this
   }
 
-  override fun getPresentableTitle(
-    project: Project,
-    presentableNameForUI: String,
-    showSize: Boolean
-  ): String {
-    return super.getPresentableTitle(project, presentableNameForUI, showSize)
-  }
-
   /** FOR INDEX STORE. */
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

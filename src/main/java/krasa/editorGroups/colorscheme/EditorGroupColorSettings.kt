@@ -18,7 +18,6 @@ internal class EditorGroupColorSettings : ColorSettingsPage {
   override fun getHighlighter(): SyntaxHighlighter = PlainSyntaxHighlighter()
 
   override fun getDemoText(): @NonNls String = """
-    <xml>
     <comment># This is a comment</comment>
     <metadata>@group.id</metadata> Group ID
     <keyword>@group.title</keyword> Group Title
@@ -27,7 +26,6 @@ internal class EditorGroupColorSettings : ColorSettingsPage {
     <keyword>@group.fgcolor</keyword> <color>silver</color>
     <keyword>@group.related</keyword> <macro>PROJECT/</macro><path>*.svg</path>
     <keyword>@group.disable</keyword> <constant>true</constant>
-    </xml>
 """.trimIndent()
 
   override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? = DESCRIPTORS
