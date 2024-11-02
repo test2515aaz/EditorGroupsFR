@@ -66,10 +66,16 @@
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
 
-        <!-- Settings -->
+        <!-- Settings (deprecated) -->
         <applicationConfigurable instance="krasa.editorGroups.MyConfigurable"
                                  id="krasa.editorGroups.EditorGroupsSettings"
                                  key="krasa.editorGroups.EditorGroupsSettings"/>
+
+        <!-- Settings -->
+        <applicationConfigurable instance="krasa.editorGroups.settings.EditorSettingsConfigurable"
+                                 id="EditorSettingsConfigurable"
+                                 key="settings.title"
+        />
 
         <!-- Custom Scopes for colors -->
         <customScopesProvider implementation="krasa.editorGroups.extensions.CustomScopesProvider"/>
@@ -99,6 +105,8 @@
         <completion.contributor language="EditorGroups"
                                 implementationClass="krasa.editorGroups.language.EditorGroupsCompletionContributor"
                                 id="EditorGroupsCompletionContributor"/>
+
+        <!-- Color Scheme -->
         <colorSettingsPage implementation="krasa.editorGroups.colorscheme.EditorGroupColorSettings"
                            id="EditorGroupsColorSettings"/>
 

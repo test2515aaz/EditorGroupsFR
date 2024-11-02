@@ -2,7 +2,9 @@ package krasa.editorGroups.settings
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
+import com.intellij.openapi.ui.Messages
 import com.intellij.util.messages.Topic
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
 
@@ -204,6 +206,85 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     ApplicationManager.getApplication().messageBus
       .syncPublisher(TOPIC)
       .configChanged(this)
+  }
+
+  fun clone(): EditorGroupsSettings {
+    val clone = EditorGroupsSettings()
+    clone.isSelectRegexGroup = this.isSelectRegexGroup
+    clone.isAutoFolders = this.isAutoFolders
+    clone.isAutoSameName = this.isAutoSameName
+    clone.isForceSwitch = this.isForceSwitch
+    clone.isHideEmpty = this.isHideEmpty
+    clone.isShowSize = this.isShowSize
+    clone.isColorTabs = this.isColorTabs
+    clone.isSmallLabels = this.isSmallLabels
+    clone.isContinuousScrolling = this.isContinuousScrolling
+    clone.isInitializeSynchronously = this.isInitializeSynchronously
+    clone.isIndexOnlyEditorGroupsFiles = this.isIndexOnlyEditorGroupsFiles
+    clone.isExcludeEditorGroupsFiles = this.isExcludeEditorGroupsFiles
+    clone.isRememberLastGroup = this.isRememberLastGroup
+    clone.isCompactTabs = this.isCompactTabs
+    clone.isGroupSwitchGroupAction = this.isGroupSwitchGroupAction
+    clone.isShowPanel = this.isShowPanel
+    clone.groupSizeLimit = this.groupSizeLimit
+    clone.tabSizeLimit = this.tabSizeLimit
+    return clone
+  }
+
+  fun apply(state: EditorGroupsSettings) {
+    this.isSelectRegexGroup = state.isSelectRegexGroup
+    this.isAutoFolders = state.isAutoFolders
+    this.isAutoSameName = state.isAutoSameName
+    this.isForceSwitch = state.isForceSwitch
+    this.isHideEmpty = state.isHideEmpty
+    this.isShowSize = state.isShowSize
+    this.isColorTabs = state.isColorTabs
+    this.isSmallLabels = state.isSmallLabels
+    this.isContinuousScrolling = state.isContinuousScrolling
+    this.isInitializeSynchronously = state.isInitializeSynchronously
+    this.isIndexOnlyEditorGroupsFiles = state.isIndexOnlyEditorGroupsFiles
+    this.isExcludeEditorGroupsFiles = state.isExcludeEditorGroupsFiles
+    this.isRememberLastGroup = state.isRememberLastGroup
+    this.isCompactTabs = state.isCompactTabs
+    this.isGroupSwitchGroupAction = state.isGroupSwitchGroupAction
+    this.isShowPanel = state.isShowPanel
+    this.groupSizeLimit = state.groupSizeLimit
+    this.tabSizeLimit = state.tabSizeLimit
+    this.fireChanged()
+  }
+
+  fun askResetSettings(action: () -> Unit) {
+    val answer = Messages.showYesNoDialog(
+      message("EditorGroupSettings.dialog.resetDefaults.consent"),
+      message("EditorGroupSettings.resetDefaultsButton.text"),
+      Messages.getWarningIcon()
+    )
+    if (answer == Messages.YES) {
+      action()
+      fireChanged()
+    }
+  }
+
+  fun reset() {
+    this.isSelectRegexGroup = false
+    this.isAutoFolders = true
+    this.isAutoSameName = true
+    this.isForceSwitch = true
+    this.isHideEmpty = true
+    this.isShowSize = false
+    this.isColorTabs = true
+    this.isSmallLabels = true
+    this.isContinuousScrolling = false
+    this.isInitializeSynchronously = false
+    this.isIndexOnlyEditorGroupsFiles = false
+    this.isExcludeEditorGroupsFiles = false
+    this.isRememberLastGroup = true
+    this.isCompactTabs = false
+    this.isGroupSwitchGroupAction = false
+    this.isShowPanel = true
+    this.groupSizeLimit = DEFAULT_GROUP_SIZE_LIMIT
+    this.tabSizeLimit = DEFAULT_TAB_SIZE_LIMIT
+    this.fireChanged()
   }
 
   interface SettingsNotifier {
