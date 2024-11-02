@@ -1,11 +1,6 @@
 package krasa.editorGroups.language
 
-import com.intellij.codeInsight.completion.CompletionContributor
-import com.intellij.codeInsight.completion.CompletionParameters
-import com.intellij.codeInsight.completion.CompletionProvider
-import com.intellij.codeInsight.completion.CompletionResultSet
-import com.intellij.codeInsight.completion.CompletionType
-import com.intellij.codeInsight.completion.PrioritizedLookupElement
+import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns
@@ -13,15 +8,17 @@ import com.intellij.util.ProcessingContext
 import com.intellij.util.textCompletion.DefaultTextCompletionValueDescriptor.StringValueDescriptor
 import com.intellij.util.textCompletion.TextCompletionValueDescriptor
 import com.intellij.util.textCompletion.ValuesCompletionProvider.ValuesCompletionProviderDumbAware
-import com.intellij.xml.util.ColorIconCache
 import krasa.editorGroups.language.annotator.LanguagePatternHolder
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.GLOBAL_MACRO
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.GROUP_COLOR
+import krasa.editorGroups.language.annotator.LanguagePatternHolder.GROUP_DISABLE
+import krasa.editorGroups.language.annotator.LanguagePatternHolder.GROUP_FG_COLOR
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.GROUP_RELATED
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.GROUP_ROOT
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.MODULE_MACRO
 import krasa.editorGroups.language.annotator.LanguagePatternHolder.PROJECT_MACRO
 import krasa.editorGroups.support.getColorInstance
+import krasa.editorGroups.support.gutterColorIcon
 import org.apache.commons.lang3.StringUtils
 import javax.swing.Icon
 import kotlin.math.max
@@ -49,7 +46,9 @@ internal class EditorGroupsCompletionContributor : CompletionContributor() {
         val values = mutableListOf<String>()
         when {
           // If asking for colors, add all colors
-          line.contains(GROUP_COLOR)                        -> values.addAll(LanguagePatternHolder.colors)
+          isColorLine(line)                                 -> values.addAll(LanguagePatternHolder.colors)
+
+          isBooleanLine(line)                               -> values.addAll(LanguagePatternHolder.constants)
 
           // For path macros, add all macros keywords
           isPathLine(line) && !containsMacro(line)          -> {
@@ -89,6 +88,15 @@ internal class EditorGroupsCompletionContributor : CompletionContributor() {
         val pathKeywords = listOf(GROUP_ROOT, GROUP_RELATED)
         return pathKeywords.any { keyword -> line.contains(keyword) }
       }
+
+      private fun isColorLine(line: String): Boolean {
+        val pathKeywords = listOf(GROUP_COLOR, GROUP_FG_COLOR)
+        return pathKeywords.any { keyword -> line.contains(keyword) }
+      }
+
+      private fun isBooleanLine(line: String): Boolean {
+        return line.contains(GROUP_DISABLE)
+      }
     })
   }
 
@@ -121,8 +129,8 @@ internal class EditorGroupsCompletionContributor : CompletionContributor() {
   private class EditorGroupsValueDescriptor : StringValueDescriptor() {
     // If it's a color, return the color icon
     override fun getIcon(item: String): Icon? {
-      val colorInstance = getColorInstance(item.lowercase()) ?: return null
-      return ColorIconCache.getIconCache().getIcon(colorInstance, 13)
+      val color = getColorInstance(item.lowercase()) ?: return null
+      return gutterColorIcon(color)
     }
 
     /** Returns the description of the completion. */

@@ -293,6 +293,6 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
   internal class DisableException : RuntimeException()
 
   companion object {
-    const val INDEX_PATTERN_GROUP: Int = 2
+    const val INDEX_PATTERN_GROUP: Int = 1
   }
 }

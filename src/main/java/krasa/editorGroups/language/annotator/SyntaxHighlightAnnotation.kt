@@ -4,14 +4,17 @@ import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
-import com.intellij.xml.util.ColorIconCache
+import krasa.editorGroups.support.gutterColorIcon
+import krasa.editorGroups.support.toHex
 import javax.swing.Icon
 
 class SyntaxHighlightAnnotation(
   private val startSourceOffset: Int,
   private val endSourceOffset: Int,
   private val textAttributesKey: TextAttributesKey,
+  private val textAttributes: TextAttributes? = null,
   private val text: String = "",
   private val isColor: Boolean = false
 ) {
@@ -26,16 +29,19 @@ class SyntaxHighlightAnnotation(
       else           -> holder.newAnnotation(HighlightSeverity.INFORMATION, text).range(fileRange)
     }
 
-    infoAnnotation.textAttributes(textAttributesKey)
+    when {
+      textAttributes != null -> infoAnnotation.enforcedTextAttributes(textAttributes)
+      else                   -> infoAnnotation.textAttributes(textAttributesKey)
+    }
 
-    if (isColor) {
-      val color = textAttributesKey.defaultAttributes.backgroundColor
-      val colorIcon = ColorIconCache.getIconCache().getIcon(color, 13)
+    if (isColor && textAttributes != null) {
+      val color = textAttributes.backgroundColor
+      val colorIcon = gutterColorIcon(color)
       infoAnnotation.gutterIconRenderer(
         object : GutterIconRenderer() {
           override fun getIcon(): Icon = colorIcon
 
-          override fun getTooltipText(): String? = text
+          override fun getTooltipText(): String? = color.toHex()
 
           override fun equals(obj: Any?): Boolean = true
 

@@ -11,7 +11,6 @@ import krasa.editorGroups.colorscheme.*
 import krasa.editorGroups.language.EditorGroupsPsiFile
 import krasa.editorGroups.support.getColorInstance
 import java.awt.Font
-import java.util.UUID.randomUUID
 import java.util.regex.Pattern
 
 /** An external annotator for the EditorGroups language. */
@@ -33,13 +32,6 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
         source = source,
         pattern = LanguagePatternHolder.keywordsPattern,
         textAttributesKey = EG_KEYWORD
-      )
-    )
-
-    // Matches all colors and assign them the static field attribute
-    sourceAnnotationResult.addAll(
-      annotateColor(
-        source = source,
       )
     )
 
@@ -88,6 +80,13 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
       )
     )
 
+    // Matches all colors and assign them the static field attribute
+    sourceAnnotationResult.addAll(
+      annotateColor(
+        source = source,
+      )
+    )
+
     fileAnnotationResult.add(sourceAnnotationResult)
 
     return fileAnnotationResult
@@ -122,23 +121,21 @@ internal class EditorGroupsExternalAnnotator : ExternalAnnotator<EditorGroupsPsi
 
     while (matcher.find()) {
       val color = getColorInstance(matcher.group())
-      val textAttribute = when (color) {
-        null -> fallbackKey
-        else -> {
-          val textAttributes = TextAttributes()
-          textAttributes.backgroundColor = color
-          textAttributes.foregroundColor = if (ColorUtil.isDark(color)) JBColor.white else JBColor.black
-          textAttributes.fontType = Font.ITALIC
+      var textAttributes: TextAttributes? = null
 
-          TextAttributesKey.createTempTextAttributesKey("EDITOR_GROUP_COLOR_${randomUUID()}", textAttributes)
-        }
+      if (color != null) {
+        textAttributes = TextAttributes()
+        textAttributes.backgroundColor = color
+        textAttributes.foregroundColor = if (ColorUtil.isDark(color)) JBColor.white else JBColor.black
+        textAttributes.fontType = Font.ITALIC
       }
 
       result.add(
         SyntaxHighlightAnnotation(
           startSourceOffset = matcher.start(),
           endSourceOffset = matcher.end(),
-          textAttributesKey = textAttribute,
+          textAttributesKey = fallbackKey,
+          textAttributes = textAttributes,
           isColor = true
         )
       )
