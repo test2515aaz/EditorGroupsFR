@@ -32,19 +32,7 @@ class FolderGroup(
 
   override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = message("current.folder")
 
-  override fun getTabTitle(
-    project: Project,
-    presentableNameForUI: String,
-    showSize: Boolean
-  ): String {
-    var nameForUI = presentableNameForUI
-    val size = size(project)
-
-    return when {
-      showSize -> "[$size] $nameForUI"
-      else     -> nameForUI
-    }
-  }
+  override fun getTabTitle(project: Project, presentableNameForUI: String): String = presentableNameForUI
 
   override fun toString(): String = "FolderGroup{links=${links.size}, stub='$isStub'}"
 
@@ -62,9 +50,8 @@ class FolderGroup(
   companion object {
     val DIRECTORY_INSTANCE: LightVirtualFile = LightVirtualFile("DIRECTORY_INSTANCE")
     val INSTANCE: FolderGroup = FolderGroup(DIRECTORY_INSTANCE, emptyList())
-
     const val FOLDER_GROUP_SCOPE_ID: String = "krasa.editorGroups.model.FolderGroup"
-    const val FOLDER_GROUP_SCOPE_NAME: String = "Editor Groups: Current Folder"
+    val FOLDER_GROUP_SCOPE_NAME: String = message("group.folder.scope")
     val FOLDER_GROUP_SCOPE: NamedScope = FolderGroupScope()
   }
 }

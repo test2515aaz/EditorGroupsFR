@@ -13,7 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.ui.EDT
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.model.EditorGroup
-import krasa.editorGroups.settings.EditorGroupsSettings
 import java.io.File
 
 class EditorGroupTabTitleProvider : EditorTabTitleProvider {
@@ -42,7 +41,6 @@ class EditorGroupTabTitleProvider : EditorTabTitleProvider {
       currentTitle = group.getTabTitle(
         project = project,
         presentableNameForUI = currentTitle,
-        showSize = EditorGroupsSettings.instance.isShowSize
       )
     }
 

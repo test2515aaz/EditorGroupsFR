@@ -7,7 +7,7 @@ import krasa.editorGroups.EditorGroupPanel
 import java.awt.Component
 
 object PopupMenu {
-  val actions = listOf(
+  val actions: List<String> = listOf(
     SwitchGroupAction.ID,
     SwitchFileAction.ID,
     "-",
@@ -28,7 +28,7 @@ object PopupMenu {
     "-",
     ToggleCompactModeGroupsAction.ID,
     ToggleColorizeGroupsAction.ID,
-    // ToggleShowSizeAction.ID,
+    ToggleShowSizeAction.ID,
     "-",
     OpenConfigurationAction.ID
   )
