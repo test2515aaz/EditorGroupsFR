@@ -1,7 +1,6 @@
 package krasa.editorGroups.settings
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.IdeBundle
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.ui.dsl.builder.RightGap
@@ -173,7 +172,7 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
   }
 
   private fun navigateToFileStatusColors() {
-    navigateToSettingsPage(main ?: return, IdeBundle.message("configurable.file.colors"))
+    navigateToSettingsPage(main ?: return, FILE_COLORS_ID)
   }
 
   /** Check if the form was modified. */
@@ -200,5 +199,6 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
 
   companion object {
     const val ID: String = "EditorSettingsConfigurable"
+    const val FILE_COLORS_ID = "reference.settings.ide.settings.file-colors"
   }
 }

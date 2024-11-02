@@ -30,7 +30,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     var isHideEmpty: Boolean by property(true)
 
     // Show group size at title
-    var isShowSize: Boolean by property(false)
+    var isShowSize: Boolean by property(true)
 
     // Color tabs of the current group
     var isColorTabs: Boolean by property(true)
@@ -271,7 +271,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isAutoSameName = true
     this.isForceSwitch = true
     this.isHideEmpty = true
-    this.isShowSize = false
+    this.isShowSize = true
     this.isColorTabs = true
     this.isSmallLabels = true
     this.isContinuousScrolling = false

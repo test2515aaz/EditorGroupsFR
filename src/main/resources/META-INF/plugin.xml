@@ -66,15 +66,11 @@
         <fileBasedIndex implementation="krasa.editorGroups.index.EditorGroupIndex"/>
         <fileBasedIndex implementation="krasa.editorGroups.index.FilenameWithoutExtensionIndex"/>
 
-        <!-- Settings (deprecated) -->
-        <applicationConfigurable instance="krasa.editorGroups.MyConfigurable"
-                                 id="krasa.editorGroups.EditorGroupsSettings"
-                                 key="krasa.editorGroups.EditorGroupsSettings"/>
-
         <!-- Settings -->
         <applicationConfigurable instance="krasa.editorGroups.settings.EditorSettingsConfigurable"
                                  id="EditorSettingsConfigurable"
                                  key="settings.title"
+                                 parentId="Editor"
         />
 
         <!-- Custom Scopes for colors -->
