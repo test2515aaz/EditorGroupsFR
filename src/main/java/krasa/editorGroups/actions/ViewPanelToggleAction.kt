@@ -20,6 +20,6 @@ class ViewPanelToggleAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ViewPanelToggleAction"
+    const val ID: String = "krasa.editorGroups.ViewPanelToggleAction"
   }
 }

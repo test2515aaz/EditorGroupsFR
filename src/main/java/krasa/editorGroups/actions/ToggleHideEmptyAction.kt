@@ -20,6 +20,6 @@ class ToggleHideEmptyAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleHideEmpty"
+    const val ID: String = "krasa.editorGroups.ToggleHideEmpty"
   }
 }

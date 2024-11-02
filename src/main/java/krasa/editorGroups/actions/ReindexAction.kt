@@ -19,6 +19,6 @@ class ReindexAction : AnAction() {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.Reindex"
+    const val ID: String = "krasa.editorGroups.Reindex"
   }
 }

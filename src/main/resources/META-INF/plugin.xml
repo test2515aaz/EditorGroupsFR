@@ -241,21 +241,20 @@
                     icon="AllIcons.General.Settings">
                 <add-to-group group-id="EditorTabPopupMenu"/>
             </action>
-
-            <!-- Tab Actions -->
-            <group id="krasa.editorGroups.EditorGroupsTabPopupMenu">
-                <reference id="CompareFileWithEditor"/>
-                <separator/>
-                <reference id="krasa.editorGroups.Next"/>
-                <reference id="krasa.editorGroups.NextInNewTab"/>
-                <reference id="krasa.editorGroups.NextInNewWindow"/>
-                <separator/>
-                <reference id="krasa.editorGroups.Previous"/>
-                <reference id="krasa.editorGroups.PreviousInNewTab"/>
-                <reference id="krasa.editorGroups.PreviousInNewWindow"/>
-            </group>
-
         </group>
+        <!-- Tab Actions -->
+        <group id="krasa.editorGroups.EditorGroupsTabPopupMenu">
+            <reference id="CompareFileWithEditor"/>
+            <separator/>
+            <reference id="krasa.editorGroups.Next"/>
+            <reference id="krasa.editorGroups.NextInNewTab"/>
+            <reference id="krasa.editorGroups.NextInNewWindow"/>
+            <separator/>
+            <reference id="krasa.editorGroups.Previous"/>
+            <reference id="krasa.editorGroups.PreviousInNewTab"/>
+            <reference id="krasa.editorGroups.PreviousInNewWindow"/>
+        </group>
+
     </actions>
 
 </idea-plugin>

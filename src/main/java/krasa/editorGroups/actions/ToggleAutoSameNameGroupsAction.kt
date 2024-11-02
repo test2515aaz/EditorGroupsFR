@@ -20,6 +20,6 @@ class ToggleAutoSameNameGroupsAction : ToggleAction(), DumbAware {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.ToggleAutoSameNameGroups"
+    const val ID: String = "krasa.editorGroups.ToggleAutoSameNameGroups"
   }
 }

@@ -5,10 +5,14 @@ import krasa.editorGroups.support.Splitters
 
 class NextInNewTabAction : EditorGroupsAction() {
   override fun actionPerformed(anActionEvent: AnActionEvent) {
-    getEditorGroupPanel(anActionEvent)?.goToNextTab(true, false, Splitters.NONE)
+    getEditorGroupPanel(anActionEvent)?.goToNextTab(
+      newTab = true,
+      newWindow = false,
+      split = Splitters.NONE
+    )
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.NextInNewTab"
+    const val ID: String = "krasa.editorGroups.NextInNewTab"
   }
 }

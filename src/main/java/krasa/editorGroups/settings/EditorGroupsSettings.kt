@@ -1,13 +1,7 @@
 package krasa.editorGroups.settings
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.BaseState
-import com.intellij.openapi.components.Service
-import com.intellij.openapi.components.SettingsCategory
-import com.intellij.openapi.components.SimplePersistentStateComponent
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.openapi.components.service
+import com.intellij.openapi.components.*
 import com.intellij.util.messages.Topic
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
@@ -16,55 +10,55 @@ import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsStat
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
 class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettingsState>(EditorGroupsSettingsState()) {
   class EditorGroupsSettingsState : BaseState() {
-    var regexGroupModels by property(RegexGroupModels())
+    var regexGroupModels: RegexGroupModels by property(RegexGroupModels())
 
     // Select first matching regex group if no group matches
-    var isSelectRegexGroup by property(false)
+    var isSelectRegexGroup: Boolean by property(false)
 
     // Select current folder group if no other group matches
-    var isAutoFolders by property(true)
+    var isAutoFolders: Boolean by property(true)
 
     // Select same name group if no other group matches
-    var isAutoSameName by property(true)
+    var isAutoSameName: Boolean by property(true)
 
     // Refresh button switches to a manual group if exists
-    var isForceSwitch by property(true)
+    var isForceSwitch: Boolean by property(true)
 
     // Hide the panel if no group matches
-    var isHideEmpty by property(true)
+    var isHideEmpty: Boolean by property(true)
 
     // Show group size at title
-    var isShowSize by property(false)
+    var isShowSize: Boolean by property(false)
 
     // Color tabs of the current group
-    var isColorTabs by property(true)
+    var isColorTabs: Boolean by property(true)
 
     // Small labels
-    var isSmallLabels by property(true)
+    var isSmallLabels: Boolean by property(true)
 
     // Continuous scrolling
-    var isContinuousScrolling by property(false)
+    var isContinuousScrolling: Boolean by property(false)
 
     // Index synchronously - less flicker
-    var isInitializeSynchronously by property(false)
+    var isInitializeSynchronously: Boolean by property(false)
 
     // Index only egroups file for performance
-    var isIndexOnlyEditorGroupsFiles by property(false)
+    var isIndexOnlyEditorGroupsFiles: Boolean by property(false)
 
     // Exclude egroups files from indexing
-    var isExcludeEditorGroupsFiles by property(false)
+    var isExcludeEditorGroupsFiles: Boolean by property(false)
 
     // Remember last group
-    var isRememberLastGroup by property(true)
+    var isRememberLastGroup: Boolean by property(true)
 
     // Compact tabs
-    var isCompactTabs by property(false)
+    var isCompactTabs: Boolean by property(false)
 
     // Split the list in groups
-    var isGroupSwitchGroupAction by property(false)
+    var isGroupSwitchGroupAction: Boolean by property(false)
 
     // Show the panel at all
-    var isShowPanel by property(true)
+    var isShowPanel: Boolean by property(true)
 
     // Limit the number of elements in a group
     var groupSizeLimitInt: Int by property(DEFAULT_GROUP_SIZE_LIMIT)
@@ -231,6 +225,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     val TOPIC: Topic<SettingsNotifier> = Topic.create("Editor Groups Settings", SettingsNotifier::class.java)
 
     @JvmStatic
-    val instance by lazy { service<EditorGroupsSettings>() }
+    val instance: EditorGroupsSettings by lazy { service<EditorGroupsSettings>() }
   }
 }

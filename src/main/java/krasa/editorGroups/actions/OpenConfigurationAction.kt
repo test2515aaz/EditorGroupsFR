@@ -24,6 +24,6 @@ class OpenConfigurationAction : DumbAwareAction(), CustomComponentAction {
   }
 
   companion object {
-    const val ID = "krasa.editorGroups.OpenConfiguration"
+    const val ID: String = "krasa.editorGroups.OpenConfiguration"
   }
 }
