@@ -19,18 +19,18 @@ import java.io.File
 class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileContent> {
   /** The main pattern in the files. */
   @NonNls
-  private val mainPattern = MyIndexPattern("@group\\.\\w+.*")
+  private val mainPattern = MyIndexPattern("@(group)\\.\\w+.*")
 
   /** Index patterns. */
   @NonNls
   private val indexPatterns: Array<Pair<MyIndexPattern, Consumer>> = arrayOf(
-    Pair(MyIndexPattern("^@group\\.root\\s(.*)"), RootConsumer()),
-    Pair(MyIndexPattern("^@group\\.title\\s(.*)"), TitleConsumer()),
-    Pair(MyIndexPattern("^@group\\.color\\s(.*)"), ColorConsumer()),
-    Pair(MyIndexPattern("^@group\\.fgcolor\\s(.*)"), FgColorConsumer()),
-    Pair(MyIndexPattern("^@group\\.related\\s(.*)"), RelatedFilesConsumer()),
-    Pair(MyIndexPattern("^@group\\.id\\s(.*)"), IdConsumer()),
-    Pair(MyIndexPattern("(^@group\\.disable.*)"), DisableConsumer())
+    Pair(MyIndexPattern("^@(group)\\.root\\s(.*)"), RootConsumer()),
+    Pair(MyIndexPattern("^@(group)\\.title\\s(.*)"), TitleConsumer()),
+    Pair(MyIndexPattern("^@(group)\\.color\\s(.*)"), ColorConsumer()),
+    Pair(MyIndexPattern("^@(group)\\.fgcolor\\s(.*)"), FgColorConsumer()),
+    Pair(MyIndexPattern("^@(group)\\.related\\s(.*)"), RelatedFilesConsumer()),
+    Pair(MyIndexPattern("^@(group)\\.id\\s(.*)"), IdConsumer()),
+    Pair(MyIndexPattern("(^@(group)\\.disable.*)"), DisableConsumer())
   )
 
   /**
