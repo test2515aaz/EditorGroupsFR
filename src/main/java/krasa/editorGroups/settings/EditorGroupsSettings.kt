@@ -287,6 +287,79 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.fireChanged()
   }
 
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as EditorGroupsSettings
+
+    if (isSelectRegexGroup != other.isSelectRegexGroup) return false
+    if (isAutoFolders != other.isAutoFolders) return false
+    if (isAutoSameName != other.isAutoSameName) return false
+    if (isForceSwitch != other.isForceSwitch) return false
+    if (isHideEmpty != other.isHideEmpty) return false
+    if (isShowSize != other.isShowSize) return false
+    if (isColorTabs != other.isColorTabs) return false
+    if (isSmallLabels != other.isSmallLabels) return false
+    if (isContinuousScrolling != other.isContinuousScrolling) return false
+    if (isInitializeSynchronously != other.isInitializeSynchronously) return false
+    if (isIndexOnlyEditorGroupsFiles != other.isIndexOnlyEditorGroupsFiles) return false
+    if (isExcludeEditorGroupsFiles != other.isExcludeEditorGroupsFiles) return false
+    if (isRememberLastGroup != other.isRememberLastGroup) return false
+    if (isCompactTabs != other.isCompactTabs) return false
+    if (isGroupSwitchGroupAction != other.isGroupSwitchGroupAction) return false
+    if (isShowPanel != other.isShowPanel) return false
+    if (groupSizeLimit != other.groupSizeLimit) return false
+    if (tabSizeLimit != other.tabSizeLimit) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = isSelectRegexGroup.hashCode()
+    result = 31 * result + isAutoFolders.hashCode()
+    result = 31 * result + isAutoSameName.hashCode()
+    result = 31 * result + isForceSwitch.hashCode()
+    result = 31 * result + isHideEmpty.hashCode()
+    result = 31 * result + isShowSize.hashCode()
+    result = 31 * result + isColorTabs.hashCode()
+    result = 31 * result + isSmallLabels.hashCode()
+    result = 31 * result + isContinuousScrolling.hashCode()
+    result = 31 * result + isInitializeSynchronously.hashCode()
+    result = 31 * result + isIndexOnlyEditorGroupsFiles.hashCode()
+    result = 31 * result + isExcludeEditorGroupsFiles.hashCode()
+    result = 31 * result + isRememberLastGroup.hashCode()
+    result = 31 * result + isCompactTabs.hashCode()
+    result = 31 * result + isGroupSwitchGroupAction.hashCode()
+    result = 31 * result + isShowPanel.hashCode()
+    result = 31 * result + groupSizeLimit
+    result = 31 * result + tabSizeLimit
+    return result
+  }
+
+  override fun toString(): String = """
+    EditorGroupsSettings(
+    |isSelectRegexGroup=$isSelectRegexGroup,
+    |isAutoFolders=$isAutoFolders,
+    |isAutoSameName=$isAutoSameName,
+    |isForceSwitch=$isForceSwitch,
+    |isHideEmpty=$isHideEmpty,
+    |isShowSize=$isShowSize,
+    |isColorTabs=$isColorTabs,
+    |isSmallLabels=$isSmallLabels,
+    |isContinuousScrolling=$isContinuousScrolling,
+    |isInitializeSynchronously=$isInitializeSynchronously,
+    |isIndexOnlyEditorGroupsFiles=$isIndexOnlyEditorGroupsFiles,
+    |isExcludeEditorGroupsFiles=$isExcludeEditorGroupsFiles,
+    |isRememberLastGroup=$isRememberLastGroup,
+    |isCompactTabs=$isCompactTabs,
+    |isGroupSwitchGroupAction=$isGroupSwitchGroupAction,
+    |isShowPanel=$isShowPanel,
+    |groupSizeLimit=$groupSizeLimit,
+    |tabSizeLimit=$tabSizeLimit,
+    |regexGroupModels=$regexGroupModels
+    )""".trimMargin()
+
   interface SettingsNotifier {
     /** When Config is changed (settings) */
     fun configChanged(config: EditorGroupsSettings): Unit = Unit
@@ -303,7 +376,10 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
     @Topic.AppLevel
     @JvmField
-    val TOPIC: Topic<SettingsNotifier> = Topic.create("Editor Groups Settings", SettingsNotifier::class.java)
+    val TOPIC: Topic<SettingsNotifier> = Topic.create(
+      "Editor Groups Settings",
+      SettingsNotifier::class.java
+    )
 
     @JvmStatic
     val instance: EditorGroupsSettings by lazy { service<EditorGroupsSettings>() }
