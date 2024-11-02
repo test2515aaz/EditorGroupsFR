@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import javax.swing.Icon
 
 class StubGroup : EditorGroup() {
-  override var isStub = true
+  override var isStub: Boolean = true
 
   override val id: String = ID
 

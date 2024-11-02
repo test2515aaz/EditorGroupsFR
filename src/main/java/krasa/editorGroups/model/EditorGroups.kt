@@ -60,7 +60,7 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   override fun icon(): Icon? = EditorGroupsIcons.groupBy
 
-  override fun invalidate() = Unit
+  override fun invalidate(): Unit = Unit
 
   override fun size(project: Project): Int = groupsMap.size
 

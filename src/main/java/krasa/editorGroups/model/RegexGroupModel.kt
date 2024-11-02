@@ -11,9 +11,9 @@ import java.util.regex.Pattern
 @Tag("regexGroup")
 class RegexGroupModel : BaseState() {
   var isEnabled: Boolean by property(true)
-  var regex by string()
-  var notComparingGroups by string()
-  var scope by enum(Scope.CURRENT_FOLDER)
+  var regex: String? by string()
+  var notComparingGroups: String? by string()
+  var scope: Scope by enum(Scope.CURRENT_FOLDER)
 
   /** Regex. */
   var myRegex: String?
@@ -108,8 +108,8 @@ class RegexGroupModel : BaseState() {
   }
 
   companion object {
-    const val V0 = "v0"
-    const val V1 = "v1"
+    const val V0: String = "v0"
+    const val V1: String = "v1"
 
     /**
      * Creates and returns a `RegexGroupModel` instance with specified parameters.
@@ -137,8 +137,8 @@ class RegexGroupModel : BaseState() {
      * Deserializes a given string into a `RegexGroupModel` object based on the specific format versions.
      *
      * @param str The string to be deserialized. It must begin with a version identifier ("v0" or "v1").
-     * @return The deserialized `RegexGroupModel` if the string format is valid, or `null` if the format is not
-     *    supported or an error occurs during deserialization.
+     * @return The deserialized `RegexGroupModel` if the string format is valid, or `null` if the format is not supported or an error occurs
+     *    during deserialization.
      */
     @JvmStatic
     @Suppress("MagicNumber")

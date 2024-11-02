@@ -13,17 +13,17 @@ import javax.swing.Icon
 
 /** Represents an editorGroup but for indexing. */
 class EditorGroupIndexValue : EditorGroup {
-  override var id = ""
+  override var id: String = ""
     set(value) {
       field = StringUtil.notNullize(value)
     }
 
-  override var ownerPath = ""
+  override var ownerPath: String = ""
     set(value) {
       field = FileUtil.toSystemIndependentName(value)
     }
 
-  override var title = ""
+  override var title: String = ""
     set(value) {
       field = StringUtil.notNullize(value)
     }
@@ -164,6 +164,6 @@ class EditorGroupIndexValue : EditorGroup {
 
   companion object {
     @NonNls
-    const val OX = "0x"
+    const val OX: String = "0x"
   }
 }

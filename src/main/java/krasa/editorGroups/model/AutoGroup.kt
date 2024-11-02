@@ -3,7 +3,6 @@ package krasa.editorGroups.model
 import com.intellij.openapi.project.Project
 import krasa.editorGroups.services.AutoGroupProvider
 import krasa.editorGroups.support.LinkComparator
-import kotlin.concurrent.Volatile
 
 /** Represents a group that is built automatically. */
 abstract class AutoGroup(

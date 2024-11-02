@@ -138,6 +138,6 @@ class EditorGroupsPanelBuilder {
 
   companion object {
     @JvmStatic
-    val instance by lazy { service<EditorGroupsPanelBuilder>() }
+    val instance: EditorGroupsPanelBuilder by lazy { service<EditorGroupsPanelBuilder>() }
   }
 }

@@ -22,8 +22,6 @@ class VirtualFileLink : Link {
     this.virtualFile = file
   }
 
-  fun isTheSameFile(file: VirtualFile): Boolean = fileEquals(file)
-
   fun withDescription(desc: String?): VirtualFileLink {
     if (desc != null) customName = desc
     return this
