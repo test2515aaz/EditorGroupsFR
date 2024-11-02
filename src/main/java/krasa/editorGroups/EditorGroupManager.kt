@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.swing.SwingUtilities
 import kotlin.Throws
 
+@Suppress("LongLine")
 @Service(Service.Level.PROJECT)
 class EditorGroupManager(private val project: Project) {
   private var cache: IndexCache = IndexCache.getInstance(project)
@@ -253,7 +254,6 @@ class EditorGroupManager(private val project: Project) {
       if (refresh || isEmptyAutoGroup(project, result) || isIndexingAutoGroup(project, result)) {
         thisLogger().debug("refreshing result")
 
-        //_refresh
         when {
           !stub && result === requestedOrDisplayedGroup && result is EditorGroupIndexValue -> cache.initGroup(result)
           !stub && result is SameNameGroup                                                 -> result =
@@ -339,8 +339,8 @@ class EditorGroupManager(private val project: Project) {
   /**
    * Stops the current switching operation.
    *
-   * This method schedules a task on the AWT event queue using `SwingUtilities.invokeLater`. Once the focus has settled
-   * down, it sets the `switching` flag to `false` and logs the action.
+   * This method schedules a task on the AWT event queue using `SwingUtilities.invokeLater`. Once the focus has settled down, it sets the
+   * `switching` flag to `false` and logs the action.
    */
   fun stopSwitching() {
     SwingUtilities.invokeLater {
@@ -402,7 +402,8 @@ class EditorGroupManager(private val project: Project) {
     stopSwitching()
   }
 
-  suspend fun initCache() = panelRefresher.initCache()
+  @Suppress("unused")
+  suspend fun initCache(): Unit = panelRefresher.initCache()
 
   /**
    * Retrieves the background color associated with the specified VirtualFile.
@@ -410,6 +411,7 @@ class EditorGroupManager(private val project: Project) {
    * @param file the VirtualFile for which to retrieve the color
    * @return the Color object representing the background color of the VirtualFile, or null if not found
    */
+  @Suppress("unused")
   fun getBgColor(file: VirtualFile): Color? = cache.getEditorGroupForColor(file).bgColor
 
   /**
@@ -418,6 +420,7 @@ class EditorGroupManager(private val project: Project) {
    * @param file the VirtualFile for which to retrieve the color
    * @return the Color object representing the foreground color of the VirtualFile, or null if not found
    */
+  @Suppress("unused")
   fun getFgColor(file: VirtualFile): Color? = cache.getEditorGroupForColor(file).fgColor
 
   /**
@@ -500,8 +503,8 @@ class EditorGroupManager(private val project: Project) {
     )
 
   /**
-   * Opens the provided file in the editor, considering various conditions such as current file, window, group,
-   * splitters, and switching requests.
+   * Opens the provided file in the editor, considering various conditions such as current file, window, group, splitters, and switching
+   * requests.
    *
    * @param currentWindow The current editor window parameter.
    * @param currentFile The currently opened file.

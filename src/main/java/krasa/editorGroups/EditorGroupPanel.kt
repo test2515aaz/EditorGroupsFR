@@ -37,11 +37,7 @@ import krasa.editorGroups.index.IndexNotReady
 import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
-import krasa.editorGroups.support.EditorGroupsActions
-import krasa.editorGroups.support.FileResolver
-import krasa.editorGroups.support.Splitters
-import krasa.editorGroups.support.UniqueTabNameBuilder
-import krasa.editorGroups.support.getFileFromTextEditor
+import krasa.editorGroups.support.*
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.KrTabs
 import krasa.editorGroups.tabs2.KrTabsPosition
@@ -68,7 +64,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-@Suppress("LargeClass", "MagicNumber")
+@Suppress("LargeClass", "MagicNumber", "LongLine")
 class EditorGroupPanel(
   val fileEditor: FileEditor,
   val project: Project,
@@ -80,19 +76,19 @@ class EditorGroupPanel(
   private var hideGlobally = false
 
   /** Disposed state, to prevent refreshing during disposal. */
-  var disposed = false
+  var disposed: Boolean = false
 
   /**
    * A thread-safe reference to the current refresh request.
    *
-   * This variable is used to store an instance of `RefreshRequest`, which contains the refresh status and the requested
-   * editor group. It's updated atomically to ensure thread safety during panel refresh operations.
+   * This variable is used to store an instance of `RefreshRequest`, which contains the refresh status and the requested editor group. It's
+   * updated atomically to ensure thread safety during panel refresh operations.
    */
   internal var atomicRefreshRequest = AtomicReference<RefreshRequest?>()
 
   /** Keep a state indicating that we are in the middle of a refresh. */
   @Volatile
-  var interrupt = false
+  var interrupt: Boolean = false
 
   @Volatile
   private var brokenScroll = false
@@ -108,7 +104,7 @@ class EditorGroupPanel(
   private val fileFromTextEditor = getFileFromTextEditor(fileEditor)
 
   /** The tabs component for this editor panel. */
-  val tabs = KrJBEditorTabs(
+  val tabs: KrJBEditorTabs = KrJBEditorTabs(
     project,
     ActionManager.getInstance(),
     IdeFocusManager.findInstance(),
@@ -120,7 +116,7 @@ class EditorGroupPanel(
   private val fileEditorManager = FileEditorManager.getInstance(project)
 
   /** The group manager for this project. */
-  var groupManager = EditorGroupManager.getInstance(project)
+  var groupManager: EditorGroupManager = EditorGroupManager.getInstance(project)
 
   /** The action toolbar. */
   private lateinit var toolbar: ActionToolbar
@@ -344,10 +340,7 @@ class EditorGroupPanel(
     add(toolbar.component, BorderLayout.WEST)
   }
 
-  /**
-   * Reloads the tabs in the editor panel, clearing existing tabs and fetching new ones based on the currently displayed
-   * group.
-   */
+  /** Reloads the tabs in the editor panel, clearing existing tabs and fetching new ones based on the currently displayed group. */
   private fun rerenderTabs() {
     val currentGroup = this.displayedGroup
     if (currentGroup == null) return
@@ -940,13 +933,6 @@ class EditorGroupPanel(
     }
   }
 
-  /** Determines whether the smart mode is needed for the editor group panel. */
-  private fun needSmartMode(refreshRequest: RefreshRequest?, lastGroup: EditorGroup?): Boolean {
-    var requestedGroup = refreshRequest?.requestedGroup ?: lastGroup ?: return true
-
-    return requestedGroup.exists() && requestedGroup.needSmartMode()
-  }
-
   /** Return the last selected group. */
   private fun getLastGroup(): EditorGroup {
     var lastGroup = when (groupToBeRendered) {
@@ -1059,8 +1045,8 @@ class EditorGroupPanel(
   }
 
   /**
-   * Checks whether the panel's current file editor is part of the editor manager selected files. This is useful when we
-   * have splitters or other windows to detect which group panel is selected.
+   * Checks whether the panel's current file editor is part of the editor manager selected files. This is useful when we have splitters or
+   * other windows to detect which group panel is selected.
    */
   private fun isSelected(): Boolean = fileEditorManager.selectedEditors.any { it == this.fileEditor }
 
@@ -1151,15 +1137,16 @@ class EditorGroupPanel(
 
       try {
         // Remove from current favorites
-        ActionManager.getInstance().getAction(RemoveFromCurrentBookmarksAction.ID).actionPerformed(
-          AnActionEvent.createEvent(
-            DataManager.getInstance().getDataContext(tabs),
-            Presentation(),
-            TAB_PLACE,
-            ActionUiKind.NONE,
-            e,
-          )
+        val action = ActionManager.getInstance().getAction(RemoveFromCurrentBookmarksAction.ID)
+        val e = AnActionEvent.createEvent(
+          DataManager.getInstance().getDataContext(tabs),
+          Presentation(),
+          TAB_PLACE,
+          ActionUiKind.NONE,
+          e,
         )
+
+        ActionWrapperUtil.actionPerformed(e, action, action)
       } finally {
         tabs.setMyPopupInfo(null)
       }
@@ -1212,9 +1199,9 @@ class EditorGroupPanel(
 
   companion object {
     const val NOT_INITIALIZED: Int = -10_000
-    const val TOOLBAR_PLACE = "krasa.editorGroups.EditorGroupPanel"
-    const val TAB_PLACE = "EditorGroupsTabPopup"
-    const val COMPACT_TAB_HEIGHT = 30
+    const val TOOLBAR_PLACE: String = "krasa.editorGroups.EditorGroupPanel"
+    const val TAB_PLACE: String = "EditorGroupsTabPopup"
+    const val COMPACT_TAB_HEIGHT: Int = 30
     val BOOKMARK_GROUP: DataKey<BookmarksGroup> = DataKey.create<BookmarksGroup>("krasa.BookmarksGroup")
     val EDITOR_PANEL: Key<EditorGroupPanel?> = Key.create<EditorGroupPanel?>("EDITOR_GROUPS_PANEL")
     val EDITOR_GROUP: Key<EditorGroup?> = Key.create<EditorGroup?>("EDITOR_GROUP")
