@@ -7,6 +7,7 @@ import com.intellij.patterns.StringPattern
 import com.intellij.util.indexing.DataIndexer
 import com.intellij.util.indexing.FileContent
 import krasa.editorGroups.language.EditorGroupsLanguage
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.EditorGroupIndexValue
 import krasa.editorGroups.services.PanelRefresher
 import krasa.editorGroups.settings.EditorGroupsSettings
@@ -18,18 +19,18 @@ import java.io.File
 class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileContent> {
   /** The main pattern in the files. */
   @NonNls
-  private val mainPattern = MyIndexPattern("@(idea|group)\\.\\w+.*")
+  private val mainPattern = MyIndexPattern("@group\\.\\w+.*")
 
   /** Index patterns. */
   @NonNls
   private val indexPatterns: Array<Pair<MyIndexPattern, Consumer>> = arrayOf(
-    Pair(MyIndexPattern("^@(idea|group)\\.root\\s(.*)"), RootConsumer()),
-    Pair(MyIndexPattern("^@(idea|group)\\.title\\s(.*)"), TitleConsumer()),
-    Pair(MyIndexPattern("^@(idea|group)\\.color\\s(.*)"), ColorConsumer()),
-    Pair(MyIndexPattern("^@(idea|group)\\.fgcolor\\s(.*)"), FgColorConsumer()),
-    Pair(MyIndexPattern("^@(idea|group)\\.related\\s(.*)"), RelatedFilesConsumer()),
-    Pair(MyIndexPattern("^@(idea|group)\\.id\\s(.*)"), IdConsumer()),
-    Pair(MyIndexPattern("(^@(idea|group)\\.disable.*)"), DisableConsumer())
+    Pair(MyIndexPattern("^@group\\.root\\s(.*)"), RootConsumer()),
+    Pair(MyIndexPattern("^@group\\.title\\s(.*)"), TitleConsumer()),
+    Pair(MyIndexPattern("^@group\\.color\\s(.*)"), ColorConsumer()),
+    Pair(MyIndexPattern("^@group\\.fgcolor\\s(.*)"), FgColorConsumer()),
+    Pair(MyIndexPattern("^@group\\.related\\s(.*)"), RelatedFilesConsumer()),
+    Pair(MyIndexPattern("^@group\\.id\\s(.*)"), IdConsumer()),
+    Pair(MyIndexPattern("(^@group\\.disable.*)"), DisableConsumer())
   )
 
   /**
@@ -133,7 +134,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
 
     if (map.containsKey(myLastGroup.id)) {
-      indexingWarn(inputData.project, inputData.file, "Duplicate Group ID '${myLastGroup.id}'")
+      indexingWarn(inputData.project, inputData.file, message("duplicate.group.id.0", myLastGroup.id))
     } else {
       map[myLastGroup.id] = myLastGroup
     }
@@ -245,10 +246,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
     }
   }
 
-  /**
-   * Id consumer: Sets the id of the editor group. Moreover, if the group doesn't have a title defined, sets the id as
-   * the title.
-   */
+  /** Id consumer: Sets the id of the editor group. Moreover, if the group doesn't have a title defined, sets the id as the title. */
   internal class IdConsumer : Consumer() {
     override fun consume(
       inputData: FileContent?,

@@ -115,11 +115,11 @@ class IndexCache(private val project: Project) {
   }
 
   /** Clear the cache. */
-  fun clear() = groupsByLinks.clear()
+  fun clear(): Unit = groupsByLinks.clear()
 
   /**
-   * Validates the given [group]. This method checks if the given [group] is valid and performs additional validation
-   * based on the type of group.
+   * Validates the given [group]. This method checks if the given [group] is valid and performs additional validation based on the type of
+   * group.
    *
    * @param group The [EditorGroup] to validate.
    */

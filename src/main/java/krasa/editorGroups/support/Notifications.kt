@@ -6,6 +6,7 @@ import com.intellij.notification.*
 import com.intellij.notification.Notifications.Bus.notify
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.messages.EditorGroupsBundle.message
@@ -67,7 +68,7 @@ object Notifications {
     val notification = notificationGroup.createNotification(ID, content, NotificationType.WARNING)
     if (action != null) notification.addAction(action)
 
-    LOG.warn(RuntimeException(content))
+    thisLogger().warn(RuntimeException(content))
     show(notification)
   }
 
@@ -78,7 +79,7 @@ object Notifications {
   }
 
   @JvmStatic
-  fun notifyTooManyFiles() = showWarning(TooManyFilesException.FOUND_TOO_MANY_MATCHING_FILES_SKIPPING)
+  fun notifyTooManyFiles(): Unit = showWarning(TooManyFilesException.FOUND_TOO_MANY_MATCHING_FILES_SKIPPING)
 
   @JvmStatic
   fun notifySimple(msg: String) {

@@ -3,8 +3,6 @@ package krasa.editorGroups.support
 import com.intellij.icons.AllIcons
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Iconable
@@ -15,10 +13,8 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.ColorUtil
-import com.intellij.ui.JBColor
 import com.intellij.util.IconUtil.computeFileIcon
 import com.intellij.util.ReflectionUtil
-import com.intellij.util.ui.NamedColorUtil
 import krasa.editorGroups.model.Link
 import java.awt.Color
 import java.io.File
@@ -27,15 +23,12 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import javax.swing.Icon
 
-val LOG = Logger.getInstance(Utils::class.java)
-val ERROR_FOREGROUND_COLOR = NamedColorUtil.getErrorForeground()
-
 object EditorGroupsActions {
-  const val EDITOR_GROUP_TAB_MENU = "krasa.editorGroups.EditorGroupsTabPopupMenu"
+  const val EDITOR_GROUP_TAB_MENU: String = "krasa.editorGroups.EditorGroupsTabPopupMenu"
 }
 
 @Suppress("UseJBColor")
-val colorMap = hashMapOf(
+val colorMap: HashMap<String, Color> = hashMapOf(
   "black" to Color(0x000000),
   "deepskyblue" to Color(0x00bfff),
   "mediumblue" to Color(0x0000cd),
@@ -186,7 +179,7 @@ val colorMap = hashMapOf(
   "white" to Color(0xffffff)
 )
 
-val colorSet = colorMap.keys
+val colorSet: MutableSet<String> = colorMap.keys
 
 /**
  * Retrieves the presentable name from a given path, e.g. the last element of the path, without the extension.
@@ -214,12 +207,11 @@ fun toPresentableName(path: String): String {
 /**
  * Retrieves the Color instance based on the specified color name and modifiers.
  *
- * @param color the color name with optional modifiers. Format: "colorName[+/-tones]". Examples: "red", "blue+2",
- *    "green-1".
+ * @param color the color name with optional modifiers. Format: "colorName[+/-tones]". Examples: "red", "blue+2", "green-1".
  * @return the Color instance corresponding to the provided color name and modifiers, or null if not found.
  */
 fun getColorInstance(color: String): Color? {
-  var colorName = color
+  var colorName = color.lowercase()
   var modifier = CharArray(0)
 
   val lighterIndex = color.indexOf("-")
@@ -380,7 +372,8 @@ fun unwrapPreview(file: VirtualFile?): VirtualFile? {
       result = Objects.requireNonNull(source)?.invoke(result) as VirtualFile
     }
   } catch (e: Throwable) {
-    LOG.error(e)
+    //
+    throw RuntimeException(e)
   }
 
   return result
@@ -398,14 +391,6 @@ fun getCanonicalPath(file: File): String = try {
 } catch (e: IOException) {
   throw java.lang.RuntimeException(e)
 }
-
-/**
- * Checks whether the given file belongs to the local file system.
- *
- * @param currentFile The file to check.
- * @return `true` if the file is in the local file system, `false` otherwise.
- */
-fun isInLocalFileSystem(currentFile: VirtualFile): Boolean = currentFile.fileSystem is LocalFileSystem
 
 /**
  * Checks whether the given file is a JAR or ZIP file.
@@ -434,37 +419,3 @@ fun isBlank(cs: CharSequence?): Boolean {
 
   return cs.indices.all { Character.isWhitespace(cs[it]) }
 }
-
-/**
- * Retrieves the content of a file specified by the given URL.
- *
- * @param url the URL of the file to retrieve the content from
- * @return the content of the file as a string, or null if the file does not exist or cannot be accessed
- */
-fun getFileContent(url: VirtualFile): String? = FileDocumentManager.getInstance().getDocument(url)?.text
-
-/**
- * Retrieves the content of a file specified by the given ownerPath.
- *
- * @param ownerPath the path of the file to retrieve the content from
- * @return the content of the file as a string, or null if the file does not exist or cannot be accessed
- */
-fun getFileContent(ownerPath: String): String? {
-  val fileByPath = getFileByPath(ownerPath) ?: return null
-  return getFileContent(fileByPath)
-}
-
-/**
- * Retrieves the virtual file associated with the given URL. Returns `null` if no file is found.
- *
- * @param url The URL of the file.
- * @return The virtual file associated with the given URL, or `null` if no file is found.
- */
-fun getFileByUrl(url: String): VirtualFile? = VirtualFileManager.getInstance().findFileByUrl(url)
-
-/**
- * Converts an integer to a JBColor instance with both light and dark themes set to the same color.
- *
- * @return A JBColor with the specified integer color, or null if the color creation fails.
- */
-fun Int.toColor(): Color? = JBColor(Color(this), Color(this))
