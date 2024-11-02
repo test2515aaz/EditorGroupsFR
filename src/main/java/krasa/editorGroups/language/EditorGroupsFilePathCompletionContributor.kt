@@ -352,8 +352,8 @@ internal class EditorGroupsFilePathCompletionContributor : CompletionContributor
         presentation.setTailText(sb.toString(), true)
       }
 
-      val psi = file.findPsiFile(project) ?: return
-      val icon = if (file.isDirectory) AllIcons.Nodes.Folder else psi.getIcon(0)
+      val psi = file.findPsiFile(project)
+      val icon = if (file.isDirectory) AllIcons.Nodes.Folder else psi?.getIcon(0)
       presentation.setIcon(icon)
     }
 

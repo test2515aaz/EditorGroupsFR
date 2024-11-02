@@ -14,7 +14,7 @@ import krasa.editorGroups.model.EditorGroupIndexValue
 import org.jetbrains.annotations.NonNls
 
 object Notifications {
-  val ID = message("notifications.id")
+  const val ID: String = "Editor Groups"
 
   private val notificationGroup: NotificationGroup
     get() = NotificationGroupManager.getInstance().getNotificationGroup(ID)

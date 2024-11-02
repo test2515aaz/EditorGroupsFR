@@ -103,7 +103,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   override fun icon(): Icon = EditorGroupsIcons.bookmarks
 
-  override fun invalidate() = Unit
+  override fun invalidate(): Unit = Unit
 
   override fun size(project: Project): Int = links.size
 

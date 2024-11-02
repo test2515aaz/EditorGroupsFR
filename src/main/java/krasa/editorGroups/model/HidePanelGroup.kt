@@ -17,7 +17,7 @@ class HidePanelGroup : EditorGroup() {
 
   override fun icon(): Icon? = EditorGroupsIcons.hide
 
-  override fun invalidate() = Unit
+  override fun invalidate(): Unit = Unit
 
   override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = presentableNameForUI
 

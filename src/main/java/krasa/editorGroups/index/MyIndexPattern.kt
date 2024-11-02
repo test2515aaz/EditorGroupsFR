@@ -26,7 +26,7 @@ data class MyIndexPattern(
       optimizedPattern = StringUtil.trimStart(optimizedPattern, ".*")
 
       this.optimizedIndexingPattern = Pattern.compile(optimizedPattern, flags)
-    } catch (e: PatternSyntaxException) {
+    } catch (_: PatternSyntaxException) {
       this.pattern = null
       this.optimizedIndexingPattern = null
     }

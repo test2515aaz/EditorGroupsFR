@@ -76,7 +76,13 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
           )
 
           if (lastGroup != null && lastGroup !== currentGroup) {
-            index = add(inputData, ownerPath, lastGroup, index, map)
+            index = add(
+              inputData = inputData,
+              ownerPath = ownerPath,
+              lastGroup = lastGroup,
+              index = index,
+              map = map
+            )
           }
 
           lastGroup = currentGroup
