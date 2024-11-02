@@ -81,10 +81,10 @@ object LanguagePatternHolder {
   val keywordsPattern: Pattern = createPipePattern(tokens = keywords, caseSensitive = true)
 
   @JvmField
-  val colorPattern: Pattern = createPipePattern(tokens = colors, caseSensitive = false)
+  val colorPattern: Pattern = createPipePattern(tokens = colors, caseSensitive = false, withModifiers = true)
 
   @JvmField
-  val hexColorPattern: Pattern = Pattern.compile("\\b#?[0-9a-fA-F]{3,8}\\b")
+  val hexColorPattern: Pattern = Pattern.compile("#[0-9a-fA-F]{3,8}")
 
   @JvmField
   val metadataPattern: Pattern = createPipePattern(tokens = metadata, caseSensitive = true)
@@ -102,12 +102,15 @@ object LanguagePatternHolder {
   val pathPattern: Pattern = Pattern.compile("(?m)^\\s*/.*$")
 
   /** Create a regex pattern to encapsulate the provided tokens. */
-  private fun createPipePattern(tokens: Set<String>, caseSensitive: Boolean): Pattern =
-    tokens.joinToString("|") { "(?<=^|[\\s\\W])${it}(?=\$|[\\s\\W])" } // NON-NLS
+  private fun createPipePattern(tokens: Set<String>, caseSensitive: Boolean, withModifiers: Boolean = false): Pattern {
+    val modifiers = if (withModifiers) "([+-]\\d+)?" else ""
+
+    return tokens.joinToString("|") { "(?<=^|[\\s\\W])${it}(?=\$|[\\s\\W])" } // NON-NLS
       .let { piped: String ->
         when {
-          caseSensitive -> Pattern.compile("(${piped})")
-          else          -> Pattern.compile("(?i:${piped})")
+          caseSensitive -> Pattern.compile("((${piped})${modifiers})")
+          else          -> Pattern.compile("((?i:${piped})${modifiers})")
         }
       }
+  }
 }
