@@ -1,9 +1,11 @@
 package krasa.editorGroups.support
 
 import com.intellij.icons.AllIcons
+import com.intellij.ide.DataManager
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.options.ex.Settings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Iconable
 import com.intellij.openapi.util.io.FileUtil
@@ -15,6 +17,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.IconUtil.computeFileIcon
 import com.intellij.util.ReflectionUtil
 import krasa.editorGroups.model.Link
+import java.awt.Component
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -211,4 +214,12 @@ fun isBlank(cs: CharSequence?): Boolean {
   if (strLen == 0) return true
 
   return cs.indices.all { Character.isWhitespace(cs[it]) }
+}
+
+fun getSettings(component: Component): Settings? =
+  Settings.KEY.getData(DataManager.getInstance().getDataContext(component))
+
+fun navigateToSettingsPage(component: Component, name: String) {
+  val settings = getSettings(component) ?: return
+  settings.select(settings.find(name))
 }
