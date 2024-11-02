@@ -33,12 +33,13 @@ internal class EditorGroupsCompletionContributor : CompletionContributor() {
 
         val offset: Int = min(text.length, parameters.offset)
         val curLineStart = text.lastIndexOf('\n', offset - 1) + 1
-        val indexOfAt = text.indexOf('@')
 
         // The line to complete (ex: @group)
-        var line = text.substring(curLineStart, offset).substring(max(indexOfAt, 0))
+        var line = text.substring(curLineStart, offset)
+        val indexOfAt = line.indexOf('@')
+        var keyword = line.substring(max(indexOfAt, 0))
 
-        val firstSpace = line.indexOf(' ') + 1
+        val firstSpace = keyword.indexOf(' ') + 1
         // The text to complete after (ex: @group.ti)
         val prefix = line.substring(firstSpace).trim { it <= ' ' }
 

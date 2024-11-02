@@ -19,13 +19,14 @@ object LanguagePatternHolder {
 
   /** The list of autocomplete keywords. */
   val keywords: Set<String> = setOf(
+    GROUP_ID,
     GROUP_ROOT,
     GROUP_RELATED,
     GROUP_COLOR,
     GROUP_FG_COLOR,
     GROUP_DISABLE,
     GROUP_TITLE
-  ).map { it.substring(1) }.toSet()
+  )
 
   /** The list of autocomplete keywords with their descriptions. */
   val keywordsWithDescription: Map<String, String> = mapOf(
@@ -43,7 +44,7 @@ object LanguagePatternHolder {
 
   val metadata: Set<String> = setOf(
     GROUP_ID
-  ).map { it.substring(1) }.toSet()
+  )
 
   /** The list of autocomplete macros. */
   val macros: Set<String> = setOf(
@@ -73,24 +74,24 @@ object LanguagePatternHolder {
 
   /** Get the description for the provided keyword or macro. */
   fun getDescription(keywordOrMacro: String): String {
-    val key = if (keywordOrMacro.startsWith("@")) keywordOrMacro else "@${keywordOrMacro}"
+    val key = keywordOrMacro
     return allWithDescription[key] ?: ""
   }
 
   @JvmField
-  val keywordsPattern: Pattern = createPipePattern(tokens = keywords, patternPrefix = "[@]", caseSensitive = true)
+  val keywordsPattern: Pattern = createPipePattern(tokens = keywords, caseSensitive = true)
 
   @JvmField
-  val colorPattern: Pattern = createPipePattern(tokens = colors, patternPrefix = "", caseSensitive = false)
+  val colorPattern: Pattern = createPipePattern(tokens = colors, caseSensitive = false)
 
   @JvmField
-  val metadataPattern: Pattern = createPipePattern(tokens = metadata, patternPrefix = "[@]", caseSensitive = true)
+  val metadataPattern: Pattern = createPipePattern(tokens = metadata, caseSensitive = true)
 
   @JvmField
-  val macrosPattern: Pattern = createPipePattern(tokens = macros, patternPrefix = "", caseSensitive = true)
+  val macrosPattern: Pattern = createPipePattern(tokens = macros, caseSensitive = true)
 
   @JvmField
-  val constantsPattern: Pattern = createPipePattern(tokens = constants, patternPrefix = "", caseSensitive = true)
+  val constantsPattern: Pattern = createPipePattern(tokens = constants, caseSensitive = true)
 
   @JvmField
   val commentPattern: Pattern = Pattern.compile("(?m)^\\s*#.*$")
@@ -99,12 +100,12 @@ object LanguagePatternHolder {
   val pathPattern: Pattern = Pattern.compile("(?m)^\\s*/.*$")
 
   /** Create a regex pattern to encapsulate the provided tokens. */
-  private fun createPipePattern(tokens: Set<String>, patternPrefix: String, caseSensitive: Boolean): Pattern =
-    tokens.joinToString("|") { "\\b$it\\b" } // NON-NLS
+  private fun createPipePattern(tokens: Set<String>, caseSensitive: Boolean): Pattern =
+    tokens.joinToString("|") { "(?<=^|[\\s\\W])${it}(?=\$|[\\s\\W])" } // NON-NLS
       .let { piped: String ->
         when {
-          caseSensitive -> Pattern.compile("(${patternPrefix}${piped})")
-          else          -> Pattern.compile("(?i:${patternPrefix}${piped})")
+          caseSensitive -> Pattern.compile("(${piped})")
+          else          -> Pattern.compile("(?i:${piped})")
         }
       }
 }
