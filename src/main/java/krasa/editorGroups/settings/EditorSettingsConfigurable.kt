@@ -3,10 +3,8 @@ package krasa.editorGroups.settings
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.DialogPanel
-import com.intellij.ui.dsl.builder.RightGap
-import com.intellij.ui.dsl.builder.bindIntValue
-import com.intellij.ui.dsl.builder.bindSelected
-import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.dsl.builder.*
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_GROUP_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_TAB_SIZE_LIMIT
@@ -29,8 +27,19 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
   }
 
   private fun initComponents() {
+    lateinit var isEnabled: Cell<JBCheckBox>
+    lateinit var behaviorGroup: CollapsibleRow
+    lateinit var presentationGroup: CollapsibleRow
+    lateinit var performanceGroup: CollapsibleRow
+
     main = panel {
-      collapsibleGroup(message("settings.features.behavior.title")) {
+      row {
+        isEnabled = checkBox(message("EditorGroupsSettings.isShowPanelCheckbox.text"))
+          .bindSelected(settingsClone::isShowPanel)
+          .comment(message("EditorGroupsSettings.isShowPanelCheckbox.toolTipText"))
+      }
+
+      behaviorGroup = collapsibleGroup(message("settings.features.behavior.title")) {
         row {
           checkBox(message("EditorGroupsSettings.isSelectRegexGroupCheckbox.text"))
             .bindSelected(settingsClone::isSelectRegexGroup)
@@ -70,9 +79,10 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
             .bindSelected(settingsClone::isRememberLastGroup)
             .comment(message("EditorGroupsSettings.isRememberLastGroupCheckbox.toolTipText"))
         }
-      }.expanded = true
+      }
+        .also { it.expanded = true }
 
-      collapsibleGroup(message("settings.features.presentation.title")) {
+      presentationGroup = collapsibleGroup(message("settings.features.presentation.title")) {
         row {
           checkBox(message("EditorGroupsSettings.isShowSizeCheckbox.text"))
             .bindSelected(settingsClone::isShowSize)
@@ -117,9 +127,10 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
             .bindSelected(settingsClone::isContinuousScrolling)
             .comment(message("EditorGroupsSettings.isContinuousScrollingCheckbox.toolTipText"))
         }
-      }.expanded = true
+      }
+        .also { it.expanded = true }
 
-      collapsibleGroup(message("settings.features.performance.title")) {
+      performanceGroup = collapsibleGroup(message("settings.features.performance.title")) {
         row {
           checkBox(message("EditorGroupsSettings.isExcludeEditorGroupsFilesCheckbox.text"))
             .bindSelected(settingsClone::isExcludeEditorGroupsFiles)
@@ -157,10 +168,16 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
             .gap(RightGap.COLUMNS)
             .comment(message("EditorGroupsSettings.tabSizeLimit.toolTipText"))
         }
-      }.expanded = true
+      }
+        .also { it.expanded = true }
 
       resetButton { doReset() }
     }
+
+    behaviorGroup.enabledIf(isEnabled.selected)
+    presentationGroup.enabledIf(isEnabled.selected)
+    performanceGroup.enabledIf(isEnabled.selected)
+
   }
 
   private fun doReset() {
