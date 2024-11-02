@@ -72,6 +72,8 @@
                                  key="settings.title"
                                  parentId="Editor"
         />
+        <search.optionContributor implementation="krasa.editorGroups.settings.EditorGroupsOptionContributor"/>
+        <search.topHitProvider implementation="krasa.editorGroups.settings.EditorGroupsTopHitProvider"/>
 
         <!-- Custom Scopes for colors -->
         <customScopesProvider implementation="krasa.editorGroups.extensions.CustomScopesProvider"/>
