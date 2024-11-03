@@ -40,7 +40,7 @@ public interface KrTabsPresentation {
   KrTabsPresentation setToDrawBorderIfTabsHidden(boolean draw);
 
   @NotNull
-  KrTabs getJBTabs();
+  EditorGroupsTabs getJBTabs();
 
   @NotNull
   KrTabsPresentation setActiveTabFillIn(@Nullable Color color);

@@ -11,7 +11,8 @@ import java.awt.event.MouseListener
 import java.util.function.Supplier
 import javax.swing.JComponent
 
-interface KrTabs {
+@Suppress("unused", "HardCodedStringLiteral")
+interface EditorGroupsTabs {
   /** Selected tab. */
   val selectedInfo: KrTabInfo?
 
@@ -24,29 +25,35 @@ interface KrTabs {
   /** Add a tab at the given index. */
   fun addTab(info: KrTabInfo, index: Int): KrTabInfo
 
+  /** Adds a tab at the end. */
   fun addTab(info: KrTabInfo): KrTabInfo
 
+  /** Removes a tab. */
   fun removeTab(info: KrTabInfo?): ActionCallback
 
+  /** Removes all tabs. */
   fun removeAllTabs()
 
+  /** Selects a tab, optionally requesting focus. */
   fun select(info: KrTabInfo, requestFocus: Boolean): ActionCallback
 
+  /** Get Tab at index. */
   fun getTabAt(tabIndex: Int): KrTabInfo
 
+  /** The tab presentation. */
   fun getPresentation(): KrTabsPresentation
 
-  fun setDataProvider(dataProvider: DataProvider): KrTabs?
+  fun setDataProvider(dataProvider: DataProvider): EditorGroupsTabs?
 
   fun getTargetInfo(): KrTabInfo?
 
-  fun addTabMouseListener(listener: MouseListener): KrTabs
+  fun addTabMouseListener(listener: MouseListener): EditorGroupsTabs
 
-  fun addListener(listener: KrTabsListener): KrTabs?
+  fun addListener(listener: KrTabsListener): EditorGroupsTabs?
 
-  fun addListener(listener: KrTabsListener, disposable: Disposable?): KrTabs?
+  fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabs?
 
-  fun setSelectionChangeHandler(handler: SelectionChangeHandler): KrTabs?
+  fun setSelectionChangeHandler(handler: SelectionChangeHandler): EditorGroupsTabs?
 
   fun getComponent(): JComponent
 
@@ -62,9 +69,9 @@ interface KrTabs {
 
   fun setNavigationActionBinding(prevActionId: String, nextActionId: String)
 
-  fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): KrTabs
+  fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): EditorGroupsTabs
 
-  fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): KrTabs
+  fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): EditorGroupsTabs
 
   fun resetDropOver(tabInfo: KrTabInfo)
 

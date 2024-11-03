@@ -8,7 +8,7 @@ import javax.swing.Icon
 import javax.swing.SwingConstants
 
 /** @author yole */
-interface KrTabsEx : KrTabs {
+interface KrTabsEx : EditorGroupsTabs {
   companion object {
     @JvmField
     val NAVIGATION_ACTIONS_KEY: DataKey<KrTabsEx> = DataKey.create("KrTabs")

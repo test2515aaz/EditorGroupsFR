@@ -7,10 +7,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.wm.IdeFocusManager
 import krasa.editorGroups.settings.EditorGroupsSettings
-import krasa.editorGroups.tabs2.KrTabs
+import krasa.editorGroups.tabs2.EditorGroupsTabs
 import krasa.editorGroups.tabs2.KrTabsPresentation
 
-open class KrEditorTabs : KrTabsImpl, KrTabs {
+open class KrEditorTabs : KrTabsImpl, EditorGroupsTabs {
   private var isAlphabeticalModeChanged = false
 
   override val isEditorTabs: Boolean = true

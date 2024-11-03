@@ -263,7 +263,7 @@ open class KrTabsImpl(
   override var dropSide: Int = -1
   protected var showDropLocation: Boolean = true
   private var oldSelection: KrTabInfo? = null
-  private var mySelectionChangeHandler: KrTabs.SelectionChangeHandler? = null
+  private var mySelectionChangeHandler: EditorGroupsTabs.SelectionChangeHandler? = null
   private var deferredFocusRequest: Runnable? = null
   private var firstTabOffset = 0
 
@@ -1218,14 +1218,14 @@ open class KrTabsImpl(
   val popupGroup: ActionGroup?
     get() = popupGroupSupplier?.invoke()
 
-  override fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): KrTabs =
+  override fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): EditorGroupsTabs =
     setPopupGroupWithSupplier({ popupGroup }, place, addNavigationGroup)
 
   override fun setPopupGroupWithSupplier(
     supplier: Supplier<out ActionGroup>,
     place: String,
     addNavigationGroup: Boolean
-  ): KrTabs {
+  ): EditorGroupsTabs {
     popupGroupSupplier = supplier::get
     popupPlace = place
     this.addNavigationGroup = addNavigationGroup
@@ -1726,7 +1726,7 @@ open class KrTabsImpl(
 
   override fun setToDrawBorderIfTabsHidden(toDrawBorderIfTabsHidden: Boolean): KrTabsPresentation = this
 
-  override fun getJBTabs(): KrTabs = this
+  override fun getJBTabs(): EditorGroupsTabs = this
 
   class Toolbar(private val tabs: KrTabsImpl, private val info: KrTabInfo) : JPanel(BorderLayout()) {
     init {
@@ -2312,10 +2312,9 @@ open class KrTabsImpl(
     return null
   }
 
+  /** Removes all tabs from the current collection of tabs. */
   override fun removeAllTabs() {
-    for (each in tabs) {
-      removeTab(each)
-    }
+    tabs.forEach { removeTab(it) }
   }
 
   private class Max {
@@ -2439,7 +2438,7 @@ open class KrTabsImpl(
   val borderThickness: Int
     get() = myBorder.thickness
 
-  override fun addTabMouseListener(listener: MouseListener): KrTabs {
+  override fun addTabMouseListener(listener: MouseListener): EditorGroupsTabs {
     removeListeners()
     tabMouseListeners.add(listener)
     addListeners()
@@ -2479,9 +2478,9 @@ open class KrTabsImpl(
     addListeners()
   }
 
-  override fun addListener(listener: KrTabsListener): KrTabs = addListener(listener = listener, disposable = null)
+  override fun addListener(listener: KrTabsListener): EditorGroupsTabs = addListener(listener = listener, disposable = null)
 
-  override fun addListener(listener: KrTabsListener, disposable: Disposable?): KrTabs {
+  override fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabs {
     tabListeners.add(listener)
     if (disposable != null) {
       Disposer.register(disposable) { tabListeners.remove(listener) }
@@ -2489,7 +2488,7 @@ open class KrTabsImpl(
     return this
   }
 
-  override fun setSelectionChangeHandler(handler: KrTabs.SelectionChangeHandler): KrTabs {
+  override fun setSelectionChangeHandler(handler: EditorGroupsTabs.SelectionChangeHandler): EditorGroupsTabs {
     mySelectionChangeHandler = handler
     return this
   }
