@@ -46,8 +46,6 @@ import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
 import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
-import krasa.editorGroups.tabs2.impl.multiRow.KrMultiRowLayout
-import krasa.editorGroups.tabs2.impl.multiRow.KrWrapMultiRowLayout
 import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter
@@ -202,7 +200,6 @@ open class KrTabsImpl(
   internal val separatorWidth: Int = JBUI.scale(1)
   private var dataProvider: DataProvider? = null
   private val deferredToRemove = WeakHashMap<Component, Component>()
-  private var tableLayout = createMultiRowLayout()
 
   // it's an invisible splitter intended for changing the size of tab zone
   private val splitter = KrTabsSideSplitter(this)
@@ -508,7 +505,7 @@ open class KrTabsImpl(
       singleRow = true
     }
 
-    val layout = if (useMultiRowLayout()) createMultiRowLayout() else createSingleRowLayout()
+    val layout = createSingleRowLayout()
     // set the current scroll value to new layout
     layout.scroll(scrollBarModel.value)
     setLayout(layout)
@@ -522,14 +519,7 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = true)
   }
 
-  protected open fun useMultiRowLayout(): Boolean = !isSingleRow
-
-  protected open fun createMultiRowLayout(): KrMultiRowLayout =
-    KrWrapMultiRowLayout(tabs = this, showPinnedTabsSeparately = false)
-
   protected open fun createSingleRowLayout(): KrSingleRowLayout = KrScrollableSingleRowLayout(this)
-
-  protected open fun createTableLayout(): KrMultiRowLayout = createMultiRowLayout()
 
   override fun setNavigationActionBinding(prevActionId: String, nextActionId: String) {
     nextAction?.reconnect(nextActionId)
@@ -1853,8 +1843,6 @@ open class KrTabsImpl(
           }
           divider.setBounds(location, 0, 1, height)
         }
-      } else if (effectiveLayout is KrMultiRowLayout) {
-        lastLayoutPass = effectiveLayout.layoutTable(visible)
       }
 
       centerizeEntryPointToolbarPosition()
@@ -2965,45 +2953,6 @@ open class KrTabsImpl(
       dropInfoIndex = -1
       dropSide = -1
       doRemoveTab(info = dropInfo, forcedSelectionTransfer = null, isDropTarget = true)
-    }
-  }
-
-  override fun startDropOver(tabInfo: KrTabInfo, point: RelativePoint): Image {
-    dropInfo = tabInfo
-    val pointInMySpace = point.getPoint(this)
-    val index = effectiveLayout!!.getDropIndexFor(pointInMySpace)
-    dropInfoIndex = index
-    addTab(info = dropInfo!!, index = index, isDropTarget = true, fireEvents = true)
-    val label = infoToLabel[dropInfo]
-    val size = label!!.preferredSize
-    label.setBounds(0, 0, size.width, size.height)
-    val img = ImageUtil.createImage(/* gc = */ graphicsConfiguration, /* width = */
-      size.width, /* height = */
-      size.height, /* type = */
-      BufferedImage.TYPE_INT_ARGB
-    )
-    val g = img.createGraphics()
-    label.paintOffscreen(g)
-    g.dispose()
-    relayout(forced = true, layoutNow = false)
-    return img
-  }
-
-  override fun processDropOver(over: KrTabInfo, point: RelativePoint) {
-    val pointInMySpace = point.getPoint(this)
-    val index = effectiveLayout!!.getDropIndexFor(pointInMySpace)
-    val side: Int = if (visibleInfos.isEmpty()) {
-      SwingConstants.CENTER
-    } else {
-      if (index != -1) -1 else effectiveLayout!!.getDropSideFor(pointInMySpace)
-    }
-    if (index != dropInfoIndex) {
-      dropInfoIndex = index
-      relayout(forced = true, layoutNow = false)
-    }
-    if (side != dropSide) {
-      dropSide = side
-      relayout(forced = true, layoutNow = false)
     }
   }
 

@@ -3,13 +3,10 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
 import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.KrTabsUtil;
 import krasa.editorGroups.tabs2.impl.*;
-import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.awt.*;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -232,68 +229,4 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     return lastSingleRowLayout != null && lastSingleRowLayout.toDrop.contains(info);
   }
 
-  @Override
-  public int getDropIndexFor(Point point) {
-    if (lastSingleRowLayout == null) return -1;
-
-    int result = -1;
-
-    Component c = myTabs.getComponentAt(point);
-
-    if (c instanceof KrTabsImpl) {
-      for (int i = 0; i < lastSingleRowLayout.myVisibleInfos.size() - 1; i++) {
-        KrTabLabel first = myTabs.getInfoToLabel().get(lastSingleRowLayout.myVisibleInfos.get(i));
-        KrTabLabel second = myTabs.getInfoToLabel().get(lastSingleRowLayout.myVisibleInfos.get(i + 1));
-
-        Rectangle firstBounds = first.getBounds();
-        Rectangle secondBounds = second.getBounds();
-
-        final boolean between;
-
-        boolean horizontal = getStrategy() instanceof KrSingleRowLayoutStrategy.Horizontal;
-        if (horizontal) {
-          between = firstBounds.getMaxX() < point.x
-            && secondBounds.getX() > point.x
-            && firstBounds.y < point.y
-            && secondBounds.getMaxY() > point.y;
-        } else {
-          between = firstBounds.getMaxY() < point.y
-            && secondBounds.getY() > point.y
-            && firstBounds.x < point.x
-            && secondBounds.getMaxX() > point.x;
-        }
-
-        if (between) {
-          c = first;
-          break;
-        }
-      }
-
-    }
-
-    if (c instanceof KrTabLabel) {
-      KrTabInfo info = ((KrTabLabel) c).getInfo();
-      int index = lastSingleRowLayout.myVisibleInfos.indexOf(info);
-      boolean isDropTarget = myTabs.isDropTarget(info);
-      if (!isDropTarget) {
-        for (int i = 0; i <= index; i++) {
-          if (myTabs.isDropTarget(lastSingleRowLayout.myVisibleInfos.get(i))) {
-            index -= 1;
-            break;
-          }
-        }
-        result = index;
-      } else if (index < lastSingleRowLayout.myVisibleInfos.size()) {
-        result = index;
-      }
-    }
-
-    return result;
-  }
-
-  @Override
-  @MagicConstant(intValues = {SwingConstants.CENTER, SwingConstants.TOP, SwingConstants.LEFT, SwingConstants.BOTTOM, SwingConstants.RIGHT, -1})
-  public int getDropSideFor(@NotNull Point point) {
-    return KrTabsUtil.getDropSideFor(point, myTabs);
-  }
 }
