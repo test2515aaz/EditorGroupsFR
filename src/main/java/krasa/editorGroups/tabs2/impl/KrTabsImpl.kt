@@ -55,6 +55,7 @@ import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
+import krasa.editorGroups.tabs2.label.TabUiDecorator
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
 import java.awt.*
@@ -63,6 +64,7 @@ import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.util.*
+import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
 import javax.accessibility.*
@@ -116,7 +118,7 @@ open class KrTabsImpl(
     val DEFAULT_MAX_TAB_WIDTH: Int = JBUIScale.scale(300)
 
     @JvmField
-    internal val defaultDecorator: KrUiDecorator = DefaultDecorator()
+    internal val defaultDecorator: TabUiDecorator = DefaultTabDecorator()
 
     @JvmStatic
     fun getComponentImage(info: KrTabInfo): Image {
@@ -212,7 +214,7 @@ open class KrTabsImpl(
   internal var forcedRelayout: Boolean = false
     private set
 
-  internal var uiDecorator: KrUiDecorator? = null
+  internal var uiDecorator: TabUiDecorator? = null
   private var paintFocus = false
   private var hideTabs = false
   private var isRequestFocusOnLastFocusedComponent = false
@@ -2789,7 +2791,7 @@ open class KrTabsImpl(
   val isSideComponentVertical: Boolean
     get() = !horizontalSide
 
-  override fun setUiDecorator(decorator: KrUiDecorator?): KrTabsPresentation {
+  override fun setUiDecorator(decorator: TabUiDecorator?): KrTabsPresentation {
     uiDecorator = decorator ?: defaultDecorator
     applyDecoration()
     return this
@@ -2870,16 +2872,6 @@ open class KrTabsImpl(
   override fun setDataProvider(dataProvider: DataProvider): KrTabsImpl {
     this.dataProvider = dataProvider
     return this
-  }
-
-  private class DefaultDecorator : KrUiDecorator {
-    override fun getDecoration(): KrUiDecorator.UiDecoration {
-      return KrUiDecorator.UiDecoration(
-        labelInsets = JBUI.insets(5, 8),
-        contentInsetsSupplier = java.util.function.Function { JBUI.insets(0, 4) },
-        iconTextGap = JBUI.scale(4)
-      )
-    }
   }
 
   fun layout(component: JComponent, bounds: Rectangle): Rectangle {
@@ -3031,9 +3023,9 @@ open class KrTabsImpl(
   }
 
   /**
-   * Custom implementation of Accessible interface. Given JBTabsImpl is similar to the built-it JTabbedPane, we expose
-   * similar behavior. The one tricky part is that JBTabsImpl can only expose the content of the selected tab, as the
-   * content of tabs is created/deleted on demand when a tab is selected.
+   * Custom implementation of Accessible interface. Given JBTabsImpl is similar to the built-it JTabbedPane, we expose similar behavior. The
+   * one tricky part is that JBTabsImpl can only expose the content of the selected tab, as the content of tabs is created/deleted on demand
+   * when a tab is selected.
    */
   protected inner class AccessibleJBTabsImpl internal constructor() : AccessibleJComponent(), AccessibleSelection {
     init {
@@ -3093,6 +3085,15 @@ open class KrTabsImpl(
       // can't do
     }
   }
+
+  private class DefaultTabDecorator : TabUiDecorator {
+    override fun getDecoration(): TabUiDecorator.TabUiDecoration = TabUiDecorator.TabUiDecoration(
+      labelFont = Font("Roboto", Font.BOLD, 20),
+      labelInsets = JBUI.insets(5, 8),
+      contentInsetsSupplier = Function { JBUI.insets(0, 4) },
+      iconTextGap = JBUI.scale(4)
+    )
+  }
 }
 
 private fun getFocusOwner(): JComponent? =
@@ -3136,9 +3137,9 @@ private fun sortTabsAlphabetically(tabs: MutableList<KrTabInfo>) {
 /**
  * AccessibleContext implementation for a single tab page.
  *
- * A tab page has a label as the display zone, name, description, etc. A tab page exposes a child component only if it
- * corresponds to the selected tab in the tab pane. Inactive tabs don't have a child component to expose, as components
- * are created/deleted on demand. A tab page exposes one action: select and activate the panel.
+ * A tab page has a label as the display zone, name, description, etc. A tab page exposes a child component only if it corresponds to the
+ * selected tab in the tab pane. Inactive tabs don't have a child component to expose, as components are created/deleted on demand. A tab
+ * page exposes one action: select and activate the panel.
  */
 private class AccessibleTabPage(
   private val parent: KrTabsImpl,
