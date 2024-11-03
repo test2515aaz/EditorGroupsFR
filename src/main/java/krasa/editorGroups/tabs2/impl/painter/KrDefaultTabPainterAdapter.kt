@@ -1,6 +1,6 @@
 package krasa.editorGroups.tabs2.impl.painter
 
-import krasa.editorGroups.tabs2.KrTabsPosition
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.Graphics
@@ -36,7 +36,7 @@ class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
       }
 
       else       -> {
-        if (isHovered && tabs.tabsPosition == KrTabsPosition.top) rect.height -= magicOffset
+        if (isHovered && tabs.tabsPosition == EditorGroupsTabsPosition.TOP) rect.height -= magicOffset
 
         tabPainter.paintTab(
           position = tabs.position,

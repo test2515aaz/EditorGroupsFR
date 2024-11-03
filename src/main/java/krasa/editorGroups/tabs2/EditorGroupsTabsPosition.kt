@@ -13,13 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package krasa.editorGroups.tabs2;
+package krasa.editorGroups.tabs2
 
-public enum KrTabsPosition {
-  top, left, bottom, right;
-
-  public boolean isSide() {
-    return this == left || this == right;
-  }
-
+enum class EditorGroupsTabsPosition {
+  TOP,
+  BOTTOM,
 }

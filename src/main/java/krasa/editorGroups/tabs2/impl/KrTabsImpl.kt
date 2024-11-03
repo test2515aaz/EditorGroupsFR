@@ -246,7 +246,7 @@ open class KrTabsImpl(
     private set
 
   private var removeDeferredRequest: Long = 0
-  var position: KrTabsPosition = KrTabsPosition.top
+  var position: EditorGroupsTabsPosition = EditorGroupsTabsPosition.TOP
     private set
 
   private val myBorder = createTabBorder()
@@ -439,10 +439,8 @@ open class KrTabsImpl(
   private fun isInsideTabsArea(x: Int, y: Int): Boolean {
     val area = lastLayoutPass?.headerRectangle?.size ?: return false
     return when (tabsPosition) {
-      KrTabsPosition.top    -> y <= area.height
-      KrTabsPosition.left   -> x <= area.width
-      KrTabsPosition.bottom -> y >= height - area.height
-      KrTabsPosition.right  -> x >= width - area.width
+      EditorGroupsTabsPosition.TOP    -> y <= area.height
+      EditorGroupsTabsPosition.BOTTOM -> y >= height - area.height
     }
   }
 
@@ -464,22 +462,8 @@ open class KrTabsImpl(
     }
 
     return when (tabsPosition) {
-      KrTabsPosition.left   -> {
-        if (ExperimentalUI.isNewUI()) {
-          val tabsRect = lastLayoutPass!!.headerRectangle
-          if (tabsRect != null) {
-            Rectangle(tabsRect.x + tabsRect.width - SCROLL_BAR_THICKNESS, 0, SCROLL_BAR_THICKNESS, height)
-          } else {
-            Rectangle(0, 0, 0, 0)
-          }
-        } else {
-          Rectangle(0, 0, SCROLL_BAR_THICKNESS, height)
-        }
-      }
-
-      KrTabsPosition.right  -> Rectangle(width - SCROLL_BAR_THICKNESS, 0, SCROLL_BAR_THICKNESS, height)
-      KrTabsPosition.top    -> Rectangle(0, 1, width, SCROLL_BAR_THICKNESS)
-      KrTabsPosition.bottom -> Rectangle(0, height - SCROLL_BAR_THICKNESS, width, SCROLL_BAR_THICKNESS)
+      EditorGroupsTabsPosition.TOP    -> Rectangle(0, 1, width, SCROLL_BAR_THICKNESS)
+      EditorGroupsTabsPosition.BOTTOM -> Rectangle(0, height - SCROLL_BAR_THICKNESS, width, SCROLL_BAR_THICKNESS)
     }
   }
 
@@ -830,11 +814,7 @@ open class KrTabsImpl(
   private fun showListPopup(rect: Rectangle, hiddenInfos: List<KrTabInfo>): JBPopup {
     val separatorIndex = hiddenInfos.indexOfFirst { info ->
       val label = infoToLabel[info]
-      if (position.isSide) {
-        label!!.y >= 0
-      } else {
-        label!!.x >= 0
-      }
+      label!!.x >= 0
     }
 
     val separatorInfo = if (separatorIndex > 0) hiddenInfos[separatorIndex] else null
@@ -1836,11 +1816,7 @@ open class KrTabsImpl(
 
         val divider = splitter.divider
         if (divider.parent === this) {
-          val location = if (tabsPosition == KrTabsPosition.left) {
-            lastLayoutPass!!.headerRectangle.width
-          } else {
-            width - lastLayoutPass!!.headerRectangle.width
-          }
+          val location = width - lastLayoutPass!!.headerRectangle.width
           divider.setBounds(location, 0, 1, height)
         }
       }
@@ -1870,7 +1846,7 @@ open class KrTabsImpl(
     val mComponent = moreToolbar!!.component
     if (!moreRect.isEmpty) {
       val bounds = Rectangle(moreRect)
-      if (!ExperimentalUI.isNewUI() || !tabsPosition.isSide) {
+      if (!ExperimentalUI.isNewUI()) {
         val preferredSize = mComponent.preferredSize
         val xDiff = (bounds.width - preferredSize.width) / 2
         val yDiff = (bounds.height - preferredSize.height) / 2
@@ -1892,7 +1868,7 @@ open class KrTabsImpl(
     if (!entryPointRect.isEmpty && tabCount > 0) {
       val preferredSize = eComponent.preferredSize
       val bounds = Rectangle(entryPointRect)
-      if (!ExperimentalUI.isNewUI() || !tabsPosition.isSide) {
+      if (!ExperimentalUI.isNewUI()) {
         val xDiff = (bounds.width - preferredSize.width) / 2
         val yDiff = (bounds.height - preferredSize.height) / 2
         bounds.x += xDiff + 2
@@ -1927,7 +1903,7 @@ open class KrTabsImpl(
 
   private fun computeHeaderFitSize(): Dimension {
     val max = computeMaxSize()
-    return if (position == KrTabsPosition.top || position == KrTabsPosition.bottom) {
+    return if (position == EditorGroupsTabsPosition.TOP || position == EditorGroupsTabsPosition.BOTTOM) {
       Dimension(size.width, if (horizontalSide) max(max.label.height, max.toolbar.height) else max.label.height)
     } else {
       Dimension(max.label.width + if (horizontalSide) 0 else max.toolbar.width, size.height)
@@ -2094,11 +2070,6 @@ open class KrTabsImpl(
         }
       }
     }
-    if (tabsPosition.isSide) {
-      if (splitter.sideTabsLimit > 0) {
-        max.label.width = max.label.width.coerceAtMost(splitter.sideTabsLimit)
-      }
-    }
     return max
   }
 
@@ -2129,7 +2100,7 @@ open class KrTabsImpl(
 
   private fun addHeaderSize(size: Dimension, tabsCount: Int) {
     val header = computeHeaderPreferredSize(tabsCount)
-    val horizontal = tabsPosition == KrTabsPosition.top || tabsPosition == KrTabsPosition.bottom
+    val horizontal = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
     if (horizontal) {
       size.height += header.height
       size.width = max(size.width, header.width)
@@ -2146,7 +2117,7 @@ open class KrTabsImpl(
     val infos: Iterator<KrTabInfo?> = infoToLabel.keys.iterator()
     val size = Dimension()
     var currentTab = 0
-    val horizontal = tabsPosition == KrTabsPosition.top || tabsPosition == KrTabsPosition.bottom
+    val horizontal = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
     while (infos.hasNext()) {
       val canGrow = currentTab < tabsCount
       val eachInfo = infos.next()
@@ -2396,7 +2367,7 @@ open class KrTabsImpl(
 
   /** @return insets, that should be used to layout [KrTabsImpl.moreToolbar] and [KrTabsImpl.entryPointToolbar] */
   fun getActionsInsets(): Insets = if (ExperimentalUI.isNewUI()) {
-    if (position.isSide) JBInsets.create(Insets(4, 8, 4, 3)) else JBInsets.create(Insets(0, 5, 0, 8))
+    JBInsets.create(Insets(0, 5, 0, 8))
   } else {
     JBInsets.create(Insets(0, 1, 0, 1))
   }
@@ -2893,12 +2864,10 @@ open class KrTabsImpl(
     return this
   }
 
-  override fun setTabsPosition(position: KrTabsPosition): KrTabsPresentation {
+  override fun setTabsPosition(position: EditorGroupsTabsPosition): KrTabsPresentation {
     this.position = position
     val divider = splitter.divider
-    if (position.isSide && divider.parent == null) {
-      add(divider)
-    } else if (divider.parent === this && !position.isSide) {
+    if (divider.parent === this) {
       remove(divider)
     }
     applyDecoration()
@@ -2906,7 +2875,7 @@ open class KrTabsImpl(
     return this
   }
 
-  override fun getTabsPosition(): KrTabsPosition = position
+  override fun getTabsPosition(): EditorGroupsTabsPosition = position
 
   override fun setTabDraggingEnabled(enabled: Boolean): KrTabsPresentation {
     isTabDraggingEnabled = enabled
@@ -2937,7 +2906,7 @@ open class KrTabsImpl(
   }
 
   val isHorizontalTabs: Boolean
-    get() = tabsPosition == KrTabsPosition.top || tabsPosition == KrTabsPosition.bottom
+    get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
 
   override fun putInfo(info: MutableMap<in String, in String>) {
     selectedInfo?.putInfo(info)

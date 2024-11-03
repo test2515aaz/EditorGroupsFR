@@ -52,9 +52,9 @@ public interface KrTabsPresentation {
   KrTabsPresentation setTabLabelActionsMouseDeadzone(TimedDeadzone.Length length);
 
   @NotNull
-  KrTabsPresentation setTabsPosition(KrTabsPosition position);
+  KrTabsPresentation setTabsPosition(EditorGroupsTabsPosition position);
 
-  KrTabsPosition getTabsPosition();
+  EditorGroupsTabsPosition getTabsPosition();
 
   KrTabsPresentation setTabDraggingEnabled(boolean enabled);
 

@@ -39,8 +39,8 @@ import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
 import krasa.editorGroups.tabs2.EditorGroupsTabs
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.KrTabInfo
-import krasa.editorGroups.tabs2.KrTabsPosition
 import krasa.editorGroups.tabs2.my.KrJBEditorTabs
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
@@ -224,10 +224,8 @@ class EditorGroupPanel(
   // TODO move to KrJBEditorTabs constructor
   internal fun setTabPlacement(tabPlacement: Int) {
     when (tabPlacement) {
-      SwingConstants.TOP    -> tabs.setTabsPosition(KrTabsPosition.top)
-      SwingConstants.BOTTOM -> tabs.setTabsPosition(KrTabsPosition.bottom)
-      SwingConstants.LEFT   -> tabs.setTabsPosition(KrTabsPosition.left)
-      SwingConstants.RIGHT  -> tabs.setTabsPosition(KrTabsPosition.right)
+      SwingConstants.TOP    -> tabs.setTabsPosition(EditorGroupsTabsPosition.TOP)
+      SwingConstants.BOTTOM -> tabs.setTabsPosition(EditorGroupsTabsPosition.BOTTOM)
       UISettings.TABS_NONE  -> tabs.isHideTabs = true
       else                  -> throw IllegalArgumentException("Unknown tab placement code=$tabPlacement")
     }

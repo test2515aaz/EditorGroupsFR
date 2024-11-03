@@ -46,10 +46,8 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
 
   KrSingleRowLayoutStrategy getStrategy() {
     return switch (myTabs.getPresentation().getTabsPosition()) {
-      case top -> myTop;
-      case left -> myLeft;
-      case bottom -> myBottom;
-      case right -> myRight;
+      case TOP -> myTop;
+      case BOTTOM -> myBottom;
     };
   }
 
@@ -98,16 +96,10 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
 
       layoutTitle(data);
 
-      if (ExperimentalUI.isNewUI() && myTabs.getTabsPosition().isSide()) {
-        // Layout buttons first because their position will be used to calculate label positions
-        layoutEntryPointButton(data);
-        layoutMoreButton(data);
-        layoutLabels(data);
-      } else {
-        layoutLabels(data);
-        layoutEntryPointButton(data);
-        layoutMoreButton(data);
-      }
+      layoutLabels(data);
+      layoutEntryPointButton(data);
+      layoutMoreButton(data);
+
     }
 
     if (selected != null) {

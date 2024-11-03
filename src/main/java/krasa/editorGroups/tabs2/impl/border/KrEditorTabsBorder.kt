@@ -1,7 +1,7 @@
 package krasa.editorGroups.tabs2.impl.border
 
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.KrTabsPosition
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.impl.KrEditorTabs
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
@@ -17,7 +17,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
     val firstLabel = tabs.getTabLabel(tabs.getVisibleInfos().first()) ?: return
 
     when (tabs.position) {
-      KrTabsPosition.top    -> {
+      EditorGroupsTabsPosition.TOP    -> {
         val highlightThickness = thickness
         val startY = firstLabel.y - highlightThickness
         val startRow = 1
@@ -34,7 +34,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
         }
       }
 
-      KrTabsPosition.bottom -> {
+      EditorGroupsTabsPosition.BOTTOM -> {
         val rowCount = tabs.lastLayoutPass!!.rowCount
         for (rowInd in 0 until rowCount) {
           val curY = height - (rowInd + 1) * tabs.headerFitSize!!.height
@@ -42,7 +42,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
         }
       }
 
-      else                  -> return
+      else                            -> return
     }
 
     val selectedLabel = tabs.selectedLabel ?: return

@@ -124,8 +124,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
       }
       if (data.position + length > data.toFitLength - moreRectSize) {
         if (getStrategy().drawPartialOverflowTabs()) {
-          int clippedLength = ExperimentalUI.isNewUI() && myTabs.getTabsPosition().isSide()
-            ? length : data.toFitLength - data.position - moreRectSize;
+          int clippedLength = data.toFitLength - data.position - moreRectSize;
           final Rectangle rec = getStrategy().getLayoutRect(data, data.position, clippedLength);
           myTabs.layout(label, rec);
         }
@@ -162,9 +161,6 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
   }
 
   private int getMoreRectAxisSize() {
-    if (ExperimentalUI.isNewUI() && myTabs.getPosition().isSide()) {
-      return 0;
-    }
     return getStrategy().getMoreRectAxisSize();
   }
 
