@@ -28,13 +28,13 @@ open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
     get() = EditorGroupsUI.underlineHeight()
 
   override val hoverInactiveBackground: Color?
-    get() = hoverBackground
+    get() = EditorGroupsUI.hoverInactiveBackground()
 
   override val underlinedTabInactiveBackground: Color?
-    get() = underlinedTabBackground
+    get() = EditorGroupsUI.underlinedTabBackground()
 
   override val underlinedTabInactiveForeground: Color
-    get() = underlinedTabForeground
+    get() = EditorGroupsUI.underlinedTabForeground()
 
   override val inactiveColoredTabBackground: Color?
     get() = EditorGroupsUI.background()

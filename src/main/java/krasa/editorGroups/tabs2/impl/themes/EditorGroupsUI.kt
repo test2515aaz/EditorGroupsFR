@@ -37,6 +37,21 @@ object EditorGroupsUI {
     defaultTheme.hoverBackground
   )
 
+  fun hoverInactiveBackground(): Color = JBColor.namedColor(
+    "EditorGroupsTabs.hoverInactiveBackground",
+    defaultTheme.hoverInactiveBackground
+  )
+
+  fun hoverSelectedBackground(): Color = JBColor.namedColor(
+    "EditorGroupsTabs.hoverSelectedBackground",
+    defaultTheme.hoverSelectedBackground
+  )
+
+  fun hoverSelectedInactiveBackground(): Color = JBColor.namedColor(
+    "EditorGroupsTabs.hoverSelectedInactiveBackground",
+    defaultTheme.hoverSelectedInactiveBackground
+  )
+
   fun underlinedTabBackground(): Color? = JBColor.namedColor(
     "EditorGroupsTabs.underlinedTabBackground",
     defaultTheme.underlinedTabBackground ?: defaultTheme.background
