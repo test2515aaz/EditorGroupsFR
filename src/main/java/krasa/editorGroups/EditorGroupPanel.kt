@@ -78,6 +78,9 @@ class EditorGroupPanel(
   /** Disposed state, to prevent refreshing during disposal. */
   var disposed: Boolean = false
 
+  var currentTabPlacement: Int = SwingConstants.TOP
+  var isLaidOut: Boolean = false
+
   /**
    * A thread-safe reference to the current refresh request.
    *
