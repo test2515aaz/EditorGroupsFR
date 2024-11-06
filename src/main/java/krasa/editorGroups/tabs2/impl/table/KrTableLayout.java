@@ -138,7 +138,7 @@ public class KrTableLayout extends KrTabLayout {
   }
 
   private void calculateLengths(KrTablePassInfo data) {
-    boolean compressible = isCompressible();
+    boolean compressible = false;
     boolean showPinnedTabsSeparately = showPinnedTabsSeparately();
 
     int standardLengthToFit = data.moreRect.x - (data.titleRect.x + data.titleRect.width) - myTabs.getActionsInsets().left;
@@ -185,10 +185,6 @@ public class KrTableLayout extends KrTabLayout {
       total += data.lengths.get(info);
     }
     return total;
-  }
-
-  private boolean isCompressible() {
-    return myTabs.isSingleRow() && !UISettings.getInstance().getHideTabsIfNeeded() && myTabs.supportsCompression();
   }
 
   private void calculateCompressibleLengths(List<KrTabInfo> list, KrTablePassInfo data, int toFitLength) {

@@ -2,7 +2,6 @@ package krasa.editorGroups.tabs2.my;
 
 import com.intellij.ide.IdeEventQueue;
 import com.intellij.openapi.Disposable;
-import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -12,7 +11,7 @@ import krasa.editorGroups.EditorGroupManager;
 import krasa.editorGroups.EditorGroupPanel;
 import krasa.editorGroups.model.SwitchRequest;
 import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.impl.KrEditorTabs;
+import krasa.editorGroups.tabs2.impl.EditorGroupsPanelTabs;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainter;
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout;
@@ -26,15 +25,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class KrJBEditorTabs extends KrEditorTabs {
+public class KrJBEditorTabs extends EditorGroupsPanelTabs {
   private static final Logger LOG = Logger.getInstance(KrJBEditorTabs.class);
 
   private final Project project;
   private final VirtualFile file;
   private final KrSingleRowLayout mySingleRowLayout = createSingleRowLayout();
 
-  public KrJBEditorTabs(Project project, @NotNull ActionManager actionManager, IdeFocusManager focusManager, @NotNull Disposable parent, VirtualFile file) {
-    super(project, actionManager, focusManager, parent);
+  public KrJBEditorTabs(Project project, IdeFocusManager focusManager, @NotNull Disposable parent, VirtualFile file) {
+    super(project, parent);
     this.project = project;
     this.file = file;
     patchMouseListener(this);

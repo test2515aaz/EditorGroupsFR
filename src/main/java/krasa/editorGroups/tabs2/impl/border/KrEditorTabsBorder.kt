@@ -2,7 +2,7 @@ package krasa.editorGroups.tabs2.impl.border
 
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
-import krasa.editorGroups.tabs2.impl.KrEditorTabs
+import krasa.editorGroups.tabs2.impl.EditorGroupsPanelTabs
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
 
@@ -28,7 +28,7 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
           tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
         }
 
-        if ((tabs as? KrEditorTabs)?.shouldPaintBottomBorder() == true) {
+        if ((tabs as? EditorGroupsPanelTabs)?.shouldPaintBottomBorder() == true) {
           val yl = lastRow * tabs.headerFitSize!!.height + startY
           tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
         }

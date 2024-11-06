@@ -12,7 +12,7 @@ import java.util.function.Supplier
 import javax.swing.JComponent
 
 @Suppress("unused", "HardCodedStringLiteral")
-interface EditorGroupsTabs {
+interface EditorGroupsTabsBase {
   /** Selected tab. */
   val selectedInfo: KrTabInfo?
 
@@ -43,17 +43,17 @@ interface EditorGroupsTabs {
   /** The tab presentation. */
   fun getPresentation(): KrTabsPresentation
 
-  fun setDataProvider(dataProvider: DataProvider): EditorGroupsTabs?
+  fun setDataProvider(dataProvider: DataProvider): EditorGroupsTabsBase?
 
   fun getTargetInfo(): KrTabInfo?
 
-  fun addTabMouseListener(listener: MouseListener): EditorGroupsTabs
+  fun addTabMouseListener(listener: MouseListener): EditorGroupsTabsBase
 
-  fun addListener(listener: KrTabsListener): EditorGroupsTabs?
+  fun addListener(listener: KrTabsListener): EditorGroupsTabsBase?
 
-  fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabs?
+  fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabsBase?
 
-  fun setSelectionChangeHandler(handler: SelectionChangeHandler): EditorGroupsTabs?
+  fun setSelectionChangeHandler(handler: SelectionChangeHandler): EditorGroupsTabsBase?
 
   fun getComponent(): JComponent
 
@@ -69,9 +69,9 @@ interface EditorGroupsTabs {
 
   fun setNavigationActionBinding(prevActionId: String, nextActionId: String)
 
-  fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): EditorGroupsTabs
+  fun setPopupGroup(popupGroup: ActionGroup, place: String, addNavigationGroup: Boolean): EditorGroupsTabsBase
 
-  fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): EditorGroupsTabs
+  fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): EditorGroupsTabsBase
 
   fun resetDropOver(tabInfo: KrTabInfo)
 

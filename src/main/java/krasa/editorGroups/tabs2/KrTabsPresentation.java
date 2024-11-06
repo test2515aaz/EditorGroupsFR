@@ -2,7 +2,6 @@
 package krasa.editorGroups.tabs2;
 
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.util.ui.TimedDeadzone;
 import krasa.editorGroups.tabs2.label.TabUiDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +39,7 @@ public interface KrTabsPresentation {
   KrTabsPresentation setToDrawBorderIfTabsHidden(boolean draw);
 
   @NotNull
-  EditorGroupsTabs getJBTabs();
+  EditorGroupsTabsBase getJBTabs();
 
   @NotNull
   KrTabsPresentation setActiveTabFillIn(@Nullable Color color);
@@ -49,18 +48,9 @@ public interface KrTabsPresentation {
   KrTabsPresentation setTabLabelActionsAutoHide(boolean autoHide);
 
   @NotNull
-  KrTabsPresentation setTabLabelActionsMouseDeadzone(TimedDeadzone.Length length);
-
-  @NotNull
   KrTabsPresentation setTabsPosition(EditorGroupsTabsPosition position);
 
   EditorGroupsTabsPosition getTabsPosition();
-
-  KrTabsPresentation setTabDraggingEnabled(boolean enabled);
-
-  KrTabsPresentation setAlphabeticalMode(boolean alphabeticalMode);
-
-  KrTabsPresentation setSupportsCompression(boolean supportsCompression);
 
   void setFirstTabOffset(int offset);
 

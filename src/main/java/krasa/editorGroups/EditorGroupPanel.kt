@@ -38,7 +38,7 @@ import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
-import krasa.editorGroups.tabs2.EditorGroupsTabs
+import krasa.editorGroups.tabs2.EditorGroupsTabsBase
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.KrTabInfo
 import krasa.editorGroups.tabs2.my.KrJBEditorTabs
@@ -109,7 +109,6 @@ class EditorGroupPanel(
   /** The tabs component for this editor panel. */
   val tabs: KrJBEditorTabs = KrJBEditorTabs(
     project,
-    ActionManager.getInstance(),
     IdeFocusManager.findInstance(),
     fileEditor,
     file
@@ -1154,7 +1153,7 @@ class EditorGroupPanel(
   }
 
   /** Upon selecting a different tab of the group. */
-  internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : EditorGroupsTabs.SelectionChangeHandler {
+  internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : EditorGroupsTabsBase.SelectionChangeHandler {
     override fun execute(info: KrTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
 
       // TODO this causes the tab to not proceed with select
