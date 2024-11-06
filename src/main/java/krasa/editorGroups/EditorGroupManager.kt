@@ -464,7 +464,7 @@ class EditorGroupManager(private val project: Project) {
       switchRequest = SwitchRequest(
         group = displayedGroup,
         fileToOpen = fileToOpen,
-        myScrollOffset = tabs.myScrollOffset,
+        myScrollOffset = tabs.scrollOffset,
         width = tabs.width,
         line = line
       )

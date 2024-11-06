@@ -22,7 +22,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.*
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.BitUtil
@@ -41,7 +40,7 @@ import krasa.editorGroups.support.*
 import krasa.editorGroups.tabs2.EditorGroupsTabsBase
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.KrTabInfo
-import krasa.editorGroups.tabs2.my.KrJBEditorTabs
+import krasa.editorGroups.tabs2.my.EditorGroupsTabsContainer
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component
@@ -107,9 +106,8 @@ class EditorGroupPanel(
   private val fileFromTextEditor = getFileFromTextEditor(fileEditor)
 
   /** The tabs component for this editor panel. */
-  val tabs: KrJBEditorTabs = KrJBEditorTabs(
+  val tabs: EditorGroupsTabsContainer = EditorGroupsTabsContainer(
     project,
-    IdeFocusManager.findInstance(),
     fileEditor,
     file
   )
@@ -793,7 +791,7 @@ class EditorGroupPanel(
       this.groupToBeRendered = editorGroup
       if (refreshRequest.refresh) {
         // this will have edge cases
-        this.myScrollOffset = tabs.getMyScrollOffset()
+        this.myScrollOffset = tabs.scrollOffset
       }
 
       render()
@@ -1123,7 +1121,7 @@ class EditorGroupPanel(
   }
 
   /** Remove favorites on right click. */
-  internal inner class EditorTabMouseListener(val tabs: KrJBEditorTabs) : MouseAdapter() {
+  internal inner class EditorTabMouseListener(val tabs: EditorGroupsTabsContainer) : MouseAdapter() {
     override fun mouseReleased(e: MouseEvent) {
       // if right click a tab (or shift-click)
       if (!UIUtil.isCloseClick(e, MouseEvent.MOUSE_RELEASED)) return
@@ -1132,7 +1130,7 @@ class EditorGroupPanel(
       val info = tabs.findInfo(e) ?: return
 
       IdeEventQueue.getInstance().blockNextEvents(e)
-      tabs.setMyPopupInfo(info)
+      tabs.setTabInfo(info)
 
       try {
         // Remove from current favorites
@@ -1147,7 +1145,7 @@ class EditorGroupPanel(
 
         ActionWrapperUtil.actionPerformed(e, action, action)
       } finally {
-        tabs.setMyPopupInfo(null)
+        tabs.setTabInfo(null)
       }
     }
   }
