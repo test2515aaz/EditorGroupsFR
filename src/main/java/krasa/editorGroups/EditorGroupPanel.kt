@@ -38,9 +38,9 @@ import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
 import krasa.editorGroups.tabs2.EditorGroupsTabsBase
+import krasa.editorGroups.tabs2.EditorGroupsTabsContainer
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.KrTabInfo
-import krasa.editorGroups.tabs2.my.EditorGroupsTabsContainer
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component
