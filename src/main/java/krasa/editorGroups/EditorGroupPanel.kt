@@ -226,8 +226,7 @@ class EditorGroupPanel(
     when (tabPlacement) {
       SwingConstants.TOP    -> tabs.setTabsPosition(EditorGroupsTabsPosition.TOP)
       SwingConstants.BOTTOM -> tabs.setTabsPosition(EditorGroupsTabsPosition.BOTTOM)
-      UISettings.TABS_NONE  -> tabs.isHideTabs = true
-      else                  -> throw IllegalArgumentException("Unknown tab placement code=$tabPlacement")
+      else                  -> tabs.isHideTabs = true
     }
   }
 
