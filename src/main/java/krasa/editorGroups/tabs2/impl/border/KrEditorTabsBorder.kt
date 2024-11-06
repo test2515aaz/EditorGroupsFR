@@ -1,8 +1,8 @@
 package krasa.editorGroups.tabs2.impl.border
 
 import com.intellij.util.ui.JBUI
+import krasa.editorGroups.tabs2.EditorGroupsPanelTabs
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
-import krasa.editorGroups.tabs2.impl.EditorGroupsPanelTabs
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
 
