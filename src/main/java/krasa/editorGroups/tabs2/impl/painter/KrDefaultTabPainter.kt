@@ -6,17 +6,17 @@ import com.intellij.openapi.rd.paint2DLine
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.paint.LinePainter2D
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
-import krasa.editorGroups.tabs2.impl.themes.KrDefaultTabTheme
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupDefaultTabTheme
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 
-/** A regular tab painter that uses a [KrTabTheme] to paint the tabs. */
-open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme()) : KrTabPainter {
+/** A regular tab painter that uses a [EditorGroupTabTheme] to paint the tabs. */
+open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGroupDefaultTabTheme()) : KrTabPainter {
 
-  override fun getTabTheme(): KrTabTheme = theme
+  override fun getTabTheme(): EditorGroupTabTheme = theme
 
   override fun getBackgroundColor(): Color = theme.background ?: theme.borderColor
 

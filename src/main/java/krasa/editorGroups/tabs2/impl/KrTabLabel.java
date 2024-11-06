@@ -24,7 +24,7 @@ import krasa.editorGroups.settings.EditorGroupsSettings;
 import krasa.editorGroups.tabs2.EditorGroupsTabsEx;
 import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme;
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme;
 import krasa.editorGroups.tabs2.label.TabUiDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -211,7 +211,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       @Override
       protected Color getActiveTextColor(Color attributesColor) {
         KrTabPainterAdapter painterAdapter = myTabs.tabPainterAdapter;
-        KrTabTheme theme = painterAdapter.getTabTheme();
+        EditorGroupTabTheme theme = painterAdapter.getTabTheme();
         Color foreground = myTabs.getSelectedInfo() == myInfo
           && (UIUtil.getLabelForeground().equals(attributesColor) || attributesColor == null)
           ? myTabs.isActiveTabs(myInfo)

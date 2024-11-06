@@ -53,7 +53,7 @@ import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import krasa.editorGroups.tabs2.label.TabUiDecorator
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
@@ -861,7 +861,7 @@ open class KrTabsImpl(
               }
               val inset = JBUI.scale(2)
               val arc = JBUI.scale(4)
-              val theme: KrTabTheme = tabPainter.getTabTheme()
+              val theme: EditorGroupTabTheme = tabPainter.getTabTheme()
 
               val rect = Rectangle(x, y + inset, theme.underlineHeight, height - inset * 2)
               (g as Graphics2D).fill2DRoundRect(rect, arc.toDouble(), theme.underlineColor)
