@@ -21,8 +21,8 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.accessibility.ScreenReader;
 import krasa.editorGroups.settings.EditorGroupsSettings;
+import krasa.editorGroups.tabs2.EditorGroupsTabsEx;
 import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.KrTabsEx;
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
 import krasa.editorGroups.tabs2.impl.themes.KrTabTheme;
 import krasa.editorGroups.tabs2.label.TabUiDecorator;
@@ -408,7 +408,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     }
 
     KrTabsImpl tabs =
-      (KrTabsImpl) KrTabsEx.NAVIGATION_ACTIONS_KEY.getData(DataManager.getInstance().getDataContext(e.getComponent(), e.getX(), e.getY()));
+      (KrTabsImpl) EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(DataManager.getInstance().getDataContext(e.getComponent(), e.getX(), e.getY()));
     if (tabs == myTabs && myTabs.getAddNavigationGroup()) {
       toShow.addAll(myTabs.getNavigationActions());
     }

@@ -49,9 +49,9 @@ interface EditorGroupsTabsBase {
 
   fun addTabMouseListener(listener: MouseListener): EditorGroupsTabsBase
 
-  fun addListener(listener: KrTabsListener): EditorGroupsTabsBase?
+  fun addListener(listener: EditorGroupsTabsListener): EditorGroupsTabsBase?
 
-  fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabsBase?
+  fun addListener(listener: EditorGroupsTabsListener, disposable: Disposable?): EditorGroupsTabsBase?
 
   fun setSelectionChangeHandler(handler: SelectionChangeHandler): EditorGroupsTabsBase?
 

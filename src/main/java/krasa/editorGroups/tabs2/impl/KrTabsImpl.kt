@@ -92,7 +92,7 @@ open class KrTabsImpl(
   coroutineScope: CoroutineScope? = null,
   tabListOptions: EditorGroupsTabListOptions,
 ) : JComponent(),
-  KrTabsEx,
+  EditorGroupsTabsEx,
   PropertyChangeListener,
   TimerListener,
   DataProvider,
@@ -179,7 +179,7 @@ open class KrTabsImpl(
 
   private var innerInsets: Insets = JBInsets.emptyInsets()
   private val tabMouseListeners = ContainerUtil.createLockFreeCopyOnWriteList<EventListener>()
-  private val tabListeners = ContainerUtil.createLockFreeCopyOnWriteList<KrTabsListener>()
+  private val tabListeners = ContainerUtil.createLockFreeCopyOnWriteList<EditorGroupsTabsListener>()
   private var isFocused = false
   private var popupGroupSupplier: (() -> ActionGroup)? = null
 
@@ -261,9 +261,9 @@ open class KrTabsImpl(
   private var navigationActionsEnabled = true
   private var dropInfo: KrTabInfo? = null
 
-  override var dropInfoIndex: Int = 0
+  var dropInfoIndex: Int = 0
 
-  override var dropSide: Int = -1
+  var dropSide: Int = -1
   protected var showDropLocation: Boolean = true
   private var oldSelection: KrTabInfo? = null
   private var mySelectionChangeHandler: EditorGroupsTabsBase.SelectionChangeHandler? = null
@@ -2454,9 +2454,9 @@ open class KrTabsImpl(
     addListeners()
   }
 
-  override fun addListener(listener: KrTabsListener): EditorGroupsTabsBase = addListener(listener = listener, disposable = null)
+  override fun addListener(listener: EditorGroupsTabsListener): EditorGroupsTabsBase = addListener(listener = listener, disposable = null)
 
-  override fun addListener(listener: KrTabsListener, disposable: Disposable?): EditorGroupsTabsBase {
+  override fun addListener(listener: EditorGroupsTabsListener, disposable: Disposable?): EditorGroupsTabsBase {
     tabListeners.add(listener)
     if (disposable != null) {
       Disposer.register(disposable) { tabListeners.remove(listener) }
@@ -2547,7 +2547,7 @@ open class KrTabsImpl(
     }
 
     override fun update(e: AnActionEvent) {
-      var tabs = e.getData(KrTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
+      var tabs = e.getData(EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
       e.presentation.isVisible = tabs != null
       if (tabs == null) return
       tabs = findNavigatableTabs(tabs)
@@ -2583,7 +2583,7 @@ open class KrTabsImpl(
     abstract fun doUpdate(e: AnActionEvent, tabs: KrTabsImpl, selectedIndex: Int)
 
     override fun actionPerformed(e: AnActionEvent) {
-      var tabs = e.getData(KrTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
+      var tabs = e.getData(EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
       tabs = findNavigatableTabs(tabs) ?: return
 
       var infos: List<KrTabInfo?>
@@ -2817,7 +2817,7 @@ open class KrTabsImpl(
         return it
       }
     }
-    if (QuickActionProvider.KEY.`is`(dataId) || MorePopupAware.KEY.`is`(dataId) || KrTabsEx.NAVIGATION_ACTIONS_KEY.`is`(
+    if (QuickActionProvider.KEY.`is`(dataId) || MorePopupAware.KEY.`is`(dataId) || EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.`is`(
         dataId
       )
     ) {
@@ -2928,7 +2928,7 @@ open class KrTabsImpl(
   protected inner class AccessibleJBTabsImpl internal constructor() : AccessibleJComponent(), AccessibleSelection {
     init {
       accessibleComponent
-      addListener(object : KrTabsListener {
+      addListener(object : EditorGroupsTabsListener {
         override fun selectionChanged(oldSelection: KrTabInfo?, newSelection: KrTabInfo?) {
           firePropertyChange(ACCESSIBLE_SELECTION_PROPERTY, null, null)
         }
