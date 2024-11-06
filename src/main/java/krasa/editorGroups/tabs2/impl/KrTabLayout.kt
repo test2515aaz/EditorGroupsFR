@@ -6,11 +6,7 @@ import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.KrTabInfo
-import org.intellij.lang.annotations.MagicConstant
-import java.awt.Dimension
-import java.awt.Point
 import java.awt.Rectangle
-import javax.swing.SwingConstants
 import kotlin.math.abs
 
 abstract class KrTabLayout {
@@ -26,9 +22,6 @@ abstract class KrTabLayout {
   open val scrollOffset: Int
     get() = 0
 
-  fun createShapeTransform(dimension: Dimension): KrShapeTransform =
-    createShapeTransform(Rectangle(0, 0, dimension.width, dimension.height))
-
   open fun createShapeTransform(rectangle: Rectangle?): KrShapeTransform = KrShapeTransform.Top(rectangle)
 
   open fun isDragOut(tabLabel: KrTabLabel, deltaX: Int, deltaY: Int): Boolean =
@@ -38,11 +31,6 @@ abstract class KrTabLayout {
   open fun scroll(units: Int) = Unit
 
   open fun isTabHidden(info: KrTabInfo): Boolean = false
-
-  abstract fun getDropIndexFor(point: Point?): Int
-
-  @MagicConstant(intValues = [SwingConstants.TOP.toLong(), SwingConstants.LEFT.toLong(), SwingConstants.BOTTOM.toLong(), SwingConstants.RIGHT.toLong(), -1])
-  abstract fun getDropSideFor(point: Point): Int
 
   companion object {
     @JvmStatic

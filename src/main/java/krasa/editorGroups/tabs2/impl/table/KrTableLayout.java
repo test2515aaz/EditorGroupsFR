@@ -6,21 +6,16 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.KrTabsUtil;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
-import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import java.awt.*;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class KrTableLayout extends KrTabLayout {
   private int myScrollOffset = 0;
@@ -143,7 +138,7 @@ public class KrTableLayout extends KrTabLayout {
   }
 
   private void calculateLengths(KrTablePassInfo data) {
-    boolean compressible = isCompressible();
+    boolean compressible = false;
     boolean showPinnedTabsSeparately = showPinnedTabsSeparately();
 
     int standardLengthToFit = data.moreRect.x - (data.titleRect.x + data.titleRect.width) - myTabs.getActionsInsets().left;
@@ -190,10 +185,6 @@ public class KrTableLayout extends KrTabLayout {
       total += data.lengths.get(info);
     }
     return total;
-  }
-
-  private boolean isCompressible() {
-    return myTabs.isSingleRow() && !UISettings.getInstance().getHideTabsIfNeeded() && myTabs.supportsCompression();
   }
 
   private void calculateCompressibleLengths(List<KrTabInfo> list, KrTablePassInfo data, int toFitLength) {
@@ -312,81 +303,6 @@ public class KrTableLayout extends KrTabLayout {
       area = area.union(myTabs.getInfoToLabel().get(lastTableLayout.myVisibleInfos.get(i)).getBounds());
     }
     return Math.abs(deltaY) > area.height * getDragOutMultiplier();
-  }
-
-  @Override
-  public int getDropIndexFor(@NotNull Point point) {
-    if (lastTableLayout == null) return -1;
-    int result = -1;
-
-    Component c = myTabs.getComponentAt(point);
-    Set<KrTabInfo> lastInRow = new HashSet<>();
-    for (int i = 0; i < lastTableLayout.table.size(); i++) {
-      List<KrTabInfo> columns = lastTableLayout.table.get(i).myColumns;
-      if (!columns.isEmpty()) {
-        lastInRow.add(columns.get(columns.size() - 1));
-      }
-    }
-
-    if (c instanceof KrTabsImpl) {
-      for (int i = 0; i < lastTableLayout.myVisibleInfos.size() - 1; i++) {
-        KrTabInfo firstInfo = lastTableLayout.myVisibleInfos.get(i);
-        KrTabInfo secondInfo = lastTableLayout.myVisibleInfos.get(i + 1);
-        KrTabLabel first = myTabs.getInfoToLabel().get(firstInfo);
-        KrTabLabel second = myTabs.getInfoToLabel().get(secondInfo);
-
-        Rectangle firstBounds = first.getBounds();
-        Rectangle secondBounds = second.getBounds();
-
-        final boolean between = firstBounds.getMaxX() < point.x
-          && secondBounds.getX() > point.x
-          && firstBounds.y < point.y
-          && secondBounds.getMaxY() > point.y;
-
-        if (between) {
-          c = first;
-          break;
-        }
-        if (lastInRow.contains(firstInfo)
-          && firstBounds.y <= point.y
-          && firstBounds.getMaxY() >= point.y
-          && firstBounds.getMaxX() <= point.x) {
-          c = second;
-          break;
-        }
-      }
-    }
-
-    if (c instanceof KrTabLabel) {
-      KrTabInfo info = ((KrTabLabel) c).getInfo();
-      int index = lastTableLayout.myVisibleInfos.indexOf(info);
-      boolean isDropTarget = myTabs.isDropTarget(info);
-      if (!isDropTarget) {
-        for (int i = 0; i <= index; i++) {
-          if (myTabs.isDropTarget(lastTableLayout.myVisibleInfos.get(i))) {
-            index -= 1;
-            break;
-          }
-        }
-        result = index;
-      } else if (index < lastTableLayout.myVisibleInfos.size()) {
-        result = index;
-      }
-    }
-    return result;
-  }
-
-  @Override
-  @MagicConstant(intValues = {
-    SwingConstants.CENTER,
-    SwingConstants.TOP,
-    SwingConstants.LEFT,
-    SwingConstants.BOTTOM,
-    SwingConstants.RIGHT,
-    -1
-  })
-  public int getDropSideFor(@NotNull Point point) {
-    return KrTabsUtil.getDropSideFor(point, myTabs);
   }
 
   @Override

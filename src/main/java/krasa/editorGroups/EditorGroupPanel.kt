@@ -22,7 +22,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.*
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui.PopupHandler
 import com.intellij.ui.components.JBPanel
 import com.intellij.util.BitUtil
@@ -38,10 +37,10 @@ import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
+import krasa.editorGroups.tabs2.EditorGroupsTabsBase
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.KrTabInfo
-import krasa.editorGroups.tabs2.KrTabs
-import krasa.editorGroups.tabs2.KrTabsPosition
-import krasa.editorGroups.tabs2.my.KrJBEditorTabs
+import krasa.editorGroups.tabs2.my.EditorGroupsTabsContainer
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component
@@ -78,6 +77,9 @@ class EditorGroupPanel(
   /** Disposed state, to prevent refreshing during disposal. */
   var disposed: Boolean = false
 
+  var currentTabPlacement: Int = SwingConstants.TOP
+  var isLaidOut: Boolean = false
+
   /**
    * A thread-safe reference to the current refresh request.
    *
@@ -104,10 +106,8 @@ class EditorGroupPanel(
   private val fileFromTextEditor = getFileFromTextEditor(fileEditor)
 
   /** The tabs component for this editor panel. */
-  val tabs: KrJBEditorTabs = KrJBEditorTabs(
+  val tabs: EditorGroupsTabsContainer = EditorGroupsTabsContainer(
     project,
-    ActionManager.getInstance(),
-    IdeFocusManager.findInstance(),
     fileEditor,
     file
   )
@@ -224,12 +224,9 @@ class EditorGroupPanel(
   // TODO move to KrJBEditorTabs constructor
   internal fun setTabPlacement(tabPlacement: Int) {
     when (tabPlacement) {
-      SwingConstants.TOP    -> tabs.setTabsPosition(KrTabsPosition.top)
-      SwingConstants.BOTTOM -> tabs.setTabsPosition(KrTabsPosition.bottom)
-      SwingConstants.LEFT   -> tabs.setTabsPosition(KrTabsPosition.left)
-      SwingConstants.RIGHT  -> tabs.setTabsPosition(KrTabsPosition.right)
-      UISettings.TABS_NONE  -> tabs.isHideTabs = true
-      else                  -> throw IllegalArgumentException("Unknown tab placement code=$tabPlacement")
+      SwingConstants.TOP    -> tabs.setTabsPosition(EditorGroupsTabsPosition.TOP)
+      SwingConstants.BOTTOM -> tabs.setTabsPosition(EditorGroupsTabsPosition.BOTTOM)
+      else                  -> tabs.isHideTabs = true
     }
   }
 
@@ -794,7 +791,7 @@ class EditorGroupPanel(
       this.groupToBeRendered = editorGroup
       if (refreshRequest.refresh) {
         // this will have edge cases
-        this.myScrollOffset = tabs.getMyScrollOffset()
+        this.myScrollOffset = tabs.scrollOffset
       }
 
       render()
@@ -1124,7 +1121,7 @@ class EditorGroupPanel(
   }
 
   /** Remove favorites on right click. */
-  internal inner class EditorTabMouseListener(val tabs: KrJBEditorTabs) : MouseAdapter() {
+  internal inner class EditorTabMouseListener(val tabs: EditorGroupsTabsContainer) : MouseAdapter() {
     override fun mouseReleased(e: MouseEvent) {
       // if right click a tab (or shift-click)
       if (!UIUtil.isCloseClick(e, MouseEvent.MOUSE_RELEASED)) return
@@ -1133,7 +1130,7 @@ class EditorGroupPanel(
       val info = tabs.findInfo(e) ?: return
 
       IdeEventQueue.getInstance().blockNextEvents(e)
-      tabs.setMyPopupInfo(info)
+      tabs.setTabInfo(info)
 
       try {
         // Remove from current favorites
@@ -1148,13 +1145,13 @@ class EditorGroupPanel(
 
         ActionWrapperUtil.actionPerformed(e, action, action)
       } finally {
-        tabs.setMyPopupInfo(null)
+        tabs.setTabInfo(null)
       }
     }
   }
 
   /** Upon selecting a different tab of the group. */
-  internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : KrTabs.SelectionChangeHandler {
+  internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : EditorGroupsTabsBase.SelectionChangeHandler {
     override fun execute(info: KrTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
 
       // TODO this causes the tab to not proceed with select

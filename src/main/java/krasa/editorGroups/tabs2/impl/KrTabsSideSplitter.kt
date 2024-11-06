@@ -4,7 +4,6 @@ package krasa.editorGroups.tabs2.impl
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.openapi.ui.Splittable
 import com.intellij.ui.ClientProperty
-import krasa.editorGroups.tabs2.KrTabsPosition
 import java.awt.Component
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
@@ -49,15 +48,7 @@ internal class KrTabsSideSplitter(private val myTabs: KrTabsImpl) : Splittable, 
 
   override fun setProportion(proportion: Float) {
     val width = myTabs.width
-    sideTabsLimit = when (myTabs.tabsPosition) {
-      KrTabsPosition.left  -> max(KrTabsImpl.MIN_TAB_WIDTH.toDouble(), (proportion * width).toDouble())
-        .toInt()
-
-      KrTabsPosition.right -> width - max(KrTabsImpl.MIN_TAB_WIDTH.toDouble(), (proportion * width).toDouble())
-        .toInt()
-
-      else                 -> width
-    }
+    sideTabsLimit = width
   }
 
   override fun getOrientation(): Boolean = false

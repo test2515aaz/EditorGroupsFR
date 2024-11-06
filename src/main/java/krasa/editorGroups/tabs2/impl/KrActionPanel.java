@@ -10,6 +10,7 @@ import com.intellij.ui.ExperimentalUI;
 import com.intellij.ui.InplaceButton;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
+import krasa.editorGroups.tabs2.EditorGroupsPanelTabs;
 import krasa.editorGroups.tabs2.KrTabInfo;
 
 import javax.swing.*;
@@ -80,7 +81,7 @@ public final class KrActionPanel extends NonOpaquePanel {
     boolean isHovered = label != null && label.isHovered();
     boolean isSelected = myTabs.getSelectedInfo() == myInfo;
     if (ExperimentalUI.isNewUI()
-      && myTabs instanceof KrEditorTabs
+      && myTabs instanceof EditorGroupsPanelTabs
       && !isSelected
       && !isHovered
       && !myMarkModified
@@ -99,11 +100,6 @@ public final class KrActionPanel extends NonOpaquePanel {
       changed |= each.update();
       each.setMouseDeadZone(myTabs.getTabActionsMouseDeadZone$EditorGroups());
       anyVisible |= each.getComponent().isVisible();
-
-      Boolean markModified = each.getPrevPresentation().getClientProperty(KrEditorTabs.MARK_MODIFIED_KEY);
-      if (markModified != null) {
-        anyModified |= markModified;
-      }
     }
 
     myActionsIsVisible = anyVisible;

@@ -1,8 +1,8 @@
 package krasa.editorGroups.tabs2.impl.painter
 
-import krasa.editorGroups.tabs2.KrTabsPosition
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
-import krasa.editorGroups.tabs2.my.EditorGroupsTabTheme
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupCustomTabTheme
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Point
@@ -11,14 +11,14 @@ import java.awt.Rectangle
 interface KrTabPainter {
   companion object {
     @JvmStatic
-    val DEFAULT = KrDefaultTabPainter(EditorGroupsTabTheme())
+    val DEFAULT = KrDefaultTabPainter(EditorGroupCustomTabTheme())
   }
 
-  fun getTabTheme(): KrTabTheme
+  fun getTabTheme(): EditorGroupTabTheme
 
   fun getBackgroundColor(): Color
 
-  /** Color that should be painted on top of [KrTabTheme.background]. */
+  /** Color that should be painted on top of [EditorGroupTabTheme.background]. */
   fun getCustomBackground(
     tabColor: Color?,
     selected: Boolean,
@@ -31,7 +31,7 @@ interface KrTabPainter {
   fun fillBackground(g: Graphics2D, rect: Rectangle)
 
   fun paintTab(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     g: Graphics2D,
     rect: Rectangle,
     borderThickness: Int,
@@ -41,7 +41,7 @@ interface KrTabPainter {
   )
 
   fun paintSelectedTab(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     g: Graphics2D,
     rect: Rectangle,
     borderThickness: Int,
@@ -51,7 +51,7 @@ interface KrTabPainter {
   )
 
   fun paintUnderline(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     rect: Rectangle,
     borderThickness: Int,
     g: Graphics2D,

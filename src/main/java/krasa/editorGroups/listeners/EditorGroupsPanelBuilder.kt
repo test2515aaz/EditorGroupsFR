@@ -19,9 +19,6 @@ import javax.swing.SwingConstants
 
 @Service(Service.Level.APP)
 class EditorGroupsPanelBuilder {
-  var currentTabPlacement: Int = UISettings.getInstance().editorTabPlacement
-  var isLaidOut: Boolean = false
-
   fun addPanelToEditor(manager: FileEditorManager, file: VirtualFile) {
     val project = manager.project
     thisLogger().debug(">fileOpenedSync [$file]")
@@ -71,7 +68,7 @@ class EditorGroupsPanelBuilder {
       return
     }
 
-    val panel = renderPanel(
+    var panel = renderPanel(
       project = project,
       manager = manager,
       file = file,
@@ -84,17 +81,18 @@ class EditorGroupsPanelBuilder {
       .subscribe(TOPIC, object : UISettingsListener {
         override fun uiSettingsChanged(uiSettings: UISettings) {
           when {
-            panel.disposed                                       -> return
-            currentTabPlacement == uiSettings.editorTabPlacement -> return
-            else                                                 -> {
-              currentTabPlacement = uiSettings.editorTabPlacement
+            panel.disposed                                             -> return
+            panel.currentTabPlacement == uiSettings.editorTabPlacement -> return
+            else                                                       -> {
+              panel.currentTabPlacement = uiSettings.editorTabPlacement
 
-              if (isLaidOut) {
+              if (panel.isLaidOut) {
                 manager.removeTopComponent(fileEditor, panel.root)
                 manager.removeBottomComponent(fileEditor, panel.root)
               }
 
-              renderPanel(
+              panel.dispose()
+              panel = renderPanel(
                 project = project,
                 manager = manager,
                 file = file,
@@ -119,17 +117,17 @@ class EditorGroupsPanelBuilder {
     when (editorTabPlacement) {
       SwingConstants.TOP    -> {
         manager.addTopComponent(fileEditor, panel.root)
-        isLaidOut = true
+        panel.isLaidOut = true
       }
 
       SwingConstants.BOTTOM -> {
         manager.addBottomComponent(fileEditor, panel.root)
-        isLaidOut = true
+        panel.isLaidOut = true
       }
 
       else                  -> {
         thisLogger().warn("Unsupported tab placement: $editorTabPlacement")
-        isLaidOut = false
+        panel.isLaidOut = false
       }
     }
     panel.postConstruct()

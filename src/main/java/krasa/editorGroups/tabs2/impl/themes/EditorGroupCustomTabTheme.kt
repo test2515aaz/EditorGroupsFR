@@ -1,0 +1,45 @@
+package krasa.editorGroups.tabs2.impl.themes
+
+import java.awt.Color
+
+open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
+  override val background: Color?
+    get() = EditorGroupsUI.background()
+
+  override val borderColor: Color
+    get() = EditorGroupsUI.borderColor()
+
+  override val underlineColor: Color
+    get() = EditorGroupsUI.underlineColor()
+
+  override val inactiveUnderlineColor: Color
+    get() = EditorGroupsUI.inactiveUnderlineColor()
+
+  override val hoverBackground: Color
+    get() = EditorGroupsUI.hoverBackground()
+
+  override val underlinedTabBackground: Color?
+    get() = EditorGroupsUI.underlinedTabBackground()
+
+  override val underlinedTabForeground: Color
+    get() = EditorGroupsUI.underlinedTabForeground()
+
+  override val underlineHeight: Int
+    get() = EditorGroupsUI.underlineHeight()
+
+  override val hoverInactiveBackground: Color?
+    get() = EditorGroupsUI.hoverInactiveBackground()
+
+  override val underlinedTabInactiveBackground: Color?
+    get() = EditorGroupsUI.underlinedTabBackground()
+
+  override val underlinedTabInactiveForeground: Color
+    get() = EditorGroupsUI.underlinedTabForeground()
+
+  override val inactiveColoredTabBackground: Color?
+    get() = EditorGroupsUI.background()
+
+  override val underlineArc: Int
+    get() = EditorGroupsUI.underlineArc()
+
+}

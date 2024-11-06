@@ -21,11 +21,11 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.accessibility.ScreenReader;
 import krasa.editorGroups.settings.EditorGroupsSettings;
+import krasa.editorGroups.tabs2.EditorGroupsTabsEx;
 import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.KrTabsEx;
-import krasa.editorGroups.tabs2.KrUiDecorator;
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme;
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme;
+import krasa.editorGroups.tabs2.label.TabUiDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -211,7 +211,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       @Override
       protected Color getActiveTextColor(Color attributesColor) {
         KrTabPainterAdapter painterAdapter = myTabs.tabPainterAdapter;
-        KrTabTheme theme = painterAdapter.getTabTheme();
+        EditorGroupTabTheme theme = painterAdapter.getTabTheme();
         Color foreground = myTabs.getSelectedInfo() == myInfo
           && (UIUtil.getLabelForeground().equals(attributesColor) || attributesColor == null)
           ? myTabs.isActiveTabs(myInfo)
@@ -408,7 +408,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     }
 
     KrTabsImpl tabs =
-      (KrTabsImpl) KrTabsEx.NAVIGATION_ACTIONS_KEY.getData(DataManager.getInstance().getDataContext(e.getComponent(), e.getX(), e.getY()));
+      (KrTabsImpl) EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(DataManager.getInstance().getDataContext(e.getComponent(), e.getX(), e.getY()));
     if (tabs == myTabs && myTabs.getAddNavigationGroup()) {
       toShow.addAll(myTabs.getNavigationActions());
     }
@@ -519,7 +519,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return myInfo;
   }
 
-  public final void apply(@NotNull KrUiDecorator.UiDecoration decoration) {
+  public final void apply(@NotNull TabUiDecorator.TabUiDecoration decoration) {
     if (decoration.getLabelFont() != null) {
       setFont(decoration.getLabelFont());
       getLabelComponent().setFont(decoration.getLabelFont());
@@ -533,8 +533,8 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     myLabelPlaceholder.setBorder(IdeBorderFactory.createEmptyBorder(contentInsets));
   }
 
-  public static KrTabLabel.MergedUiDecoration mergeUiDecorations(@NotNull KrUiDecorator.UiDecoration customDec,
-                                                                 @NotNull KrUiDecorator.UiDecoration defaultDec) {
+  public static KrTabLabel.MergedUiDecoration mergeUiDecorations(@NotNull TabUiDecorator.TabUiDecoration customDec,
+                                                                 @NotNull TabUiDecorator.TabUiDecoration defaultDec) {
     Function<KrTabLabel.ActionsPosition, Insets> contentInsetsSupplier = position -> {
       Insets def = Objects.requireNonNull(defaultDec.getContentInsetsSupplier()).apply(position);
       if (customDec.getContentInsetsSupplier() != null) {

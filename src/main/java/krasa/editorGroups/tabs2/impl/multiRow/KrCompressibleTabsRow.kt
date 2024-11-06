@@ -2,9 +2,9 @@ package krasa.editorGroups.tabs2.impl.multiRow
 
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.KrTabInfo
-import krasa.editorGroups.tabs2.KrUiDecorator
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
+import krasa.editorGroups.tabs2.label.TabUiDecorator
 import java.awt.Insets
 import java.util.*
 import kotlin.math.max
@@ -127,8 +127,8 @@ class KrCompressibleTabsRow(
   }
 
   /**
-   * Decrease the sum of the provided [lengths] to the [maxLength]. Lengths are decreased starting from the maximum
-   * values, so the smallest lengths will be changed last.
+   * Decrease the sum of the provided [lengths] to the [maxLength]. Lengths are decreased starting from the maximum values, so the smallest
+   * lengths will be changed last.
    */
   private fun decreaseMaxLengths(lengths: List<Int>, maxLength: Int): List<Int> {
     val sorted = lengths.withIndex().sortedBy { it.value }
@@ -214,7 +214,7 @@ class KrCompressibleTabsRow(
   }
 
   @Suppress("UseDPIAwareInsets")
-  private fun createUiDecoration(tabs: KrTabsImpl, info: KrTabInfo, insets: TabInsets): KrUiDecorator.UiDecoration {
+  private fun createUiDecoration(tabs: KrTabsImpl, info: KrTabInfo, insets: TabInsets): TabUiDecorator.TabUiDecoration {
     val actionsPosition = tabs.infoToLabel[info]!!.actionsPosition
     val cornerToActions =
       insets.cornerToActions + if (actionsPosition == KrTabLabel.ActionsPosition.NONE && insets.actionsInset > 0) insets.actionsInset else 0
@@ -229,7 +229,7 @@ class KrCompressibleTabsRow(
       originalDec.labelInsets.bottom,
       if (actionsPosition == KrTabLabel.ActionsPosition.RIGHT) cornerToActions else insets.cornerToText
     )
-    return KrUiDecorator.UiDecoration(
+    return TabUiDecorator.TabUiDecoration(
       labelInsets = labelInsets,
       contentInsetsSupplier = { contentInsets },
       iconTextGap = insets.iconInset
@@ -237,7 +237,7 @@ class KrCompressibleTabsRow(
   }
 
   private class CachedDecoration(
-    val decoration: KrUiDecorator.UiDecoration,
+    val decoration: TabUiDecorator.TabUiDecoration,
     val extraLen: Int,
     val decreasedLen: Int,
     val actionsPosition: KrTabLabel.ActionsPosition

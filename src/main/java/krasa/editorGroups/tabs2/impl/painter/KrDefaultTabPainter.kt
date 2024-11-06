@@ -5,18 +5,18 @@ import com.intellij.openapi.rd.fill2DRoundRect
 import com.intellij.openapi.rd.paint2DLine
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.paint.LinePainter2D
-import krasa.editorGroups.tabs2.KrTabsPosition
-import krasa.editorGroups.tabs2.impl.themes.KrDefaultTabTheme
-import krasa.editorGroups.tabs2.impl.themes.KrTabTheme
+import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupDefaultTabTheme
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 
-/** A regular tab painter that uses a [KrTabTheme] to paint the tabs. */
-open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme()) : KrTabPainter {
+/** A regular tab painter that uses a [EditorGroupTabTheme] to paint the tabs. */
+open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGroupDefaultTabTheme()) : KrTabPainter {
 
-  override fun getTabTheme(): KrTabTheme = theme
+  override fun getTabTheme(): EditorGroupTabTheme = theme
 
   override fun getBackgroundColor(): Color = theme.background ?: theme.borderColor
 
@@ -74,7 +74,7 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
   }
 
   override fun paintTab(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     g: Graphics2D,
     rect: Rectangle,
     borderThickness: Int,
@@ -91,7 +91,7 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
   }
 
   override fun paintSelectedTab(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     g: Graphics2D,
     rect: Rectangle,
     borderThickness: Int,
@@ -116,7 +116,7 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
   }
 
   override fun paintUnderline(
-    position: KrTabsPosition,
+    position: EditorGroupsTabsPosition,
     rect: Rectangle,
     borderThickness: Int,
     g: Graphics2D,
@@ -134,8 +134,8 @@ open class KrDefaultTabPainter(private val theme: KrTabTheme = KrDefaultTabTheme
   override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point) =
     g.paint2DLine(from, to, LinePainter2D.StrokeType.INSIDE, thickness.toDouble(), theme.borderColor)
 
-  private fun underlineRectangle(position: KrTabsPosition, rect: Rectangle, thickness: Int): Rectangle = when (position) {
-    KrTabsPosition.bottom -> Rectangle(rect.x, rect.y, rect.width, thickness)
-    else                  -> Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
+  private fun underlineRectangle(position: EditorGroupsTabsPosition, rect: Rectangle, thickness: Int): Rectangle = when (position) {
+    EditorGroupsTabsPosition.BOTTOM -> Rectangle(rect.x, rect.y, rect.width, thickness)
+    else                            -> Rectangle(rect.x, rect.y + rect.height - thickness, rect.width, thickness)
   }
 }

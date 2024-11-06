@@ -1,8 +1,7 @@
-// Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package krasa.editorGroups.tabs2;
 
 import com.intellij.openapi.util.NlsContexts;
-import com.intellij.util.ui.TimedDeadzone;
+import krasa.editorGroups.tabs2.label.TabUiDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +24,7 @@ public interface KrTabsPresentation {
 
   boolean isSingleRow();
 
-  KrTabsPresentation setUiDecorator(@Nullable KrUiDecorator decorator);
+  KrTabsPresentation setUiDecorator(@Nullable TabUiDecorator decorator);
 
   KrTabsPresentation setRequestFocusOnLastFocusedComponent(boolean request);
 
@@ -39,7 +38,7 @@ public interface KrTabsPresentation {
   KrTabsPresentation setToDrawBorderIfTabsHidden(boolean draw);
 
   @NotNull
-  KrTabs getJBTabs();
+  EditorGroupsTabsBase getJBTabs();
 
   @NotNull
   KrTabsPresentation setActiveTabFillIn(@Nullable Color color);
@@ -48,18 +47,9 @@ public interface KrTabsPresentation {
   KrTabsPresentation setTabLabelActionsAutoHide(boolean autoHide);
 
   @NotNull
-  KrTabsPresentation setTabLabelActionsMouseDeadzone(TimedDeadzone.Length length);
+  KrTabsPresentation setTabsPosition(EditorGroupsTabsPosition position);
 
-  @NotNull
-  KrTabsPresentation setTabsPosition(KrTabsPosition position);
-
-  KrTabsPosition getTabsPosition();
-
-  KrTabsPresentation setTabDraggingEnabled(boolean enabled);
-
-  KrTabsPresentation setAlphabeticalMode(boolean alphabeticalMode);
-
-  KrTabsPresentation setSupportsCompression(boolean supportsCompression);
+  EditorGroupsTabsPosition getTabsPosition();
 
   void setFirstTabOffset(int offset);
 
