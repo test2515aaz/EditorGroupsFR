@@ -54,17 +54,12 @@ object EditorGroupsUI {
 
   fun underlinedTabBackground(): Color? = JBColor.namedColor(
     "EditorGroupsTabs.underlinedTabBackground",
-    defaultTheme.underlinedTabBackground ?: defaultTheme.background
+    defaultTheme.underlinedTabBackground
   )
 
   fun underlinedTabForeground(): Color = JBColor.namedColor(
     "EditorGroupsTabs.underlinedTabForeground",
     defaultTheme.underlinedTabForeground
-  )
-
-  fun hoverColor(): Color = JBColor.namedColor(
-    "EditorGroupsTabs.hoverColor",
-    defaultTheme.hoverSelectedBackground
   )
 
   fun underlineArc(): Int = JBUI.getInt(
