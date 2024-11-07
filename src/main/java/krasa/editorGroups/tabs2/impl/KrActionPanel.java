@@ -84,8 +84,7 @@ public final class KrActionPanel extends NonOpaquePanel {
       && myTabs instanceof EditorGroupsPanelTabs
       && !isSelected
       && !isHovered
-      && !myMarkModified
-      && !myInfo.isPinned()) {
+      && !myMarkModified) {
       return;
     }
     super.paint(g);

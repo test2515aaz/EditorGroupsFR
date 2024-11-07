@@ -56,9 +56,6 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
       } else {
         length = lengthIncrement;
       }
-      if (tabInfo.isPinned()) {
-        length = Math.min(getMaxPinnedTabWidth(), length);
-      }
       spentLength += length + myTabs.getTabHGap();
       applyTabLayout(data, label, length);
       data.position = (int) label.getBounds().getMaxX() + myTabs.getTabHGap();

@@ -5,7 +5,6 @@ import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.options.advanced.AdvancedSettings;
 import com.intellij.openapi.ui.JBPopupMenu;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.util.PopupUtil;
@@ -246,7 +245,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
   public boolean isPinned() {
-    return myInfo != null && myInfo.isPinned();
+    return true;
   }
 
   @Override
@@ -349,33 +348,6 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
   private void doPaint(final Graphics g) {
     super.paint(g);
-  }
-
-  public boolean isLastPinned() {
-    if (myInfo.isPinned() && AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
-      @NotNull java.util.List<EditorGroupTabInfo> tabs = myTabs.getTabs();
-      for (int i = 0; i < tabs.size(); i++) {
-        EditorGroupTabInfo cur = tabs.get(i);
-        if (cur == myInfo && i < tabs.size() - 1) {
-          EditorGroupTabInfo next = tabs.get(i + 1);
-          return !next.isPinned()
-            && myTabs.getTabLabel(next).getY() == this.getY(); // check that cur and next are in the same row
-        }
-      }
-    }
-    return false;
-  }
-
-  public boolean isNextToLastPinned() {
-    if (!myInfo.isPinned() && AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
-      @NotNull java.util.List<EditorGroupTabInfo> tabs = myTabs.getVisibleInfos();
-      boolean wasPinned = false;
-      for (EditorGroupTabInfo info : tabs) {
-        if (wasPinned && info == myInfo) return true;
-        wasPinned = info.isPinned();
-      }
-    }
-    return false;
   }
 
   public boolean isLastInRow() {
@@ -846,13 +818,13 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     public void layoutContainer(Container parent) {
       int prefWidth = parent.getPreferredSize().width;
       synchronized (parent.getTreeLock()) {
-        if (!myInfo.isPinned() && myTabs != null &&
+        if (myTabs != null &&
           myTabs.getEffectiveLayout$EditorGroups().isScrollable() &&
           (ExperimentalUI.isNewUI() && !isHovered() || myTabs.isHorizontalTabs()) &&
           isShowTabActions() && isTabActionsOnTheRight() &&
           parent.getWidth() < prefWidth) {
           layoutScrollable(parent);
-        } else if (!myInfo.isPinned() && isCompressionEnabled &&
+        } else if (isCompressionEnabled &&
           !isHovered() && !isSelected() &&
           parent.getWidth() < prefWidth) {
           layoutCompressible(parent);

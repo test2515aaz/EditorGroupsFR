@@ -26,6 +26,4 @@ interface EditorGroupsTabsEx : EditorGroupsTabsBase {
 
   fun setTitleProducer(titleProducer: (() -> Pair<Icon, @Nls String>)?)
 
-  /** true if tabs and top toolbar should be hidden from a view */
-  var isHideTopPanel: Boolean
 }

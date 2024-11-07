@@ -59,8 +59,6 @@ interface EditorGroupsTabsBase {
 
   fun findInfo(event: MouseEvent): EditorGroupTabInfo?
 
-  fun findInfo(`object`: Any): EditorGroupTabInfo?
-
   fun findInfo(component: Component): EditorGroupTabInfo?
 
   fun getIndexOf(tabInfo: EditorGroupTabInfo?): Int

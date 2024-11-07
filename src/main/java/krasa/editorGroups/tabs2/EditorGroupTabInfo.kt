@@ -23,17 +23,12 @@ import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.openapi.util.NlsContexts.TabTitle
 import com.intellij.reference.SoftReference
-import com.intellij.ui.ClientProperty
 import com.intellij.ui.PlaceProvider
 import com.intellij.ui.SimpleColoredText
 import com.intellij.ui.SimpleTextAttributes
-import com.intellij.ui.SimpleTextAttributes.StyleAttributeConstant
 import com.intellij.ui.content.AlertIcon
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.impl.KrTabsImpl
-import org.jetbrains.annotations.NonNls
 import java.awt.Color
-import java.awt.Component
 import java.awt.event.MouseEvent
 import java.beans.PropertyChangeSupport
 import java.lang.ref.Reference
@@ -41,23 +36,13 @@ import java.lang.ref.WeakReference
 import javax.swing.Icon
 import javax.swing.JComponent
 
-open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProvider {
-  private var myPreferredFocusableComponent: JComponent?
-
-  var group: ActionGroup? = null
-    private set
-
+open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, PlaceProvider {
   val changeSupport: PropertyChangeSupport = PropertyChangeSupport(this)
 
+  /** The tab icon. */
   var icon: Icon? = null
     private set
 
-  private var myPlace: @NonNls String? = null
-
-  var `object`: Any? = null
-    private set
-  var sideComponent: JComponent? = null
-    private set
   private var myLastFocusOwner: Reference<JComponent?>? = null
 
   var tabLabelActions: ActionGroup? = null
@@ -69,17 +54,12 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
   var tabActionPlace: String? = null
     private set
 
-  private var myAlertIcon: AlertIcon? = null
-
   var blinkCount: Int = 0
 
   var isAlertRequested: Boolean = false
     private set
 
   private var myHidden = false
-
-  var actionsContextComponent: JComponent? = null
-    private set
 
   val coloredText: SimpleColoredText = SimpleColoredText()
 
@@ -105,17 +85,19 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
   var dragOutDelegate: DragOutDelegate? = null
     private set
 
+  val text: @TabTitle String
+    get() = coloredText.toString()
+
   var dragDelegate: DragDelegate? = null
+
+  val alertIcon: AlertIcon
+    get() = DEFAULT_ALERT_ICON
 
   /**
    * The tab which was selected before the mouse was pressed on this tab. Focus will be transferred to that tab if this tab is dragged out
    * of its container. (IDEA-61536)
    */
   private var myPreviousSelection = WeakReference<EditorGroupTabInfo?>(null)
-
-  init {
-    myPreferredFocusableComponent = component
-  }
 
   fun setText(text: @TabTitle String): EditorGroupTabInfo {
     val attributes: MutableList<SimpleTextAttributes?> = coloredText.getAttributes()
@@ -169,82 +151,13 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
     return this
   }
 
-  fun setComponent(c: Component?): EditorGroupTabInfo {
-    if (this.component !== c) {
-      val old = this.component
-      this.component = c as JComponent?
-      changeSupport.firePropertyChange(COMPONENT, old, this.component)
-    }
-    return this
-  }
-
-  val isPinned: Boolean
-    get() = ClientProperty.isTrue(this.component, KrTabsImpl.PINNED)
-
-  val text: @TabTitle String
-    get() = coloredText.toString()
-
-  override fun getPlace(): String? {
-    return myPlace
-  }
-
-  fun setSideComponent(comp: JComponent?): EditorGroupTabInfo {
-    this.sideComponent = comp
-    return this
-  }
-
-  fun setActions(group: ActionGroup?, place: @NonNls String?): EditorGroupTabInfo {
-    val old = this.group
-    this.group = group
-    myPlace = place
-    changeSupport.firePropertyChange(ACTION_GROUP, old, this.group)
-    return this
-  }
-
-  fun setActionsContextComponent(c: JComponent?): EditorGroupTabInfo {
-    this.actionsContextComponent = c
-    return this
-  }
-
-  fun setObject(`object`: Any?): EditorGroupTabInfo {
-    this.`object` = `object`
-    return this
-  }
-
-  val preferredFocusableComponent: JComponent?
-    get() = if (myPreferredFocusableComponent != null) myPreferredFocusableComponent else this.component
-
-  fun setPreferredFocusableComponent(component: JComponent?): EditorGroupTabInfo {
-    myPreferredFocusableComponent = component
-    return this
-  }
-
-  fun setTabLabelActions(tabActions: ActionGroup?, place: String): EditorGroupTabInfo {
-    val old = this.tabLabelActions
-    this.tabLabelActions = tabActions
-    this.tabActionPlace = place
-    changeSupport.firePropertyChange(TAB_ACTION_GROUP, old, this.tabLabelActions)
-    return this
-  }
-
-  /** Sets the actions that will be displayed on the right side of the tabs. */
-  fun setTabPaneActions(tabPaneActions: ActionGroup?): EditorGroupTabInfo {
-    this.tabPaneActions = tabPaneActions
-    return this
-  }
+  override fun getPlace(): String? = null
 
   var lastFocusOwner: JComponent?
     get() = SoftReference.dereference<JComponent?>(myLastFocusOwner)
     set(owner) {
       myLastFocusOwner = if (owner == null) null else WeakReference<JComponent?>(owner)
     }
-
-  fun setAlertIcon(alertIcon: AlertIcon?): EditorGroupTabInfo {
-    val old = myAlertIcon
-    myAlertIcon = alertIcon
-    changeSupport.firePropertyChange(ALERT_ICON, old, myAlertIcon)
-    return this
-  }
 
   fun fireAlert() {
     this.isAlertRequested = true
@@ -256,12 +169,7 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
     changeSupport.firePropertyChange(ALERT_STATUS, null, false)
   }
 
-  override fun toString(): String {
-    return this.text
-  }
-
-  val alertIcon: AlertIcon
-    get() = (if (myAlertIcon == null) EditorGroupTabInfo.Companion.DEFAULT_ALERT_ICON else myAlertIcon)!!
+  override fun toString(): String = this.text
 
   fun resetAlertRequest() {
     this.isAlertRequested = false
@@ -283,22 +191,8 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
       changeSupport.firePropertyChange(ENABLED, old, myEnabled)
     }
 
-  fun setDefaultStyle(@StyleAttributeConstant style: Int): EditorGroupTabInfo {
-    myDefaultStyle = style
-    myDefaultAttributes = null
-    update()
-    return this
-  }
-
   fun setDefaultForeground(fg: Color?): EditorGroupTabInfo {
     this.defaultForeground = fg
-    myDefaultAttributes = null
-    update()
-    return this
-  }
-
-  fun setDefaultAttributes(attributes: TextAttributes?): EditorGroupTabInfo {
-    editorAttributes = attributes
     myDefaultAttributes = null
     update()
     return this
@@ -331,24 +225,10 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
     return this
   }
 
-  fun setTestableUi(queryable: Queryable?): EditorGroupTabInfo {
-    myQueryable = queryable
-    return this
-  }
-
   override fun putInfo(info: MutableMap<in String, in String>) {
     if (myQueryable != null) {
       myQueryable!!.putInfo(info)
     }
-  }
-
-  fun setDragOutDelegate(delegate: DragOutDelegate?): EditorGroupTabInfo {
-    this.dragOutDelegate = delegate
-    return this
-  }
-
-  fun canBeDraggedOut(): Boolean {
-    return this.dragOutDelegate != null
   }
 
   var previousSelection: EditorGroupTabInfo?
@@ -380,7 +260,6 @@ open class EditorGroupTabInfo(var component: JComponent?) : Queryable, PlaceProv
     const val COMPONENT: String = "component"
     const val TEXT: String = "text"
     const val TAB_ACTION_GROUP: String = "tabActionGroup"
-    const val ALERT_ICON: String = "alertIcon"
 
     const val ALERT_STATUS: String = "alertStatus"
     const val HIDDEN: String = "hidden"

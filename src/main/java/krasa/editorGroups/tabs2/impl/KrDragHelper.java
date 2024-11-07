@@ -45,10 +45,6 @@ public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
 
   @Override
   protected boolean isDragOut(@NotNull MouseEvent event, @NotNull Point dragToScreenPoint, @NotNull Point startScreenPoint) {
-    if (myDragSource == null || !myDragSource.canBeDraggedOut()) {
-      return false;
-    }
-
     KrTabLabel label = myTabs.getInfoToLabel().get(myDragSource);
     if (label == null) {
       return false;

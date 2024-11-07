@@ -10,7 +10,6 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.ui.popup.IconButton;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.InplaceButton;
 import com.intellij.util.ui.TimedDeadzone;
 import krasa.editorGroups.tabs2.EditorGroupTabInfo;
@@ -152,10 +151,6 @@ class KrActionButton implements ActionListener {
     Presentation presentation = myAction.getTemplatePresentation().clone();
     DataContext context = DataManager.getInstance().getDataContext(myInplaceButton);
     DataContext compound = dataId -> {
-      if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
-        Object object = myTabInfo.getObject();
-        if (object instanceof VirtualFile) return object;
-      }
       return context.getData(dataId);
     };
     return new AnActionEvent(inputEvent, compound, myPlace != null ? myPlace : ActionPlaces.UNKNOWN, presentation,
