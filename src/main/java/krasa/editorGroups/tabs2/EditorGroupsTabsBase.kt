@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.DataProvider
 import com.intellij.openapi.util.ActionCallback
 import com.intellij.openapi.util.ActiveRunnable
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Component
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener

@@ -11,8 +11,8 @@ import com.intellij.ui.ExperimentalUI;
 import com.intellij.ui.InplaceButton;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
-import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.EditorGroupsPanelTabs;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
 import javax.swing.*;
 import java.awt.*;

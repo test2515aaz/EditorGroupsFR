@@ -37,10 +37,10 @@ import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
-import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.EditorGroupsTabsBase
 import krasa.editorGroups.tabs2.EditorGroupsTabsContainer
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component

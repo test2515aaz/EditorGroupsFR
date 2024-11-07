@@ -2,8 +2,8 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
-import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.impl.*;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

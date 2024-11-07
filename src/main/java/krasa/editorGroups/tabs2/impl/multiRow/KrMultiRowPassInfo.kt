@@ -1,8 +1,8 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
-import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
 
 class KrMultiRowPassInfo(

@@ -5,11 +5,11 @@ import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
-import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

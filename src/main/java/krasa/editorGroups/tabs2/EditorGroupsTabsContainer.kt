@@ -9,6 +9,7 @@ import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Component
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent

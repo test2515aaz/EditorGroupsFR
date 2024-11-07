@@ -5,7 +5,7 @@ import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.EditorGroupTabInfo
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
 import kotlin.math.abs
 

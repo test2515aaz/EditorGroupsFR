@@ -2,9 +2,9 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
-import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,9 +1,9 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.TabUiDecorator
 import java.awt.Insets
 import java.util.*

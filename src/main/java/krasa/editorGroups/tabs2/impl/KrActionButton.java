@@ -12,7 +12,7 @@ import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.InplaceButton;
 import com.intellij.util.ui.TimedDeadzone;
-import krasa.editorGroups.tabs2.EditorGroupTabInfo;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

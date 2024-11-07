@@ -1,6 +1,7 @@
 package krasa.editorGroups.tabs2
 
 import com.intellij.openapi.actionSystem.DataKey
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import org.jetbrains.annotations.Nls
 import javax.swing.Icon
 
