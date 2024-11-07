@@ -1,14 +1,11 @@
-package krasa.editorGroups.tabs2.my
+package krasa.editorGroups.tabs2
 
 import com.intellij.ide.IdeEventQueue
-import com.intellij.ide.IdeEventQueue.BlockMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import krasa.editorGroups.EditorGroupManager.Companion.getInstance
-import krasa.editorGroups.EditorGroupPanel.EditorGroupTabInfo
-import krasa.editorGroups.tabs2.EditorGroupsPanelTabs
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.EditorGroupManager
+import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
@@ -30,7 +27,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
   override val selectedInfo: KrTabInfo?
     get() {
       val selectedInfo = super.selectedInfo
-      if (selectedInfo !is EditorGroupTabInfo) return selectedInfo
+      if (selectedInfo !is EditorGroupPanel.EditorGroupTabInfo) return selectedInfo
 
       val selectable = selectedInfo.selectable
       if (!selectable) return null
@@ -42,7 +39,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
     patchMouseListener(this)
   }
 
-  /** Create a [KrTabLabel] from a [KrTabInfo]. */
+  /** Create a [krasa.editorGroups.tabs2.impl.KrTabLabel] from a [KrTabInfo]. */
   override fun createTabLabel(info: KrTabInfo): KrTabLabel {
     val tabLabel = KrTabLabel(this, info)
     patchMouseListener(tabLabel)
@@ -97,7 +94,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
   fun adjustScroll() {
     if (project.isDisposed) return
 
-    val switchingRequest = getInstance(project).getSwitchingRequest(file)
+    val switchingRequest = EditorGroupManager.Companion.getInstance(project).getSwitchingRequest(file)
     if (switchingRequest != null) {
       val myScrollOffset = switchingRequest.myScrollOffset
       val relativeScroll = myScrollOffset - this.scrollOffset
@@ -123,17 +120,17 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
   private class MyMouseAdapter(private val mouseListener: MouseListener) : MouseAdapter() {
     override fun mouseClicked(e: MouseEvent) {
       // fix for - Ctrl + Mouse Click events are also consumed by the editor
-      IdeEventQueue.getInstance().blockNextEvents(e, BlockMode.ACTIONS)
+      IdeEventQueue.Companion.getInstance().blockNextEvents(e, IdeEventQueue.BlockMode.ACTIONS)
       mouseListener.mouseClicked(e)
     }
 
     override fun mousePressed(e: MouseEvent) {
-      IdeEventQueue.getInstance().blockNextEvents(e, BlockMode.ACTIONS)
+      IdeEventQueue.Companion.getInstance().blockNextEvents(e, IdeEventQueue.BlockMode.ACTIONS)
       mouseListener.mousePressed(e)
     }
 
     override fun mouseReleased(e: MouseEvent) {
-      IdeEventQueue.getInstance().blockNextEvents(e, BlockMode.ACTIONS)
+      IdeEventQueue.Companion.getInstance().blockNextEvents(e, IdeEventQueue.BlockMode.ACTIONS)
       mouseListener.mouseReleased(e)
     }
 
