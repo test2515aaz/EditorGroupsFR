@@ -45,6 +45,7 @@ import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Dimension
+import java.awt.Font
 import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
 import java.awt.event.MouseAdapter
@@ -1030,15 +1031,12 @@ class EditorGroupPanel(
     val bgColor = displayedGroup!!.bgColor
     val fgColor = displayedGroup!!.fgColor
 
-    when {
-      displayedGroup !is EditorGroups -> return
-      bgColor != null                 -> tab.setTabColor(bgColor)
-    }
+    if (displayedGroup !is EditorGroups) return
 
-    when {
-      displayedGroup !is EditorGroups -> return
-      fgColor != null                 -> tab.setDefaultForeground(fgColor)
-    }
+    if (bgColor != null) tab.tabColor = bgColor
+    if (fgColor != null) tab.setDefaultForeground(fgColor)
+    // we can also decide to give a style
+    tab.setDefaultStyle(Font.ITALIC)
   }
 
   /**
@@ -1076,10 +1074,10 @@ class EditorGroupPanel(
       // Adds the link if needed
       link.line?.let { name += ":${it + 1}" }
 
-      setText(name) // NON-NLS
-      setTooltipText(link.path)
+      text = name // NON-NLS
+      tooltipText = link.path
       // Placeholder icon
-      setIcon(AllIcons.FileTypes.Any_type)
+      icon = AllIcons.FileTypes.Any_type
 
       // Disable the tab if the file does not exist
       if (!link.exists()) isEnabled = false
@@ -1087,14 +1085,14 @@ class EditorGroupPanel(
       // Custom Names (for bookmarks, regexps, etc)
       val customName = link.customName ?: ""
       if (!customName.isBlank()) {
-        setText(customName)
-        setTooltipText("$name - ${link.path}") // NON-NLS
+        text = customName
+        tooltipText = "$name - ${link.path}" // NON-NLS
       }
 
       // Fetch the actual icon off the UI thread
       ApplicationManager.getApplication().runWriteAction {
         val icon = link.fileIcon
-        SwingUtilities.invokeLater { setIcon(icon) }
+        SwingUtilities.invokeLater { this.icon = icon }
       }
     }
   }
@@ -1113,10 +1111,10 @@ class EditorGroupPanel(
   internal inner class CustomGroupTabInfo(var editorGroup: EditorGroup) : EditorGroupTabInfo(JLabel("")) {
     init {
       val title = editorGroup.tabTitle(this@EditorGroupPanel.project) // NON-NLS
-      setText("[$title]")
+      text = "[$title]"
 
-      setToolTipText(editorGroup.getTabGroupTooltipText(this@EditorGroupPanel.project)) // NON-NLS
-      setIcon(editorGroup.icon())
+      tooltipText = editorGroup.getTabGroupTooltipText(this@EditorGroupPanel.project) // NON-NLS
+      icon = editorGroup.icon()
     }
   }
 
@@ -1191,7 +1189,10 @@ class EditorGroupPanel(
 
       // Finally, open the file, taking into account the modifiers
       panel.openFile(
-        link = editorGroupTabInfo.link, newTab = ctrl, newWindow = shift, split = Splitters.from(alt, shift)
+        link = editorGroupTabInfo.link,
+        newTab = ctrl,
+        newWindow = shift,
+        split = Splitters.from(alt, shift)
       )
       return ActionCallback.DONE
     }

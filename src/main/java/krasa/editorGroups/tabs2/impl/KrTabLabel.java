@@ -85,9 +85,7 @@ public class KrTabLabel extends JPanel implements DataProvider {
         if (UIUtil.isCloseClick(e, MouseEvent.MOUSE_PRESSED)) return;
         if (KrTabsImpl.isSelectionClick(e) && myInfo.isEnabled()) {
           EditorGroupTabInfo selectedInfo = myTabs.getSelectedInfo();
-          if (selectedInfo != myInfo) {
-            myInfo.setPreviousSelection(selectedInfo);
-          }
+
           Component c = SwingUtilities.getDeepestComponentAt(e.getComponent(), e.getX(), e.getY());
           if (c instanceof InplaceButton) return;
           myTabs.select(info, true);
@@ -107,7 +105,6 @@ public class KrTabLabel extends JPanel implements DataProvider {
 
       @Override
       public void mouseReleased(MouseEvent e) {
-        myInfo.setPreviousSelection(null);
         handlePopup(e);
       }
 

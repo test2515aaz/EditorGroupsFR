@@ -14,7 +14,6 @@ import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.fill2DRoundRect
-import com.intellij.openapi.ui.Queryable
 import com.intellij.openapi.ui.ShadowAction
 import com.intellij.openapi.ui.popup.*
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
@@ -92,7 +91,6 @@ open class KrTabsImpl(
   DataProvider,
   PopupMenuListener,
   KrTabsPresentation,
-  Queryable,
   UISettingsListener,
   QuickActionProvider,
   MorePopupAware,
@@ -1089,6 +1087,7 @@ open class KrTabsImpl(
     updateText(info)
     updateIcon(info)
     updateSideComponent(info)
+    info.tabLabel = label
     add(label)
     adjust(info)
     updateAll(false)
@@ -1333,39 +1332,35 @@ open class KrTabsImpl(
   override fun propertyChange(evt: PropertyChangeEvent) {
     val tabInfo = evt.source as EditorGroupTabInfo
     when {
-      EditorGroupTabInfo.ACTION_GROUP == evt.propertyName     -> {
+      EditorGroupTabInfo.ACTION_GROUP == evt.propertyName -> {
         updateSideComponent(tabInfo)
         relayout(false, false)
       }
 
-      EditorGroupTabInfo.COMPONENT == evt.propertyName        -> {
+      EditorGroupTabInfo.COMPONENT == evt.propertyName    -> {
         relayout(true, false)
       }
 
-      EditorGroupTabInfo.TEXT == evt.propertyName             -> {
+      EditorGroupTabInfo.TEXT == evt.propertyName         -> {
         updateText(tabInfo)
         revalidateAndRepaint()
       }
 
-      EditorGroupTabInfo.ICON == evt.propertyName             -> {
+      EditorGroupTabInfo.ICON == evt.propertyName         -> {
         updateIcon(tabInfo)
         revalidateAndRepaint()
       }
 
-      EditorGroupTabInfo.TAB_COLOR == evt.propertyName        -> {
+      EditorGroupTabInfo.TAB_COLOR == evt.propertyName    -> {
         revalidateAndRepaint()
       }
 
-      EditorGroupTabInfo.TAB_ACTION_GROUP == evt.propertyName -> {
-        relayout(false, false)
-      }
-
-      EditorGroupTabInfo.HIDDEN == evt.propertyName           -> {
+      EditorGroupTabInfo.HIDDEN == evt.propertyName       -> {
         updateHiding()
         relayout(false, false)
       }
 
-      EditorGroupTabInfo.ENABLED == evt.propertyName          -> {
+      EditorGroupTabInfo.ENABLED == evt.propertyName      -> {
         updateEnabling()
       }
     }
@@ -2696,10 +2691,6 @@ open class KrTabsImpl(
 
   val isHorizontalTabs: Boolean
     get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
-
-  override fun putInfo(info: MutableMap<in String, in String>) {
-    selectedInfo?.putInfo(info)
-  }
 
   override fun resetDropOver(tabInfo: EditorGroupTabInfo) {
     if (dropInfo != null) {
