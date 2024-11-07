@@ -28,7 +28,6 @@ import krasa.editorGroups.tabs2.label.TabUiDecorator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.swing.*;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-public class KrTabLabel extends JPanel implements Accessible, DataProvider {
+public class KrTabLabel extends JPanel implements DataProvider {
   private static final Logger LOG = Logger.getInstance(KrTabLabel.class);
   private static final int MIN_WIDTH_TO_CROP_ICON = 39;
 
@@ -51,14 +50,13 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   private final EditorGroupTabInfo myInfo;
   protected KrActionPanel myActionPanel;
   private boolean myCentered;
-  @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
   private boolean isCompressionEnabled;
   private boolean forcePaintBorders;
 
   private final Wrapper myLabelPlaceholder = new Wrapper(false);
   protected final KrTabsImpl myTabs;
 
-  public KrTabLabel(KrTabsImpl tabs, final EditorGroupTabInfo info) {
+  public KrTabLabel(KrTabsImpl tabs, EditorGroupTabInfo info) {
     super(false);
 
     myTabs = tabs;
@@ -83,10 +81,10 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
     addMouseListener(new MouseAdapter() {
       @Override
-      public void mousePressed(final MouseEvent e) {
+      public void mousePressed(MouseEvent e) {
         if (UIUtil.isCloseClick(e, MouseEvent.MOUSE_PRESSED)) return;
         if (KrTabsImpl.isSelectionClick(e) && myInfo.isEnabled()) {
-          final EditorGroupTabInfo selectedInfo = myTabs.getSelectedInfo();
+          EditorGroupTabInfo selectedInfo = myTabs.getSelectedInfo();
           if (selectedInfo != myInfo) {
             myInfo.setPreviousSelection(selectedInfo);
           }
@@ -103,12 +101,12 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       }
 
       @Override
-      public void mouseClicked(final MouseEvent e) {
+      public void mouseClicked(MouseEvent e) {
         handlePopup(e);
       }
 
       @Override
-      public void mouseReleased(final MouseEvent e) {
+      public void mouseReleased(MouseEvent e) {
         myInfo.setPreviousSelection(null);
         handlePopup(e);
       }
@@ -204,7 +202,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
         Font font = JBUI.CurrentTheme.EditorTabs.font();
 
         return (isFontSet() || !myTabs.useSmallLabels()) ? font :
-          RelativeFont.NORMAL.fromResource("EditorTabs.fontSizeOffset", -2, JBUIScale.scale(11f)).derive(StartupUiUtil.getLabelFont());
+          RelativeFont.NORMAL.fromResource("EditorTabs.fontSizeOffset", -2, JBUIScale.scale(11.0f)).derive(StartupUiUtil.getLabelFont());
       }
 
       @Override
@@ -289,7 +287,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
   @Override
-  public void paint(final Graphics g) {
+  public void paint(Graphics g) {
     if (myTabs.isDropTarget(myInfo)) {
       if (myTabs.getDropSide() == -1) {
         g.setColor(JBUI.CurrentTheme.DragAndDrop.Area.BACKGROUND);
@@ -307,7 +305,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return !Registry.is("ui.no.bangs.and.whistles", false) && myTabs.isSingleRow();
   }
 
-  protected void paintFadeout(final Graphics g) {
+  protected void paintFadeout(Graphics g) {
     Graphics2D g2d = (Graphics2D) g.create();
     try {
       Color tabBg = getEffectiveBackground();
@@ -320,7 +318,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       // Fadeout for left part (needed only in top and bottom placements)
       if (myRect.x < 0) {
         Rectangle leftRect = new Rectangle(-myRect.x, borderThickness, width, myRect.height - 2 * borderThickness);
-        paintGradientRect(g2d, leftRect, tabBg, transparent);
+        KrTabLabel.paintGradientRect(g2d, leftRect, tabBg, transparent);
       }
 
       Rectangle contentRect = myLabelPlaceholder.getBounds();
@@ -328,13 +326,13 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       if (contentRect.width < myLabelPlaceholder.getPreferredSize().width + myTabs.getTabHGap()) {
         Rectangle rightRect =
           new Rectangle(contentRect.x + contentRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness);
-        paintGradientRect(g2d, rightRect, transparent, tabBg);
+        KrTabLabel.paintGradientRect(g2d, rightRect, transparent, tabBg);
       }
       // Fadeout for right side
       else if (myTabs.getEffectiveLayout$EditorGroups().isScrollable() &&
         myRect.width < getPreferredSize().width + myTabs.getTabHGap()) {
         Rectangle rightRect = new Rectangle(myRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness);
-        paintGradientRect(g2d, rightRect, transparent, tabBg);
+        KrTabLabel.paintGradientRect(g2d, rightRect, transparent, tabBg);
       }
     } finally {
       g2d.dispose();
@@ -346,7 +344,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     g.fill(rect);
   }
 
-  private void doPaint(final Graphics g) {
+  private void doPaint(Graphics g) {
     super.paint(g);
   }
 
@@ -363,7 +361,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return !infos.isEmpty() && infos.get(infos.size() - 1) == myInfo;
   }
 
-  protected void handlePopup(final MouseEvent e) {
+  protected void handlePopup(MouseEvent e) {
     if (e.getClickCount() != 1 || !e.isPopupTrigger() || PopupUtil.getPopupContainerFor(this) != null) return;
 
     if (e.getX() < 0 || e.getX() >= e.getComponent().getWidth() || e.getY() < 0 || e.getY() >= e.getComponent().getHeight())
@@ -373,7 +371,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     place = place != null ? place : ActionPlaces.UNKNOWN;
     myTabs.setPopupInfo(myInfo);
 
-    final DefaultActionGroup toShow = new DefaultActionGroup();
+    DefaultActionGroup toShow = new DefaultActionGroup();
     if (myTabs.getPopupGroup() != null) {
       toShow.addAll(myTabs.getPopupGroup());
       toShow.addSeparator();
@@ -395,7 +393,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
 
-  public void setText(final SimpleColoredText text) {
+  public void setText(SimpleColoredText text) {
     myLabel.change(() -> {
       myLabel.clear();
       myLabel.setIcon(hasIcons() ? myIcon : null);
@@ -427,12 +425,12 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     myTabs.revalidateAndRepaint(false);
   }
 
-  public void setIcon(final Icon icon) {
+  public void setIcon(Icon icon) {
     setIcon(icon, 0);
   }
 
   private boolean hasIcons() {
-    LayeredIcon layeredIcon = getLayeredIcon();
+    LayeredIcon layeredIcon = myIcon;
     boolean hasIcons = false;
     Icon[] layers = layeredIcon.getAllLayers();
     for (Icon layer1 : layers) {
@@ -445,8 +443,8 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return hasIcons;
   }
 
-  private void setIcon(@Nullable final Icon icon, int layer) {
-    LayeredIcon layeredIcon = getLayeredIcon();
+  private void setIcon(@Nullable Icon icon, int layer) {
+    LayeredIcon layeredIcon = myIcon;
     layeredIcon.setIcon(icon, layer);
     if (hasIcons()) {
       myLabel.setIcon(layeredIcon);
@@ -462,8 +460,8 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       @Override
       public int getIconWidth() {
         int iconWidth = super.getIconWidth();
-        int tabWidth = KrTabLabel.this.getWidth();
-        int minTabWidth = JBUI.scale(MIN_WIDTH_TO_CROP_ICON);
+        int tabWidth = getWidth();
+        int minTabWidth = JBUI.scale(KrTabLabel.MIN_WIDTH_TO_CROP_ICON);
         if (isCompressionEnabled && tabWidth < minTabWidth) {
           return Math.max(iconWidth - (minTabWidth - tabWidth), iconWidth / 2);
         } else {
@@ -497,7 +495,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       getLabelComponent().setFont(decoration.getLabelFont());
     }
 
-    KrTabLabel.MergedUiDecoration resultDec = mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration());
+    KrTabLabel.MergedUiDecoration resultDec = KrTabLabel.mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration());
     setBorder(IdeBorderFactory.createEmptyBorder(resultDec.labelInsets()));
     myLabel.setIconTextGap(resultDec.iconTextGap());
 
@@ -510,12 +508,12 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     Function<KrTabLabel.ActionsPosition, Insets> contentInsetsSupplier = position -> {
       Insets def = Objects.requireNonNull(defaultDec.getContentInsetsSupplier()).apply(position);
       if (customDec.getContentInsetsSupplier() != null) {
-        return mergeInsets(customDec.getContentInsetsSupplier().apply(position), def);
+        return KrTabLabel.mergeInsets(customDec.getContentInsetsSupplier().apply(position), def);
       }
       return def;
     };
     return new KrTabLabel.MergedUiDecoration(
-      mergeInsets(customDec.getLabelInsets(), Objects.requireNonNull(defaultDec.getLabelInsets())),
+      KrTabLabel.mergeInsets(customDec.getLabelInsets(), Objects.requireNonNull(defaultDec.getLabelInsets())),
       contentInsetsSupplier,
       ObjectUtils.notNull(customDec.getIconTextGap(), Objects.requireNonNull(defaultDec.getIconTextGap()))
     );
@@ -523,8 +521,8 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
   private static @NotNull Insets mergeInsets(@Nullable Insets custom, @NotNull Insets def) {
     if (custom != null) {
-      return JBInsets.addInsets(new Insets(getValue(def.top, custom.top), getValue(def.left, custom.left),
-        getValue(def.bottom, custom.bottom), getValue(def.right, custom.right)));
+      return JBInsets.addInsets(new Insets(KrTabLabel.getValue(def.top, custom.top), KrTabLabel.getValue(def.left, custom.left),
+        KrTabLabel.getValue(def.bottom, custom.bottom), KrTabLabel.getValue(def.right, custom.right)));
     }
     return def;
   }
@@ -580,70 +578,6 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return myActionPanel != null && myActionPanel.update();
   }
 
-  private void setAttractionIcon(@Nullable Icon icon) {
-    if (myIcon.getIcon(0) == null) {
-      setIcon(null, 1);
-      myOverlayedIcon = icon;
-    } else {
-      setIcon(icon, 1);
-      myOverlayedIcon = null;
-    }
-  }
-
-  public boolean repaintAttraction() {
-    if (!myTabs.attractions.contains(myInfo)) {
-      if (getLayeredIcon().isLayerEnabled(1)) {
-        getLayeredIcon().setLayerEnabled(1, false);
-        setAttractionIcon(null);
-        invalidateIfNeeded();
-        return true;
-      }
-      return false;
-    }
-
-    boolean needsUpdate = false;
-
-    if (getLayeredIcon().getIcon(1) != myInfo.getAlertIcon()) {
-      setAttractionIcon(myInfo.getAlertIcon());
-      needsUpdate = true;
-    }
-
-    int maxInitialBlinkCount = 5;
-    int maxRefireBlinkCount = maxInitialBlinkCount + 2;
-    if (myInfo.getBlinkCount() < maxInitialBlinkCount && myInfo.isAlertRequested()) {
-      getLayeredIcon().setLayerEnabled(1, !getLayeredIcon().isLayerEnabled(1));
-      if (myInfo.getBlinkCount() == 0) {
-        needsUpdate = true;
-      }
-      myInfo.setBlinkCount(myInfo.getBlinkCount() + 1);
-
-      if (myInfo.getBlinkCount() == maxInitialBlinkCount) {
-        myInfo.resetAlertRequest();
-      }
-
-      repaint();
-    } else {
-      if (myInfo.getBlinkCount() < maxRefireBlinkCount && myInfo.isAlertRequested()) {
-        getLayeredIcon().setLayerEnabled(1, !getLayeredIcon().isLayerEnabled(1));
-        myInfo.setBlinkCount(myInfo.getBlinkCount() + 1);
-
-        if (myInfo.getBlinkCount() == maxRefireBlinkCount) {
-          myInfo.setBlinkCount(maxInitialBlinkCount);
-          myInfo.resetAlertRequest();
-        }
-
-        repaint();
-      } else {
-        needsUpdate = !getLayeredIcon().isLayerEnabled(1);
-        getLayeredIcon().setLayerEnabled(1, true);
-      }
-    }
-
-    invalidateIfNeeded();
-
-    return needsUpdate;
-  }
-
   @Override
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
@@ -657,20 +591,20 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
   protected @NotNull Color getEffectiveBackground() {
     Color bg = myTabs.getTabPainter().getBackgroundColor();
-    Color customBg = myTabs.getTabPainter().getCustomBackground(getInfo().getTabColor(), isSelected(),
-      myTabs.isActiveTabs(getInfo()), isHovered());
+    Color customBg = myTabs.getTabPainter().getCustomBackground(myInfo.getTabColor(), isSelected(),
+      myTabs.isActiveTabs(myInfo), isHovered());
     return customBg != null ? ColorUtil.alphaBlending(customBg, bg) : bg;
   }
 
   @Override
-  protected void paintChildren(final Graphics g) {
+  protected void paintChildren(Graphics g) {
     super.paintChildren(g);
 
     if (getLabelComponent().getParent() == null) {
       return;
     }
 
-    final Rectangle textBounds = SwingUtilities.convertRectangle(getLabelComponent().getParent(), getLabelComponent().getBounds(), this);
+    Rectangle textBounds = SwingUtilities.convertRectangle(getLabelComponent().getParent(), getLabelComponent().getBounds(), this);
     // Paint border around label if we got the focus
     if (isFocusOwner()) {
       g.setColor(UIUtil.getTreeSelectionBorderColor());
@@ -681,15 +615,15 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       return;
     }
 
-    if (getLayeredIcon().isLayerEnabled(1)) {
+    if (myIcon.isLayerEnabled(1)) {
 
-      final int top = (getSize().height - myOverlayedIcon.getIconHeight()) / 2;
+      int top = (getSize().height - myOverlayedIcon.getIconHeight()) / 2;
 
       myOverlayedIcon.paintIcon(this, g, textBounds.x - myOverlayedIcon.getIconWidth() / 2, top);
     }
   }
 
-  public void setTabActionsAutoHide(final boolean autoHide) {
+  public void setTabActionsAutoHide(boolean autoHide) {
     if (myActionPanel == null || myActionPanel.isAutoHide() == autoHide) {
       return;
     }
@@ -774,7 +708,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return accessibleContext;
   }
 
-  protected class AccessibleTabLabel extends AccessibleJPanel {
+  protected class AccessibleTabLabel extends JPanel.AccessibleJPanel {
     @Override
     public String getAccessibleName() {
       String name = super.getAccessibleName();
@@ -804,13 +738,13 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
     @Override
     public void addLayoutComponent(Component comp, Object constraints) {
-      checkConstraints(constraints);
+      MyTabLabelLayout.checkConstraints(constraints);
       super.addLayoutComponent(comp, constraints);
     }
 
     private static void checkConstraints(Object constraints) {
-      if (NORTH.equals(constraints) || SOUTH.equals(constraints)) {
-        LOG.warn(new IllegalArgumentException("constraints=" + constraints));
+      if (BorderLayout.NORTH.equals(constraints) || BorderLayout.SOUTH.equals(constraints)) {
+        KrTabLabel.LOG.warn(new IllegalArgumentException("constraints=" + constraints));
       }
     }
 
@@ -841,9 +775,9 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       int spaceHeight = spaceBottom - spaceTop;
 
       int xOffset = spaceLeft;
-      xOffset = layoutComponent(xOffset, getLayoutComponent(WEST), spaceTop, spaceHeight);
-      xOffset = layoutComponent(xOffset, getLayoutComponent(CENTER), spaceTop, spaceHeight);
-      layoutComponent(xOffset, getLayoutComponent(EAST), spaceTop, spaceHeight);
+      xOffset = layoutComponent(xOffset, getLayoutComponent(BorderLayout.WEST), spaceTop, spaceHeight);
+      xOffset = layoutComponent(xOffset, getLayoutComponent(BorderLayout.CENTER), spaceTop, spaceHeight);
+      layoutComponent(xOffset, getLayoutComponent(BorderLayout.EAST), spaceTop, spaceHeight);
     }
 
     private int layoutComponent(int xOffset, Component component, int spaceTop, int spaceHeight) {
@@ -861,9 +795,9 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       int curX = insets.left;
       int maxX = parent.getWidth() - insets.right;
 
-      Component left = getLayoutComponent(WEST);
-      Component center = getLayoutComponent(CENTER);
-      Component right = getLayoutComponent(EAST);
+      Component left = getLayoutComponent(BorderLayout.WEST);
+      Component center = getLayoutComponent(BorderLayout.CENTER);
+      Component right = getLayoutComponent(BorderLayout.EAST);
 
       if (left != null) {
         left.setBounds(0, 0, 0, 0);

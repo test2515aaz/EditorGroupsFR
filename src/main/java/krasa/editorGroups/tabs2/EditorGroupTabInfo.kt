@@ -15,8 +15,6 @@
  */
 package krasa.editorGroups.tabs2
 
-import com.intellij.icons.AllIcons
-import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.ui.Queryable
 import com.intellij.openapi.util.Comparing
@@ -26,10 +24,7 @@ import com.intellij.reference.SoftReference
 import com.intellij.ui.PlaceProvider
 import com.intellij.ui.SimpleColoredText
 import com.intellij.ui.SimpleTextAttributes
-import com.intellij.ui.content.AlertIcon
-import com.intellij.util.ui.JBUI
 import java.awt.Color
-import java.awt.event.MouseEvent
 import java.beans.PropertyChangeSupport
 import java.lang.ref.Reference
 import java.lang.ref.WeakReference
@@ -43,23 +38,28 @@ open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, Pl
   var icon: Icon? = null
     private set
 
+  /** hidden state */
+  var isHidden: Boolean = false
+    set(hidden) {
+      val old = field
+      field = hidden
+      changeSupport.firePropertyChange(HIDDEN, old, field)
+    }
+
+  /** enabled state */
+  var isEnabled: Boolean = true
+    set(enabled) {
+      val old = field
+      field = enabled
+      changeSupport.firePropertyChange(ENABLED, old, field)
+    }
+
   private var myLastFocusOwner: Reference<JComponent?>? = null
-
-  var tabLabelActions: ActionGroup? = null
-    private set
-
-  var tabPaneActions: ActionGroup? = null
-    private set
-
-  var tabActionPlace: String? = null
-    private set
-
-  var blinkCount: Int = 0
-
-  var isAlertRequested: Boolean = false
-    private set
-
-  private var myHidden = false
+  var lastFocusOwner: JComponent?
+    get() = SoftReference.dereference<JComponent?>(myLastFocusOwner)
+    set(owner) {
+      myLastFocusOwner = if (owner == null) null else WeakReference<JComponent?>(owner)
+    }
 
   val coloredText: SimpleColoredText = SimpleColoredText()
 
@@ -75,28 +75,14 @@ open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, Pl
 
   private var myDefaultAttributes: SimpleTextAttributes? = null
 
-  private var myEnabled = true
-
   var tabColor: Color? = null
     private set
 
   private var myQueryable: Queryable? = null
 
-  var dragOutDelegate: DragOutDelegate? = null
-    private set
-
   val text: @TabTitle String
     get() = coloredText.toString()
 
-  var dragDelegate: DragDelegate? = null
-
-  val alertIcon: AlertIcon
-    get() = DEFAULT_ALERT_ICON
-
-  /**
-   * The tab which was selected before the mouse was pressed on this tab. Focus will be transferred to that tab if this tab is dragged out
-   * of its container. (IDEA-61536)
-   */
   private var myPreviousSelection = WeakReference<EditorGroupTabInfo?>(null)
 
   fun setText(text: @TabTitle String): EditorGroupTabInfo {
@@ -153,43 +139,7 @@ open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, Pl
 
   override fun getPlace(): String? = null
 
-  var lastFocusOwner: JComponent?
-    get() = SoftReference.dereference<JComponent?>(myLastFocusOwner)
-    set(owner) {
-      myLastFocusOwner = if (owner == null) null else WeakReference<JComponent?>(owner)
-    }
-
-  fun fireAlert() {
-    this.isAlertRequested = true
-    changeSupport.firePropertyChange(ALERT_STATUS, null, true)
-  }
-
-  fun stopAlerting() {
-    this.isAlertRequested = false
-    changeSupport.firePropertyChange(ALERT_STATUS, null, false)
-  }
-
   override fun toString(): String = this.text
-
-  fun resetAlertRequest() {
-    this.isAlertRequested = false
-  }
-
-  var isHidden: Boolean
-    get() = myHidden
-    set(hidden) {
-      val old = myHidden
-      myHidden = hidden
-      changeSupport.firePropertyChange(HIDDEN, old, myHidden)
-    }
-
-  var isEnabled: Boolean
-    get() = myEnabled
-    set(enabled) {
-      val old = myEnabled
-      myEnabled = enabled
-      changeSupport.firePropertyChange(ENABLED, old, myEnabled)
-    }
 
   fun setDefaultForeground(fg: Color?): EditorGroupTabInfo {
     this.defaultForeground = fg
@@ -237,22 +187,6 @@ open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, Pl
       myPreviousSelection = WeakReference<EditorGroupTabInfo?>(previousSelection)
     }
 
-  interface DragDelegate {
-    fun dragStarted(mouseEvent: MouseEvent)
-
-    fun dragFinishedOrCanceled()
-  }
-
-  interface DragOutDelegate {
-    fun dragOutStarted(mouseEvent: MouseEvent, info: EditorGroupTabInfo)
-
-    fun processDragOut(event: MouseEvent, source: EditorGroupTabInfo)
-
-    fun dragOutFinished(event: MouseEvent, source: EditorGroupTabInfo?)
-
-    fun dragOutCancelled(source: EditorGroupTabInfo?)
-  }
-
   companion object {
     const val ACTION_GROUP: String = "actionGroup"
     const val ICON: String = "icon"
@@ -261,10 +195,8 @@ open class EditorGroupTabInfo(var component: JComponent? = null) : Queryable, Pl
     const val TEXT: String = "text"
     const val TAB_ACTION_GROUP: String = "tabActionGroup"
 
-    const val ALERT_STATUS: String = "alertStatus"
     const val HIDDEN: String = "hidden"
     const val ENABLED: String = "enabled"
 
-    private val DEFAULT_ALERT_ICON = AlertIcon(AllIcons.Nodes.TabAlert, 0, -JBUI.scale(6))
   }
 }

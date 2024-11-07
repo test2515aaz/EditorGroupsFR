@@ -4,6 +4,7 @@ package krasa.editorGroups.tabs2.impl;
 import com.intellij.diagnostic.LoadingState;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.ui.ExperimentalUI;
@@ -28,13 +29,13 @@ public final class KrActionPanel extends NonOpaquePanel {
   private final EditorGroupTabInfo myInfo;
 
   private boolean myAutoHide;
-  private boolean myActionsIsVisible = false;
-  private boolean myMarkModified = false;
+  private boolean myActionsIsVisible;
+  private boolean myMarkModified;
 
   public KrActionPanel(KrTabsImpl tabs, EditorGroupTabInfo tabInfo, Consumer<? super MouseEvent> pass, Consumer<? super Boolean> hover) {
     myTabs = tabs;
     myInfo = tabInfo;
-    ActionGroup group = tabInfo.getTabLabelActions() != null ? tabInfo.getTabLabelActions() : new DefaultActionGroup();
+    ActionGroup group = new DefaultActionGroup();
     AnAction[] children = group.getChildren(null);
     if (LoadingState.CONFIGURATION_STORE_INITIALIZED.isOccurred() && !UISettings.getInstance().getCloseTabButtonOnTheRight()) {
       List<AnAction> list = Arrays.asList(children);
@@ -44,15 +45,15 @@ public final class KrActionPanel extends NonOpaquePanel {
 
     setFocusable(false);
 
-    final NonOpaquePanel wrapper = new NonOpaquePanel(new BorderLayout());
+    NonOpaquePanel wrapper = new NonOpaquePanel(new BorderLayout());
     wrapper.setFocusable(false);
     NonOpaquePanel inner = new NonOpaquePanel();
     inner.setLayout(new BoxLayout(inner, BoxLayout.X_AXIS));
     wrapper.add(inner, BorderLayout.CENTER);
     for (AnAction each : children) {
-      KrActionButton eachButton = new KrActionButton(tabInfo, each, tabInfo.getTabActionPlace(), pass, hover, tabs.getTabActionsMouseDeadZone$EditorGroups()) {
+      KrActionButton eachButton = new KrActionButton(tabInfo, each, ActionPlaces.UNKNOWN, pass, hover, tabs.getTabActionsMouseDeadZone$EditorGroups()) {
         @Override
-        public void repaintComponent(final Component c) {
+        public void repaintComponent(Component c) {
           KrTabLabel tabLabel = (KrTabLabel) SwingUtilities.getAncestorOfClass(KrTabLabel.class, c);
           if (tabLabel != null) {
             Point point = SwingUtilities.convertPoint(c, new Point(0, 0), tabLabel);
@@ -111,7 +112,7 @@ public final class KrActionPanel extends NonOpaquePanel {
     return myAutoHide;
   }
 
-  public void setAutoHide(final boolean autoHide) {
+  public void setAutoHide(boolean autoHide) {
     myAutoHide = autoHide;
     for (KrActionButton each : myButtons) {
       each.setAutoHide(myAutoHide);
@@ -123,7 +124,7 @@ public final class KrActionPanel extends NonOpaquePanel {
     return myActionsIsVisible ? super.getPreferredSize() : new Dimension(0, 0);
   }
 
-  public void toggleShowActions(final boolean show) {
+  public void toggleShowActions(boolean show) {
     for (KrActionButton each : myButtons) {
       each.toggleShowActions(show);
     }
