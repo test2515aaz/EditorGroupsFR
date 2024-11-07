@@ -14,13 +14,13 @@ interface EditorGroupsTabsEx : EditorGroupsTabsBase {
 
   fun updateTabActions(validateNow: Boolean)
 
-  fun addTabSilently(info: KrTabInfo, index: Int): KrTabInfo?
+  fun addTabSilently(info: EditorGroupTabInfo, index: Int): EditorGroupTabInfo?
 
-  fun removeTab(info: KrTabInfo, forcedSelectionTransfer: KrTabInfo?)
+  fun removeTab(info: EditorGroupTabInfo, forcedSelectionTransfer: EditorGroupTabInfo?)
 
-  fun getToSelectOnRemoveOf(info: KrTabInfo): KrTabInfo?
+  fun getToSelectOnRemoveOf(info: EditorGroupTabInfo): EditorGroupTabInfo?
 
-  fun sortTabs(comparator: Comparator<KrTabInfo>)
+  fun sortTabs(comparator: Comparator<EditorGroupTabInfo>)
 
   val isEmptyVisible: Boolean
 

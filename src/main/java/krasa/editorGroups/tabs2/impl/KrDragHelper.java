@@ -16,7 +16,7 @@ import com.intellij.ui.ScreenUtil;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.util.Axis;
 import com.intellij.util.ui.UIUtil;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,13 +28,13 @@ import java.lang.ref.WeakReference;
 
 public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
   private final KrTabsImpl myTabs;
-  private KrTabInfo myDragSource;
+  private EditorGroupTabInfo myDragSource;
   private Rectangle myDragOriginalRec;
 
   Rectangle dragRec;
   private Dimension myHoldDelta;
 
-  private KrTabInfo myDragOutSource;
+  private EditorGroupTabInfo myDragOutSource;
   private Reference<KrTabLabel> myPressedTabLabel;
 
   protected KrDragHelper(@NotNull KrTabsImpl tabs, @NotNull Disposable parentDisposable) {
@@ -68,7 +68,7 @@ public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
       }
       return;
     }
-    KrTabInfo.DragOutDelegate delegate = myDragOutSource.getDragOutDelegate();
+    EditorGroupTabInfo.DragOutDelegate delegate = myDragOutSource.getDragOutDelegate();
     if (justStarted) {
       delegate.dragOutStarted(event, myDragOutSource);
     }
@@ -164,7 +164,7 @@ public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
       myDragOriginalRec.x -= myHoldDelta.width;
       myDragOriginalRec.y -= myHoldDelta.height;
 
-      KrTabInfo.DragDelegate delegate = myDragSource.getDragDelegate();
+      EditorGroupTabInfo.DragDelegate delegate = myDragSource.getDragDelegate();
       if (delegate != null) {
         delegate.dragStarted(event);
       }
@@ -329,7 +329,7 @@ public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
 
     myTabs.revalidate();
 
-    KrTabInfo.DragDelegate delegate = myDragSource.getDragDelegate();
+    EditorGroupTabInfo.DragDelegate delegate = myDragSource.getDragDelegate();
     if (delegate != null) {
       delegate.dragFinishedOrCanceled();
     }
@@ -343,7 +343,7 @@ public class KrDragHelper extends MouseDragHelper<KrTabsImpl> {
     endDrag(false);
   }
 
-  public KrTabInfo getDragSource() {
+  public EditorGroupTabInfo getDragSource() {
     return myDragSource;
   }
 }

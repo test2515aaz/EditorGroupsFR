@@ -5,7 +5,7 @@ import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import java.awt.Rectangle
 import kotlin.math.abs
 
@@ -30,7 +30,7 @@ abstract class KrTabLayout {
 
   open fun scroll(units: Int) = Unit
 
-  open fun isTabHidden(info: KrTabInfo): Boolean = false
+  open fun isTabHidden(info: EditorGroupTabInfo): Boolean = false
 
   companion object {
     @JvmStatic

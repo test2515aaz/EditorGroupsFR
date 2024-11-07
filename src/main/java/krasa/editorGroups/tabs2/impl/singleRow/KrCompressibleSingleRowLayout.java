@@ -2,8 +2,8 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.tabs.impl.JBTabsImpl;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition;
-import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 
@@ -31,14 +31,14 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
     int spentLength = 0;
     int lengthEstimation = 0;
 
-    for (KrTabInfo tabInfo : data.toLayout) {
+    for (EditorGroupTabInfo tabInfo : data.toLayout) {
       lengthEstimation += Math.max(getMinTabWidth(), myTabs.getInfoToLabel().get(tabInfo).getPreferredSize().width);
     }
 
     final int extraWidth = data.toFitLength - lengthEstimation;
     float fractionalPart = 0;
-    for (Iterator<KrTabInfo> iterator = data.toLayout.iterator(); iterator.hasNext(); ) {
-      KrTabInfo tabInfo = iterator.next();
+    for (Iterator<EditorGroupTabInfo> iterator = data.toLayout.iterator(); iterator.hasNext(); ) {
+      EditorGroupTabInfo tabInfo = iterator.next();
       final KrTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
 
       int length;
@@ -64,7 +64,7 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
       data.position = (int) label.getBounds().getMaxX() + myTabs.getTabHGap();
     }
 
-    for (KrTabInfo eachInfo : data.toDrop) {
+    for (EditorGroupTabInfo eachInfo : data.toDrop) {
       JBTabsImpl.Companion.resetLayout(myTabs.getInfoToLabel().get(eachInfo));
     }
   }

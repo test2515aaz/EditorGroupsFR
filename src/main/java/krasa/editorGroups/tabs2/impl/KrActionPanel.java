@@ -10,8 +10,8 @@ import com.intellij.ui.ExperimentalUI;
 import com.intellij.ui.InplaceButton;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.EditorGroupsPanelTabs;
-import krasa.editorGroups.tabs2.KrTabInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,13 +25,13 @@ import java.util.function.Consumer;
 public final class KrActionPanel extends NonOpaquePanel {
   private final List<KrActionButton> myButtons = new ArrayList<>();
   private final KrTabsImpl myTabs;
-  private final KrTabInfo myInfo;
+  private final EditorGroupTabInfo myInfo;
 
   private boolean myAutoHide;
   private boolean myActionsIsVisible = false;
   private boolean myMarkModified = false;
 
-  public KrActionPanel(KrTabsImpl tabs, KrTabInfo tabInfo, Consumer<? super MouseEvent> pass, Consumer<? super Boolean> hover) {
+  public KrActionPanel(KrTabsImpl tabs, EditorGroupTabInfo tabInfo, Consumer<? super MouseEvent> pass, Consumer<? super Boolean> hover) {
     myTabs = tabs;
     myInfo = tabInfo;
     ActionGroup group = tabInfo.getTabLabelActions() != null ? tabInfo.getTabLabelActions() : new DefaultActionGroup();

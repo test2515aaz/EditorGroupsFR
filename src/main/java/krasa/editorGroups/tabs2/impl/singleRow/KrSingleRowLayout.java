@@ -2,7 +2,7 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.impl.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,7 +59,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       lastSingleRowLayout.contentCount == myTabs.getTabCount() &&
       lastSingleRowLayout.layoutSize.equals(myTabs.getSize()) &&
       lastSingleRowLayout.scrollOffset == getScrollOffset()) {
-      for (KrTabInfo each : data.myVisibleInfos) {
+      for (EditorGroupTabInfo each : data.myVisibleInfos) {
         final KrTabLabel eachLabel = myTabs.getInfoToLabel().get(each);
         if (!eachLabel.isValid()) {
           layoutLabels = true;
@@ -76,7 +76,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     return layoutLabels;
   }
 
-  public KrLayoutPassInfo layoutSingleRow(List<KrTabInfo> visibleInfos) {
+  public KrLayoutPassInfo layoutSingleRow(List<EditorGroupTabInfo> visibleInfos) {
     KrSingleRowPassInfo data = new KrSingleRowPassInfo(this, visibleInfos);
 
     final boolean shouldLayoutLabels = checkLayoutLabels(data);
@@ -84,7 +84,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       data = lastSingleRowLayout;
     }
 
-    final KrTabInfo selected = myTabs.getSelectedInfo();
+    final EditorGroupTabInfo selected = myTabs.getSelectedInfo();
     prepareLayoutPassInfo(data, selected);
 
     myTabs.resetLayout(shouldLayoutLabels || myTabs.isHideTabs());
@@ -131,7 +131,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     return myTabs.getInfoToLabel().get(data.toLayout.get(data.toLayout.size() - 1));
   }
 
-  protected void prepareLayoutPassInfo(KrSingleRowPassInfo data, KrTabInfo selected) {
+  protected void prepareLayoutPassInfo(KrSingleRowPassInfo data, EditorGroupTabInfo selected) {
     data.insets = myTabs.getLayoutInsets();
     if (myTabs.isHorizontalTabs()) {
       data.insets.left += myTabs.getFirstTabOffset();
@@ -162,7 +162,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
 
   protected void layoutLabels(final KrSingleRowPassInfo data) {
     boolean layoutStopped = false;
-    for (KrTabInfo eachInfo : data.toLayout) {
+    for (EditorGroupTabInfo eachInfo : data.toLayout) {
       final KrTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
       if (layoutStopped) {
         final Rectangle rec = getStrategy().getLayoutRect(data, 0, 0);
@@ -183,7 +183,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       }
     }
 
-    for (KrTabInfo eachInfo : data.toDrop) {
+    for (EditorGroupTabInfo eachInfo : data.toDrop) {
       KrTabsImpl.Companion.resetLayout(myTabs.getInfoToLabel().get(eachInfo));
     }
   }
@@ -202,14 +202,14 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected void calculateRequiredLength(KrSingleRowPassInfo data) {
     data.requiredLength += myTabs.isHorizontalTabs() ? data.insets.left + data.insets.right
       : data.insets.top + data.insets.bottom;
-    for (KrTabInfo eachInfo : data.myVisibleInfos) {
+    for (EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
       data.requiredLength += getRequiredLength(eachInfo);
       data.toLayout.add(eachInfo);
     }
     data.requiredLength += getStrategy().getAdditionalLength();
   }
 
-  protected int getRequiredLength(KrTabInfo eachInfo) {
+  protected int getRequiredLength(EditorGroupTabInfo eachInfo) {
     KrTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
     return getStrategy().getLengthIncrement(label != null ? label.getPreferredSize() : new Dimension())
       + (myTabs.isEditorTabs() ? myTabs.getTabHGap() : 0);
@@ -217,7 +217,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
 
 
   @Override
-  public boolean isTabHidden(@NotNull KrTabInfo info) {
+  public boolean isTabHidden(@NotNull EditorGroupTabInfo info) {
     return lastSingleRowLayout != null && lastSingleRowLayout.toDrop.contains(info);
   }
 

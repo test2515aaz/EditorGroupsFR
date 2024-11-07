@@ -1,9 +1,9 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.tabs2.EditorGroupTabInfo
 
 class KrSimpleTabsRow(
-  infos: List<KrTabInfo>,
+  infos: List<EditorGroupTabInfo>,
   withTitle: Boolean,
   withEntryPointToolbar: Boolean
 ) : KrTabsRow(infos, withTitle, withEntryPointToolbar) {

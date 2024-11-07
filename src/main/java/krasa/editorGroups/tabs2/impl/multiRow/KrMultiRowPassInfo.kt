@@ -1,18 +1,18 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.Rectangle
 
 class KrMultiRowPassInfo(
   val tabs: KrTabsImpl,
-  visibleInfos: List<KrTabInfo>,
+  visibleInfos: List<EditorGroupTabInfo>,
   val toFitRec: Rectangle,
   val scrollOffset: Int
 ) : KrLayoutPassInfo(visibleInfos) {
   val rows: MutableList<KrTabsRow> = mutableListOf()
-  val lengths: MutableMap<KrTabInfo, Int> = HashMap()
+  val lengths: MutableMap<EditorGroupTabInfo, Int> = HashMap()
 
   val rowHeight: Int
     get() = tabs.headerFitSize!!.height

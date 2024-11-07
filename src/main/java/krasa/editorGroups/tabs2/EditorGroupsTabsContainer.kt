@@ -24,10 +24,10 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
   val scrollOffset: Int = this.mySingleRowLayout.scrollOffset
 
   /** Returns the selected EditorGroupTabInfo. */
-  override val selectedInfo: KrTabInfo?
+  override val selectedInfo: EditorGroupTabInfo?
     get() {
       val selectedInfo = super.selectedInfo
-      if (selectedInfo !is EditorGroupPanel.EditorGroupTabInfo) return selectedInfo
+      if (selectedInfo !is EditorGroupPanel.MyEditorGroupTabInfo) return selectedInfo
 
       val selectable = selectedInfo.selectable
       if (!selectable) return null
@@ -39,8 +39,8 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
     patchMouseListener(this)
   }
 
-  /** Create a [krasa.editorGroups.tabs2.impl.KrTabLabel] from a [KrTabInfo]. */
-  override fun createTabLabel(info: KrTabInfo): KrTabLabel {
+  /** Create a [krasa.editorGroups.tabs2.impl.KrTabLabel] from a [EditorGroupTabInfo]. */
+  override fun createTabLabel(info: EditorGroupTabInfo): KrTabLabel {
     val tabLabel = KrTabLabel(this, info)
     patchMouseListener(tabLabel)
 
@@ -83,7 +83,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
   override fun createSingleRowLayout(): KrSingleRowLayout = KrScrollableSingleRowLayout(this)
 
   /** Do not handle inactive tabs. */
-  override fun isActiveTabs(info: KrTabInfo?): Boolean = true
+  override fun isActiveTabs(info: EditorGroupTabInfo?): Boolean = true
 
   override fun doLayout() {
     adjustScroll()
@@ -111,7 +111,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
     revalidateAndRepaint(false)
   }
 
-  fun setTabInfo(tabInfo: KrTabInfo?) {
+  fun setTabInfo(tabInfo: EditorGroupTabInfo?) {
     this.popupInfo = tabInfo
   }
 

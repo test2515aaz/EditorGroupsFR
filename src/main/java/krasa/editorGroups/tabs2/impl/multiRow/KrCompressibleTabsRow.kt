@@ -1,7 +1,7 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.impl.KrTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import krasa.editorGroups.tabs2.label.TabUiDecorator
@@ -11,7 +11,7 @@ import kotlin.math.max
 import kotlin.math.round
 
 class KrCompressibleTabsRow(
-  infos: List<KrTabInfo>,
+  infos: List<EditorGroupTabInfo>,
   withTitle: Boolean,
   withEntryPointToolbar: Boolean
 ) : KrTabsRow(infos, withTitle, withEntryPointToolbar) {
@@ -184,7 +184,7 @@ class KrCompressibleTabsRow(
     return result
   }
 
-  private fun createTabInsets(tabs: KrTabsImpl, info: KrTabInfo): TabInsets {
+  private fun createTabInsets(tabs: KrTabsImpl, info: EditorGroupTabInfo): TabInsets {
     val decoration = KrTabLabel.mergeUiDecorations(
       tabs.uiDecorator!!.getDecoration(),
       KrTabsImpl.defaultDecorator.getDecoration()
@@ -214,7 +214,7 @@ class KrCompressibleTabsRow(
   }
 
   @Suppress("UseDPIAwareInsets")
-  private fun createUiDecoration(tabs: KrTabsImpl, info: KrTabInfo, insets: TabInsets): TabUiDecorator.TabUiDecoration {
+  private fun createUiDecoration(tabs: KrTabsImpl, info: EditorGroupTabInfo, insets: TabInsets): TabUiDecorator.TabUiDecoration {
     val actionsPosition = tabs.infoToLabel[info]!!.actionsPosition
     val cornerToActions =
       insets.cornerToActions + if (actionsPosition == KrTabLabel.ActionsPosition.NONE && insets.actionsInset > 0) insets.actionsInset else 0

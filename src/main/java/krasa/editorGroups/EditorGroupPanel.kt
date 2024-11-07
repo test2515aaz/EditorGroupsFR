@@ -37,10 +37,10 @@ import krasa.editorGroups.language.EditorGroupsLanguage.isEditorGroupsLanguage
 import krasa.editorGroups.model.*
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.*
+import krasa.editorGroups.tabs2.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.EditorGroupsTabsBase
 import krasa.editorGroups.tabs2.EditorGroupsTabsContainer
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
-import krasa.editorGroups.tabs2.KrTabInfo
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
 import java.awt.Component
@@ -374,7 +374,7 @@ class EditorGroupPanel(
       if (currentGroup.isStub) {
         thisLogger().debug("#reloadTabs: stub - Adding Loading...")
 
-        val tab = EditorGroupTabInfo(PathLink("Loading...", project), "Loading...")
+        val tab = MyEditorGroupTabInfo(PathLink("Loading...", project), "Loading...")
         tab.selectable = false
         tabs.addTabSilently(tab, -1)
       }
@@ -421,7 +421,7 @@ class EditorGroupPanel(
     var j = 0
     for (i1 in start until end) {
       val link = links[i1]
-      val tab = EditorGroupTabInfo(link = link, name = pathToNames[link]!!)
+      val tab = MyEditorGroupTabInfo(link = link, name = pathToNames[link]!!)
 
       // Add the tab silently from the end
       tabs.addTabSilently(info = tab, index = -1)
@@ -459,7 +459,7 @@ class EditorGroupPanel(
       // Editor groups Files
       this.currentIndex < 0 && isEditorGroupsLanguage(file) -> {
         val link = Link.fromFile(file, project)
-        val info = EditorGroupTabInfo(link, pathsToNames[link]!!)
+        val info = MyEditorGroupTabInfo(link, pathsToNames[link]!!)
 
         // Colorize the groups tab with its color
         customizeSelectedColor(info)
@@ -513,7 +513,7 @@ class EditorGroupPanel(
       return false
     }
 
-    val allTabs: List<KrTabInfo> = this.tabs.tabs
+    val allTabs: List<EditorGroupTabInfo> = this.tabs.tabs
     val continuousScrolling = EditorGroupsSettings.instance.isContinuousScrolling
     var iterations = 0
 
@@ -561,7 +561,7 @@ class EditorGroupPanel(
     }
 
     var iterations = 0
-    val allTabs: List<KrTabInfo> = this.tabs.tabs
+    val allTabs: List<EditorGroupTabInfo> = this.tabs.tabs
     val continuousScrolling = EditorGroupsSettings.instance.isContinuousScrolling
     var link: Link? = null
 
@@ -581,9 +581,9 @@ class EditorGroupPanel(
   }
 
   /** Get the file link from the tabs at the given index. */
-  private fun getLink(tabs: List<KrTabInfo>, index: Int): Link? {
+  private fun getLink(tabs: List<EditorGroupTabInfo>, index: Int): Link? {
     val tabInfo = tabs[index]
-    if (tabInfo !is EditorGroupTabInfo) return null
+    if (tabInfo !is MyEditorGroupTabInfo) return null
 
     return tabInfo.link
   }
@@ -637,11 +637,11 @@ class EditorGroupPanel(
 
   /** Find the tab with the current `fileFromTextEditor` and select it. */
   private fun selectTabFallback() {
-    val allTabs: List<KrTabInfo> = this.tabs.tabs
+    val allTabs: List<EditorGroupTabInfo> = this.tabs.tabs
 
     allTabs.indices.forEach { i ->
       val tab = allTabs[i]
-      if (tab is EditorGroupTabInfo && tab.link.fileEquals(this.fileFromTextEditor)) {
+      if (tab is MyEditorGroupTabInfo && tab.link.fileEquals(this.fileFromTextEditor)) {
         tabs.mySelectedInfo = tab
         customizeSelectedColor(tab)
         this.currentIndex = i
@@ -651,11 +651,11 @@ class EditorGroupPanel(
 
   /** Select the tab of the provided link. */
   private fun selectTab(link: Link) {
-    val allTabs: List<KrTabInfo> = this.tabs.tabs
+    val allTabs: List<EditorGroupTabInfo> = this.tabs.tabs
 
     for (i in allTabs.indices) {
       val tab = allTabs[i]
-      if (tab !is EditorGroupTabInfo) continue
+      if (tab !is MyEditorGroupTabInfo) continue
 
       val tabLink = tab.link
       if (tabLink != link) continue
@@ -1025,7 +1025,7 @@ class EditorGroupPanel(
   fun getDisplayedGroupOrEmpty(): EditorGroup = displayedGroup ?: EditorGroup.EMPTY
 
   /** Sets bg and fg color of the selected tab, according to the settings. */
-  private fun customizeSelectedColor(tab: EditorGroupTabInfo) {
+  private fun customizeSelectedColor(tab: MyEditorGroupTabInfo) {
     // custom group colors
     val bgColor = displayedGroup!!.bgColor
     val fgColor = displayedGroup!!.fgColor
@@ -1050,7 +1050,7 @@ class EditorGroupPanel(
   override fun uiDataSnapshot(sink: DataSink) {
     sink[CommonDataKeys.VIRTUAL_FILE] = run {
       val targetInfo = tabs.getTargetInfo()
-      if (targetInfo is EditorGroupTabInfo) {
+      if (targetInfo is MyEditorGroupTabInfo) {
         val path = targetInfo.link
         return@run path.virtualFile
       }
@@ -1068,7 +1068,7 @@ class EditorGroupPanel(
   }
 
   /** Represents a tab info in the editor group panel. */
-  class EditorGroupTabInfo(val link: Link, var name: String) : KrTabInfo(JLabel("")) {
+  class MyEditorGroupTabInfo(val link: Link, var name: String) : EditorGroupTabInfo(JLabel("")) {
     @JvmField
     var selectable: Boolean = true
 
@@ -1082,7 +1082,7 @@ class EditorGroupPanel(
       setIcon(AllIcons.FileTypes.Any_type)
 
       // Disable the tab if the file does not exist
-      if (!link.exists()) setEnabled(false)
+      if (!link.exists()) isEnabled = false
 
       // Custom Names (for bookmarks, regexps, etc)
       val customName = link.customName ?: ""
@@ -1110,7 +1110,7 @@ class EditorGroupPanel(
    * @constructor Creates a new instance of `CustomGroupTabInfo` with the specified `EditorGroup`.
    * @property editorGroup The editor group associated with this `CustomGroupTabInfo`.
    */
-  internal inner class CustomGroupTabInfo(var editorGroup: EditorGroup) : KrTabInfo(JLabel("")) {
+  internal inner class CustomGroupTabInfo(var editorGroup: EditorGroup) : EditorGroupTabInfo(JLabel("")) {
     init {
       val title = editorGroup.tabTitle(this@EditorGroupPanel.project) // NON-NLS
       setText("[$title]")
@@ -1152,7 +1152,11 @@ class EditorGroupPanel(
 
   /** Upon selecting a different tab of the group. */
   internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : EditorGroupsTabsBase.SelectionChangeHandler {
-    override fun execute(info: KrTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
+    override fun execute(
+      info: EditorGroupTabInfo,
+      requestFocus: Boolean,
+      doChangeSelection: ActiveRunnable
+    ): ActionCallback {
 
       // TODO this causes the tab to not proceed with select
       // doChangeSelection.run()
@@ -1173,7 +1177,7 @@ class EditorGroupPanel(
         return ActionCallback.DONE
       }
 
-      val editorGroupTabInfo = info as EditorGroupTabInfo
+      val editorGroupTabInfo = info as MyEditorGroupTabInfo
       val fileByPath = editorGroupTabInfo.link.virtualFile
       // If the file is no longer available, disable the panel
       if (fileByPath == null) {

@@ -14,38 +14,38 @@ import javax.swing.JComponent
 @Suppress("unused", "HardCodedStringLiteral")
 interface EditorGroupsTabsBase {
   /** Selected tab. */
-  val selectedInfo: KrTabInfo?
+  val selectedInfo: EditorGroupTabInfo?
 
   /** List of tabs. */
-  val tabs: List<KrTabInfo>
+  val tabs: List<EditorGroupTabInfo>
 
   /** Tab Count. */
   val tabCount: Int
 
   /** Add a tab at the given index. */
-  fun addTab(info: KrTabInfo, index: Int): KrTabInfo
+  fun addTab(info: EditorGroupTabInfo, index: Int): EditorGroupTabInfo
 
   /** Adds a tab at the end. */
-  fun addTab(info: KrTabInfo): KrTabInfo
+  fun addTab(info: EditorGroupTabInfo): EditorGroupTabInfo
 
   /** Removes a tab. */
-  fun removeTab(info: KrTabInfo?): ActionCallback
+  fun removeTab(info: EditorGroupTabInfo?): ActionCallback
 
   /** Removes all tabs. */
   fun removeAllTabs()
 
   /** Selects a tab, optionally requesting focus. */
-  fun select(info: KrTabInfo, requestFocus: Boolean): ActionCallback
+  fun select(info: EditorGroupTabInfo, requestFocus: Boolean): ActionCallback
 
   /** Get Tab at index. */
-  fun getTabAt(tabIndex: Int): KrTabInfo
+  fun getTabAt(tabIndex: Int): EditorGroupTabInfo
 
   /** The tab presentation. */
   fun getPresentation(): KrTabsPresentation
 
   fun setDataProvider(dataProvider: DataProvider): EditorGroupsTabsBase?
 
-  fun getTargetInfo(): KrTabInfo?
+  fun getTargetInfo(): EditorGroupTabInfo?
 
   fun addTabMouseListener(listener: MouseListener): EditorGroupsTabsBase
 
@@ -57,13 +57,13 @@ interface EditorGroupsTabsBase {
 
   fun getComponent(): JComponent
 
-  fun findInfo(event: MouseEvent): KrTabInfo?
+  fun findInfo(event: MouseEvent): EditorGroupTabInfo?
 
-  fun findInfo(`object`: Any): KrTabInfo?
+  fun findInfo(`object`: Any): EditorGroupTabInfo?
 
-  fun findInfo(component: Component): KrTabInfo?
+  fun findInfo(component: Component): EditorGroupTabInfo?
 
-  fun getIndexOf(tabInfo: KrTabInfo?): Int
+  fun getIndexOf(tabInfo: EditorGroupTabInfo?): Int
 
   fun requestFocus()
 
@@ -73,11 +73,11 @@ interface EditorGroupsTabsBase {
 
   fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): EditorGroupsTabsBase
 
-  fun resetDropOver(tabInfo: KrTabInfo)
+  fun resetDropOver(tabInfo: EditorGroupTabInfo)
 
-  fun getTabLabel(tabInfo: KrTabInfo): Component?
+  fun getTabLabel(tabInfo: EditorGroupTabInfo): Component?
 
   interface SelectionChangeHandler {
-    fun execute(info: KrTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback
+    fun execute(info: EditorGroupTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback
   }
 }

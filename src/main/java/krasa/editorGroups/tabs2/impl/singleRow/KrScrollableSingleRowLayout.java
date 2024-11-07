@@ -3,7 +3,7 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
 import com.intellij.util.ui.JBUI;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
@@ -68,7 +68,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
       return;
     }
     int offset = -myScrollOffset;
-    for (KrTabInfo info : passInfo.myVisibleInfos) {
+    for (EditorGroupTabInfo info : passInfo.myVisibleInfos) {
       final int length = getRequiredLength(info);
       if (info == myTabs.getSelectedInfo()) {
         if (offset < 0) {
@@ -136,7 +136,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
   }
 
   @Override
-  public boolean isTabHidden(@NotNull KrTabInfo info) {
+  public boolean isTabHidden(@NotNull EditorGroupTabInfo info) {
     KrTabLabel label = myTabs.getInfoToLabel().get(info);
     Rectangle bounds = label.getBounds();
     int deadzone = JBUI.scale(DEADZONE_FOR_DECLARE_TAB_HIDDEN);
@@ -150,7 +150,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
   protected KrTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
     int i = data.toLayout.size() - 1;
     while (i >= 0) {
-      KrTabInfo info = data.toLayout.get(i);
+      EditorGroupTabInfo info = data.toLayout.get(i);
       KrTabLabel label = myTabs.getInfoToLabel().get(info);
       if (!label.getBounds().isEmpty()) {
         return label;

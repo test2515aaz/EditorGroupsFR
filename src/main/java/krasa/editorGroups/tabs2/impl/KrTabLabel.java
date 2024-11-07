@@ -21,8 +21,8 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.accessibility.ScreenReader;
 import krasa.editorGroups.settings.EditorGroupsSettings;
+import krasa.editorGroups.tabs2.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.EditorGroupsTabsEx;
-import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter;
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme;
 import krasa.editorGroups.tabs2.label.TabUiDecorator;
@@ -49,7 +49,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   private final LayeredIcon myIcon;
   private Icon myOverlayedIcon;
 
-  private final KrTabInfo myInfo;
+  private final EditorGroupTabInfo myInfo;
   protected KrActionPanel myActionPanel;
   private boolean myCentered;
   @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
@@ -59,7 +59,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   private final Wrapper myLabelPlaceholder = new Wrapper(false);
   protected final KrTabsImpl myTabs;
 
-  public KrTabLabel(KrTabsImpl tabs, final KrTabInfo info) {
+  public KrTabLabel(KrTabsImpl tabs, final EditorGroupTabInfo info) {
     super(false);
 
     myTabs = tabs;
@@ -87,7 +87,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
       public void mousePressed(final MouseEvent e) {
         if (UIUtil.isCloseClick(e, MouseEvent.MOUSE_PRESSED)) return;
         if (KrTabsImpl.isSelectionClick(e) && myInfo.isEnabled()) {
-          final KrTabInfo selectedInfo = myTabs.getSelectedInfo();
+          final EditorGroupTabInfo selectedInfo = myTabs.getSelectedInfo();
           if (selectedInfo != myInfo) {
             myInfo.setPreviousSelection(selectedInfo);
           }
@@ -135,7 +135,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
             if (index >= 0) {
               e.consume();
               // Select the previous tab, then set the focus its KrTabLabel.
-              KrTabInfo previous = myTabs.findEnabledBackward(index, true);
+              EditorGroupTabInfo previous = myTabs.findEnabledBackward(index, true);
               if (previous != null) {
                 myTabs.select(previous, false).doWhenDone(() -> myTabs.getSelectedLabel().requestFocusInWindow());
               }
@@ -145,7 +145,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
             if (index >= 0) {
               e.consume();
               // Select the previous tab, then set the focus its KrTabLabel.
-              KrTabInfo next = myTabs.findEnabledForward(index, true);
+              EditorGroupTabInfo next = myTabs.findEnabledForward(index, true);
               if (next != null) {
                 // Select the next tab, then set the focus its KrTabLabel.
                 myTabs.select(next, false).doWhenDone(() -> myTabs.getSelectedLabel().requestFocusInWindow());
@@ -353,11 +353,11 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
   public boolean isLastPinned() {
     if (myInfo.isPinned() && AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
-      @NotNull java.util.List<KrTabInfo> tabs = myTabs.getTabs();
+      @NotNull java.util.List<EditorGroupTabInfo> tabs = myTabs.getTabs();
       for (int i = 0; i < tabs.size(); i++) {
-        KrTabInfo cur = tabs.get(i);
+        EditorGroupTabInfo cur = tabs.get(i);
         if (cur == myInfo && i < tabs.size() - 1) {
-          KrTabInfo next = tabs.get(i + 1);
+          EditorGroupTabInfo next = tabs.get(i + 1);
           return !next.isPinned()
             && myTabs.getTabLabel(next).getY() == this.getY(); // check that cur and next are in the same row
         }
@@ -368,9 +368,9 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
 
   public boolean isNextToLastPinned() {
     if (!myInfo.isPinned() && AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
-      @NotNull java.util.List<KrTabInfo> tabs = myTabs.getVisibleInfos();
+      @NotNull java.util.List<EditorGroupTabInfo> tabs = myTabs.getVisibleInfos();
       boolean wasPinned = false;
-      for (KrTabInfo info : tabs) {
+      for (EditorGroupTabInfo info : tabs) {
         if (wasPinned && info == myInfo) return true;
         wasPinned = info.isPinned();
       }
@@ -379,7 +379,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
   }
 
   public boolean isLastInRow() {
-    List<KrTabInfo> infos = myTabs.getVisibleInfos();
+    List<EditorGroupTabInfo> infos = myTabs.getVisibleInfos();
     for (int ind = 0; ind < infos.size() - 1; ind++) {
       KrTabLabel cur = myTabs.getInfoToLabel().get(infos.get(ind));
       if (cur == this) {
@@ -515,7 +515,7 @@ public class KrTabLabel extends JPanel implements Accessible, DataProvider {
     return myIcon;
   }
 
-  public KrTabInfo getInfo() {
+  public EditorGroupTabInfo getInfo() {
     return myInfo;
   }
 
