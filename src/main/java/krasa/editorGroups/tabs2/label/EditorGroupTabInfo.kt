@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.SimpleColoredText
 import com.intellij.ui.SimpleTextAttributes
-import krasa.editorGroups.tabs2.impl.KrTabLabel
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import java.awt.Color
 import java.beans.PropertyChangeSupport
 import java.lang.ref.Reference
@@ -16,7 +16,7 @@ open class EditorGroupTabInfo(var component: JComponent? = null) {
   val changeSupport: PropertyChangeSupport = PropertyChangeSupport(this)
 
   // Internal tab label
-  var tabLabel: KrTabLabel? = null
+  var tabLabel: EditorGroupTabLabel? = null
 
   /** The tab icon. */
   var icon: Icon? = null

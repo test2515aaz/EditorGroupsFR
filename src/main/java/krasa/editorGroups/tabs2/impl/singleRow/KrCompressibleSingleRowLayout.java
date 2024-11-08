@@ -3,7 +3,7 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
@@ -39,7 +39,7 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
     float fractionalPart = 0;
     for (Iterator<EditorGroupTabInfo> iterator = data.toLayout.iterator(); iterator.hasNext(); ) {
       EditorGroupTabInfo tabInfo = iterator.next();
-      final KrTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
+      final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
 
       int length;
       int lengthIncrement = label.getPreferredSize().width;
@@ -67,7 +67,7 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
   }
 
   @Override
-  protected boolean applyTabLayout(KrSingleRowPassInfo data, KrTabLabel label, int length) {
+  protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     boolean result = super.applyTabLayout(data, label, length);
     label.setAlignmentToCenter(false);
     return result;

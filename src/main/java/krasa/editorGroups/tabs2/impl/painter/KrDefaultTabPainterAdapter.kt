@@ -1,7 +1,7 @@
 package krasa.editorGroups.tabs2.impl.painter
 
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
-import krasa.editorGroups.tabs2.impl.KrTabLabel
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -14,7 +14,7 @@ class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
 
   private val magicOffset = 1
 
-  override fun paintBackground(label: KrTabLabel, g: Graphics, tabs: KrTabsImpl) {
+  override fun paintBackground(label: EditorGroupTabLabel, g: Graphics, tabs: KrTabsImpl) {
     val info = label.info
     val isSelected = info == tabs.selectedInfo
     val isHovered = tabs.isHoveredTab(label)

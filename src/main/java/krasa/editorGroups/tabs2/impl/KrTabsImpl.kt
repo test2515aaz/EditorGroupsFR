@@ -165,7 +165,7 @@ open class KrTabsImpl(
   private val hiddenInfos = HashMap<EditorGroupTabInfo, Int>()
   var mySelectedInfo: EditorGroupTabInfo? = null
 
-  val infoToLabel: MutableMap<EditorGroupTabInfo, KrTabLabel> = HashMap()
+  val infoToLabel: MutableMap<EditorGroupTabInfo, EditorGroupTabLabel> = HashMap()
   val infoToToolbar: MutableMap<EditorGroupTabInfo, Toolbar> = HashMap()
 
   val moreToolbar: ActionToolbar?
@@ -270,7 +270,7 @@ open class KrTabsImpl(
 
   protected open fun createTabPainterAdapter(): KrTabPainterAdapter = KrDefaultTabPainterAdapter()
 
-  private var tabLabelAtMouse: KrTabLabel? = null
+  private var tabLabelAtMouse: EditorGroupTabLabel? = null
   private val scrollBar: JBScrollBar
   private val scrollBarChangeListener: ChangeListener
   private var scrollBarOn = false
@@ -480,11 +480,6 @@ open class KrTabsImpl(
     setLayout(layout)
 
     applyDecoration()
-    for (label in infoToLabel.values) {
-      label.enableCompressionMode(false)
-      label.isForcePaintBorders = false
-    }
-
     relayout(forced = true, layoutNow = true)
   }
 
@@ -495,7 +490,7 @@ open class KrTabsImpl(
     prevAction?.reconnect(prevActionId)
   }
 
-  fun setHovered(label: KrTabLabel?) {
+  fun setHovered(label: EditorGroupTabLabel?) {
     val old = tabLabelAtMouse
     tabLabelAtMouse = label
     if (old != null) {
@@ -508,7 +503,7 @@ open class KrTabsImpl(
     }
   }
 
-  fun unHover(label: KrTabLabel) {
+  fun unHover(label: EditorGroupTabLabel) {
     if (tabLabelAtMouse === label) {
       tabLabelAtMouse = null
       label.revalidate()
@@ -516,7 +511,7 @@ open class KrTabsImpl(
     }
   }
 
-  fun isHoveredTab(label: KrTabLabel?): Boolean = label != null && label === tabLabelAtMouse
+  fun isHoveredTab(label: EditorGroupTabLabel?): Boolean = label != null && label === tabLabelAtMouse
 
   open fun isActiveTabs(info: EditorGroupTabInfo?): Boolean = UIUtil.isFocusAncestor(this)
 
@@ -528,7 +523,7 @@ open class KrTabsImpl(
     Disposer.register(parentDisposable) { nestedTabs.remove(tabs) }
   }
 
-  fun isDragOut(label: KrTabLabel?, deltaX: Int, deltaY: Int): Boolean =
+  fun isDragOut(label: EditorGroupTabLabel?, deltaX: Int, deltaY: Int): Boolean =
     effectiveLayout!!.isDragOut(label!!, deltaX, deltaY)
 
   fun ignoreTabLabelLimitedWidthWhenPaint(): Boolean = effectiveLayout!!.isScrollable
@@ -691,7 +686,7 @@ open class KrTabsImpl(
   /** TODO use RdGraphicsExKt#childAtMouse(IdeGlassPane, Container) */
   @Deprecated("")
   internal inner class TabActionsAutoHideListener : MouseMotionAdapter(), Weighted {
-    private var currentOverLabel: KrTabLabel? = null
+    private var currentOverLabel: EditorGroupTabLabel? = null
     private var lastOverPoint: Point? = null
     override fun getWeight(): Double = 1.0
 
@@ -709,16 +704,16 @@ open class KrTabsImpl(
       if (lastOverPoint!!.x in 0 until width && lastOverPoint!!.y > 0 && lastOverPoint!!.y < height) {
         val label = infoToLabel[doFindInfo(lastOverPoint!!, true)]
         if (label != null) {
-          if (currentOverLabel != null) {
-            currentOverLabel!!.toggleShowActions(false)
-          }
-          label.toggleShowActions(true)
+          // if (currentOverLabel != null) {
+          //   currentOverLabel!!.toggleShowActions(false)
+          // }
+          // label.toggleShowActions(true)
           currentOverLabel = label
           return
         }
       }
       if (currentOverLabel != null) {
-        currentOverLabel!!.toggleShowActions(false)
+        // currentOverLabel!!.toggleShowActions(false)
         currentOverLabel = null
       }
     }
@@ -1105,11 +1100,11 @@ open class KrTabsImpl(
     return info
   }
 
-  protected open fun createTabLabel(info: EditorGroupTabInfo): KrTabLabel = KrTabLabel(this, info)
+  protected open fun createTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel = EditorGroupTabLabel(this, info)
 
   override fun addTab(info: EditorGroupTabInfo): EditorGroupTabInfo = addTab(info, -1)
 
-  override fun getTabLabel(info: EditorGroupTabInfo): KrTabLabel? = infoToLabel[info]
+  override fun getTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel? = infoToLabel[info]
 
   val popupGroup: ActionGroup?
     get() = popupGroupSupplier?.invoke()
@@ -1653,9 +1648,9 @@ open class KrTabsImpl(
 
   override fun doLayout() {
     try {
-      for (each in infoToLabel.values) {
-        each.setTabActionsAutoHide(tabLabelActionsAutoHide)
-      }
+      // for (each in infoToLabel.values) {
+      //   each.setTabActionsAutoHide(tabLabelActionsAutoHide)
+      // }
       val moreBoundsBeforeLayout = moreToolbar!!.component.bounds
       val entryPointBoundsBeforeLayout =
         if (entryPointToolbar == null) Rectangle(0, 0, 0, 0) else entryPointToolbar!!.component.bounds
@@ -1867,7 +1862,7 @@ open class KrTabsImpl(
     }
   }
 
-  val selectedLabel: KrTabLabel?
+  val selectedLabel: EditorGroupTabLabel?
     get() = infoToLabel[selectedInfo]
 
   open fun getVisibleInfos(): List<EditorGroupTabInfo> {
@@ -2113,7 +2108,7 @@ open class KrTabsImpl(
     var component = findComponentAt(point)
     while (component !== this) {
       if (component == null) return null
-      if (component is KrTabLabel) {
+      if (component is EditorGroupTabLabel) {
         return component.info
       }
       if (!labelsOnly) {
@@ -2213,7 +2208,7 @@ open class KrTabsImpl(
 
   override fun addImpl(component: Component, constraints: Any?, index: Int) {
     unqueueFromRemove(component)
-    if (component is KrTabLabel) {
+    if (component is EditorGroupTabLabel) {
       val uiDecorator = uiDecorator
       component.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
     }
@@ -2754,7 +2749,7 @@ open class KrTabsImpl(
       // Note: Unlike a JTabbedPane, JBTabsImpl has many more child types than just pages.
       // So we wrap KrTabLabel instances with their corresponding AccessibleTabPage, while
       // leaving other types of children untouched.
-      return if (accessibleChild is KrTabLabel) infoToPage[accessibleChild.info] else accessibleChild
+      return if (accessibleChild is EditorGroupTabLabel) infoToPage[accessibleChild.info] else accessibleChild
     }
 
     override fun getAccessibleSelection(): AccessibleSelection = this
@@ -2842,7 +2837,7 @@ private class AccessibleTabPage(
 
   private val tabIndex: Int
     get() = parent.getIndexOf(tabInfo)
-  private val tabLabel: KrTabLabel?
+  private val tabLabel: EditorGroupTabLabel?
     get() = parent.infoToLabel[tabInfo]
 
   /*
@@ -3048,7 +3043,7 @@ private class TitleAction(
 
     override fun updateUI() {
       super.updateUI()
-      font = KrTabLabel(tabs, EditorGroupTabInfo()).labelComponent.font
+      font = EditorGroupTabLabel(tabs, EditorGroupTabInfo()).labelComponent.font
       border = JBUI.Borders.empty(0, 5, 0, 6)
     }
   }

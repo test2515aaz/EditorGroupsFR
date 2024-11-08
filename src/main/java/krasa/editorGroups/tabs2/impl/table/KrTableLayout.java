@@ -5,8 +5,8 @@ import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
@@ -70,7 +70,7 @@ public class KrTableLayout extends KrTabLayout {
     final int hGap = myTabs.getTabHGap();
     int entryPointMargin = scrollable ? 0 : myTabs.getEntryPointPreferredSize().width;
     for (final EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
-      final KrTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
+      final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
       final boolean pinned = eachLabel.isPinned();
       int width = data.lengths.get(eachInfo);
       if (!pinned || !showPinnedTabsSeparately) {
@@ -121,7 +121,7 @@ public class KrTableLayout extends KrTabLayout {
     KrTableRow eachTableRow = new KrTableRow(data);
 
     for (final EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
-      KrTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
+      EditorGroupTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
       if (eachY == -1 || eachY != eachLabel.getY()) {
         if (eachY != -1) {
           eachTableRow = new KrTableRow(data);
@@ -193,7 +193,7 @@ public class KrTableLayout extends KrTabLayout {
 
     for (final Iterator<EditorGroupTabInfo> iterator = list.iterator(); iterator.hasNext(); ) {
       final EditorGroupTabInfo tabInfo = iterator.next();
-      KrTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
+      EditorGroupTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
 
       int length;
       final int lengthIncrement = label.getPreferredSize().width;
@@ -212,7 +212,7 @@ public class KrTableLayout extends KrTabLayout {
 
   private void calculateRawLengths(final List<EditorGroupTabInfo> list, final KrTablePassInfo data) {
     for (final EditorGroupTabInfo info : list) {
-      final KrTabLabel eachLabel = myTabs.getTabLabel(info);
+      final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(info);
       final Dimension size =
         eachLabel.isPinned() && KrTabLayout.showPinnedTabsSeparately() ? eachLabel.getNotStrictPreferredSize() : eachLabel.getPreferredSize();
       data.lengths.put(info, Math.max(KrTabLayout.getMinTabWidth(), size.width + myTabs.getTabHGap()));
@@ -276,14 +276,14 @@ public class KrTableLayout extends KrTabLayout {
 
   @Override
   public boolean isTabHidden(@NotNull final EditorGroupTabInfo info) {
-    final KrTabLabel label = myTabs.getInfoToLabel().get(info);
+    final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(info);
     final Rectangle bounds = label.getBounds();
     final int deadzone = JBUI.scale(KrTabLayout.DEADZONE_FOR_DECLARE_TAB_HIDDEN);
     return bounds.x < -deadzone || bounds.width < label.getPreferredSize().width - deadzone;
   }
 
   @Override
-  public boolean isDragOut(@NotNull final KrTabLabel tabLabel, final int deltaX, final int deltaY) {
+  public boolean isDragOut(@NotNull final EditorGroupTabLabel tabLabel, final int deltaX, final int deltaY) {
     if (lastTableLayout == null) {
       return super.isDragOut(tabLabel, deltaX, deltaY);
     }

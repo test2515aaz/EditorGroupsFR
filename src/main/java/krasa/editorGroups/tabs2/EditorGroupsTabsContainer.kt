@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.tabs2.impl.KrTabLabel
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
@@ -40,9 +40,9 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
     patchMouseListener(this)
   }
 
-  /** Create a [krasa.editorGroups.tabs2.impl.KrTabLabel] from a [EditorGroupTabInfo]. */
-  override fun createTabLabel(info: EditorGroupTabInfo): KrTabLabel {
-    val tabLabel = KrTabLabel(this, info)
+  /** Create a [krasa.editorGroups.tabs2.impl.EditorGroupTabLabel] from a [EditorGroupTabInfo]. */
+  override fun createTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel {
+    val tabLabel = EditorGroupTabLabel(this, info)
     patchMouseListener(tabLabel)
 
     return tabLabel

@@ -54,7 +54,7 @@ public final class KrActionPanel extends NonOpaquePanel {
       KrActionButton eachButton = new KrActionButton(tabInfo, each, ActionPlaces.UNKNOWN, pass, hover, tabs.getTabActionsMouseDeadZone$EditorGroups()) {
         @Override
         public void repaintComponent(Component c) {
-          KrTabLabel tabLabel = (KrTabLabel) SwingUtilities.getAncestorOfClass(KrTabLabel.class, c);
+          EditorGroupTabLabel tabLabel = (EditorGroupTabLabel) SwingUtilities.getAncestorOfClass(EditorGroupTabLabel.class, c);
           if (tabLabel != null) {
             Point point = SwingUtilities.convertPoint(c, new Point(0, 0), tabLabel);
             Dimension d = c.getSize();
@@ -78,7 +78,7 @@ public final class KrActionPanel extends NonOpaquePanel {
 
   @Override
   public void paint(Graphics g) {
-    KrTabLabel label = myTabs.getInfoToLabel().get(myInfo);
+    EditorGroupTabLabel label = myTabs.getInfoToLabel().get(myInfo);
     boolean isHovered = label != null && label.isHovered();
     boolean isSelected = myTabs.getSelectedInfo() == myInfo;
     if (ExperimentalUI.isNewUI()

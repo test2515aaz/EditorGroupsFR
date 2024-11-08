@@ -32,7 +32,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   @Override
-  public boolean isDragOut(@NotNull KrTabLabel tabLabel, int deltaX, int deltaY) {
+  public boolean isDragOut(@NotNull EditorGroupTabLabel tabLabel, int deltaX, int deltaY) {
     return getStrategy().isDragOut(tabLabel, deltaX, deltaY);
   }
 
@@ -60,7 +60,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       lastSingleRowLayout.layoutSize.equals(myTabs.getSize()) &&
       lastSingleRowLayout.scrollOffset == getScrollOffset()) {
       for (EditorGroupTabInfo each : data.myVisibleInfos) {
-        final KrTabLabel eachLabel = myTabs.getInfoToLabel().get(each);
+        final EditorGroupTabLabel eachLabel = myTabs.getInfoToLabel().get(each);
         if (!eachLabel.isValid()) {
           layoutLabels = true;
           break;
@@ -110,8 +110,8 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     data.tabRectangle = new Rectangle();
 
     if (!data.toLayout.isEmpty()) {
-      final KrTabLabel firstLabel = myTabs.getInfoToLabel().get(data.toLayout.get(0));
-      final KrTabLabel lastLabel = findLastVisibleLabel(data);
+      final EditorGroupTabLabel firstLabel = myTabs.getInfoToLabel().get(data.toLayout.get(0));
+      final EditorGroupTabLabel lastLabel = findLastVisibleLabel(data);
       if (firstLabel != null && lastLabel != null) {
         data.tabRectangle.x = firstLabel.getBounds().x;
         data.tabRectangle.y = firstLabel.getBounds().y;
@@ -127,7 +127,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   @Nullable
-  protected KrTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
+  protected EditorGroupTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
     return myTabs.getInfoToLabel().get(data.toLayout.get(data.toLayout.size() - 1));
   }
 
@@ -163,7 +163,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected void layoutLabels(final KrSingleRowPassInfo data) {
     boolean layoutStopped = false;
     for (EditorGroupTabInfo eachInfo : data.toLayout) {
-      final KrTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
+      final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
       if (layoutStopped) {
         final Rectangle rec = getStrategy().getLayoutRect(data, 0, 0);
         myTabs.layout(label, rec);
@@ -188,7 +188,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     }
   }
 
-  protected boolean applyTabLayout(KrSingleRowPassInfo data, KrTabLabel label, int length) {
+  protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     final Rectangle rec = getStrategy().getLayoutRect(data, data.position, length);
     myTabs.layout(label, rec);
 
@@ -210,7 +210,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   protected int getRequiredLength(EditorGroupTabInfo eachInfo) {
-    KrTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
+    EditorGroupTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
     return getStrategy().getLengthIncrement(label != null ? label.getPreferredSize() : new Dimension())
       + (myTabs.isEditorTabs() ? myTabs.getTabHGap() : 0);
   }

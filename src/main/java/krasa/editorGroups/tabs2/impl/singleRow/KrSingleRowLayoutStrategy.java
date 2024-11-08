@@ -3,8 +3,8 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
 import com.intellij.util.ui.JBUI;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrShapeTransform;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 
@@ -68,7 +68,7 @@ public abstract class KrSingleRowLayoutStrategy {
     return false;
   }
 
-  public abstract boolean isDragOut(KrTabLabel tabLabel, int deltaX, int deltaY);
+  public abstract boolean isDragOut(EditorGroupTabLabel tabLabel, int deltaX, int deltaY);
 
   /**
    * Whether a tab that didn't fit completely on the right/bottom side in scrollable layout should be clipped or hidden altogether.
@@ -88,7 +88,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public boolean isDragOut(KrTabLabel tabLabel, int deltaX, int deltaY) {
+    public boolean isDragOut(EditorGroupTabLabel tabLabel, int deltaX, int deltaY) {
       Rectangle bounds = tabLabel.getBounds();
       if (bounds.x + bounds.width + deltaX < 0 || bounds.x + bounds.width > tabLabel.getParent().getWidth())
         return true;
@@ -319,7 +319,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public boolean isDragOut(KrTabLabel tabLabel, int deltaX, int deltaY) {
+    public boolean isDragOut(EditorGroupTabLabel tabLabel, int deltaX, int deltaY) {
       Rectangle bounds = tabLabel.getBounds();
       if (bounds.y + bounds.height + deltaX < 0 || bounds.y + bounds.height > tabLabel.getParent().getHeight())
         return true;

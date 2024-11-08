@@ -24,7 +24,7 @@ abstract class KrTabLayout {
 
   open fun createShapeTransform(rectangle: Rectangle?): KrShapeTransform = KrShapeTransform.Top(rectangle)
 
-  open fun isDragOut(tabLabel: KrTabLabel, deltaX: Int, deltaY: Int): Boolean =
+  open fun isDragOut(tabLabel: EditorGroupTabLabel, deltaX: Int, deltaY: Int): Boolean =
     abs(deltaY.toDouble()) > tabLabel.height * dragOutMultiplier ||
       abs(deltaX.toDouble()) > tabLabel.width * dragOutMultiplier
 
