@@ -21,10 +21,11 @@ import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.StartupUiUtil.labelFont
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.accessibility.ScreenReader
-import krasa.editorGroups.settings.EditorGroupsSettings.Companion.instance
+import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.tabs2.EditorGroupsTabsEx
 import krasa.editorGroups.tabs2.impl.KrTabLayout.Companion.maxPinnedTabWidth
 import krasa.editorGroups.tabs2.impl.KrTabsImpl.Companion.isSelectionClick
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupsUI
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.TabUiDecorator.TabUiDecoration
 import java.awt.*
@@ -42,8 +43,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class EditorGroupTabLabel(
-  private val tabs: KrTabsImpl,
-  val info: EditorGroupTabInfo
+  private val tabs: KrTabsImpl, val info: EditorGroupTabInfo
 ) : JPanel(/* isDoubleBuffered = */ true), Accessible, UiCompatibleDataProvider {
   /** The label. */
   private val label: SimpleColoredComponent
@@ -61,7 +61,20 @@ class EditorGroupTabLabel(
   /** The icon overlaid. */
   private val overlaidIcon: Icon? = null
 
-  private var actionPanel: KrActionPanel? = null
+  /** Indicates whether the tab label is currently being hovered by the mouse cursor. */
+  var isHovered: Boolean = false
+    get() = tabs.isHoveredTab(this)
+    private set(value) {
+      if (field == value) return
+      when {
+        value -> tabs.setHovered(label = this)
+        else  -> tabs.unHover(label = this)
+      }
+    }
+
+  /** Indicates if the current tab label is selected. */
+  private val isSelected: Boolean
+    get() = tabs.selectedLabel === this
 
   init {
     label = createLabel(tabs = tabs, info = info)
@@ -70,31 +83,34 @@ class EditorGroupTabLabel(
     // navigate through the other tabs using the LEFT/RIGHT keys.
     isFocusable = ScreenReader.isActive()
     isOpaque = false
-    layout = MyTabLabelLayout()
+    layout = TabLabelLayout()
 
     labelPlaceholder.isOpaque = false
     labelPlaceholder.isFocusable = false
     label.isFocusable = false
+
     add(labelPlaceholder, BorderLayout.CENTER)
+    setAlignmentToCenter()
 
-    setAlignmentToCenter(true)
+    // Set a placeholder layered icons: one icon for the filetype, one for the states
+    icon = object : LayeredIcon(layerCount = 2) {}
 
-    icon = createLayeredIcon()
-
+    // Support for tab select
     addMouseListener(object : MouseAdapter() {
       override fun mousePressed(e: MouseEvent) {
-        if (UIUtil.isCloseClick(e, MouseEvent.MOUSE_PRESSED)) return
-
-        if (isSelectionClick(e) && info.isEnabled) {
-          val c = SwingUtilities.getDeepestComponentAt(e.component, e.getX(), e.getY())
-          if (c is InplaceButton) return
-          tabs.select(info, true)
-          val container = PopupUtil.getPopupContainerFor(this@EditorGroupTabLabel)
-          if (container != null && ClientProperty.isTrue(container.content, MorePopupAware::class.java)) {
-            container.cancel()
-          }
-        } else {
+        // Right click
+        if (!isSelectionClick(e) || !info.isEnabled) {
           handlePopup(e)
+          return
+        }
+
+        // Select tab
+        tabs.select(info = info, requestFocus = true)
+
+        // Close previously opened right click popups
+        val container = PopupUtil.getPopupContainerFor(this@EditorGroupTabLabel)
+        if (container != null && ClientProperty.isTrue(container.content, MorePopupAware::class.java)) {
+          container.cancel()
         }
       }
 
@@ -115,29 +131,37 @@ class EditorGroupTabLabel(
       }
     })
 
-    if (isFocusable()) {
+    // For screen readers
+    if (isFocusable) {
       // Navigate to the previous/next tab when LEFT/RIGHT is pressed.
       addKeyListener(object : KeyAdapter() {
         override fun keyPressed(e: KeyEvent) {
-          if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            val index = tabs.getIndexOf(info)
-            if (index >= 0) {
-              e.consume()
-              // Select the previous tab, then set the focus its KrTabLabel.
-              val previous = tabs.findEnabledBackward(index, true)
-              if (previous != null) {
-                tabs.select(previous, false).doWhenDone(Runnable { tabs.selectedLabel!!.requestFocusInWindow() })
+          when (e.keyCode) {
+            KeyEvent.VK_LEFT  -> {
+              val index = tabs.getIndexOf(info)
+              if (index >= 0) {
+                e.consume()
+                // Select the previous tab, then set the focus its label.
+                val previous = tabs.findEnabledBackward(index, cycle = true)
+                if (previous != null) {
+                  tabs.select(previous, requestFocus = false).doWhenDone {
+                    tabs.selectedLabel!!.requestFocusInWindow()
+                  }
+                }
               }
             }
-          } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            val index = tabs.getIndexOf(info)
-            if (index >= 0) {
-              e.consume()
-              // Select the previous tab, then set the focus its KrTabLabel.
-              val next = tabs.findEnabledForward(index, true)
-              if (next != null) {
-                // Select the next tab, then set the focus its KrTabLabel.
-                tabs.select(next, false).doWhenDone(Runnable { tabs.selectedLabel!!.requestFocusInWindow() })
+
+            KeyEvent.VK_RIGHT -> {
+              val index = tabs.getIndexOf(info)
+              if (index >= 0) {
+                e.consume()
+                // Select the previous tab, then set the focus its label.
+                val next = tabs.findEnabledForward(index, cycle = true)
+                if (next != null) {
+                  tabs.select(next, requestFocus = false).doWhenDone {
+                    tabs.selectedLabel!!.requestFocusInWindow()
+                  }
+                }
               }
             }
           }
@@ -146,90 +170,67 @@ class EditorGroupTabLabel(
 
       // Repaint when we gain/lost focus so that the focus cue is displayed.
       addFocusListener(object : FocusListener {
-        override fun focusGained(e: FocusEvent?) {
-          repaint()
-        }
+        override fun focusGained(e: FocusEvent?) = repaint()
 
-        override fun focusLost(e: FocusEvent?) {
-          repaint()
-        }
+        override fun focusLost(e: FocusEvent?) = repaint()
       })
     }
   }
 
-  var isHovered: Boolean = false
-    get() = tabs.isHoveredTab(this)
-    private set(value) {
-      if (field == value) return
-      if (value) {
-        tabs.setHovered(this)
-      } else {
-        tabs.unHover(this)
-      }
-    }
-
-  private val isSelected: Boolean
-    get() = tabs.selectedLabel === this
-
-  /**
-   * Determines whether this tab label can gain focus.
-   *
-   * This method overrides the focusability check to ensure that only the selected tab label can gain focus.
-   *
-   * @return true if this tab label is the selected tab, false otherwise.
-   */
+  /** Determines whether this tab label can gain focus. */
   override fun isFocusable(): Boolean {
     // We don't want the focus unless we are the selected tab.
     if (tabs.selectedLabel !== this) return false
 
-    @Suppress("UsePropertyAccessSyntax")
-    return super.isFocusable()
+    @Suppress("UsePropertyAccessSyntax") return super.isFocusable()
   }
 
+  /** Create the label, with support for small labels. */
   private fun createLabel(tabs: KrTabsImpl, info: EditorGroupTabInfo?): SimpleColoredComponent {
     val label: SimpleColoredComponent = object : SimpleColoredComponent() {
       override fun getFont(): Font? {
-        val font = JBUI.CurrentTheme.EditorTabs.font()
+        val font = EditorGroupsUI.font()
+        val useSmallLabels = EditorGroupsSettings.instance.isSmallLabels
 
-        return if (isFontSet || !tabs.useSmallLabels()) font else RelativeFont.NORMAL.fromResource(
-          "EditorTabs.fontSizeOffset",
-          -2,
-          scale(11.0f)
-        ).derive(labelFont)
+        return when {
+          isFontSet || !useSmallLabels -> font
+          else                         -> RelativeFont.NORMAL.fromResource(
+            /* propertyName = */ "EditorTabs.fontSizeOffset",
+            /* defaultOffset = */ -2,
+            /* minSize = */ scale(11.0f)
+          ).derive(labelFont)
+        }
       }
 
       override fun getActiveTextColor(attributesColor: Color?): Color? {
         val painterAdapter = tabs.tabPainterAdapter
         val theme = painterAdapter.getTabTheme()
-        val foreground = if (tabs.selectedInfo === info
-          && (UIUtil.getLabelForeground() == attributesColor || attributesColor == null)
-        )
-          if (tabs.isActiveTabs(info))
-            theme.underlinedTabForeground
-          else
-            theme.underlinedTabInactiveForeground
-        else
-          super.getActiveTextColor(attributesColor)
+
+        val foreground = when {
+          tabs.selectedInfo == info && (attributesColor == null || UIUtil.getLabelForeground() == attributesColor) ->
+            when {
+              tabs.isActiveTabs(info) -> theme.underlinedTabForeground
+              else                    -> theme.underlinedTabInactiveForeground
+            }
+
+          else                                                                                                     -> {
+            super.getActiveTextColor(attributesColor)
+          }
+        }
         return editLabelForeground(foreground)
       }
-
-      override fun paintIcon(g: Graphics, icon: Icon, offset: Int) {
-        val editedIcon = editIcon(icon)
-        super.paintIcon(g, editedIcon, offset)
-      }
     }
-    label.setOpaque(false)
-    label.setBorder(null)
-    label.setIconOpaque(false)
-    label.setIpad(JBUI.emptyInsets())
+
+    label.isOpaque = false
+    label.border = null
+    label.isIconOpaque = false
+    label.ipad = JBUI.emptyInsets()
 
     return label
   }
 
   // Allows to edit the label foreground right before painting
-  fun editLabelForeground(baseForeground: Color?): Color? {
-    return baseForeground
-  }
+  fun editLabelForeground(baseForeground: Color?): Color? = baseForeground
 
   // Allows to edit the icon right before painting
   fun editIcon(baseIcon: Icon): Icon {
@@ -245,7 +246,7 @@ class EditorGroupTabLabel(
       size.width = min(maxPinnedTabWidth.toDouble(), size.width.toDouble()).toInt()
     }
 
-    if (!instance.isCompactTabs) {
+    if (!EditorGroupsSettings.instance.isCompactTabs) {
       size.height = JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
     }
     return size
@@ -254,13 +255,15 @@ class EditorGroupTabLabel(
   val notStrictPreferredSize: Dimension
     get() = super.getPreferredSize()
 
-  fun setAlignmentToCenter(toCenter: Boolean) {
+  /** Aligns the content to the center of the tab. */
+  fun setAlignmentToCenter() {
     if (labelComponent.parent != null) return
 
-    setPlaceholderContent(toCenter = toCenter, component = labelComponent)
+    setPlaceholderContent(component = labelComponent)
   }
 
-  private fun setPlaceholderContent(toCenter: Boolean, component: JComponent) {
+  /** Rerender label placeholder. */
+  private fun setPlaceholderContent(component: JComponent) {
     labelPlaceholder.removeAll()
 
     val content = Centerizer(component, Centerizer.TYPE.BOTH)
@@ -304,12 +307,9 @@ class EditorGroupTabLabel(
       val contentRect = labelPlaceholder.bounds
       // Fadeout for right side before pin/close button (needed only in side placements and in squeezing layout)
       if (contentRect.width < labelPlaceholder.getPreferredSize().width + tabs.tabHGap) {
-        val rightRect =
-          Rectangle(contentRect.x + contentRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness)
+        val rightRect = Rectangle(contentRect.x + contentRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness)
         paintGradientRect(g2d, rightRect, transparent, tabBg)
-      } else if (tabs.effectiveLayout!!.isScrollable &&
-        myRect.width < getPreferredSize().width + tabs.tabHGap
-      ) {
+      } else if (tabs.effectiveLayout!!.isScrollable && myRect.width < getPreferredSize().width + tabs.tabHGap) {
         val rightRect = Rectangle(myRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness)
         paintGradientRect(g2d, rightRect, transparent, tabBg)
       }
@@ -337,10 +337,9 @@ class EditorGroupTabLabel(
       toShow.addSeparator()
     }
 
-    val tabs =
-      EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(
-        DataManager.getInstance().getDataContext(e.component, e.getX(), e.getY())
-      ) as KrTabsImpl
+    val tabs = EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(
+      DataManager.getInstance().getDataContext(e.component, e.getX(), e.getY())
+    ) as KrTabsImpl
     if (tabs === this@EditorGroupTabLabel.tabs && tabs.addNavigationGroup) {
       toShow.addAll(tabs.navigationActions)
     }
@@ -377,9 +376,9 @@ class EditorGroupTabLabel(
 
     this.labelComponent.invalidate()
 
-    if (actionPanel != null) {
-      actionPanel!!.invalidate()
-    }
+    // if (actionPanel != null) {
+    //   actionPanel!!.invalidate()
+    // }
 
     tabs.revalidateAndRepaint(false)
   }
@@ -414,30 +413,6 @@ class EditorGroupTabLabel(
     invalidateIfNeeded()
   }
 
-  private fun createLayeredIcon(): LayeredIcon {
-    return object : LayeredIcon(2) {
-      override fun getIconWidth(): Int {
-        val iconWidth = super.getIconWidth()
-        val tabWidth = getWidth()
-        val minTabWidth: Int = JBUI.scale(MIN_WIDTH_TO_CROP_ICON)
-        if (tabWidth < minTabWidth) {
-          return max((iconWidth - (minTabWidth - tabWidth)).toDouble(), (iconWidth / 2).toDouble()).toInt()
-        } else {
-          return iconWidth
-        }
-      }
-
-      override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
-        val g2 = g.create(x, y, getIconWidth(), getIconHeight())
-        try {
-          super.paintIcon(c, g2, 0, 0)
-        } finally {
-          g2.dispose()
-        }
-      }
-    }
-  }
-
   fun apply(decoration: TabUiDecoration) {
     if (decoration.labelFont != null) {
       setFont(decoration.labelFont)
@@ -459,14 +434,8 @@ class EditorGroupTabLabel(
     get() = true
 
   val actionsPosition: ActionsPosition
-    get() = if (this.isShowTabActions && actionPanel != null)
-      if (this.isTabActionsOnTheRight) ActionsPosition.RIGHT else ActionsPosition.LEFT
-    else
-      ActionsPosition.NONE
-
-  fun updateTabActions(): Boolean {
-    return actionPanel != null && actionPanel!!.update()
-  }
+    get() = if (this.isShowTabActions) if (this.isTabActionsOnTheRight) ActionsPosition.RIGHT else ActionsPosition.LEFT
+    else ActionsPosition.NONE
 
   override fun paintComponent(g: Graphics) {
     super.paintComponent(g)
@@ -482,8 +451,7 @@ class EditorGroupTabLabel(
     get() {
       val bg = tabs.tabPainter.getBackgroundColor()
       val customBg = tabs.tabPainter.getCustomBackground(
-        info.tabColor, this.isSelected,
-        tabs.isActiveTabs(this.info), this.isHovered
+        info.tabColor, this.isSelected, tabs.isActiveTabs(this.info), this.isHovered
       )
       return if (customBg != null) ColorUtil.alphaBlending(customBg, bg) else bg
     }
@@ -510,20 +478,6 @@ class EditorGroupTabLabel(
       val top = (size.height - overlaidIcon.iconHeight) / 2
 
       overlaidIcon.paintIcon(this, g, textBounds.x - overlaidIcon.iconWidth / 2, top)
-    }
-  }
-
-  fun setTabActionsAutoHide(autoHide: Boolean) {
-    if (actionPanel == null || actionPanel!!.isAutoHide == autoHide) {
-      return
-    }
-
-    actionPanel!!.setAutoHide(autoHide)
-  }
-
-  fun toggleShowActions(show: Boolean) {
-    if (actionPanel != null) {
-      actionPanel!!.toggleShowActions(show)
     }
   }
 
@@ -555,9 +509,7 @@ class EditorGroupTabLabel(
 
   @JvmRecord
   data class MergedUiDecoration(
-    val labelInsets: Insets,
-    val contentInsetsSupplier: Function<ActionsPosition?, Insets>,
-    val iconTextGap: Int
+    val labelInsets: Insets, val contentInsetsSupplier: Function<ActionsPosition?, Insets>, val iconTextGap: Int
   )
 
   override fun getAccessibleContext(): AccessibleContext {
@@ -589,7 +541,7 @@ class EditorGroupTabLabel(
     }
   }
 
-  private inner class MyTabLabelLayout : BorderLayout() {
+  private inner class TabLabelLayout : BorderLayout() {
     override fun addLayoutComponent(comp: Component?, constraints: Any?) {
       checkConstraints(constraints)
       super.addLayoutComponent(comp, constraints)
@@ -598,8 +550,7 @@ class EditorGroupTabLabel(
     override fun layoutContainer(parent: Container) {
       val prefWidth = parent.preferredSize.width
       synchronized(parent.treeLock) {
-        if (tabs.effectiveLayout!!.isScrollable && (!isHovered || tabs.isHorizontalTabs) && isShowTabActions && isTabActionsOnTheRight && parent.getWidth() < prefWidth
-        ) {
+        if (tabs.effectiveLayout!!.isScrollable && (!isHovered || tabs.isHorizontalTabs) && isShowTabActions && isTabActionsOnTheRight && parent.getWidth() < prefWidth) {
           layoutScrollable(parent)
         } else if (!isHovered && !isSelected && parent.getWidth() < prefWidth) {
           layoutCompressible(parent)
@@ -675,8 +626,7 @@ class EditorGroupTabLabel(
     }
 
     fun mergeUiDecorations(
-      customDec: TabUiDecoration,
-      defaultDec: TabUiDecoration
+      customDec: TabUiDecoration, defaultDec: TabUiDecoration
     ): MergedUiDecoration {
       val contentInsetsSupplier = Function { position: ActionsPosition? ->
         val def = Objects.requireNonNull<Function<ActionsPosition, Insets>?>(defaultDec.contentInsetsSupplier).apply(
@@ -698,8 +648,10 @@ class EditorGroupTabLabel(
       if (custom != null) {
         return JBInsets.addInsets(
           Insets(
-            getValue(def.top, custom.top), getValue(def.left, custom.left),
-            getValue(def.bottom, custom.bottom), getValue(def.right, custom.right)
+            getValue(def.top, custom.top),
+            getValue(def.left, custom.left),
+            getValue(def.bottom, custom.bottom),
+            getValue(def.right, custom.right)
           )
         )
       }

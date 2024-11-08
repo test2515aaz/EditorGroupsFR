@@ -69,7 +69,7 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
   @Override
   protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     boolean result = super.applyTabLayout(data, label, length);
-    label.setAlignmentToCenter(false);
+    label.setAlignmentToCenter();
     return result;
   }
 }

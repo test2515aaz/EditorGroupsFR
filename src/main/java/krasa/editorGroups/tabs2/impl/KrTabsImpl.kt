@@ -729,8 +729,8 @@ open class KrTabsImpl(
     if (isHideTabs) return
     var changed = false
     for (tabLabel in infoToLabel.values) {
-      val changes = tabLabel.updateTabActions()
-      changed = changed || changes
+      // val changes = tabLabel.updateTabActions()
+      changed = changed// || changes
     }
     if (changed) {
       revalidateAndRepaint()
@@ -997,7 +997,7 @@ open class KrTabsImpl(
       label.isDoubleBuffered = true
       label.setText(info.coloredText)
       label.setIcon(info.icon)
-      label.setAlignmentToCenter(false)
+      label.setAlignmentToCenter()
       label.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
       label.addMouseListener(object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
@@ -1014,7 +1014,7 @@ open class KrTabsImpl(
       })
       add(label)
       try {
-        label.updateTabActions()
+        // label.updateTabActions()
       } finally {
         remove(label)
       }

@@ -128,7 +128,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
           final Rectangle rec = getStrategy().getLayoutRect(data, data.position, clippedLength);
           myTabs.layout(label, rec);
         }
-        label.setAlignmentToCenter(false);
+        label.setAlignmentToCenter();
         return false;
       }
     }

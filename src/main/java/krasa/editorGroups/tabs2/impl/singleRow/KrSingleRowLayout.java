@@ -192,7 +192,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     final Rectangle rec = getStrategy().getLayoutRect(data, data.position, length);
     myTabs.layout(label, rec);
 
-    label.setAlignmentToCenter(myTabs.isEditorTabs() && getStrategy().isToCenterTextWhenStretched());
+    label.setAlignmentToCenter();
     return true;
   }
 
