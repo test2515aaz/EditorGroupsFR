@@ -23,9 +23,9 @@ public abstract class KrSingleRowLayoutStrategy {
 
   abstract int getEntryPointAxisSize();
 
-  public abstract int getStartPosition(final KrSingleRowPassInfo data);
+  public abstract int getStartPosition(final EditorGroupsSingleRowPassInfo data);
 
-  public abstract int getToFitLength(final KrSingleRowPassInfo data);
+  public abstract int getToFitLength(final EditorGroupsSingleRowPassInfo data);
 
   public abstract int getLengthIncrement(final Dimension dimension);
 
@@ -35,31 +35,31 @@ public abstract class KrSingleRowLayoutStrategy {
 
   public abstract int getMaxPosition(final Rectangle bounds);
 
-  protected abstract int getFixedFitLength(final KrSingleRowPassInfo data);
+  protected abstract int getFixedFitLength(final EditorGroupsSingleRowPassInfo data);
 
-  public Rectangle getLayoutRect(final KrSingleRowPassInfo data, final int position, final int length) {
+  public Rectangle getLayoutRect(final EditorGroupsSingleRowPassInfo data, final int position, final int length) {
     return getLayoutRec(data, position, getFixedPosition(data), length, getFixedFitLength(data));
   }
 
-  protected abstract Rectangle getLayoutRec(final KrSingleRowPassInfo data,
+  protected abstract Rectangle getLayoutRec(final EditorGroupsSingleRowPassInfo data,
                                             final int position,
                                             final int fixedPos,
                                             final int length,
                                             final int fixedFitLength);
 
-  protected abstract int getFixedPosition(final KrSingleRowPassInfo data);
+  protected abstract int getFixedPosition(final EditorGroupsSingleRowPassInfo data);
 
-  protected abstract Rectangle getTitleRect(KrSingleRowPassInfo data);
+  protected abstract Rectangle getTitleRect(EditorGroupsSingleRowPassInfo data);
 
-  public abstract Rectangle getMoreRect(final KrSingleRowPassInfo data);
+  public abstract Rectangle getMoreRect(final EditorGroupsSingleRowPassInfo data);
 
-  public abstract Rectangle getEntryPointRect(final KrSingleRowPassInfo data);
+  public abstract Rectangle getEntryPointRect(final EditorGroupsSingleRowPassInfo data);
 
   public abstract boolean isToCenterTextWhenStretched();
 
   public abstract KrShapeTransform createShapeTransform(Rectangle rectangle);
 
-  public abstract void layoutComp(KrSingleRowPassInfo data);
+  public abstract void layoutComp(EditorGroupsSingleRowPassInfo data);
 
   public boolean isSideComponentOnTabs() {
     return false;
@@ -93,7 +93,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public int getToFitLength(final KrSingleRowPassInfo data) {
+    public int getToFitLength(final EditorGroupsSingleRowPassInfo data) {
       JComponent hToolbar = data.hToolbar.get();
       int length;
       if (hToolbar != null) {
@@ -130,12 +130,12 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public int getFixedFitLength(final KrSingleRowPassInfo data) {
+    public int getFixedFitLength(final EditorGroupsSingleRowPassInfo data) {
       return myTabs.getHeaderFitSize().height;
     }
 
     @Override
-    public Rectangle getLayoutRec(final KrSingleRowPassInfo data,
+    public Rectangle getLayoutRec(final EditorGroupsSingleRowPassInfo data,
                                   final int position,
                                   final int fixedPos,
                                   final int length,
@@ -144,7 +144,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public int getStartPosition(final KrSingleRowPassInfo data) {
+    public int getStartPosition(final EditorGroupsSingleRowPassInfo data) {
       return data.insets.left;
     }
 
@@ -171,12 +171,12 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public int getFixedPosition(final KrSingleRowPassInfo data) {
+    public int getFixedPosition(final EditorGroupsSingleRowPassInfo data) {
       return data.insets.top;
     }
 
     @Override
-    public Rectangle getEntryPointRect(KrSingleRowPassInfo data) {
+    public Rectangle getEntryPointRect(EditorGroupsSingleRowPassInfo data) {
       int x;
       if (myTabs.isEditorTabs()) {
         x = data.layoutSize.width - myTabs.getActionsInsets().right - data.entryPointAxisSize;
@@ -187,7 +187,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public Rectangle getMoreRect(final KrSingleRowPassInfo data) {
+    public Rectangle getMoreRect(final EditorGroupsSingleRowPassInfo data) {
       int x;
       if (myTabs.isEditorTabs()) {
         x = data.layoutSize.width - myTabs.getActionsInsets().right - data.moreRectAxisSize;
@@ -199,12 +199,12 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    protected Rectangle getTitleRect(KrSingleRowPassInfo data) {
+    protected Rectangle getTitleRect(EditorGroupsSingleRowPassInfo data) {
       return new Rectangle(0, 0, myTabs.getTitleWrapper().getPreferredSize().width, myTabs.getHeaderFitSize().height);
     }
 
     @Override
-    public void layoutComp(KrSingleRowPassInfo data) {
+    public void layoutComp(EditorGroupsSingleRowPassInfo data) {
       if (myTabs.isHideTabs()) {
         myTabs.layoutComp(data, 0, 0, 0, 0);
       } else {
@@ -253,7 +253,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public void layoutComp(KrSingleRowPassInfo data) {
+    public void layoutComp(EditorGroupsSingleRowPassInfo data) {
       if (myTabs.isHideTabs()) {
         myTabs.layoutComp(data, 0, 0, 0, 0);
       } else {
@@ -262,12 +262,12 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public int getFixedPosition(final KrSingleRowPassInfo data) {
+    public int getFixedPosition(final EditorGroupsSingleRowPassInfo data) {
       return myTabs.getSize().height - data.insets.bottom - myTabs.getHeaderFitSize().height;
     }
 
     @Override
-    public Rectangle getEntryPointRect(KrSingleRowPassInfo data) {
+    public Rectangle getEntryPointRect(EditorGroupsSingleRowPassInfo data) {
       int x;
       if (myTabs.isEditorTabs()) {
         x = data.layoutSize.width - myTabs.getActionsInsets().right - data.entryPointAxisSize;
@@ -278,7 +278,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    public Rectangle getMoreRect(final KrSingleRowPassInfo data) {
+    public Rectangle getMoreRect(final EditorGroupsSingleRowPassInfo data) {
       int x;
       if (myTabs.isEditorTabs()) {
         x = data.layoutSize.width - myTabs.getActionsInsets().right - data.moreRectAxisSize;
@@ -290,7 +290,7 @@ public abstract class KrSingleRowLayoutStrategy {
     }
 
     @Override
-    protected Rectangle getTitleRect(KrSingleRowPassInfo data) {
+    protected Rectangle getTitleRect(EditorGroupsSingleRowPassInfo data) {
       return new Rectangle(0, getFixedPosition(data), myTabs.getTitleWrapper().getPreferredSize().width, myTabs.getHeaderFitSize().height);
     }
 

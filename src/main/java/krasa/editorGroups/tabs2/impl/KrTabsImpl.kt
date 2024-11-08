@@ -48,10 +48,10 @@ import krasa.editorGroups.tabs2.border.KrTabsBorder
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsDefaultTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsLayoutPassInfo
 import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsScrollableSingleRowLayout
-import krasa.editorGroups.tabs2.impl.singleRow.KrLayoutPassInfo
+import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
-import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
@@ -145,11 +145,9 @@ open class KrTabsImpl(
   private var dataProvider: DataProvider? = null
   private val deferredToRemove = WeakHashMap<Component, Component>()
 
-  // it's an invisible splitter intended for changing the size of tab zone
-  private val splitter = KrTabsSideSplitter(this)
-  internal var effectiveLayout: KrTabLayout? = null
+  internal var effectiveLayout: EditorGroupsTabLayout? = null
 
-  var lastLayoutPass: KrLayoutPassInfo? = null
+  var lastLayoutPass: EditorGroupsLayoutPassInfo? = null
     private set
 
   internal var forcedRelayout: Boolean = false
@@ -260,7 +258,6 @@ open class KrTabsImpl(
     myNavigationActions.add(prevAction)
     setUiDecorator(null)
     setLayout(createSingleRowLayout())
-    splitter.divider.isOpaque = false
     popupListener = object : PopupMenuListener {
       override fun popupMenuWillBecomeVisible(e: PopupMenuEvent) {}
       override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent) {
@@ -568,7 +565,7 @@ open class KrTabsImpl(
     }
   }
 
-  fun layoutComp(data: KrSingleRowPassInfo, deltaX: Int, deltaY: Int, deltaWidth: Int, deltaHeight: Int) {
+  fun layoutComp(data: EditorGroupsSingleRowPassInfo, deltaX: Int, deltaY: Int, deltaWidth: Int, deltaHeight: Int) {
     val hToolbar = data.hToolbar?.get()
     val vToolbar = data.vToolbar?.get()
 
@@ -1634,11 +1631,6 @@ open class KrTabsImpl(
           titleWrapper.bounds = Rectangle()
         }
 
-        val divider = splitter.divider
-        if (divider.parent === this) {
-          val location = width - lastLayoutPass!!.headerRectangle!!.width
-          divider.setBounds(location, 0, 1, height)
-        }
       }
 
       centerizeEntryPointToolbarPosition()
@@ -2470,7 +2462,7 @@ open class KrTabsImpl(
     return this
   }
 
-  private fun setLayout(layout: KrTabLayout): Boolean {
+  private fun setLayout(layout: EditorGroupsTabLayout): Boolean {
     if (effectiveLayout === layout) {
       return false
     }
@@ -2623,10 +2615,6 @@ open class KrTabsImpl(
 
   override fun setTabsPosition(position: EditorGroupsTabsPosition): KrTabsPresentation {
     this.position = position
-    val divider = splitter.divider
-    if (divider.parent === this) {
-      remove(divider)
-    }
     applyDecoration()
     relayout(forced = true, layoutNow = false)
     return this

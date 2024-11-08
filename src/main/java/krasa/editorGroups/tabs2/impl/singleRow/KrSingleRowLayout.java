@@ -2,8 +2,8 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
+import krasa.editorGroups.tabs2.impl.EditorGroupsTabLayout;
 import krasa.editorGroups.tabs2.impl.KrShapeTransform;
-import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import krasa.editorGroups.tabs2.label.EditorGroupTabLabel;
@@ -15,9 +15,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
-public abstract class KrSingleRowLayout extends KrTabLayout {
+public abstract class KrSingleRowLayout extends EditorGroupsTabLayout {
   final KrTabsImpl tabs;
-  public KrSingleRowPassInfo lastSingleRowLayout;
+  public EditorGroupsSingleRowPassInfo lastSingleRowLayout;
 
   private final KrSingleRowLayoutStrategy myTop;
   private final KrSingleRowLayoutStrategy myBottom;
@@ -40,7 +40,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     };
   }
 
-  protected boolean checkLayoutLabels(KrSingleRowPassInfo data) {
+  protected boolean checkLayoutLabels(EditorGroupsSingleRowPassInfo data) {
     boolean layoutLabels = true;
 
     if (!tabs.getForcedRelayout$EditorGroups() &&
@@ -65,8 +65,8 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     return layoutLabels;
   }
 
-  public KrLayoutPassInfo layoutSingleRow(List<EditorGroupTabInfo> visibleInfos) {
-    KrSingleRowPassInfo data = new KrSingleRowPassInfo(this, visibleInfos);
+  public EditorGroupsLayoutPassInfo layoutSingleRow(List<EditorGroupTabInfo> visibleInfos) {
+    EditorGroupsSingleRowPassInfo data = new EditorGroupsSingleRowPassInfo(this, visibleInfos);
 
     final boolean shouldLayoutLabels = checkLayoutLabels(data);
     if (!shouldLayoutLabels) {
@@ -116,11 +116,11 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   @Nullable
-  protected EditorGroupTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
+  protected EditorGroupTabLabel findLastVisibleLabel(EditorGroupsSingleRowPassInfo data) {
     return tabs.getInfoToLabel().get(data.toLayout.get(data.toLayout.size() - 1));
   }
 
-  protected void prepareLayoutPassInfo(KrSingleRowPassInfo data, EditorGroupTabInfo selected) {
+  protected void prepareLayoutPassInfo(EditorGroupsSingleRowPassInfo data, EditorGroupTabInfo selected) {
     data.insets = tabs.getLayoutInsets();
     if (tabs.isHorizontalTabs()) {
       data.insets.left += tabs.getFirstTabOffset();
@@ -134,22 +134,22 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     data.toFitLength = getStrategy().getToFitLength(data);
   }
 
-  protected void layoutTitle(KrSingleRowPassInfo data) {
+  protected void layoutTitle(EditorGroupsSingleRowPassInfo data) {
     data.titleRect = getStrategy().getTitleRect(data);
     data.position += tabs.isHorizontalTabs() ? data.titleRect.width : data.titleRect.height;
   }
 
-  protected void layoutMoreButton(KrSingleRowPassInfo data) {
+  protected void layoutMoreButton(EditorGroupsSingleRowPassInfo data) {
     if (!data.toDrop.isEmpty()) {
       data.moreRect = getStrategy().getMoreRect(data);
     }
   }
 
-  protected void layoutEntryPointButton(KrSingleRowPassInfo data) {
+  protected void layoutEntryPointButton(EditorGroupsSingleRowPassInfo data) {
     data.entryPointRect = getStrategy().getEntryPointRect(data);
   }
 
-  protected void layoutLabels(final KrSingleRowPassInfo data) {
+  protected void layoutLabels(final EditorGroupsSingleRowPassInfo data) {
     boolean layoutStopped = false;
     for (EditorGroupTabInfo eachInfo : data.toLayout) {
       final EditorGroupTabLabel label = tabs.getInfoToLabel().get(eachInfo);
@@ -177,7 +177,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     }
   }
 
-  protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
+  protected boolean applyTabLayout(EditorGroupsSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     final Rectangle rec = getStrategy().getLayoutRect(data, data.position, length);
     tabs.layout(label, rec);
 
@@ -186,9 +186,9 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
 
-  protected abstract void recomputeToLayout(final KrSingleRowPassInfo data);
+  protected abstract void recomputeToLayout(final EditorGroupsSingleRowPassInfo data);
 
-  protected void calculateRequiredLength(KrSingleRowPassInfo data) {
+  protected void calculateRequiredLength(EditorGroupsSingleRowPassInfo data) {
     data.setRequiredLength(data.getRequiredLength() + data.insets.left + data.insets.right);
 
     for (EditorGroupTabInfo eachInfo : data.myVisibleInfos) {

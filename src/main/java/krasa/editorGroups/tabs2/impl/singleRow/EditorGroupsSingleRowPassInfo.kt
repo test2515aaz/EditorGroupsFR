@@ -8,10 +8,10 @@ import java.awt.Rectangle
 import java.lang.ref.WeakReference
 import javax.swing.JComponent
 
-class KrSingleRowPassInfo(
+class EditorGroupsSingleRowPassInfo(
   layout: KrSingleRowLayout,
   visibleInfos: MutableList<EditorGroupTabInfo>
-) : KrLayoutPassInfo(visibleInfos) {
+) : EditorGroupsLayoutPassInfo(visibleInfos) {
   private val tabs: KrTabsImpl = layout.tabs
 
   @JvmField

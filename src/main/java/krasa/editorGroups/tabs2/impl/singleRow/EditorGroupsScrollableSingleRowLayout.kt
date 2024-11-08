@@ -23,14 +23,14 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     clampScrollOffsetToBounds(lastSingleRowLayout)
   }
 
-  override fun checkLayoutLabels(data: KrSingleRowPassInfo): Boolean = true
+  override fun checkLayoutLabels(data: EditorGroupsSingleRowPassInfo): Boolean = true
 
   /**
    * Clamps the scroll offset to ensure the content is within the bounds.
    *
    * @param data The data object containing the current layout information.
    */
-  private fun clampScrollOffsetToBounds(data: KrSingleRowPassInfo?) {
+  private fun clampScrollOffsetToBounds(data: EditorGroupsSingleRowPassInfo?) {
     if (data == null) return
 
     if (data.requiredLength < data.toFitLength) {
@@ -53,7 +53,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
    *
    * @param passInfo The layout information for the current row of tabs.
    */
-  private fun doScrollToSelectedTab(passInfo: KrSingleRowPassInfo) {
+  private fun doScrollToSelectedTab(passInfo: EditorGroupsSingleRowPassInfo) {
     if (tabs.isMouseInsideTabsArea || tabs.isScrollBarAdjusting() || tabs.isRecentlyActive) return
 
     var offset = -this.scrollOffset
@@ -86,20 +86,20 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     }
   }
 
-  override fun recomputeToLayout(data: KrSingleRowPassInfo) {
+  override fun recomputeToLayout(data: EditorGroupsSingleRowPassInfo) {
     calculateRequiredLength(data)
     clampScrollOffsetToBounds(data)
     doScrollToSelectedTab(data)
     clampScrollOffsetToBounds(data)
   }
 
-  override fun layoutMoreButton(data: KrSingleRowPassInfo) {
+  override fun layoutMoreButton(data: EditorGroupsSingleRowPassInfo) {
     if (data.requiredLength > data.toFitLength) {
       data.moreRect = strategy.getMoreRect(data)
     }
   }
 
-  override fun applyTabLayout(data: KrSingleRowPassInfo, label: EditorGroupTabLabel, length: Int): Boolean {
+  override fun applyTabLayout(data: EditorGroupsSingleRowPassInfo, label: EditorGroupTabLabel, length: Int): Boolean {
     var length = length
 
     if (data.requiredLength > data.toFitLength) {
@@ -137,7 +137,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
       || bounds.height < label.getPreferredSize().height - deadzone
   }
 
-  override fun findLastVisibleLabel(data: KrSingleRowPassInfo): EditorGroupTabLabel? {
+  override fun findLastVisibleLabel(data: EditorGroupsSingleRowPassInfo): EditorGroupTabLabel? {
     var i = data.toLayout.size - 1
     while (i >= 0) {
       val info = data.toLayout[i]

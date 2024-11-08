@@ -3,7 +3,7 @@ package krasa.editorGroups.tabs2.impl.singleRow
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
 
-abstract class KrLayoutPassInfo protected constructor(
+abstract class EditorGroupsLayoutPassInfo protected constructor(
   @JvmField val myVisibleInfos: MutableList<EditorGroupTabInfo>
 ) {
   @JvmField
