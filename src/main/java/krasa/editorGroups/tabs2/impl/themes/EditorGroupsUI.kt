@@ -1,8 +1,11 @@
 package krasa.editorGroups.tabs2.impl.themes
 
 import com.intellij.ui.JBColor
+import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI
 import java.awt.Color
+import java.awt.Font
+import javax.swing.UIManager
 
 object EditorGroupsUI {
   val defaultTheme: EditorGroupDefaultTabTheme = EditorGroupDefaultTabTheme()
@@ -66,4 +69,27 @@ object EditorGroupsUI {
     "EditorGroupsTabs.underlineArc",
     defaultTheme.underlineArc
   )
+
+  fun compactTabHeight(): Int = JBUI.getInt(
+    "EditorGroupsTabs.compactTabHeight",
+    defaultTheme.compactTabHeight
+  )
+
+  fun tabHeight(): Int = JBUI.getInt(
+    "EditorGroupsTabs.tabHeight",
+    defaultTheme.tabHeight
+  )
+
+  fun fontSizeOffset(): Int = JBUI.getInt(
+    "EditorGroupsTabs.fontSizeOffset",
+    defaultTheme.fontSizeOffset
+  )
+
+  fun font(): Font = defaultFont()
+    .biggerOn(fontSizeOffset().toFloat())
+
+  private fun defaultFont(): JBFont {
+    val font = UIManager.getFont("EditorGroupsTabs.font") ?: defaultTheme.font
+    return JBFont.create(font, false)
+  }
 }

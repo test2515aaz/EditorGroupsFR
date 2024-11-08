@@ -3,9 +3,9 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition;
-import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
 import java.util.Iterator;
 
@@ -31,15 +31,15 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
     int spentLength = 0;
     int lengthEstimation = 0;
 
-    for (KrTabInfo tabInfo : data.toLayout) {
+    for (EditorGroupTabInfo tabInfo : data.toLayout) {
       lengthEstimation += Math.max(getMinTabWidth(), myTabs.getInfoToLabel().get(tabInfo).getPreferredSize().width);
     }
 
     final int extraWidth = data.toFitLength - lengthEstimation;
     float fractionalPart = 0;
-    for (Iterator<KrTabInfo> iterator = data.toLayout.iterator(); iterator.hasNext(); ) {
-      KrTabInfo tabInfo = iterator.next();
-      final KrTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
+    for (Iterator<EditorGroupTabInfo> iterator = data.toLayout.iterator(); iterator.hasNext(); ) {
+      EditorGroupTabInfo tabInfo = iterator.next();
+      final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
 
       int length;
       int lengthIncrement = label.getPreferredSize().width;
@@ -56,23 +56,20 @@ public class KrCompressibleSingleRowLayout extends KrSingleRowLayout {
       } else {
         length = lengthIncrement;
       }
-      if (tabInfo.isPinned()) {
-        length = Math.min(getMaxPinnedTabWidth(), length);
-      }
       spentLength += length + myTabs.getTabHGap();
       applyTabLayout(data, label, length);
       data.position = (int) label.getBounds().getMaxX() + myTabs.getTabHGap();
     }
 
-    for (KrTabInfo eachInfo : data.toDrop) {
+    for (EditorGroupTabInfo eachInfo : data.toDrop) {
       JBTabsImpl.Companion.resetLayout(myTabs.getInfoToLabel().get(eachInfo));
     }
   }
 
   @Override
-  protected boolean applyTabLayout(KrSingleRowPassInfo data, KrTabLabel label, int length) {
+  protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     boolean result = super.applyTabLayout(data, label, length);
-    label.setAlignmentToCenter(false);
+    label.setAlignmentToCenter();
     return result;
   }
 }

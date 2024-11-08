@@ -14,11 +14,10 @@ import java.awt.Point
 import java.awt.Rectangle
 
 /** A regular tab painter that uses a [EditorGroupTabTheme] to paint the tabs. */
-open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGroupDefaultTabTheme()) : KrTabPainter {
-
+open class EditorGroupsDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGroupDefaultTabTheme()) : EditorGroupsTabPainter {
   override fun getTabTheme(): EditorGroupTabTheme = theme
 
-  override fun getBackgroundColor(): Color = theme.background ?: theme.borderColor
+  override fun getBackgroundColor(): Color = theme.background
 
   override fun getCustomBackground(tabColor: Color?, selected: Boolean, active: Boolean, hovered: Boolean): Color? {
     var bg: Color? = null
@@ -51,9 +50,6 @@ open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGr
           else             -> theme.underlinedTabInactiveBackground
         }
 
-        // Or, return the background
-        bg = bg ?: theme.background
-
         // If it's hovered, blend the background with the hover color
         if (hovered) {
           when {
@@ -63,6 +59,9 @@ open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGr
             bg = bg?.let { ColorUtil.alphaBlending(hover, it) } ?: hover
           }
         }
+
+        // Or, return the background
+        bg = bg ?: theme.background
       }
     }
 
@@ -70,7 +69,7 @@ open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGr
   }
 
   override fun fillBackground(g: Graphics2D, rect: Rectangle) {
-    theme.background?.let { g.fill2DRect(rect, it) }
+    theme.background.let { g.fill2DRect(rect, it) }
   }
 
   override fun paintTab(
@@ -131,7 +130,7 @@ open class KrDefaultTabPainter(private val theme: EditorGroupTabTheme = EditorGr
     }
   }
 
-  override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point) =
+  override fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point): Unit =
     g.paint2DLine(from, to, LinePainter2D.StrokeType.INSIDE, thickness.toDouble(), theme.borderColor)
 
   private fun underlineRectangle(position: EditorGroupsTabsPosition, rect: Rectangle, thickness: Int): Rectangle = when (position) {

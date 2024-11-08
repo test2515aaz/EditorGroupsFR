@@ -5,7 +5,9 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
+import krasa.editorGroups.EditorGroupPanel.Companion.COMPACT_TAB_HEIGHT
 import java.awt.Color
+import java.awt.Font
 
 open class EditorGroupDefaultTabTheme : EditorGroupTabTheme {
   override val topBorderThickness: Int
@@ -61,4 +63,16 @@ open class EditorGroupDefaultTabTheme : EditorGroupTabTheme {
 
   override val inactiveColoredTabBackground: Color
     get() = JBUI.CurrentTheme.EditorTabs.inactiveColoredFileBackground()
+
+  override val fontSizeOffset: Int
+    get() = JBUI.getInt(JBUI.CurrentTheme.EditorTabs.fontSizeOffsetKey(), 0)
+
+  override val font: Font
+    get() = JBUI.CurrentTheme.EditorTabs.font()
+
+  override val tabHeight: Int
+    get() = JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
+
+  override val compactTabHeight: Int
+    get() = COMPACT_TAB_HEIGHT
 }

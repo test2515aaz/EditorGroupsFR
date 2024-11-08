@@ -5,11 +5,11 @@ import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class KrTableLayout extends KrTabLayout {
-  private int myScrollOffset = 0;
+  private int myScrollOffset;
 
   final KrTabsImpl myTabs;
 
@@ -26,26 +26,26 @@ public class KrTableLayout extends KrTabLayout {
 
   private final boolean myWithScrollBar;
 
-  public KrTableLayout(final KrTabsImpl tabs) {
+  public KrTableLayout(KrTabsImpl tabs) {
     this(tabs, false);
   }
 
-  public KrTableLayout(final KrTabsImpl tabs, boolean isWithScrollBar) {
+  public KrTableLayout(KrTabsImpl tabs, final boolean isWithScrollBar) {
     myTabs = tabs;
     myWithScrollBar = isWithScrollBar;
   }
 
-  private KrTablePassInfo computeLayoutTable(List<KrTabInfo> visibleInfos) {
-    final KrTablePassInfo data = new KrTablePassInfo(this, visibleInfos);
+  private KrTablePassInfo computeLayoutTable(final List<EditorGroupTabInfo> visibleInfos) {
+    KrTablePassInfo data = new KrTablePassInfo(this, visibleInfos);
     if (myTabs.isHideTabs()) {
       return data;
     }
     doScrollToSelectedTab(lastTableLayout);
 
-    boolean singleRow = myTabs.isSingleRow();
-    boolean showPinnedTabsSeparately = showPinnedTabsSeparately();
-    boolean scrollable = UISettings.getInstance().getHideTabsIfNeeded() && singleRow;
-    int titleWidth = myTabs.getTitleWrapper().getPreferredSize().width;
+    final boolean singleRow = myTabs.isSingleRow();
+    final boolean showPinnedTabsSeparately = KrTabLayout.showPinnedTabsSeparately();
+    final boolean scrollable = UISettings.getInstance().getHideTabsIfNeeded() && singleRow;
+    final int titleWidth = myTabs.getTitleWrapper().getPreferredSize().width;
 
     data.titleRect.setBounds(data.toFitRec.x, data.toFitRec.y, titleWidth, myTabs.getHeaderFitSize().height);
     data.entryPointRect.setBounds(data.toFitRec.x + data.toFitRec.width - myTabs.getEntryPointPreferredSize().width - myTabs.getActionsInsets().right,
@@ -57,21 +57,21 @@ public class KrTableLayout extends KrTabLayout {
     calculateLengths(data);
 
     int eachX = data.titleRect.x + data.titleRect.width;
-    Insets insets = myTabs.getLayoutInsets();
+    final Insets insets = myTabs.getLayoutInsets();
     int eachY = insets.top;
     int requiredRowsPinned = 0;
     int requiredRowsUnpinned = 0;
 
     int maxX = data.moreRect.x - (singleRow ? myTabs.getActionsInsets().left : 0);
-    if (!singleRow && showPinnedTabsSeparately && ContainerUtil.all(visibleInfos, info -> !info.isPinned())) {
+    if (!singleRow && showPinnedTabsSeparately) {
       maxX += myTabs.getEntryPointPreferredSize().width;
     }
 
-    int hGap = myTabs.getTabHGap();
+    final int hGap = myTabs.getTabHGap();
     int entryPointMargin = scrollable ? 0 : myTabs.getEntryPointPreferredSize().width;
-    for (KrTabInfo eachInfo : data.myVisibleInfos) {
-      KrTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
-      boolean pinned = eachLabel.isPinned();
+    for (final EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
+      final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
+      final boolean pinned = true;
       int width = data.lengths.get(eachInfo);
       if (!pinned || !showPinnedTabsSeparately) {
         data.requiredLength += width;
@@ -83,7 +83,7 @@ public class KrTableLayout extends KrTabLayout {
         myTabs.layout(eachLabel, eachX, eachY, width, myTabs.getHeaderFitSize().height);
         data.bounds.put(eachInfo, eachLabel.getBounds());
       } else {
-        if ((!scrollable && eachX + width + hGap > maxX - entryPointMargin && !singleRow) || (showPinnedTabsSeparately && eachLabel.isNextToLastPinned())) {
+        if ((!scrollable && eachX + width + hGap > maxX - entryPointMargin && !singleRow) || (showPinnedTabsSeparately)) {
           requiredRowsUnpinned++;
           eachY += myTabs.getHeaderFitSize().height;
           eachX = data.toFitRec.x;
@@ -91,16 +91,16 @@ public class KrTableLayout extends KrTabLayout {
           requiredRowsUnpinned = 1;
         }
         if (scrollable) {
-          if (eachX - getScrollOffset() + width + hGap > maxX - entryPointMargin) {
-            width = Math.max(0, maxX - eachX + getScrollOffset());
+          if (eachX - myScrollOffset + width + hGap > maxX - entryPointMargin) {
+            width = Math.max(0, maxX - eachX + myScrollOffset);
             data.invisible.add(eachInfo);
           }
         }
 
-        myTabs.layout(eachLabel, eachX - getScrollOffset(), eachY, width == 1 ? 0 : width, myTabs.getHeaderFitSize().height);
-        Rectangle rectangle = new Rectangle(myTabs.getHeaderFitSize());
+        myTabs.layout(eachLabel, eachX - myScrollOffset, eachY, width == 1 ? 0 : width, myTabs.getHeaderFitSize().height);
+        final Rectangle rectangle = new Rectangle(myTabs.getHeaderFitSize());
         data.bounds.put(eachInfo, eachLabel.getBounds());
-        int intersection = eachLabel.getBounds().intersection(rectangle).width;
+        final int intersection = eachLabel.getBounds().intersection(rectangle).width;
         if (scrollable && intersection < eachLabel.getBounds().width) {
           data.invisible.add(eachInfo);
         }
@@ -120,8 +120,8 @@ public class KrTableLayout extends KrTabLayout {
     eachY = -1;
     KrTableRow eachTableRow = new KrTableRow(data);
 
-    for (KrTabInfo eachInfo : data.myVisibleInfos) {
-      final KrTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
+    for (final EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
+      EditorGroupTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
       if (eachY == -1 || eachY != eachLabel.getY()) {
         if (eachY != -1) {
           eachTableRow = new KrTableRow(data);
@@ -137,38 +137,31 @@ public class KrTableLayout extends KrTabLayout {
     return data;
   }
 
-  private void calculateLengths(KrTablePassInfo data) {
-    boolean compressible = false;
-    boolean showPinnedTabsSeparately = showPinnedTabsSeparately();
+  private void calculateLengths(final KrTablePassInfo data) {
+    final boolean compressible = false;
+    final boolean showPinnedTabsSeparately = KrTabLayout.showPinnedTabsSeparately();
 
-    int standardLengthToFit = data.moreRect.x - (data.titleRect.x + data.titleRect.width) - myTabs.getActionsInsets().left;
+    final int standardLengthToFit = data.moreRect.x - (data.titleRect.x + data.titleRect.width) - myTabs.getActionsInsets().left;
     if (compressible || showPinnedTabsSeparately) {
       if (showPinnedTabsSeparately) {
-        List<KrTabInfo> pinned = ContainerUtil.filter(data.myVisibleInfos, info -> info.isPinned());
+        final List<EditorGroupTabInfo> pinned = ContainerUtil.filter(data.myVisibleInfos, info -> false);
         calculateCompressibleLengths(pinned, data, standardLengthToFit);
-        List<KrTabInfo> unpinned = ContainerUtil.filter(data.myVisibleInfos, info -> !info.isPinned());
-        if (compressible) {
-          Insets insets = myTabs.getActionsInsets();
-          calculateCompressibleLengths(unpinned, data, pinned.isEmpty()
-            ? standardLengthToFit
-            : standardLengthToFit + data.titleRect.width + myTabs.getEntryPointPreferredSize().width + insets.left + insets.right);
-        } else {
+        final List<EditorGroupTabInfo> unpinned = ContainerUtil.filter(data.myVisibleInfos, info -> true);
+        calculateRawLengths(unpinned, data);
+        if (KrTableLayout.getTotalLength(unpinned, data) > standardLengthToFit) {
+          final int moreWidth = getMoreRectAxisSize();
+          final int entryPointsWidth = pinned.isEmpty() ? myTabs.getEntryPointPreferredSize().width : 0;
+          data.moreRect.setBounds(data.toFitRec.x + data.toFitRec.width - moreWidth - entryPointsWidth - myTabs.getActionsInsets().right,
+            myTabs.getLayoutInsets().top, moreWidth, myTabs.getHeaderFitSize().height);
           calculateRawLengths(unpinned, data);
-          if (getTotalLength(unpinned, data) > standardLengthToFit) {
-            int moreWidth = getMoreRectAxisSize();
-            int entryPointsWidth = pinned.isEmpty() ? myTabs.getEntryPointPreferredSize().width : 0;
-            data.moreRect.setBounds(data.toFitRec.x + data.toFitRec.width - moreWidth - entryPointsWidth - myTabs.getActionsInsets().right,
-              myTabs.getLayoutInsets().top, moreWidth, myTabs.getHeaderFitSize().height);
-            calculateRawLengths(unpinned, data);
-          }
         }
       } else {
         calculateCompressibleLengths(data.myVisibleInfos, data, standardLengthToFit);
       }
     } else {//both scrollable and multi-row
       calculateRawLengths(data.myVisibleInfos, data);
-      if (getTotalLength(data.myVisibleInfos, data) > standardLengthToFit) {
-        int moreWidth = getMoreRectAxisSize();
+      if (KrTableLayout.getTotalLength(data.myVisibleInfos, data) > standardLengthToFit) {
+        final int moreWidth = getMoreRectAxisSize();
         data.moreRect.setBounds(data.toFitRec.x + data.toFitRec.width - moreWidth, data.toFitRec.y, moreWidth, myTabs.getHeaderFitSize().height);
         calculateRawLengths(data.myVisibleInfos, data);
       }
@@ -179,31 +172,31 @@ public class KrTableLayout extends KrTabLayout {
     return myTabs.isSingleRow() ? myTabs.getMoreToolbarPreferredSize().width : 0;
   }
 
-  private static int getTotalLength(@NotNull List<KrTabInfo> list, @NotNull KrTablePassInfo data) {
+  private static int getTotalLength(@NotNull final List<EditorGroupTabInfo> list, @NotNull final KrTablePassInfo data) {
     int total = 0;
-    for (KrTabInfo info : list) {
+    for (final EditorGroupTabInfo info : list) {
       total += data.lengths.get(info);
     }
     return total;
   }
 
-  private void calculateCompressibleLengths(List<KrTabInfo> list, KrTablePassInfo data, int toFitLength) {
+  private void calculateCompressibleLengths(final List<EditorGroupTabInfo> list, final KrTablePassInfo data, final int toFitLength) {
     if (list.isEmpty()) return;
     int spentLength = 0;
     int lengthEstimation = 0;
 
-    for (KrTabInfo tabInfo : list) {
-      lengthEstimation += Math.max(getMinTabWidth(), myTabs.getInfoToLabel().get(tabInfo).getPreferredSize().width);
+    for (final EditorGroupTabInfo tabInfo : list) {
+      lengthEstimation += Math.max(KrTabLayout.getMinTabWidth(), myTabs.getInfoToLabel().get(tabInfo).getPreferredSize().width);
     }
 
-    final int extraWidth = toFitLength - lengthEstimation;
+    int extraWidth = toFitLength - lengthEstimation;
 
-    for (Iterator<KrTabInfo> iterator = list.iterator(); iterator.hasNext(); ) {
-      KrTabInfo tabInfo = iterator.next();
-      final KrTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
+    for (final Iterator<EditorGroupTabInfo> iterator = list.iterator(); iterator.hasNext(); ) {
+      final EditorGroupTabInfo tabInfo = iterator.next();
+      EditorGroupTabLabel label = myTabs.getInfoToLabel().get(tabInfo);
 
       int length;
-      int lengthIncrement = label.getPreferredSize().width;
+      final int lengthIncrement = label.getPreferredSize().width;
       if (!iterator.hasNext()) {
         length = Math.min(toFitLength - spentLength, lengthIncrement);
       } else if (extraWidth <= 0) {//need compress
@@ -211,43 +204,39 @@ public class KrTableLayout extends KrTabLayout {
       } else {
         length = lengthIncrement;
       }
-      if (tabInfo.isPinned()) {
-        length = Math.min(getMaxPinnedTabWidth(), length);
-      }
-      length = Math.max(getMinTabWidth(), length);
+      length = Math.max(KrTabLayout.getMinTabWidth(), length);
       data.lengths.put(tabInfo, length);
       spentLength += length + myTabs.getTabHGap();
     }
   }
 
-  private void calculateRawLengths(List<KrTabInfo> list, KrTablePassInfo data) {
-    for (KrTabInfo info : list) {
-      KrTabLabel eachLabel = myTabs.getTabLabel(info);
-      Dimension size =
-        eachLabel.isPinned() && showPinnedTabsSeparately() ? eachLabel.getNotStrictPreferredSize() : eachLabel.getPreferredSize();
-      data.lengths.put(info, Math.max(getMinTabWidth(), size.width + myTabs.getTabHGap()));
+  private void calculateRawLengths(final List<EditorGroupTabInfo> list, final KrTablePassInfo data) {
+    for (final EditorGroupTabInfo info : list) {
+      final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(info);
+      final Dimension size = eachLabel.getPreferredSize();
+      data.lengths.put(info, Math.max(KrTabLayout.getMinTabWidth(), size.width + myTabs.getTabHGap()));
     }
   }
 
-  public KrLayoutPassInfo layoutTable(List<KrTabInfo> visibleInfos) {
+  public KrLayoutPassInfo layoutTable(final List<EditorGroupTabInfo> visibleInfos) {
     myTabs.resetLayout(true);
     Rectangle unitedTabArea = null;
-    KrTablePassInfo data = computeLayoutTable(visibleInfos);
+    final KrTablePassInfo data = computeLayoutTable(visibleInfos);
 
-    Rectangle rect = new Rectangle(data.moreRect);
+    final Rectangle rect = new Rectangle(data.moreRect);
     rect.y += myTabs.getBorderThickness();
     myTabs.getMoreToolbar().getComponent().setBounds(rect);
 
-    ActionToolbar entryPointToolbar = myTabs.getEntryPointToolbar();
+    final ActionToolbar entryPointToolbar = myTabs.getEntryPointToolbar();
     if (entryPointToolbar != null) {
       entryPointToolbar.getComponent().setBounds(data.entryPointRect);
     }
     myTabs.getTitleWrapper().setBounds(data.titleRect);
 
-    Insets insets = myTabs.getLayoutInsets();
-    int eachY = insets.top;
-    for (KrTabInfo info : visibleInfos) {
-      Rectangle bounds = data.bounds.get(info);
+    final Insets insets = myTabs.getLayoutInsets();
+    final int eachY = insets.top;
+    for (final EditorGroupTabInfo info : visibleInfos) {
+      final Rectangle bounds = data.bounds.get(info);
       if (unitedTabArea == null) {
         unitedTabArea = bounds;
       } else {
@@ -256,20 +245,20 @@ public class KrTableLayout extends KrTabLayout {
     }
 
     if (myTabs.getSelectedInfo() != null) {
-      final KrTabsImpl.Toolbar selectedToolbar = myTabs.getInfoToToolbar().get(myTabs.getSelectedInfo());
+      KrTabsImpl.Toolbar selectedToolbar = myTabs.getInfoToToolbar().get(myTabs.getSelectedInfo());
 
-      final int componentY = (unitedTabArea != null ? unitedTabArea.y + unitedTabArea.height : eachY) + (myTabs.isEditorTabs() ? 0 : 2) -
+      int componentY = (unitedTabArea != null ? unitedTabArea.y + unitedTabArea.height : eachY) + (myTabs.isEditorTabs() ? 0 : 2) -
         myTabs.getLayoutInsets().top;
       if (!myTabs.getHorizontalSide() && selectedToolbar != null && !selectedToolbar.isEmpty()) {
-        final int toolbarWidth = selectedToolbar.getPreferredSize().width;
-        final int vSeparatorWidth = toolbarWidth > 0 ? myTabs.separatorWidth : 0;
+        int toolbarWidth = selectedToolbar.getPreferredSize().width;
+        int vSeparatorWidth = toolbarWidth > 0 ? myTabs.separatorWidth : 0;
         if (myTabs.isSideComponentBefore()) {
-          Rectangle compRect =
+          final Rectangle compRect =
             myTabs.layoutComp(toolbarWidth + vSeparatorWidth, componentY, myTabs.getSelectedInfo().getComponent(), 0, 0);
           myTabs.layout(selectedToolbar, compRect.x - toolbarWidth - vSeparatorWidth, compRect.y, toolbarWidth, compRect.height);
         } else {
-          final int width = myTabs.getWidth() - toolbarWidth - vSeparatorWidth;
-          Rectangle compRect = myTabs.layoutComp(new Rectangle(0, componentY, width, myTabs.getHeight()),
+          int width = myTabs.getWidth() - toolbarWidth - vSeparatorWidth;
+          final Rectangle compRect = myTabs.layoutComp(new Rectangle(0, componentY, width, myTabs.getHeight()),
             myTabs.getSelectedInfo().getComponent(), 0, 0);
           myTabs.layout(selectedToolbar, compRect.x + compRect.width + vSeparatorWidth, compRect.y, toolbarWidth, compRect.height);
         }
@@ -285,24 +274,11 @@ public class KrTableLayout extends KrTabLayout {
   }
 
   @Override
-  public boolean isTabHidden(@NotNull KrTabInfo info) {
-    KrTabLabel label = myTabs.getInfoToLabel().get(info);
-    Rectangle bounds = label.getBounds();
-    int deadzone = JBUI.scale(DEADZONE_FOR_DECLARE_TAB_HIDDEN);
+  public boolean isTabHidden(@NotNull final EditorGroupTabInfo info) {
+    final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(info);
+    final Rectangle bounds = label.getBounds();
+    final int deadzone = JBUI.scale(KrTabLayout.DEADZONE_FOR_DECLARE_TAB_HIDDEN);
     return bounds.x < -deadzone || bounds.width < label.getPreferredSize().width - deadzone;
-  }
-
-  @Override
-  public boolean isDragOut(@NotNull KrTabLabel tabLabel, int deltaX, int deltaY) {
-    if (lastTableLayout == null) {
-      return super.isDragOut(tabLabel, deltaX, deltaY);
-    }
-
-    Rectangle area = new Rectangle(lastTableLayout.toFitRec.width, tabLabel.getBounds().height);
-    for (int i = 0; i < lastTableLayout.myVisibleInfos.size(); i++) {
-      area = area.union(myTabs.getInfoToLabel().get(lastTableLayout.myVisibleInfos.get(i)).getBounds());
-    }
-    return Math.abs(deltaY) > area.height * getDragOutMultiplier();
   }
 
   @Override
@@ -311,7 +287,7 @@ public class KrTableLayout extends KrTabLayout {
   }
 
   @Override
-  public void scroll(int units) {
+  public void scroll(final int units) {
     if (!myTabs.isSingleRow()) {
       myScrollOffset = 0;
       return;
@@ -321,14 +297,14 @@ public class KrTableLayout extends KrTabLayout {
     clampScrollOffsetToBounds(lastTableLayout);
   }
 
-  private void clampScrollOffsetToBounds(@Nullable KrTablePassInfo data) {
+  private void clampScrollOffsetToBounds(@Nullable final KrTablePassInfo data) {
     if (data == null) {
       return;
     }
     if (data.requiredLength < data.toFitRec.width) {
       myScrollOffset = 0;
     } else {
-      int entryPointsWidth = data.moreRect.y == data.entryPointRect.y ? data.entryPointRect.width + 1 : 0;
+      final int entryPointsWidth = data.moreRect.y == data.entryPointRect.y ? data.entryPointRect.width + 1 : 0;
       myScrollOffset = Math.max(0, Math.min(myScrollOffset,
         data.requiredLength - data.toFitRec.width + data.moreRect.width + entryPointsWidth /*+ (1 + myTabs.getIndexOf(myTabs.getSelectedInfo())) * myTabs.getBorderThickness()*/ + data.titleRect.width));
     }
@@ -343,24 +319,23 @@ public class KrTableLayout extends KrTabLayout {
     return 10;
   }
 
-  private void doScrollToSelectedTab(KrTablePassInfo data) {
+  private void doScrollToSelectedTab(final KrTablePassInfo data) {
     if (myTabs.isMouseInsideTabsArea()
       || data == null
       || data.lengths.isEmpty()
       || myTabs.isHideTabs()
-      || !showPinnedTabsSeparately()) {
+      || !KrTabLayout.showPinnedTabsSeparately()) {
       return;
     }
 
     int offset = -myScrollOffset;
-    for (KrTabInfo info : data.myVisibleInfos) {
-      if (info.isPinned()) continue;
-      final int length = data.lengths.get(info);
+    for (final EditorGroupTabInfo info : data.myVisibleInfos) {
+      int length = data.lengths.get(info);
       if (info == myTabs.getSelectedInfo()) {
         if (offset < 0) {
           scroll(offset);
         } else {
-          final int maxLength = data.moreRect.x;
+          int maxLength = data.moreRect.x;
           if (offset + length > maxLength) {
             // left side should be always visible
             if (length < maxLength) {

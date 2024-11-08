@@ -2,7 +2,6 @@
 
 package krasa.editorGroups.tabs2.impl
 
-import com.intellij.icons.AllIcons
 import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
@@ -11,17 +10,15 @@ import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.rd.fill2DRoundRect
-import com.intellij.openapi.ui.Queryable
 import com.intellij.openapi.ui.ShadowAction
 import com.intellij.openapi.ui.popup.*
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.util.PopupUtil
 import com.intellij.openapi.util.*
-import com.intellij.openapi.util.text.NaturalComparator
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.openapi.wm.IdeGlassPane
 import com.intellij.openapi.wm.IdeGlassPaneUtil
@@ -47,13 +44,14 @@ import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
 import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
-import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
-import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
-import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsDefaultTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.TabUiDecorator
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls
@@ -63,7 +61,6 @@ import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.util.*
-import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
 import javax.accessibility.*
@@ -75,16 +72,13 @@ import javax.swing.event.PopupMenuListener
 import javax.swing.plaf.ComponentUI
 import kotlin.Pair
 import kotlin.math.max
-import kotlin.math.min
 
-private val ABC_COMPARATOR: Comparator<KrTabInfo> =
-  Comparator { o1, o2 -> NaturalComparator.INSTANCE.compare(o1.text, o2.text) }
 private val LOG = logger<KrTabsImpl>()
 private const val SCROLL_BAR_THICKNESS = 3
 private const val ADJUST_BORDERS = true
 private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 
-@Suppress("UnstableApiUsage")
+@Suppress("detekt:LargeClass", "detekt:MagicNumber", "detekt:StringLiteralDuplication")
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
@@ -98,78 +92,17 @@ open class KrTabsImpl(
   DataProvider,
   PopupMenuListener,
   KrTabsPresentation,
-  Queryable,
   UISettingsListener,
   QuickActionProvider,
   MorePopupAware,
   Accessible {
-  companion object {
-    @JvmField
-    val PINNED: Key<Boolean> = Key.create("pinned")
+  private val visibleInfos = ArrayList<EditorGroupTabInfo>()
+  private val infoToPage = HashMap<EditorGroupTabInfo, AccessibleTabPage>()
+  private val hiddenInfos = HashMap<EditorGroupTabInfo, Int>()
+  var mySelectedInfo: EditorGroupTabInfo? = null
 
-    @JvmField
-    val SIDE_TABS_SIZE_LIMIT_KEY: Key<Int> = Key.create("SIDE_TABS_SIZE_LIMIT_KEY")
-
-    private val HIDDEN_INFOS_SELECT_INDEX_KEY = Key.create<Int>("HIDDEN_INFOS_SELECT_INDEX")
-
-    @JvmField
-    val MIN_TAB_WIDTH: Int = JBUIScale.scale(75)
-
-    @JvmField
-    val DEFAULT_MAX_TAB_WIDTH: Int = JBUIScale.scale(300)
-
-    @JvmField
-    internal val defaultDecorator: TabUiDecorator = DefaultTabDecorator()
-
-    @JvmStatic
-    fun getComponentImage(info: KrTabInfo): Image {
-      val component = info.component
-      val image: BufferedImage
-      if (component.isShowing) {
-        val width = component.width
-        val height = component.height
-        image = ImageUtil.createImage(
-          info.component?.graphicsConfiguration, if (width > 0) width else 500, if (height > 0) height else 500,
-          BufferedImage.TYPE_INT_ARGB
-        )
-        val g = image.createGraphics()
-        component.paint(g)
-      } else {
-        image = ImageUtil.createImage(info.component?.graphicsConfiguration, 500, 500, BufferedImage.TYPE_INT_ARGB)
-      }
-      return image
-    }
-
-    @JvmStatic
-    val selectionTabVShift: Int
-      get() = 2
-
-    @JvmStatic
-    fun isSelectionClick(e: MouseEvent): Boolean {
-      if (e.clickCount == 1) {
-        if (!e.isPopupTrigger) {
-          return e.button == MouseEvent.BUTTON1 && !e.isControlDown && !e.isAltDown && !e.isMetaDown
-        }
-      }
-      return false
-    }
-
-    @JvmStatic
-    fun resetLayout(c: JComponent?) {
-      if (c == null) {
-        return
-      }
-      c.putClientProperty(LAYOUT_DONE, null)
-    }
-  }
-
-  private val visibleInfos = ArrayList<KrTabInfo>()
-  private val infoToPage = HashMap<KrTabInfo, AccessibleTabPage>()
-  private val hiddenInfos = HashMap<KrTabInfo, Int>()
-  var mySelectedInfo: KrTabInfo? = null
-
-  val infoToLabel: MutableMap<KrTabInfo, KrTabLabel> = HashMap()
-  val infoToToolbar: MutableMap<KrTabInfo, Toolbar> = HashMap()
+  val infoToLabel: MutableMap<EditorGroupTabInfo, EditorGroupTabLabel> = HashMap()
+  val infoToToolbar: MutableMap<EditorGroupTabInfo, Toolbar> = HashMap()
 
   val moreToolbar: ActionToolbar?
   var entryPointToolbar: ActionToolbar? = null
@@ -177,7 +110,7 @@ open class KrTabsImpl(
 
   var headerFitSize: Dimension? = null
 
-  private var innerInsets: Insets = JBInsets.emptyInsets()
+  private var innerInsets: Insets = JBUI.emptyInsets()
   private val tabMouseListeners = ContainerUtil.createLockFreeCopyOnWriteList<EventListener>()
   private val tabListeners = ContainerUtil.createLockFreeCopyOnWriteList<EditorGroupsTabsListener>()
   private var isFocused = false
@@ -186,7 +119,7 @@ open class KrTabsImpl(
   var popupPlace: String? = null
     private set
 
-  var popupInfo: KrTabInfo? = null
+  var popupInfo: EditorGroupTabInfo? = null
   private val myNavigationActions: DefaultActionGroup
 
   val popupListener: PopupMenuListener
@@ -220,23 +153,16 @@ open class KrTabsImpl(
   private var isRequestFocusOnLastFocusedComponent = false
   private var listenerAdded = false
 
-  @JvmField
-  internal val attractions: MutableSet<KrTabInfo> = HashSet()
+  override val isEditorTabs: Boolean
+    get() = false
 
-  private val animator = lazy {
-    val result = object : Animator("KrTabs Attractions", 2, 500, true), Disposable {
-      override fun paintNow(frame: Int, totalFrames: Int, cycle: Int) {
-        repaintAttractions()
-      }
-    }
-    Disposer.register(parentDisposable, result)
-    result
-  }
-
-  private var allTabs: List<KrTabInfo>? = null
+  private var allTabs: List<EditorGroupTabInfo>? = null
   private var focusManager = IdeFocusManager.getGlobalInstance()
   private val nestedTabs = HashSet<KrTabsImpl>()
+
+  /** Adds the navigation action. */
   var addNavigationGroup: Boolean = true
+
   private var activeTabFillIn: Color? = null
   private var tabLabelActionsAutoHide = false
 
@@ -255,26 +181,34 @@ open class KrTabsImpl(
   private val myBorder = createTabBorder()
   private val nextAction: BaseNavigationAction?
   private val prevAction: BaseNavigationAction?
-  var isTabDraggingEnabled: Boolean = false
-    private set
-  private var dragHelper: KrDragHelper? = null
   private var navigationActionsEnabled = true
-  private var dropInfo: KrTabInfo? = null
+  private var dropInfo: EditorGroupTabInfo? = null
 
   var dropInfoIndex: Int = 0
 
   var dropSide: Int = -1
   protected var showDropLocation: Boolean = true
-  private var oldSelection: KrTabInfo? = null
+  private var oldSelection: EditorGroupTabInfo? = null
   private var mySelectionChangeHandler: EditorGroupsTabsBase.SelectionChangeHandler? = null
   private var deferredFocusRequest: Runnable? = null
   private var firstTabOffset = 0
 
-  @JvmField
-  internal val tabPainterAdapter: KrTabPainterAdapter = createTabPainterAdapter()
-  val tabPainter: KrTabPainter = tabPainterAdapter.tabPainter
+  val isHorizontalTabs: Boolean
+    get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
 
-  private var supportCompression = false
+  override val isEmptyVisible: Boolean
+    get() = visibleInfos.isEmpty()
+
+  val tabHGap: Int
+    get() = -myBorder.thickness
+
+  /** The tab painter adapter. */
+  @JvmField
+  internal val tabPainterAdapter: EditorGroupsTabPainterAdapter = createTabPainterAdapter()
+
+  /** The tab painter. */
+  val tabPainter: EditorGroupsTabPainter = tabPainterAdapter.tabPainter
+
   private var emptyText: String? = null
 
   var isMouseInsideTabsArea: Boolean = false
@@ -282,23 +216,30 @@ open class KrTabsImpl(
 
   private var removeNotifyInProgress = false
   private var singleRow = true
-  protected fun createTabBorder(): KrTabsBorder = KrEditorTabsBorder(this)
 
-  protected open fun createTabPainterAdapter(): KrTabPainterAdapter = KrDefaultTabPainterAdapter()
-
-  private var tabLabelAtMouse: KrTabLabel? = null
+  private var tabLabelAtMouse: EditorGroupTabLabel? = null
   private val scrollBar: JBScrollBar
   private val scrollBarChangeListener: ChangeListener
   private var scrollBarOn = false
 
-  @Suppress("IncorrectParentDisposable")
-  constructor(project: Project) : this(project = project, parentDisposable = project)
+  protected open val entryPointActionGroup: DefaultActionGroup?
+    get() = null
 
-  constructor(project: Project?, parentDisposable: Disposable) : this(
-    project = project,
-    parentDisposable = parentDisposable,
-    tabListOptions = EditorGroupsTabListOptions(),
-  )
+  private val scrollBarModel: BoundedRangeModel
+    get() = scrollBar.model
+
+  private val isWithScrollBar: Boolean
+    get() = effectiveLayout!!.isWithScrollBar
+
+  val entryPointPreferredSize: Dimension
+    get() = if (entryPointToolbar == null) Dimension() else entryPointToolbar!!.component.preferredSize
+
+  val moreToolbarPreferredSize: Dimension
+    // Returns default one action horizontal toolbar size (26x24)
+    get() {
+      val baseSize = ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
+      return Dimension(baseSize.width + JBUI.scale(4), baseSize.height + JBUI.scale(2))
+    }
 
   init {
     isOpaque = true
@@ -387,8 +328,6 @@ open class KrTabsImpl(
           processFocusChange()
         }
       }, AWTEvent.FOCUS_EVENT_MASK, parentDisposable)
-      dragHelper = createDragHelper(child, parentDisposable)
-      dragHelper!!.start()
     }
 
     putClientProperty(UIUtil.NOT_IN_HIERARCHY_COMPONENTS, Iterable {
@@ -410,6 +349,19 @@ open class KrTabsImpl(
     hoverListener.addTo(this)
     scrollBarChangeListener = ChangeListener { updateTabsOffsetFromScrollBar() }
   }
+
+  @Suppress("IncorrectParentDisposable")
+  constructor(project: Project) : this(project = project, parentDisposable = project)
+
+  constructor(project: Project?, parentDisposable: Disposable) : this(
+    project = project,
+    parentDisposable = parentDisposable,
+    tabListOptions = EditorGroupsTabListOptions(),
+  )
+
+  protected fun createTabBorder(): KrTabsBorder = KrEditorTabsBorder(this)
+
+  protected open fun createTabPainterAdapter(): EditorGroupsTabPainterAdapter = EditorGroupsDefaultTabPainterAdapter()
 
   private fun addMouseMotionAwtListener(parentDisposable: Disposable) {
     StartupUiUtil.addAwtListener(object : AWTEventListener {
@@ -460,9 +412,6 @@ open class KrTabsImpl(
     scrollBar.toggle(isOn)
   }
 
-  protected open val entryPointActionGroup: DefaultActionGroup?
-    get() = null
-
   private fun getScrollBarBounds(): Rectangle {
     if (!isWithScrollBar || isHideTabs) {
       return Rectangle(0, 0, 0, 0)
@@ -474,19 +423,9 @@ open class KrTabsImpl(
     }
   }
 
-  private val scrollBarModel: BoundedRangeModel
-    get() = scrollBar.model
-
-  private val isWithScrollBar: Boolean
-    get() = effectiveLayout!!.isWithScrollBar
-
-  protected open fun createDragHelper(tabs: KrTabsImpl, parentDisposable: Disposable): KrDragHelper =
-    KrDragHelper(tabs, parentDisposable)
-
   override fun uiSettingsChanged(uiSettings: UISettings) {
     for ((info, label) in infoToLabel) {
       info.revalidate()
-      label.setTabActions(info.tabLabelActions)
     }
     updateRowLayout()
   }
@@ -502,11 +441,6 @@ open class KrTabsImpl(
     setLayout(layout)
 
     applyDecoration()
-    for (label in infoToLabel.values) {
-      label.enableCompressionMode(false)
-      label.isForcePaintBorders = false
-    }
-
     relayout(forced = true, layoutNow = true)
   }
 
@@ -517,7 +451,7 @@ open class KrTabsImpl(
     prevAction?.reconnect(prevActionId)
   }
 
-  fun setHovered(label: KrTabLabel?) {
+  fun setHovered(label: EditorGroupTabLabel?) {
     val old = tabLabelAtMouse
     tabLabelAtMouse = label
     if (old != null) {
@@ -530,7 +464,7 @@ open class KrTabsImpl(
     }
   }
 
-  fun unHover(label: KrTabLabel) {
+  fun unHover(label: EditorGroupTabLabel) {
     if (tabLabelAtMouse === label) {
       tabLabelAtMouse = null
       label.revalidate()
@@ -538,20 +472,14 @@ open class KrTabsImpl(
     }
   }
 
-  fun isHoveredTab(label: KrTabLabel?): Boolean = label != null && label === tabLabelAtMouse
+  fun isHoveredTab(label: EditorGroupTabLabel?): Boolean = label != null && label === tabLabelAtMouse
 
-  open fun isActiveTabs(info: KrTabInfo?): Boolean = UIUtil.isFocusAncestor(this)
-
-  override val isEditorTabs: Boolean
-    get() = false
+  open fun isActiveTabs(info: EditorGroupTabInfo?): Boolean = UIUtil.isFocusAncestor(this)
 
   fun addNestedTabs(tabs: KrTabsImpl, parentDisposable: Disposable) {
     nestedTabs.add(tabs)
     Disposer.register(parentDisposable) { nestedTabs.remove(tabs) }
   }
-
-  fun isDragOut(label: KrTabLabel?, deltaX: Int, deltaY: Int): Boolean =
-    effectiveLayout!!.isDragOut(label!!, deltaX, deltaY)
 
   fun ignoreTabLabelLimitedWidthWhenPaint(): Boolean = effectiveLayout!!.isScrollable
 
@@ -574,17 +502,6 @@ open class KrTabsImpl(
     }
   }
 
-  private fun repaintAttractions() {
-    var needsUpdate = false
-    for (each in visibleInfos) {
-      val eachLabel = infoToLabel[each]
-      needsUpdate = needsUpdate or eachLabel!!.repaintAttraction()
-    }
-    if (needsUpdate) {
-      relayout(forced = true, layoutNow = false)
-    }
-  }
-
   override fun addNotify() {
     super.addNotify()
     addTimerUpdate()
@@ -598,14 +515,14 @@ open class KrTabsImpl(
 
   override fun remove(index: Int) {
     if (removeNotifyInProgress) {
-      LOG.warn(IllegalStateException("removeNotify in progress"))
+      thisLogger().warn("removeNotify in progress")
     }
     super.remove(index)
   }
 
   override fun removeAll() {
     if (removeNotifyInProgress) {
-      LOG.warn(IllegalStateException("removeNotify in progress"))
+      thisLogger().warn("removeNotify in progress")
     }
     super.removeAll()
   }
@@ -708,7 +625,7 @@ open class KrTabsImpl(
     }
   }
 
-  fun isDropTarget(info: KrTabInfo): Boolean = dropInfo != null && dropInfo == info
+  fun isDropTarget(info: EditorGroupTabInfo): Boolean = dropInfo != null && dropInfo == info
 
   fun getFirstTabOffset(): Int = firstTabOffset
 
@@ -724,7 +641,7 @@ open class KrTabsImpl(
   /** TODO use RdGraphicsExKt#childAtMouse(IdeGlassPane, Container) */
   @Deprecated("")
   internal inner class TabActionsAutoHideListener : MouseMotionAdapter(), Weighted {
-    private var currentOverLabel: KrTabLabel? = null
+    private var currentOverLabel: EditorGroupTabLabel? = null
     private var lastOverPoint: Point? = null
     override fun getWeight(): Double = 1.0
 
@@ -742,16 +659,16 @@ open class KrTabsImpl(
       if (lastOverPoint!!.x in 0 until width && lastOverPoint!!.y > 0 && lastOverPoint!!.y < height) {
         val label = infoToLabel[doFindInfo(lastOverPoint!!, true)]
         if (label != null) {
-          if (currentOverLabel != null) {
-            currentOverLabel!!.toggleShowActions(false)
-          }
-          label.toggleShowActions(true)
+          // if (currentOverLabel != null) {
+          //   currentOverLabel!!.toggleShowActions(false)
+          // }
+          // label.toggleShowActions(true)
           currentOverLabel = label
           return
         }
       }
       if (currentOverLabel != null) {
-        currentOverLabel!!.toggleShowActions(false)
+        // currentOverLabel!!.toggleShowActions(false)
         currentOverLabel = null
       }
     }
@@ -767,23 +684,13 @@ open class KrTabsImpl(
     if (isHideTabs) return
     var changed = false
     for (tabLabel in infoToLabel.values) {
-      val changes = tabLabel.updateTabActions()
-      changed = changed || changes
+      // val changes = tabLabel.updateTabActions()
+      changed = changed// || changes
     }
     if (changed) {
       revalidateAndRepaint()
     }
   }
-
-  val entryPointPreferredSize: Dimension
-    get() = if (entryPointToolbar == null) Dimension() else entryPointToolbar!!.component.preferredSize
-
-  val moreToolbarPreferredSize: Dimension
-    // Returns default one action horizontal toolbar size (26x24)
-    get() {
-      val baseSize = ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
-      return Dimension(baseSize.width + JBUI.scale(4), baseSize.height + JBUI.scale(2))
-    }
 
   override fun setTitleProducer(titleProducer: (() -> Pair<Icon, @Nls String>)?) {
     titleWrapper.removeAll()
@@ -816,7 +723,7 @@ open class KrTabsImpl(
     }
   }
 
-  private fun showListPopup(rect: Rectangle, hiddenInfos: List<KrTabInfo>): JBPopup {
+  private fun showListPopup(rect: Rectangle, hiddenInfos: List<EditorGroupTabInfo>): JBPopup {
     val separatorIndex = hiddenInfos.indexOfFirst { info ->
       val label = infoToLabel[info]
       label!!.x >= 0
@@ -829,17 +736,17 @@ open class KrTabsImpl(
       step.defaultOptionIndex = selectedIndex
     }
     val popup = JBPopupFactory.getInstance().createListPopup(project!!, step) {
-      val descriptor = object : ListItemDescriptorAdapter<KrTabInfo>() {
+      val descriptor = object : ListItemDescriptorAdapter<EditorGroupTabInfo>() {
         @Suppress("DialogTitleCapitalization")
-        override fun getTextFor(value: KrTabInfo): String = value.text
+        override fun getTextFor(value: EditorGroupTabInfo): String = value.text
 
-        override fun getIconFor(value: KrTabInfo): Icon? = value.icon
+        override fun getIconFor(value: EditorGroupTabInfo): Icon? = value.icon
 
-        override fun hasSeparatorAboveOf(value: KrTabInfo): Boolean = value == separatorInfo
+        override fun hasSeparatorAboveOf(value: EditorGroupTabInfo): Boolean = value == separatorInfo
       }
-      object : GroupedItemsListRenderer<KrTabInfo?>(descriptor) {
+      object : GroupedItemsListRenderer<EditorGroupTabInfo?>(descriptor) {
         private val HOVER_INDEX_KEY = Key.create<Int>("HOVER_INDEX")
-        private val TAB_INFO_KEY = Key.create<KrTabInfo?>("TAB_INFO")
+        private val TAB_INFO_KEY = Key.create<EditorGroupTabInfo?>("TAB_INFO")
         private val SELECTED_KEY = Key.create<Boolean>("SELECTED")
         var component: JPanel? = null
         var iconLabel: JLabel? = null
@@ -907,7 +814,7 @@ open class KrTabsImpl(
           component!!.add(actionLabel)
         }
 
-        override fun customizeComponent(list: JList<out KrTabInfo?>?, info: KrTabInfo?, isSelected: Boolean) {
+        override fun customizeComponent(list: JList<out EditorGroupTabInfo?>?, info: EditorGroupTabInfo?, isSelected: Boolean) {
           if (actionLabel != null) {
             val isHovered = ClientProperty.get(list, HOVER_INDEX_KEY) == myCurrentIndex
             val icon = getTabActionIcon(info!!, isHovered)
@@ -938,7 +845,7 @@ open class KrTabsImpl(
           return GroupHeaderSeparator(labelInsets)
         }
 
-        private fun addMouseListener(list: JList<out KrTabInfo>) {
+        private fun addMouseListener(list: JList<out EditorGroupTabInfo>) {
           if (listMouseListener != null) {
             return
           }
@@ -964,52 +871,6 @@ open class KrTabsImpl(
               }
             }
 
-            override fun mouseReleased(e: MouseEvent) {
-              val point = e.locationOnScreen
-              SwingUtilities.convertPointFromScreen(point, list)
-              val clickedIndex = list.locationToIndex(point)
-              val renderer = ListUtil.getDeepestRendererChildComponentAt(list, e.point)
-              if (renderer !is JLabel) {
-                return
-              }
-              val tabInfo = ClientProperty.get(renderer, TAB_INFO_KEY) ?: return
-
-              // The last one is expected to be 'CloseTab'
-              val tabAction = when {
-                tabInfo.tabLabelActions != null -> tabInfo.tabLabelActions.getChildren(null).lastOrNull()
-                else                            -> null
-              }
-              if (tabAction == null && !tabInfo.isPinned) {
-                return
-              }
-
-              var clickToUnpin = false
-              if (tabInfo.isPinned) {
-                if (tabAction != null) {
-                  val component = infoToLabel[tabInfo]!!
-                  ActionManager.getInstance().tryToExecute(tabAction, e, component, tabInfo.tabActionPlace, true)
-                  clickToUnpin = true
-                }
-              }
-              if (!clickToUnpin) {
-                removeTab(tabInfo)
-              }
-              e.consume()
-              val indexToSelect = min(clickedIndex, list.model.size)
-              ClientProperty.put(this@KrTabsImpl, HIDDEN_INFOS_SELECT_INDEX_KEY, indexToSelect)
-              step.selectTab = false
-              val curPopup = PopupUtil.getPopupContainerFor(list)
-              if (curPopup != null) {
-                val button = PopupUtil.getPopupToggleComponent(curPopup)
-                curPopup.cancel()
-                if (list.model.size > 0) {
-                  val newPopup = showMorePopup()
-                  if (newPopup != null) {
-                    PopupUtil.setPopupToggleComponent(newPopup, button)
-                  }
-                }
-              }
-            }
           }
           val listeners = list.mouseListeners
           val motionListeners = list.mouseMotionListeners
@@ -1035,22 +896,14 @@ open class KrTabsImpl(
   }
 
   // returns the icon that will be used in the hidden tabs list
-  protected open fun getTabActionIcon(info: KrTabInfo, isHovered: Boolean): Icon? {
-    val hasActions = info.tabLabelActions != null && info.tabLabelActions.getChildren(null).isNotEmpty()
-    val icon: Icon? = if (hasActions) {
-      if (isHovered) AllIcons.Actions.CloseHovered else AllIcons.Actions.Close
-    } else {
-      EmptyIcon.ICON_16
-    }
-    return if (info.isPinned) AllIcons.Actions.PinTab else icon
-  }
+  protected open fun getTabActionIcon(info: EditorGroupTabInfo, isHovered: Boolean): Icon? = EmptyIcon.ICON_16
 
-  private inner class HiddenInfosListPopupStep(values: List<KrTabInfo>, private val separatorInfo: KrTabInfo?) :
-    BaseListPopupStep<KrTabInfo>(
+  private inner class HiddenInfosListPopupStep(values: List<EditorGroupTabInfo>, private val separatorInfo: EditorGroupTabInfo?) :
+    BaseListPopupStep<EditorGroupTabInfo>(
       null, values
     ) {
     var selectTab = true
-    override fun onChosen(selectedValue: KrTabInfo, finalChoice: Boolean): PopupStep<*>? {
+    override fun onChosen(selectedValue: EditorGroupTabInfo, finalChoice: Boolean): PopupStep<*>? {
       if (selectTab) {
         select(selectedValue, true)
       } else {
@@ -1059,20 +912,20 @@ open class KrTabsImpl(
       return FINAL_CHOICE
     }
 
-    override fun getSeparatorAbove(value: KrTabInfo): ListSeparator? = when (value) {
+    override fun getSeparatorAbove(value: EditorGroupTabInfo): ListSeparator? = when (value) {
       separatorInfo -> ListSeparator()
       else          -> null
     }
 
-    override fun getIconFor(value: KrTabInfo): Icon? = value.icon
+    override fun getIconFor(value: EditorGroupTabInfo): Icon? = value.icon
 
-    override fun getTextFor(value: KrTabInfo): String {
+    override fun getTextFor(value: EditorGroupTabInfo): String {
       @Suppress("DialogTitleCapitalization")
       return value.text
     }
   }
 
-  private fun showTabLabelsPopup(rect: Rectangle, hiddenInfos: List<KrTabInfo>): JBPopup {
+  private fun showTabLabelsPopup(rect: Rectangle, hiddenInfos: List<EditorGroupTabInfo>): JBPopup {
     val gridPanel = JPanel(GridLayout(hiddenInfos.size, 1))
     val scrollPane: JScrollPane = object : JBScrollPane(gridPanel) {
       override fun getPreferredSize(): Dimension {
@@ -1089,9 +942,8 @@ open class KrTabsImpl(
       label.isDoubleBuffered = true
       label.setText(info.coloredText)
       label.setIcon(info.icon)
-      label.setTabActions(info.tabLabelActions)
-      label.setAlignmentToCenter(false)
-      label.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
+      label.setAlignmentToCenter()
+      label.apply(uiDecorator?.decoration ?: defaultDecorator.decoration)
       label.addMouseListener(object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
           if (e.isShiftDown && !e.isPopupTrigger) {
@@ -1107,7 +959,7 @@ open class KrTabsImpl(
       })
       add(label)
       try {
-        label.updateTabActions()
+        // label.updateTabActions()
       } finally {
         remove(label)
       }
@@ -1120,44 +972,43 @@ open class KrTabsImpl(
 
   private val toFocus: JComponent?
     get() {
-      val info = selectedInfo
-      if (info == null) return null
+      val info = selectedInfo ?: return null
       var toFocus: JComponent? = null
+
       if (isRequestFocusOnLastFocusedComponent && info.lastFocusOwner != null && !isMyChildIsFocusedNow) {
         toFocus = info.lastFocusOwner
       }
+
       if (toFocus == null) {
-        toFocus = info.preferredFocusableComponent
-        if (toFocus == null || !toFocus.isShowing) {
-          return null
-        }
+        toFocus = info.component
+        if (toFocus == null || !toFocus.isShowing) return null
 
         val policyToFocus = focusManager.getFocusTargetFor(toFocus)
         if (policyToFocus != null) {
           toFocus = policyToFocus
         }
       }
+
       return toFocus
     }
 
   override fun requestFocus() {
     val toFocus = toFocus
-    if (toFocus == null) {
-      focusManager.doWhenFocusSettlesDown { super.requestFocus() }
-    } else {
-      focusManager.doWhenFocusSettlesDown { focusManager.requestFocus(toFocus, true) }
+    when (toFocus) {
+      null -> focusManager.doWhenFocusSettlesDown { super.requestFocus() }
+      else -> focusManager.doWhenFocusSettlesDown { focusManager.requestFocus(toFocus, true) }
     }
   }
 
   override fun requestFocusInWindow(): Boolean = toFocus?.requestFocusInWindow() ?: super.requestFocusInWindow()
 
-  override fun addTab(info: KrTabInfo, index: Int): KrTabInfo =
+  override fun addTab(info: EditorGroupTabInfo, index: Int): EditorGroupTabInfo =
     addTab(info = info, index = index, isDropTarget = false, fireEvents = true)
 
-  override fun addTabSilently(info: KrTabInfo, index: Int): KrTabInfo =
+  override fun addTabSilently(info: EditorGroupTabInfo, index: Int): EditorGroupTabInfo =
     addTab(info = info, index = index, isDropTarget = false, fireEvents = false)
 
-  private fun addTab(info: KrTabInfo, index: Int, isDropTarget: Boolean, fireEvents: Boolean): KrTabInfo {
+  private fun addTab(info: EditorGroupTabInfo, index: Int, isDropTarget: Boolean, fireEvents: Boolean): EditorGroupTabInfo {
     if (!isDropTarget && tabs.contains(info)) {
       return tabs[tabs.indexOf(info)]
     }
@@ -1177,7 +1028,7 @@ open class KrTabsImpl(
     updateText(info)
     updateIcon(info)
     updateSideComponent(info)
-    updateTabActions(info)
+    info.tabLabel = label
     add(label)
     adjust(info)
     updateAll(false)
@@ -1194,11 +1045,11 @@ open class KrTabsImpl(
     return info
   }
 
-  protected open fun createTabLabel(info: KrTabInfo): KrTabLabel = KrTabLabel(this, info)
+  protected open fun createTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel = EditorGroupTabLabel(this, info)
 
-  override fun addTab(info: KrTabInfo): KrTabInfo = addTab(info, -1)
+  override fun addTab(info: EditorGroupTabInfo): EditorGroupTabInfo = addTab(info, -1)
 
-  override fun getTabLabel(info: KrTabInfo): KrTabLabel? = infoToLabel[info]
+  override fun getTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel? = infoToLabel[info]
 
   val popupGroup: ActionGroup?
     get() = popupGroupSupplier?.invoke()
@@ -1237,10 +1088,10 @@ open class KrTabsImpl(
       }
     }
 
-  override fun select(info: KrTabInfo, requestFocus: Boolean): ActionCallback =
+  override fun select(info: EditorGroupTabInfo, requestFocus: Boolean): ActionCallback =
     doSetSelected(info = info, requestFocus = requestFocus, requestFocusInWindow = false)
 
-  private fun doSetSelected(info: KrTabInfo, requestFocus: Boolean, requestFocusInWindow: Boolean): ActionCallback {
+  private fun doSetSelected(info: EditorGroupTabInfo, requestFocus: Boolean, requestFocusInWindow: Boolean): ActionCallback {
     if (!isEnabled) {
       return ActionCallback.REJECTED
     }
@@ -1257,7 +1108,7 @@ open class KrTabsImpl(
   }
 
   private fun executeSelectionChange(
-    info: KrTabInfo,
+    info: EditorGroupTabInfo,
     requestFocus: Boolean,
     requestFocusInWindow: Boolean
   ): ActionCallback {
@@ -1277,25 +1128,33 @@ open class KrTabsImpl(
         requestFocus(toFocus, requestFocusInWindow)
       }
     }
+
     if (isRequestFocusOnLastFocusedComponent && mySelectedInfo != null && isMyChildIsFocusedNow) {
       mySelectedInfo!!.lastFocusOwner = focusOwnerToStore
     }
+
     val oldInfo = mySelectedInfo
     setSelectedInfo(info)
+
     val newInfo = selectedInfo
     val label = infoToLabel[info]
     if (label != null) {
       setComponentZOrder(label, 0)
     }
+
     setComponentZOrder(scrollBar, 0)
     fireBeforeSelectionChanged(oldInfo, newInfo)
+
     val oldValue = isMouseInsideTabsArea
+
     try {
       updateContainer(forced = false, layoutNow = true)
     } finally {
       isMouseInsideTabsArea = oldValue
     }
+
     fireSelectionChanged(oldInfo, newInfo)
+
     if (!requestFocus) {
       return removeDeferred()
     }
@@ -1330,7 +1189,7 @@ open class KrTabsImpl(
       return if (tabs === this) owner else null
     }
 
-  private fun fireBeforeSelectionChanged(oldInfo: KrTabInfo?, newInfo: KrTabInfo?) {
+  private fun fireBeforeSelectionChanged(oldInfo: EditorGroupTabInfo?, newInfo: EditorGroupTabInfo?) {
     if (oldInfo != newInfo) {
       oldSelection = oldInfo
       try {
@@ -1343,7 +1202,7 @@ open class KrTabsImpl(
     }
   }
 
-  private fun fireSelectionChanged(oldInfo: KrTabInfo?, newInfo: KrTabInfo?) {
+  private fun fireSelectionChanged(oldInfo: EditorGroupTabInfo?, newInfo: EditorGroupTabInfo?) {
     if (oldInfo != newInfo) {
       for (eachListener in tabListeners) {
         eachListener?.selectionChanged(oldInfo, newInfo)
@@ -1357,7 +1216,7 @@ open class KrTabsImpl(
     }
   }
 
-  private fun fireTabRemoved(info: KrTabInfo) {
+  private fun fireTabRemoved(info: EditorGroupTabInfo) {
     for (eachListener in tabListeners) {
       eachListener?.tabRemoved(info)
     }
@@ -1412,49 +1271,31 @@ open class KrTabsImpl(
   }
 
   override fun propertyChange(evt: PropertyChangeEvent) {
-    val tabInfo = evt.source as KrTabInfo
-    when {
-      KrTabInfo.ACTION_GROUP == evt.propertyName     -> {
+    val tabInfo = evt.source as EditorGroupTabInfo
+    when (evt.propertyName) {
+      EditorGroupTabInfo.ACTION_GROUP -> {
         updateSideComponent(tabInfo)
         relayout(false, false)
       }
 
-      KrTabInfo.COMPONENT == evt.propertyName        -> {
-        relayout(true, false)
-      }
-
-      KrTabInfo.TEXT == evt.propertyName             -> {
+      EditorGroupTabInfo.COMPONENT    -> relayout(true, false)
+      EditorGroupTabInfo.TEXT         -> {
         updateText(tabInfo)
         revalidateAndRepaint()
       }
 
-      KrTabInfo.ICON == evt.propertyName             -> {
+      EditorGroupTabInfo.ICON         -> {
         updateIcon(tabInfo)
         revalidateAndRepaint()
       }
 
-      KrTabInfo.TAB_COLOR == evt.propertyName        -> {
-        revalidateAndRepaint()
-      }
-
-      KrTabInfo.ALERT_STATUS == evt.propertyName     -> {
-        val start = evt.newValue as Boolean
-        updateAttraction(tabInfo, start)
-      }
-
-      KrTabInfo.TAB_ACTION_GROUP == evt.propertyName -> {
-        updateTabActions(tabInfo)
-        relayout(false, false)
-      }
-
-      KrTabInfo.HIDDEN == evt.propertyName           -> {
+      EditorGroupTabInfo.TAB_COLOR    -> revalidateAndRepaint()
+      EditorGroupTabInfo.HIDDEN       -> {
         updateHiding()
         relayout(false, false)
       }
 
-      KrTabInfo.ENABLED == evt.propertyName          -> {
-        updateEnabling()
-      }
+      EditorGroupTabInfo.ENABLED      -> updateEnabling()
     }
   }
 
@@ -1502,7 +1343,7 @@ open class KrTabsImpl(
     }
   }
 
-  private fun getIndexInVisibleArray(each: KrTabInfo): Int {
+  private fun getIndexInVisibleArray(each: EditorGroupTabInfo): Int {
     val info = hiddenInfos[each]
     var index = info ?: visibleInfos.size
     if (index > visibleInfos.size) {
@@ -1514,7 +1355,7 @@ open class KrTabsImpl(
     return index
   }
 
-  private fun updateIcon(tabInfo: KrTabInfo) {
+  private fun updateIcon(tabInfo: EditorGroupTabInfo) {
     infoToLabel[tabInfo]?.setIcon(tabInfo.icon)
   }
 
@@ -1538,30 +1379,13 @@ open class KrTabsImpl(
     repaint()
   }
 
-  private fun updateAttraction(tabInfo: KrTabInfo, start: Boolean) {
-    if (start) {
-      attractions.add(tabInfo)
-    } else {
-      attractions.remove(tabInfo)
-      tabInfo.blinkCount = 0
-    }
-    if (start && !animator.value.isRunning) {
-      animator.value.resume()
-    } else if (!start && attractions.isEmpty()) {
-      if (animator.isInitialized()) {
-        animator.value.suspend()
-      }
-      repaintAttractions()
-    }
-  }
-
-  private fun updateText(tabInfo: KrTabInfo) {
+  private fun updateText(tabInfo: EditorGroupTabInfo) {
     val label = infoToLabel[tabInfo]
     label!!.setText(tabInfo.coloredText)
     label.toolTipText = tabInfo.tooltipText
   }
 
-  private fun updateSideComponent(tabInfo: KrTabInfo) {
+  private fun updateSideComponent(tabInfo: EditorGroupTabInfo) {
     val old = infoToToolbar[tabInfo]
     old?.let { remove(it) }
     val toolbar = createToolbarComponent(tabInfo)
@@ -1569,11 +1393,7 @@ open class KrTabsImpl(
     add(toolbar)
   }
 
-  private fun updateTabActions(info: KrTabInfo) {
-    infoToLabel[info]!!.setTabActions(info.tabLabelActions)
-  }
-
-  override val selectedInfo: KrTabInfo?
+  override val selectedInfo: EditorGroupTabInfo?
     get() = when {
       oldSelection != null                  -> oldSelection
 
@@ -1590,27 +1410,27 @@ open class KrTabsImpl(
       }
     }
 
-  fun setSelectedInfo(info: KrTabInfo?) {
+  fun setSelectedInfo(info: EditorGroupTabInfo?) {
     mySelectedInfo = info
     for ((tabInfo, toolbar) in infoToToolbar) {
       toolbar.isVisible = info == tabInfo
     }
   }
 
-  override fun getToSelectOnRemoveOf(info: KrTabInfo): KrTabInfo? {
+  override fun getToSelectOnRemoveOf(info: EditorGroupTabInfo): EditorGroupTabInfo? {
     if (!visibleInfos.contains(info) || mySelectedInfo != info || visibleInfos.size == 1) {
       return null
     }
 
     val index = getVisibleInfos().indexOf(info)
-    var result: KrTabInfo? = null
+    var result: EditorGroupTabInfo? = null
     if (index > 0) {
       result = findEnabledBackward(index, false)
     }
     return result ?: findEnabledForward(index, false)
   }
 
-  fun findEnabledForward(from: Int, cycle: Boolean): KrTabInfo? {
+  fun findEnabledForward(from: Int, cycle: Boolean): EditorGroupTabInfo? {
     if (from < 0) {
       return null
     }
@@ -1636,7 +1456,7 @@ open class KrTabsImpl(
     return null
   }
 
-  fun findEnabledBackward(from: Int, cycle: Boolean): KrTabInfo? {
+  fun findEnabledBackward(from: Int, cycle: Boolean): EditorGroupTabInfo? {
     if (from < 0) {
       return null
     }
@@ -1662,11 +1482,11 @@ open class KrTabsImpl(
     return null
   }
 
-  private fun createToolbarComponent(tabInfo: KrTabInfo): Toolbar = Toolbar(tabs = this, info = tabInfo)
+  private fun createToolbarComponent(tabInfo: EditorGroupTabInfo): Toolbar = Toolbar(tabs = this, info = tabInfo)
 
-  override fun getTabAt(tabIndex: Int): KrTabInfo = tabs[tabIndex]
+  override fun getTabAt(tabIndex: Int): EditorGroupTabInfo = tabs[tabIndex]
 
-  override val tabs: List<KrTabInfo>
+  override val tabs: List<EditorGroupTabInfo>
     get() {
       // If allTabs is not null, it means that the tabs are already sorted and we can return them directly.
       this.allTabs?.let { return it }
@@ -1680,7 +1500,7 @@ open class KrTabsImpl(
       return result
     }
 
-  override fun getTargetInfo(): KrTabInfo? = popupInfo ?: selectedInfo
+  override fun getTargetInfo(): EditorGroupTabInfo? = popupInfo ?: selectedInfo
 
   override fun popupMenuWillBecomeVisible(e: PopupMenuEvent) {}
 
@@ -1713,29 +1533,9 @@ open class KrTabsImpl(
 
   override fun getJBTabs(): EditorGroupsTabsBase = this
 
-  class Toolbar(private val tabs: KrTabsImpl, private val info: KrTabInfo) : JPanel(BorderLayout()) {
+  class Toolbar(private val tabs: KrTabsImpl, private val info: EditorGroupTabInfo) : JPanel(BorderLayout()) {
     init {
       isOpaque = false
-      val group = info.group
-      val side = info.sideComponent
-      if (group != null) {
-        val place = info.place
-        val toolbar = ActionManager.getInstance()
-          .createActionToolbar(
-            if (place != null && place != ActionPlaces.UNKNOWN) place else "KrTabs",
-            group,
-            tabs.horizontalSide
-          )
-        toolbar.targetComponent = info.actionsContextComponent
-        add(toolbar.component, BorderLayout.CENTER)
-      }
-      if (side != null) {
-        if (group == null) {
-          add(side, BorderLayout.CENTER)
-        } else {
-          add(side, BorderLayout.EAST)
-        }
-      }
       UIUtil.uiTraverser(this).filter {
         !UIUtil.canDisplayFocusedState(it)
       }.forEach { it.isFocusable = false }
@@ -1785,9 +1585,9 @@ open class KrTabsImpl(
 
   override fun doLayout() {
     try {
-      for (each in infoToLabel.values) {
-        each.setTabActionsAutoHide(tabLabelActionsAutoHide)
-      }
+      // for (each in infoToLabel.values) {
+      //   each.setTabActionsAutoHide(tabLabelActionsAutoHide)
+      // }
       val moreBoundsBeforeLayout = moreToolbar!!.component.bounds
       val entryPointBoundsBeforeLayout =
         if (entryPointToolbar == null) Rectangle(0, 0, 0, 0) else entryPointToolbar!!.component.bounds
@@ -1828,8 +1628,6 @@ open class KrTabsImpl(
 
       centerizeEntryPointToolbarPosition()
       centerizeMoreToolbarPosition()
-
-      moveDraggedTabLabel()
 
       tabActionsAutoHideListener.processMouseOver()
 
@@ -1888,22 +1686,7 @@ open class KrTabsImpl(
     eComponent.putClientProperty(LAYOUT_DONE, true)
   }
 
-  fun moveDraggedTabLabel() {
-    val dragHelper = dragHelper
-    if (dragHelper?.dragRec != null) {
-      val selectedLabel = infoToLabel[draggedTabSelectionInfo]
-      if (selectedLabel != null) {
-        val bounds = selectedLabel.bounds
-        if (isHorizontalTabs) {
-          selectedLabel.setBounds(dragHelper.dragRec.x, bounds.y, bounds.width, bounds.height)
-        } else {
-          selectedLabel.setBounds(bounds.x, dragHelper.dragRec.y, bounds.width, bounds.height)
-        }
-      }
-    }
-  }
-
-  protected open val draggedTabSelectionInfo: KrTabInfo?
+  protected open val draggedTabSelectionInfo: EditorGroupTabInfo?
     get() = selectedInfo
 
   private fun computeHeaderFitSize(): Dimension {
@@ -1969,7 +1752,7 @@ open class KrTabsImpl(
     }
   }
 
-  private fun reset(tabInfo: KrTabInfo, resetLabels: Boolean) {
+  private fun reset(tabInfo: EditorGroupTabInfo, resetLabels: Boolean) {
     val c = tabInfo.component
     if (c != null) {
       resetLayout(c)
@@ -2016,30 +1799,21 @@ open class KrTabsImpl(
     }
   }
 
-  val selectedLabel: KrTabLabel?
+  val selectedLabel: EditorGroupTabLabel?
     get() = infoToLabel[selectedInfo]
 
-  open fun getVisibleInfos(): List<KrTabInfo> {
+  open fun getVisibleInfos(): List<EditorGroupTabInfo> {
     if (AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
       groupPinnedFirst(visibleInfos)
     }
     return visibleInfos
   }
 
-  private fun groupPinnedFirst(infos: MutableList<KrTabInfo>) {
+  private fun groupPinnedFirst(infos: MutableList<EditorGroupTabInfo>) {
     var firstNotPinned = -1
     var changed = false
     for (i in infos.indices) {
-      val info = infos[i]
-      if (info.isPinned) {
-        if (firstNotPinned != -1) {
-          val tabInfo = infos.removeAt(firstNotPinned)
-          infos.add(firstNotPinned, info)
-          infos[i] = tabInfo
-          firstNotPinned++
-          changed = true
-        }
-      } else if (firstNotPinned == -1) {
+      if (firstNotPinned == -1) {
         firstNotPinned = i
       }
     }
@@ -2119,7 +1893,7 @@ open class KrTabsImpl(
   }
 
   private fun computeHeaderPreferredSize(tabsCount: Int): Dimension {
-    val infos: Iterator<KrTabInfo?> = infoToLabel.keys.iterator()
+    val infos: Iterator<EditorGroupTabInfo?> = infoToLabel.keys.iterator()
     val size = Dimension()
     var currentTab = 0
     val horizontal = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
@@ -2154,16 +1928,16 @@ open class KrTabsImpl(
 
   override fun getPresentation(): KrTabsPresentation = this
 
-  override fun removeTab(info: KrTabInfo?): ActionCallback = doRemoveTab(info, null, false)
+  override fun removeTab(info: EditorGroupTabInfo?): ActionCallback = doRemoveTab(info, null, false)
 
-  override fun removeTab(info: KrTabInfo, forcedSelectionTransfer: KrTabInfo?) {
+  override fun removeTab(info: EditorGroupTabInfo, forcedSelectionTransfer: EditorGroupTabInfo?) {
     doRemoveTab(info, forcedSelectionTransfer, false)
   }
 
   @RequiresEdt
   private fun doRemoveTab(
-    info: KrTabInfo?,
-    forcedSelectionTransfer: KrTabInfo?,
+    info: EditorGroupTabInfo?,
+    forcedSelectionTransfer: EditorGroupTabInfo?,
     isDropTarget: Boolean
   ): ActionCallback {
     if (removeNotifyInProgress) {
@@ -2203,7 +1977,7 @@ open class KrTabsImpl(
     return result
   }
 
-  private fun isFocused(info: KrTabInfo): Boolean {
+  private fun isFocused(info: EditorGroupTabInfo): Boolean {
     val label = infoToLabel[info]
     val toolbar = infoToToolbar[info]
     val component = info.component
@@ -2224,30 +1998,36 @@ open class KrTabsImpl(
     return ourWindow != null && !ourWindow.isFocused && ancestorChecker.test(ourWindow.mostRecentFocusOwner)
   }
 
-  private fun processRemove(info: KrTabInfo?, forcedNow: Boolean) {
+  private fun processRemove(info: EditorGroupTabInfo?, forcedNow: Boolean) {
     val tabLabel = infoToLabel[info]
     tabLabel?.let { remove(it) }
+
     val toolbar = infoToToolbar[info]
     toolbar?.let { remove(it) }
-    val tabComponent = info!!.component
+
+    val tabComponent = info!!.component!!
+
     if (forcedNow || !isToDeferRemoveForLater(tabComponent)) {
       remove(tabComponent)
     } else {
       addToDeferredRemove(tabComponent)
     }
+
     visibleInfos.remove(info)
     hiddenInfos.remove(info)
     infoToLabel.remove(info)
     infoToPage.remove(info)
     infoToToolbar.remove(info)
+
     if (tabLabelAtMouse === tabLabel) {
       tabLabelAtMouse = null
     }
+
     resetTabsCache()
     updateAll(false)
   }
 
-  override fun findInfo(component: Component): KrTabInfo? {
+  override fun findInfo(component: Component): EditorGroupTabInfo? {
     for (each in tabs) {
       if (each.component === component) {
         return each
@@ -2256,27 +2036,16 @@ open class KrTabsImpl(
     return null
   }
 
-  override fun findInfo(event: MouseEvent): KrTabInfo? {
+  override fun findInfo(event: MouseEvent): EditorGroupTabInfo? {
     val point = SwingUtilities.convertPoint(event.component, event.point, this)
     return doFindInfo(point, false)
   }
 
-  override fun findInfo(`object`: Any): KrTabInfo? {
-    for (i in 0 until tabCount) {
-      val each = getTabAt(i)
-      val eachObject = each.getObject()
-      if (eachObject != null && eachObject == `object`) {
-        return each
-      }
-    }
-    return null
-  }
-
-  private fun doFindInfo(point: Point, labelsOnly: Boolean): KrTabInfo? {
+  private fun doFindInfo(point: Point, labelsOnly: Boolean): EditorGroupTabInfo? {
     var component = findComponentAt(point)
     while (component !== this) {
       if (component == null) return null
-      if (component is KrTabLabel) {
+      if (component is EditorGroupTabLabel) {
         return component.info
       }
       if (!labelsOnly) {
@@ -2303,7 +2072,8 @@ open class KrTabsImpl(
 
   private fun updateContainer(forced: Boolean, layoutNow: Boolean) {
     for (tabInfo in java.util.List.copyOf(visibleInfos)) {
-      val component = tabInfo.component
+      val component = tabInfo.component ?: continue
+
       if (tabInfo == selectedInfo) {
         unqueueFromRemove(component)
         val parent = component.parent
@@ -2334,32 +2104,13 @@ open class KrTabsImpl(
     }
 
     val selectedInfo = selectedInfo
-    val tabActionGroup = selectedInfo?.tabPaneActions
     val entryPointActionGroup = entryPointActionGroup
-    if (tabActionGroup == null && entryPointActionGroup == null) {
+    if (entryPointActionGroup == null) {
       entryPointToolbar = null
       return
     }
 
-    val group = if (tabActionGroup != null && entryPointActionGroup != null) {
-      // check that more toolbar and entry point toolbar are in the same row
-      if (!moreToolbar!!.component.bounds.isEmpty &&
-        tabActionGroup.getChildren(null).isNotEmpty() &&
-        (!KrTabLayout.showPinnedTabsSeparately() || tabs.all { !it.isPinned })
-      ) {
-        DefaultActionGroup(
-          FakeEmptyAction(),
-          Separator.create(),
-          tabActionGroup,
-          Separator.create(),
-          entryPointActionGroup
-        )
-      } else {
-        DefaultActionGroup(tabActionGroup, Separator.create(), entryPointActionGroup)
-      }
-    } else {
-      tabActionGroup ?: entryPointActionGroup!!
-    }
+    val group = entryPointActionGroup
 
     if (entryPointToolbar != null && entryPointToolbar!!.actionGroup == group) {
       // keep old toolbar to avoid blinking (actions need to be updated to be visible)
@@ -2394,9 +2145,9 @@ open class KrTabsImpl(
 
   override fun addImpl(component: Component, constraints: Any?, index: Int) {
     unqueueFromRemove(component)
-    if (component is KrTabLabel) {
+    if (component is EditorGroupTabLabel) {
       val uiDecorator = uiDecorator
-      component.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
+      component.apply(uiDecorator?.decoration ?: defaultDecorator.decoration)
     }
     super.addImpl(component, constraints, index)
   }
@@ -2480,9 +2231,9 @@ open class KrTabsImpl(
     }
   }
 
-  override fun getIndexOf(tabInfo: KrTabInfo?): Int = getVisibleInfos().indexOf(tabInfo)
+  override fun getIndexOf(tabInfo: EditorGroupTabInfo?): Int = getVisibleInfos().indexOf(tabInfo)
 
-  override fun isHideTabs(): Boolean = hideTabs || isHideTopPanel
+  override fun isHideTabs(): Boolean = hideTabs
 
   override fun setHideTabs(hideTabs: Boolean) {
     if (isHideTabs == hideTabs) {
@@ -2495,18 +2246,6 @@ open class KrTabsImpl(
     }
     relayout(forced = true, layoutNow = false)
   }
-
-  override var isHideTopPanel: Boolean = false
-    set(value) {
-      if (field == value) {
-        return
-      }
-      field = value
-      for (tab in tabs) {
-        tab.sideComponent.isVisible = !field
-      }
-      relayout(forced = true, layoutNow = true)
-    }
 
   override fun setActiveTabFillIn(color: Color?): KrTabsPresentation {
     if (!isChanged(activeTabFillIn, color)) return this
@@ -2586,7 +2325,7 @@ open class KrTabsImpl(
       var tabs = e.getData(EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY) as KrTabsImpl?
       tabs = findNavigatableTabs(tabs) ?: return
 
-      var infos: List<KrTabInfo?>
+      var infos: List<EditorGroupTabInfo?>
       var index: Int
       while (true) {
         infos = tabs!!.getVisibleInfos()
@@ -2604,7 +2343,7 @@ open class KrTabsImpl(
       doActionPerformed(e = e, tabs = tabs, selectedIndex = index)
     }
 
-    abstract fun borderIndex(infos: List<KrTabInfo?>, index: Int): Boolean
+    abstract fun borderIndex(infos: List<EditorGroupTabInfo?>, index: Int): Boolean
 
     abstract fun doActionPerformed(e: AnActionEvent?, tabs: KrTabsImpl?, selectedIndex: Int)
   }
@@ -2619,7 +2358,7 @@ open class KrTabsImpl(
 
     override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.EDT
 
-    override fun borderIndex(infos: List<KrTabInfo?>, index: Int): Boolean = index == infos.size - 1
+    override fun borderIndex(infos: List<EditorGroupTabInfo?>, index: Int): Boolean = index == infos.size - 1
 
     override fun doActionPerformed(e: AnActionEvent?, tabs: KrTabsImpl?, selectedIndex: Int) {
       val tabInfo = tabs!!.findEnabledForward(selectedIndex, true) ?: return
@@ -2691,7 +2430,7 @@ open class KrTabsImpl(
       e.presentation.isEnabled = tabs.findEnabledBackward(selectedIndex, true) != null
     }
 
-    override fun borderIndex(infos: List<KrTabInfo?>, index: Int): Boolean = index == 0
+    override fun borderIndex(infos: List<EditorGroupTabInfo?>, index: Int): Boolean = index == 0
 
     override fun doActionPerformed(e: AnActionEvent?, tabs: KrTabsImpl?, selectedIndex: Int) {
       val tabInfo = tabs!!.findEnabledBackward(selectedIndex, true) ?: return
@@ -2715,7 +2454,7 @@ open class KrTabsImpl(
   override fun setSideComponentVertical(vertical: Boolean): KrTabsPresentation {
     horizontalSide = !vertical
     for (each in visibleInfos) {
-      each.changeSupport.firePropertyChange(KrTabInfo.ACTION_GROUP, "new1", "new2") // NON-NLS
+      each.changeSupport.firePropertyChange(EditorGroupTabInfo.ACTION_GROUP, "new1", "new2") // NON-NLS
     }
     relayout(true, false)
     return this
@@ -2774,7 +2513,7 @@ open class KrTabsImpl(
   }
 
   private fun applyDecoration() {
-    uiDecorator?.getDecoration()?.let { uiDecoration ->
+    uiDecorator?.decoration?.let { uiDecoration ->
       for (tabLabel in infoToLabel.values) {
         tabLabel.apply(uiDecoration)
       }
@@ -2785,20 +2524,18 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = false)
   }
 
-  protected open fun adjust(tabInfo: KrTabInfo) {
-    if (ADJUST_BORDERS) {
-      @Suppress("DEPRECATION")
-      UIUtil.removeScrollBorder(tabInfo.component)
-    }
+  protected open fun adjust(tabInfo: EditorGroupTabInfo) {
+    @Suppress("DEPRECATION")
+    UIUtil.removeScrollBorder(tabInfo.component!!)
   }
 
-  override fun sortTabs(comparator: Comparator<KrTabInfo>) {
+  override fun sortTabs(comparator: Comparator<EditorGroupTabInfo>) {
     visibleInfos.sortWith(comparator)
     resetTabsCache()
     relayout(forced = true, layoutNow = false)
   }
 
-  protected fun reorderTab(tabInfo: KrTabInfo, newIndex: Int) {
+  protected fun reorderTab(tabInfo: EditorGroupTabInfo, newIndex: Int) {
     if (visibleInfos.remove(tabInfo)) {
       visibleInfos.add(newIndex, tabInfo)
       resetTabsCache()
@@ -2826,8 +2563,7 @@ open class KrTabsImpl(
     return null
   }
 
-  override fun getActions(originalProvider: Boolean): List<AnAction> =
-    selectedInfo?.group?.getChildren(null)?.toList() ?: emptyList()
+  override fun getActions(originalProvider: Boolean): List<AnAction> = emptyList()
 
   val navigationActions: ActionGroup
     get() = myNavigationActions
@@ -2874,7 +2610,7 @@ open class KrTabsImpl(
 
   override fun getTabsPosition(): EditorGroupsTabsPosition = position
 
-  fun reallocate(source: KrTabInfo?, target: KrTabInfo?) {
+  fun reallocate(source: EditorGroupTabInfo?, target: EditorGroupTabInfo?) {
     if (source == target || source == null || target == null) {
       return
     }
@@ -2886,14 +2622,7 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = true)
   }
 
-  val isHorizontalTabs: Boolean
-    get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
-
-  override fun putInfo(info: MutableMap<in String, in String>) {
-    selectedInfo?.putInfo(info)
-  }
-
-  override fun resetDropOver(tabInfo: KrTabInfo) {
+  override fun resetDropOver(tabInfo: EditorGroupTabInfo) {
     if (dropInfo != null) {
       val dropInfo = dropInfo!!
       this.dropInfo = null
@@ -2904,12 +2633,6 @@ open class KrTabsImpl(
       doRemoveTab(info = dropInfo, forcedSelectionTransfer = null, isDropTarget = true)
     }
   }
-
-  override val isEmptyVisible: Boolean
-    get() = visibleInfos.isEmpty()
-
-  val tabHGap: Int
-    get() = -myBorder.thickness
 
   override fun toString(): String = "KrTabs visible=$visibleInfos selected=$mySelectedInfo"
 
@@ -2929,7 +2652,7 @@ open class KrTabsImpl(
     init {
       accessibleComponent
       addListener(object : EditorGroupsTabsListener {
-        override fun selectionChanged(oldSelection: KrTabInfo?, newSelection: KrTabInfo?) {
+        override fun selectionChanged(oldSelection: EditorGroupTabInfo?, newSelection: EditorGroupTabInfo?) {
           firePropertyChange(ACCESSIBLE_SELECTION_PROPERTY, null, null)
         }
       })
@@ -2954,7 +2677,7 @@ open class KrTabsImpl(
       // Note: Unlike a JTabbedPane, JBTabsImpl has many more child types than just pages.
       // So we wrap KrTabLabel instances with their corresponding AccessibleTabPage, while
       // leaving other types of children untouched.
-      return if (accessibleChild is KrTabLabel) infoToPage[accessibleChild.info] else accessibleChild
+      return if (accessibleChild is EditorGroupTabLabel) infoToPage[accessibleChild.info] else accessibleChild
     }
 
     override fun getAccessibleSelection(): AccessibleSelection = this
@@ -2985,12 +2708,73 @@ open class KrTabsImpl(
   }
 
   private class DefaultTabDecorator : TabUiDecorator {
-    override fun getDecoration(): TabUiDecorator.TabUiDecoration = TabUiDecorator.TabUiDecoration(
-      labelFont = Font("Roboto", Font.BOLD, 20),
+    override val decoration = TabUiDecorator.TabUiDecoration(
       labelInsets = JBUI.insets(5, 8),
-      contentInsetsSupplier = Function { JBUI.insets(0, 4) },
+      contentInsetsSupplier = JBUI.insets(0, 4),
       iconTextGap = JBUI.scale(4)
     )
+  }
+
+  companion object {
+
+    @JvmField
+    val SIDE_TABS_SIZE_LIMIT_KEY: Key<Int> = Key.create("SIDE_TABS_SIZE_LIMIT_KEY")
+
+    private val HIDDEN_INFOS_SELECT_INDEX_KEY = Key.create<Int>("HIDDEN_INFOS_SELECT_INDEX")
+
+    @JvmField
+    val MIN_TAB_WIDTH: Int = JBUIScale.scale(75)
+
+    @JvmField
+    val DEFAULT_MAX_TAB_WIDTH: Int = JBUIScale.scale(300)
+
+    @JvmField
+    internal val defaultDecorator: TabUiDecorator = DefaultTabDecorator()
+
+    @JvmStatic
+    fun getComponentImage(info: EditorGroupTabInfo): Image {
+      var image: BufferedImage = ImageUtil.createImage(info.component?.graphicsConfiguration, 500, 500, BufferedImage.TYPE_INT_ARGB)
+      val component = info.component ?: return image
+
+      if (component.isShowing) {
+        val width = if (component.width > 0) component.width else 500
+        val height = if (component.height > 0) component.height else 500
+
+        image = ImageUtil.createImage(
+          info.component?.graphicsConfiguration,
+          width,
+          height,
+          BufferedImage.TYPE_INT_ARGB
+        )
+
+        val g = image.createGraphics()
+        component.paint(g)
+      }
+
+      return image
+    }
+
+    @JvmStatic
+    val selectionTabVShift: Int
+      get() = 2
+
+    @JvmStatic
+    fun isSelectionClick(e: MouseEvent): Boolean {
+      if (e.clickCount == 1) {
+        if (!e.isPopupTrigger) {
+          return e.button == MouseEvent.BUTTON1 && !e.isControlDown && !e.isAltDown && !e.isMetaDown
+        }
+      }
+      return false
+    }
+
+    @JvmStatic
+    fun resetLayout(c: JComponent?) {
+      if (c == null) {
+        return
+      }
+      c.putClientProperty(LAYOUT_DONE, null)
+    }
   }
 }
 
@@ -3022,16 +2806,6 @@ private fun createToolbar(
   return toolbar
 }
 
-private fun sortTabsAlphabetically(tabs: MutableList<KrTabInfo>) {
-  val lastPinnedIndex = tabs.indexOfLast { it.isPinned }
-  if (lastPinnedIndex == -1 || !AdvancedSettings.getBoolean("editor.keep.pinned.tabs.on.left")) {
-    tabs.sortWith(ABC_COMPARATOR)
-  } else {
-    tabs.subList(0, lastPinnedIndex + 1).sortWith(ABC_COMPARATOR)
-    tabs.subList(lastPinnedIndex + 1, tabs.size).sortWith(ABC_COMPARATOR)
-  }
-}
-
 /**
  * AccessibleContext implementation for a single tab page.
  *
@@ -3041,7 +2815,7 @@ private fun sortTabsAlphabetically(tabs: MutableList<KrTabInfo>) {
  */
 private class AccessibleTabPage(
   private val parent: KrTabsImpl,
-  private val tabInfo: KrTabInfo
+  private val tabInfo: EditorGroupTabInfo
 ) : AccessibleContext(), Accessible, AccessibleComponent, AccessibleAction {
   private val component = tabInfo.component
 
@@ -3052,7 +2826,7 @@ private class AccessibleTabPage(
 
   private val tabIndex: Int
     get() = parent.getIndexOf(tabInfo)
-  private val tabLabel: KrTabLabel?
+  private val tabLabel: EditorGroupTabLabel?
     get() = parent.infoToLabel[tabInfo]
 
   /*
@@ -3258,7 +3032,7 @@ private class TitleAction(
 
     override fun updateUI() {
       super.updateUI()
-      font = KrTabLabel(tabs, KrTabInfo(null)).labelComponent.font
+      font = EditorGroupTabLabel(tabs, EditorGroupTabInfo()).labelComponent.font
       border = JBUI.Borders.empty(0, 5, 0, 6)
     }
   }

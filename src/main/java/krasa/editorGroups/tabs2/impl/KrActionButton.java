@@ -10,10 +10,9 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.ui.popup.IconButton;
 import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.InplaceButton;
 import com.intellij.util.ui.TimedDeadzone;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -29,11 +28,11 @@ class KrActionButton implements ActionListener {
   private Presentation myPrevPresentation;
   private final AnAction myAction;
   private final String myPlace;
-  private final KrTabInfo myTabInfo;
+  private final EditorGroupTabInfo myTabInfo;
   private boolean myAutoHide;
   private boolean myToShow;
 
-  KrActionButton(@NotNull KrTabInfo tabInfo,
+  KrActionButton(@NotNull EditorGroupTabInfo tabInfo,
                  @NotNull AnAction action,
                  String place,
                  Consumer<? super MouseEvent> pass,
@@ -152,10 +151,6 @@ class KrActionButton implements ActionListener {
     Presentation presentation = myAction.getTemplatePresentation().clone();
     DataContext context = DataManager.getInstance().getDataContext(myInplaceButton);
     DataContext compound = dataId -> {
-      if (CommonDataKeys.VIRTUAL_FILE.is(dataId)) {
-        Object object = myTabInfo.getObject();
-        if (object instanceof VirtualFile) return object;
-      }
       return context.getData(dataId);
     };
     return new AnActionEvent(inputEvent, compound, myPlace != null ? myPlace : ActionPlaces.UNKNOWN, presentation,

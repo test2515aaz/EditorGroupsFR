@@ -3,10 +3,10 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
 import com.intellij.util.ui.JBUI;
-import krasa.editorGroups.tabs2.KrTabInfo;
-import krasa.editorGroups.tabs2.impl.KrTabLabel;
+import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +68,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
       return;
     }
     int offset = -myScrollOffset;
-    for (KrTabInfo info : passInfo.myVisibleInfos) {
+    for (EditorGroupTabInfo info : passInfo.myVisibleInfos) {
       final int length = getRequiredLength(info);
       if (info == myTabs.getSelectedInfo()) {
         if (offset < 0) {
@@ -114,8 +114,8 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
   }
 
   @Override
-  protected boolean applyTabLayout(KrSingleRowPassInfo data, KrTabLabel label, int length) {
-    if (data.requiredLength > data.toFitLength && !(label.isPinned() && KrTabLayout.showPinnedTabsSeparately())) {
+  protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
+    if (data.requiredLength > data.toFitLength && !(KrTabLayout.showPinnedTabsSeparately())) {
       length = getStrategy().getLengthIncrement(label.getPreferredSize());
       int moreRectSize = getMoreRectAxisSize();
       if (data.entryPointAxisSize == 0) {
@@ -128,7 +128,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
           final Rectangle rec = getStrategy().getLayoutRect(data, data.position, clippedLength);
           myTabs.layout(label, rec);
         }
-        label.setAlignmentToCenter(false);
+        label.setAlignmentToCenter();
         return false;
       }
     }
@@ -136,8 +136,8 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
   }
 
   @Override
-  public boolean isTabHidden(@NotNull KrTabInfo info) {
-    KrTabLabel label = myTabs.getInfoToLabel().get(info);
+  public boolean isTabHidden(@NotNull EditorGroupTabInfo info) {
+    EditorGroupTabLabel label = myTabs.getInfoToLabel().get(info);
     Rectangle bounds = label.getBounds();
     int deadzone = JBUI.scale(DEADZONE_FOR_DECLARE_TAB_HIDDEN);
     return getStrategy().getMinPosition(bounds) < -deadzone
@@ -147,11 +147,11 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
 
   @Nullable
   @Override
-  protected KrTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
+  protected EditorGroupTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
     int i = data.toLayout.size() - 1;
     while (i >= 0) {
-      KrTabInfo info = data.toLayout.get(i);
-      KrTabLabel label = myTabs.getInfoToLabel().get(info);
+      EditorGroupTabInfo info = data.toLayout.get(i);
+      EditorGroupTabLabel label = myTabs.getInfoToLabel().get(info);
       if (!label.getBounds().isEmpty()) {
         return label;
       }

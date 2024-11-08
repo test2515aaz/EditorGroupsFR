@@ -1,9 +1,9 @@
 package krasa.editorGroups.tabs2.impl.multiRow
 
-import krasa.editorGroups.tabs2.KrTabInfo
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
 
-abstract class KrTabsRow(val infos: List<KrTabInfo>, val withTitle: Boolean, val withEntryPointToolbar: Boolean) {
+abstract class KrTabsRow(val infos: List<EditorGroupTabInfo>, val withTitle: Boolean, val withEntryPointToolbar: Boolean) {
   fun layoutRow(data: KrMultiRowPassInfo, y: Int) {
     val tabsRange = layoutTitleAndEntryPoint(data, y)
     layoutTabs(data, tabsRange.first, y, tabsRange.last - tabsRange.first)

@@ -1,9 +1,10 @@
 package krasa.editorGroups.tabs2.impl.themes
 
 import java.awt.Color
+import java.awt.Font
 
 open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
-  override val background: Color?
+  override val background: Color
     get() = EditorGroupsUI.background()
 
   override val borderColor: Color
@@ -20,7 +21,7 @@ open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
 
   override val hoverSelectedBackground: Color
     get() = EditorGroupsUI.hoverSelectedBackground()
-  
+
   override val hoverSelectedInactiveBackground: Color
     get() = EditorGroupsUI.hoverSelectedInactiveBackground()
 
@@ -47,5 +48,17 @@ open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
 
   override val underlineArc: Int
     get() = EditorGroupsUI.underlineArc()
+
+  override val fontSizeOffset: Int
+    get() = EditorGroupsUI.fontSizeOffset()
+
+  override val font: Font?
+    get() = EditorGroupsUI.font()
+
+  override val tabHeight: Int
+    get() = EditorGroupsUI.tabHeight()
+
+  override val compactTabHeight: Int
+    get() = EditorGroupsUI.compactTabHeight()
 
 }

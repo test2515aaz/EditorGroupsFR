@@ -8,12 +8,7 @@ import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 
-interface KrTabPainter {
-  companion object {
-    @JvmStatic
-    val DEFAULT = KrDefaultTabPainter(EditorGroupCustomTabTheme())
-  }
-
+interface EditorGroupsTabPainter {
   fun getTabTheme(): EditorGroupTabTheme
 
   fun getBackgroundColor(): Color
@@ -57,4 +52,9 @@ interface KrTabPainter {
     g: Graphics2D,
     active: Boolean
   )
+
+  companion object {
+    @JvmStatic
+    val DEFAULT: EditorGroupsDefaultTabPainter = EditorGroupsDefaultTabPainter(EditorGroupCustomTabTheme())
+  }
 }

@@ -2,9 +2,9 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
-import krasa.editorGroups.tabs2.KrTabInfo;
 import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,8 +19,8 @@ public final class KrSingleRowPassInfo extends KrLayoutPassInfo {
   int position;
   int requiredLength;
   int toFitLength;
-  public final List<KrTabInfo> toLayout;
-  public final List<KrTabInfo> toDrop;
+  public final List<EditorGroupTabInfo> toLayout;
+  public final List<EditorGroupTabInfo> toDrop;
   final int entryPointAxisSize;
   final int moreRectAxisSize;
 
@@ -33,7 +33,7 @@ public final class KrSingleRowPassInfo extends KrLayoutPassInfo {
   public Rectangle tabRectangle;
   final int scrollOffset;
 
-  public KrSingleRowPassInfo(KrSingleRowLayout layout, List<KrTabInfo> visibleInfos) {
+  public KrSingleRowPassInfo(KrSingleRowLayout layout, List<EditorGroupTabInfo> visibleInfos) {
     super(visibleInfos);
     tabs = layout.myTabs;
     layoutSize = tabs.getSize();

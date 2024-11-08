@@ -4,6 +4,7 @@ package krasa.editorGroups.tabs2.impl;
 import com.intellij.diagnostic.LoadingState;
 import com.intellij.ide.ui.UISettings;
 import com.intellij.openapi.actionSystem.ActionGroup;
+import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.ui.ExperimentalUI;
@@ -11,7 +12,7 @@ import com.intellij.ui.InplaceButton;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
 import krasa.editorGroups.tabs2.EditorGroupsPanelTabs;
-import krasa.editorGroups.tabs2.KrTabInfo;
+import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,16 +26,16 @@ import java.util.function.Consumer;
 public final class KrActionPanel extends NonOpaquePanel {
   private final List<KrActionButton> myButtons = new ArrayList<>();
   private final KrTabsImpl myTabs;
-  private final KrTabInfo myInfo;
+  private final EditorGroupTabInfo myInfo;
 
   private boolean myAutoHide;
-  private boolean myActionsIsVisible = false;
-  private boolean myMarkModified = false;
+  private boolean myActionsIsVisible;
+  private boolean myMarkModified;
 
-  public KrActionPanel(KrTabsImpl tabs, KrTabInfo tabInfo, Consumer<? super MouseEvent> pass, Consumer<? super Boolean> hover) {
+  public KrActionPanel(KrTabsImpl tabs, EditorGroupTabInfo tabInfo, Consumer<? super MouseEvent> pass, Consumer<? super Boolean> hover) {
     myTabs = tabs;
     myInfo = tabInfo;
-    ActionGroup group = tabInfo.getTabLabelActions() != null ? tabInfo.getTabLabelActions() : new DefaultActionGroup();
+    ActionGroup group = new DefaultActionGroup();
     AnAction[] children = group.getChildren(null);
     if (LoadingState.CONFIGURATION_STORE_INITIALIZED.isOccurred() && !UISettings.getInstance().getCloseTabButtonOnTheRight()) {
       List<AnAction> list = Arrays.asList(children);
@@ -44,16 +45,16 @@ public final class KrActionPanel extends NonOpaquePanel {
 
     setFocusable(false);
 
-    final NonOpaquePanel wrapper = new NonOpaquePanel(new BorderLayout());
+    NonOpaquePanel wrapper = new NonOpaquePanel(new BorderLayout());
     wrapper.setFocusable(false);
     NonOpaquePanel inner = new NonOpaquePanel();
     inner.setLayout(new BoxLayout(inner, BoxLayout.X_AXIS));
     wrapper.add(inner, BorderLayout.CENTER);
     for (AnAction each : children) {
-      KrActionButton eachButton = new KrActionButton(tabInfo, each, tabInfo.getTabActionPlace(), pass, hover, tabs.getTabActionsMouseDeadZone$EditorGroups()) {
+      KrActionButton eachButton = new KrActionButton(tabInfo, each, ActionPlaces.UNKNOWN, pass, hover, tabs.getTabActionsMouseDeadZone$EditorGroups()) {
         @Override
-        public void repaintComponent(final Component c) {
-          KrTabLabel tabLabel = (KrTabLabel) SwingUtilities.getAncestorOfClass(KrTabLabel.class, c);
+        public void repaintComponent(Component c) {
+          EditorGroupTabLabel tabLabel = (EditorGroupTabLabel) SwingUtilities.getAncestorOfClass(EditorGroupTabLabel.class, c);
           if (tabLabel != null) {
             Point point = SwingUtilities.convertPoint(c, new Point(0, 0), tabLabel);
             Dimension d = c.getSize();
@@ -77,15 +78,14 @@ public final class KrActionPanel extends NonOpaquePanel {
 
   @Override
   public void paint(Graphics g) {
-    KrTabLabel label = myTabs.getInfoToLabel().get(myInfo);
+    EditorGroupTabLabel label = myTabs.getInfoToLabel().get(myInfo);
     boolean isHovered = label != null && label.isHovered();
     boolean isSelected = myTabs.getSelectedInfo() == myInfo;
     if (ExperimentalUI.isNewUI()
       && myTabs instanceof EditorGroupsPanelTabs
       && !isSelected
       && !isHovered
-      && !myMarkModified
-      && !myInfo.isPinned()) {
+      && !myMarkModified) {
       return;
     }
     super.paint(g);
@@ -112,7 +112,7 @@ public final class KrActionPanel extends NonOpaquePanel {
     return myAutoHide;
   }
 
-  public void setAutoHide(final boolean autoHide) {
+  public void setAutoHide(boolean autoHide) {
     myAutoHide = autoHide;
     for (KrActionButton each : myButtons) {
       each.setAutoHide(myAutoHide);
@@ -124,7 +124,7 @@ public final class KrActionPanel extends NonOpaquePanel {
     return myActionsIsVisible ? super.getPreferredSize() : new Dimension(0, 0);
   }
 
-  public void toggleShowActions(final boolean show) {
+  public void toggleShowActions(boolean show) {
     for (KrActionButton each : myButtons) {
       each.toggleShowActions(show);
     }
