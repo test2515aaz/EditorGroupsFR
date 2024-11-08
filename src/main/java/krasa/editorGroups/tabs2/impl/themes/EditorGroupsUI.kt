@@ -70,14 +70,16 @@ object EditorGroupsUI {
     defaultTheme.underlineArc
   )
 
+  fun fontSizeOffset(): Int = JBUI.getInt(
+    "EditorGroupsTabs.fontSizeOffset",
+    defaultTheme.fontSizeOffset
+  )
+
   fun font(): Font = defaultFont()
-    .biggerOn(
-      JBUI.getInt("EditorGroupsTabs.fontSizeOffset", 0).toFloat()
-    )
+    .biggerOn(fontSizeOffset().toFloat())
 
   private fun defaultFont(): JBFont {
-    val font = UIManager.getFont("EditorGroupsTabs.font") ?: JBUI.CurrentTheme.EditorTabs.font()
-
+    val font = UIManager.getFont("EditorGroupsTabs.font") ?: defaultTheme.font
     return JBFont.create(font, false)
   }
 }

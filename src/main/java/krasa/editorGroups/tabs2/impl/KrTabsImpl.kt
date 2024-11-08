@@ -2781,7 +2781,6 @@ open class KrTabsImpl(
 
   private class DefaultTabDecorator : TabUiDecorator {
     override fun getDecoration(): TabUiDecorator.TabUiDecoration = TabUiDecorator.TabUiDecoration(
-      labelFont = Font("Roboto", Font.BOLD, 20),
       labelInsets = JBUI.insets(5, 8),
       contentInsetsSupplier = Function { JBUI.insets(0, 4) },
       iconTextGap = JBUI.scale(4)

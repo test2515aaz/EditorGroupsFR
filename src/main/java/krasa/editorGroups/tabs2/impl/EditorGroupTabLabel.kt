@@ -11,14 +11,12 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.*
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.Wrapper
-import com.intellij.ui.scale.JBUIScale.scale
 import com.intellij.ui.tabs.impl.MorePopupAware
 import com.intellij.util.MathUtil
 import com.intellij.util.ObjectUtils
 import com.intellij.util.ui.Centerizer
 import com.intellij.util.ui.JBInsets
 import com.intellij.util.ui.JBUI
-import com.intellij.util.ui.StartupUiUtil.labelFont
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.accessibility.ScreenReader
 import krasa.editorGroups.settings.EditorGroupsSettings
@@ -39,6 +37,7 @@ import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
+import javax.swing.border.EmptyBorder
 import kotlin.math.max
 import kotlin.math.min
 
@@ -190,15 +189,11 @@ class EditorGroupTabLabel(
     val label: SimpleColoredComponent = object : SimpleColoredComponent() {
       override fun getFont(): Font? {
         val font = EditorGroupsUI.font()
-        val useSmallLabels = EditorGroupsSettings.instance.isSmallLabels
+        val useSmallLabels = tabs.useSmallLabels()
 
         return when {
           isFontSet || !useSmallLabels -> font
-          else                         -> RelativeFont.NORMAL.fromResource(
-            /* propertyName = */ "EditorTabs.fontSizeOffset",
-            /* defaultOffset = */ -2,
-            /* minSize = */ scale(11.0f)
-          ).derive(labelFont)
+          else                         -> RelativeFont.NORMAL.small().derive(font)
         }
       }
 
@@ -231,11 +226,6 @@ class EditorGroupTabLabel(
 
   // Allows to edit the label foreground right before painting
   fun editLabelForeground(baseForeground: Color?): Color? = baseForeground
-
-  // Allows to edit the icon right before painting
-  fun editIcon(baseIcon: Icon): Icon {
-    return baseIcon
-  }
 
   val isPinned: Boolean
     get() = true
@@ -414,17 +404,12 @@ class EditorGroupTabLabel(
   }
 
   fun apply(decoration: TabUiDecoration) {
-    if (decoration.labelFont != null) {
-      setFont(decoration.labelFont)
-      this.labelComponent.setFont(decoration.labelFont)
-    }
+    val resultDec = mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration())
+    border = EmptyBorder(resultDec.labelInsets)
+    label.iconTextGap = resultDec.iconTextGap
 
-    val resultDec: MergedUiDecoration = mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration())
-    setBorder(IdeBorderFactory.createEmptyBorder(resultDec.labelInsets))
-    label.setIconTextGap(resultDec.iconTextGap)
-
-    val contentInsets = resultDec.contentInsetsSupplier.apply(this.actionsPosition)
-    labelPlaceholder.setBorder(IdeBorderFactory.createEmptyBorder(contentInsets))
+    val contentInsets = resultDec.contentInsetsSupplier.apply(actionsPosition)
+    labelPlaceholder.border = EmptyBorder(contentInsets)
   }
 
   private val isShowTabActions: Boolean
@@ -444,7 +429,7 @@ class EditorGroupTabLabel(
   }
 
   private fun paintBackground(g: Graphics) {
-    tabs.tabPainterAdapter.paintBackground(this, g, tabs)
+    tabs.tabPainterAdapter.paintBackground(label = this, g = g, tabs = tabs)
   }
 
   private val effectiveBackground: Color

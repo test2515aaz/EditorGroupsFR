@@ -2,6 +2,7 @@ package krasa.editorGroups.tabs2.impl.themes
 
 import com.intellij.util.ui.JBUI
 import java.awt.Color
+import java.awt.Font
 
 interface EditorGroupTabTheme {
   val topBorderThickness: Int
@@ -31,4 +32,9 @@ interface EditorGroupTabTheme {
   val underlinedTabInactiveBackground: Color?
   val underlinedTabInactiveForeground: Color?
   val inactiveColoredTabBackground: Color?
+
+  val fontSizeOffset: Int
+    get() = 0
+
+  val font: Font?
 }
