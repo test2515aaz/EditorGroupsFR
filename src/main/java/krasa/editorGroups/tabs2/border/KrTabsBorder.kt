@@ -1,4 +1,4 @@
-package krasa.editorGroups.tabs2.impl.border
+package krasa.editorGroups.tabs2.border
 
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.impl.KrTabsImpl

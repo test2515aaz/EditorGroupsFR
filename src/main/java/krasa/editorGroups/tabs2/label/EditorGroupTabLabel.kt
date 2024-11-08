@@ -1,4 +1,4 @@
-package krasa.editorGroups.tabs2.impl
+package krasa.editorGroups.tabs2.label
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
@@ -17,10 +17,8 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.accessibility.ScreenReader
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.tabs2.EditorGroupsTabsEx
-import krasa.editorGroups.tabs2.impl.KrTabsImpl.Companion.isSelectionClick
+import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupsUI
-import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
-import krasa.editorGroups.tabs2.label.TabUiDecorator.TabUiDecoration
 import java.awt.*
 import java.awt.event.*
 import javax.accessibility.Accessible
@@ -107,7 +105,7 @@ class EditorGroupTabLabel(
     addMouseListener(object : MouseAdapter() {
       override fun mousePressed(e: MouseEvent) {
         // Right click
-        if (!isSelectionClick(e) || !info.isEnabled) {
+        if (!KrTabsImpl.Companion.isSelectionClick(e) || !info.isEnabled) {
           handlePopup(e)
           return
         }
@@ -198,7 +196,7 @@ class EditorGroupTabLabel(
     val label: SimpleColoredComponent = object : SimpleColoredComponent() {
       override fun getFont(): Font? {
         val font = EditorGroupsUI.font()
-        val useSmallLabels = tabs.useSmallLabels()
+        val useSmallLabels = EditorGroupsSettings.instance.isSmallLabels
 
         return when {
           isFontSet || !useSmallLabels -> font
@@ -236,8 +234,8 @@ class EditorGroupTabLabel(
   override fun getPreferredSize(): Dimension {
     val size = super.getPreferredSize()
     when {
-      EditorGroupsSettings.instance.isCompactTabs -> size.height = EditorGroupsUI.compactTabHeight()
-      else                                        -> size.height = EditorGroupsUI.tabHeight()
+      EditorGroupsSettings.Companion.instance.isCompactTabs -> size.height = EditorGroupsUI.compactTabHeight()
+      else                                                  -> size.height = EditorGroupsUI.tabHeight()
     }
     return size
   }
@@ -268,7 +266,7 @@ class EditorGroupTabLabel(
   /** Paint the fadeout. */
   private fun paintFadeout(g: Graphics) {
     val g2d = g.create() as Graphics2D
-    val fadeoutDefaultWidth = Registry.intValue("ide.editor.tabs.fadeout.width", FADEOUT_WIDTH)
+    val fadeoutDefaultWidth = Registry.Companion.intValue("ide.editor.tabs.fadeout.width", FADEOUT_WIDTH)
 
     try {
       val tabBg = effectiveBackground
@@ -371,7 +369,7 @@ class EditorGroupTabLabel(
 
     // Get the tabs instance at mouse position, if its the same one as this' tabs, add the navigation actions
     val dataContext = DataManager.getInstance().getDataContext(e.component, e.x, e.y)
-    val contextTabs = EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(dataContext) as KrTabsImpl
+    val contextTabs = EditorGroupsTabsEx.Companion.NAVIGATION_ACTIONS_KEY.getData(dataContext) as KrTabsImpl
     if (contextTabs === tabs && tabs.addNavigationGroup) {
       toShow.addAll(tabs.navigationActions)
     }
@@ -390,8 +388,8 @@ class EditorGroupTabLabel(
   }
 
   /** Apply decorations. */
-  fun apply(decoration: TabUiDecoration) {
-    val decorations = mergeUiDecorations(decoration, defaultDecoration = KrTabsImpl.defaultDecorator.decoration)
+  fun apply(decoration: TabUiDecorator.TabUiDecoration) {
+    val decorations = mergeUiDecorations(decoration, defaultDecoration = KrTabsImpl.Companion.defaultDecorator.decoration)
 
     border = EmptyBorder(decorations.labelInsets)
     label.iconTextGap = decorations.iconTextGap
@@ -458,7 +456,7 @@ class EditorGroupTabLabel(
   }
 
   override fun uiDataSnapshot(sink: DataSink) {
-    DataSink.uiDataSnapshot(sink, info.component)
+    DataSink.Companion.uiDataSnapshot(sink, info.component)
   }
 
   override fun getAccessibleContext(): AccessibleContext = accessibleContext ?: AccessibleTabLabel()
@@ -548,8 +546,8 @@ class EditorGroupTabLabel(
      * @return A MergedUiDecoration object that combines both custom and default values of insets and gaps for labels and content.
      */
     fun mergeUiDecorations(
-      customDecoration: TabUiDecoration,
-      defaultDecoration: TabUiDecoration
+      customDecoration: TabUiDecorator.TabUiDecoration,
+      defaultDecoration: TabUiDecorator.TabUiDecoration
     ): MergedUiDecoration {
       val labelInsets = mergeInsets(
         customInsets = customDecoration.labelInsets,
