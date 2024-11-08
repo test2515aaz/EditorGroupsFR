@@ -8,7 +8,7 @@ interface EditorGroupTabTheme {
   val topBorderThickness: Int
     get() = JBUI.scale(1)
 
-  val background: Color?
+  val background: Color
   val borderColor: Color
   val underlineColor: Color
   val inactiveUnderlineColor: Color
@@ -37,4 +37,7 @@ interface EditorGroupTabTheme {
     get() = 0
 
   val font: Font?
+
+  val tabHeight: Int
+  val compactTabHeight: Int
 }

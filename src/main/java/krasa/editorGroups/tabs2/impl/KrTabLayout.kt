@@ -7,35 +7,27 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
-import kotlin.math.abs
 
 abstract class KrTabLayout {
   open val isSideComponentOnTabs: Boolean
     get() = false
 
   open val isScrollable: Boolean
-    get() = false
+    get() = true
 
   open val isWithScrollBar: Boolean
-    get() = false
+    get() = true
 
   open val scrollOffset: Int
     get() = 0
 
   open fun createShapeTransform(rectangle: Rectangle?): KrShapeTransform = KrShapeTransform.Top(rectangle)
 
-  open fun isDragOut(tabLabel: EditorGroupTabLabel, deltaX: Int, deltaY: Int): Boolean =
-    abs(deltaY.toDouble()) > tabLabel.height * dragOutMultiplier ||
-      abs(deltaX.toDouble()) > tabLabel.width * dragOutMultiplier
-
-  open fun scroll(units: Int) = Unit
+  open fun scroll(units: Int): Unit = Unit
 
   open fun isTabHidden(info: EditorGroupTabInfo): Boolean = false
 
   companion object {
-    @JvmStatic
-    val dragOutMultiplier: Double
-      get() = Registry.doubleValue("ide.tabbedPane.dragOutMultiplier")
 
     @JvmStatic
     val maxPinnedTabWidth: Int

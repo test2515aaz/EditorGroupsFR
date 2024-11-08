@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorColorsScheme
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
+import krasa.editorGroups.EditorGroupPanel.Companion.COMPACT_TAB_HEIGHT
 import java.awt.Color
 import java.awt.Font
 
@@ -68,4 +69,10 @@ open class EditorGroupDefaultTabTheme : EditorGroupTabTheme {
 
   override val font: Font
     get() = JBUI.CurrentTheme.EditorTabs.font()
+
+  override val tabHeight: Int
+    get() = JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
+
+  override val compactTabHeight: Int
+    get() = COMPACT_TAB_HEIGHT
 }

@@ -71,7 +71,7 @@ public class KrTableLayout extends KrTabLayout {
     int entryPointMargin = scrollable ? 0 : myTabs.getEntryPointPreferredSize().width;
     for (final EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
       final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(eachInfo);
-      final boolean pinned = eachLabel.isPinned();
+      final boolean pinned = true;
       int width = data.lengths.get(eachInfo);
       if (!pinned || !showPinnedTabsSeparately) {
         data.requiredLength += width;
@@ -213,8 +213,7 @@ public class KrTableLayout extends KrTabLayout {
   private void calculateRawLengths(final List<EditorGroupTabInfo> list, final KrTablePassInfo data) {
     for (final EditorGroupTabInfo info : list) {
       final EditorGroupTabLabel eachLabel = myTabs.getTabLabel(info);
-      final Dimension size =
-        eachLabel.isPinned() && KrTabLayout.showPinnedTabsSeparately() ? eachLabel.getNotStrictPreferredSize() : eachLabel.getPreferredSize();
+      final Dimension size = eachLabel.getPreferredSize();
       data.lengths.put(info, Math.max(KrTabLayout.getMinTabWidth(), size.width + myTabs.getTabHGap()));
     }
   }
@@ -280,19 +279,6 @@ public class KrTableLayout extends KrTabLayout {
     final Rectangle bounds = label.getBounds();
     final int deadzone = JBUI.scale(KrTabLayout.DEADZONE_FOR_DECLARE_TAB_HIDDEN);
     return bounds.x < -deadzone || bounds.width < label.getPreferredSize().width - deadzone;
-  }
-
-  @Override
-  public boolean isDragOut(@NotNull final EditorGroupTabLabel tabLabel, final int deltaX, final int deltaY) {
-    if (lastTableLayout == null) {
-      return super.isDragOut(tabLabel, deltaX, deltaY);
-    }
-
-    Rectangle area = new Rectangle(lastTableLayout.toFitRec.width, tabLabel.getBounds().height);
-    for (int i = 0; i < lastTableLayout.myVisibleInfos.size(); i++) {
-      area = area.union(myTabs.getInfoToLabel().get(lastTableLayout.myVisibleInfos.get(i)).getBounds());
-    }
-    return Math.abs(deltaY) > area.height * KrTabLayout.getDragOutMultiplier();
   }
 
   @Override

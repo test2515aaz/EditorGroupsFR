@@ -115,7 +115,7 @@ public class KrScrollableSingleRowLayout extends KrSingleRowLayout {
 
   @Override
   protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
-    if (data.requiredLength > data.toFitLength && !(label.isPinned() && KrTabLayout.showPinnedTabsSeparately())) {
+    if (data.requiredLength > data.toFitLength && !(KrTabLayout.showPinnedTabsSeparately())) {
       length = getStrategy().getLengthIncrement(label.getPreferredSize());
       int moreRectSize = getMoreRectAxisSize();
       if (data.entryPointAxisSize == 0) {

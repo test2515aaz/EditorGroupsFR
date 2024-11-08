@@ -40,6 +40,7 @@ import krasa.editorGroups.support.*
 import krasa.editorGroups.tabs2.EditorGroupsTabsBase
 import krasa.editorGroups.tabs2.EditorGroupsTabsContainer
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
+import krasa.editorGroups.tabs2.impl.themes.EditorGroupsUI
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import org.jetbrains.ide.PooledThreadExecutor
 import java.awt.BorderLayout
@@ -206,9 +207,7 @@ class EditorGroupPanel(
     // Listen to settings change
     ApplicationManager.getApplication().messageBus.connect(this)
       .subscribe(EditorGroupsSettings.TOPIC, object : EditorGroupsSettings.SettingsNotifier {
-        override fun configChanged(config: EditorGroupsSettings) {
-          refreshHeight()
-        }
+        override fun configChanged(config: EditorGroupsSettings) = refreshHeight()
       })
   }
 
@@ -218,8 +217,8 @@ class EditorGroupPanel(
   }
 
   fun getPanelHeight(): Int = when {
-    EditorGroupsSettings.instance.isCompactTabs -> COMPACT_TAB_HEIGHT
-    else                                        -> JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
+    EditorGroupsSettings.instance.isCompactTabs -> EditorGroupsUI.compactTabHeight()
+    else                                        -> EditorGroupsUI.tabHeight()
   }
 
   // TODO move to KrJBEditorTabs constructor
@@ -413,8 +412,8 @@ class EditorGroupPanel(
       }
 
       if (currentFilePosition > -1) {
-        start = max(0, (currentFilePosition - tabSizeLimitInt / 2))
-        end = min(links.size, (start + tabSizeLimitInt))
+        start = max(0, currentFilePosition - tabSizeLimitInt / 2)
+        end = min(links.size, start + tabSizeLimitInt)
       }
       thisLogger().debug("Too many tabs, skipping: ${links.size - tabSizeLimitInt}")
     }
@@ -921,7 +920,7 @@ class EditorGroupPanel(
     }
 
     while (dumbService.isDumb && !project.isDisposed) {
-      LockSupport.parkNanos(50000000)
+      LockSupport.parkNanos(50_000_000)
       ProgressManager.checkCanceled()
 
       if (interrupt) {
@@ -1098,7 +1097,7 @@ class EditorGroupPanel(
   }
 
   /** Data holder for a refresh request. */
-  internal class RefreshRequest(val refresh: Boolean, val requestedGroup: EditorGroup?) {
+  internal data class RefreshRequest(val refresh: Boolean, val requestedGroup: EditorGroup?) {
     override fun toString() = "RefreshRequest{_refresh=$refresh, requestedGroup=$requestedGroup}"
   }
 

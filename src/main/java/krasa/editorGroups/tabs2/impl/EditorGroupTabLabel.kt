@@ -21,7 +21,6 @@ import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.accessibility.ScreenReader
 import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.tabs2.EditorGroupsTabsEx
-import krasa.editorGroups.tabs2.impl.KrTabLayout.Companion.maxPinnedTabWidth
 import krasa.editorGroups.tabs2.impl.KrTabsImpl.Companion.isSelectionClick
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupsUI
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
@@ -74,6 +73,23 @@ class EditorGroupTabLabel(
   /** Indicates if the current tab label is selected. */
   private val isSelected: Boolean
     get() = tabs.selectedLabel === this
+
+  /** Gets the effective background, taking custom background into effect. */
+  private val effectiveBackground: Color
+    get() {
+      val bg = tabs.tabPainter.getBackgroundColor()
+      val customBg = tabs.tabPainter.getCustomBackground(
+        tabColor = info.tabColor,
+        selected = this.isSelected,
+        active = tabs.isActiveTabs(this.info),
+        hovered = this.isHovered
+      )
+
+      return when {
+        customBg != null -> ColorUtil.alphaBlending(customBg, bg)
+        else             -> bg
+      }
+    }
 
   init {
     label = createLabel(tabs = tabs, info = info)
@@ -201,18 +217,17 @@ class EditorGroupTabLabel(
         val painterAdapter = tabs.tabPainterAdapter
         val theme = painterAdapter.getTabTheme()
 
+        val hasDifferentColor = attributesColor == null || UIUtil.getLabelForeground() == attributesColor
         val foreground = when {
-          tabs.selectedInfo == info && (attributesColor == null || UIUtil.getLabelForeground() == attributesColor) ->
+          tabs.selectedInfo == info && hasDifferentColor ->
             when {
               tabs.isActiveTabs(info) -> theme.underlinedTabForeground
               else                    -> theme.underlinedTabInactiveForeground
             }
 
-          else                                                                                                     -> {
-            super.getActiveTextColor(attributesColor)
-          }
+          else                                           -> super.getActiveTextColor(attributesColor)
         }
-        return editLabelForeground(foreground)
+        return foreground
       }
     }
 
@@ -224,26 +239,15 @@ class EditorGroupTabLabel(
     return label
   }
 
-  // Allows to edit the label foreground right before painting
-  fun editLabelForeground(baseForeground: Color?): Color? = baseForeground
-
-  val isPinned: Boolean
-    get() = true
-
+  /** Returns the size of the tabs panel. */
   override fun getPreferredSize(): Dimension {
-    val size = this.notStrictPreferredSize
-    if (this.isPinned) {
-      size.width = min(maxPinnedTabWidth.toDouble(), size.width.toDouble()).toInt()
-    }
-
-    if (!EditorGroupsSettings.instance.isCompactTabs) {
-      size.height = JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT.get()
+    val size = super.getPreferredSize()
+    when {
+      EditorGroupsSettings.instance.isCompactTabs -> size.height = EditorGroupsUI.compactTabHeight()
+      else                                        -> size.height = EditorGroupsUI.tabHeight()
     }
     return size
   }
-
-  val notStrictPreferredSize: Dimension
-    get() = super.getPreferredSize()
 
   /** Aligns the content to the center of the tab. */
   fun setAlignmentToCenter() {
@@ -261,55 +265,96 @@ class EditorGroupTabLabel(
   }
 
   override fun paint(g: Graphics) {
-    if (tabs.isDropTarget(this.info)) {
-      if (tabs.dropSide == -1) {
-        g.color = JBUI.CurrentTheme.DragAndDrop.Area.BACKGROUND
-        g.fillRect(0, 0, getWidth(), getHeight())
-      }
-      return
-    }
     doPaint(g)
-    if (shouldPaintFadeout()) {
-      paintFadeout(g)
-    }
+    // Paint the semi transparent fadeout when scrolling
+    paintFadeout(g)
   }
 
-  private fun shouldPaintFadeout(): Boolean {
-    return true
-  }
+  private fun doPaint(g: Graphics?) = super.paint(g)
 
+  /** Paint the fadeout. */
   private fun paintFadeout(g: Graphics) {
     val g2d = g.create() as Graphics2D
+    val fadeoutDefaultWidth = Registry.intValue("ide.editor.tabs.fadeout.width", FADEOUT_WIDTH)
+
     try {
-      val tabBg = this.effectiveBackground
+      val tabBg = effectiveBackground
       val transparent = ColorUtil.withAlpha(tabBg, 0.0)
       val borderThickness = tabs.borderThickness
-      val width = JBUI.scale(MathUtil.clamp(Registry.intValue("ide.editor.tabs.fadeout.width", 10), 1, 200))
-
-      val myRect = bounds
-      myRect.height -= borderThickness + (if (this.isSelected) tabs.tabPainter.getTabTheme().underlineHeight else borderThickness)
-      // Fadeout for left part (needed only in top and bottom placements)
-      if (myRect.x < 0) {
-        val leftRect = Rectangle(-myRect.x, borderThickness, width, myRect.height - 2 * borderThickness)
-        paintGradientRect(g2d, leftRect, tabBg, transparent)
-      }
+      val fadeoutWidth = JBUI.scale(MathUtil.clamp(fadeoutDefaultWidth, 1, FADEOUT_MAX))
 
       val contentRect = labelPlaceholder.bounds
-      // Fadeout for right side before pin/close button (needed only in side placements and in squeezing layout)
-      if (contentRect.width < labelPlaceholder.getPreferredSize().width + tabs.tabHGap) {
-        val rightRect = Rectangle(contentRect.x + contentRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness)
-        paintGradientRect(g2d, rightRect, transparent, tabBg)
-      } else if (tabs.effectiveLayout!!.isScrollable && myRect.width < getPreferredSize().width + tabs.tabHGap) {
-        val rightRect = Rectangle(myRect.width - width, borderThickness, width, myRect.height - 2 * borderThickness)
-        paintGradientRect(g2d, rightRect, transparent, tabBg)
+      val rect = bounds
+      rect.height -= borderThickness + when {
+        this.isSelected -> tabs.tabPainter.getTabTheme().underlineHeight
+        else            -> borderThickness
+      }
+
+      // Fadeout for left part when scrolling
+      if (rect.x < 0) {
+        val leftRect = Rectangle(-rect.x, borderThickness, fadeoutWidth, rect.height - 2 * borderThickness)
+        paintGradientRect(g2d, leftRect, tabBg, transparent)
       }
     } finally {
       g2d.dispose()
     }
   }
 
-  private fun doPaint(g: Graphics?) {
-    super.paint(g)
+  /**
+   * Sets the text for the tab label and updates the visual representation of the label accordingly.
+   *
+   * @param text The `SimpleColoredText` to be displayed on the label. If null, the label will be cleared.
+   */
+  fun setText(text: SimpleColoredText?) {
+    label.change({
+      label.clear()
+      label.icon = when {
+        hasIcons() -> icon
+        else       -> null
+      }
+
+      text?.appendToComponent(label)
+    }, /* autoInvalidate = */ false)
+
+    invalidateIfNeeded()
+  }
+
+  /** Replace the current icon at layer 0. */
+  fun setIcon(icon: Icon?): Unit = setIcon(icon = icon, layer = 0)
+
+  /**
+   * Invalidates the label component and triggers a revalidation and repaint of the tabs if necessary.
+   *
+   * This method first checks if the `labelComponent` is properly associated with a `rootPane`. If the `labelComponent`'s current size is
+   * equal to its preferred size, the method does nothing. Otherwise, it invalidates the `labelComponent` and calls `revalidateAndRepaint`
+   * on the `tabs`.
+   */
+  private fun invalidateIfNeeded() {
+    if (labelComponent.rootPane == null) return
+
+    val labelDimensions = labelComponent.size
+    val prefSize = labelComponent.getPreferredSize()
+    if (labelDimensions != null && labelDimensions == prefSize) return
+
+    labelComponent.invalidate()
+    tabs.revalidateAndRepaint(false)
+  }
+
+  /** Whether there is at least one icon in layers. */
+  private fun hasIcons(): Boolean = icon.allLayers.any { it != null }
+
+  /** Sets the icon at the given layer. */
+  @Suppress("SameParameterValue")
+  private fun setIcon(icon: Icon?, layer: Int) {
+    val layeredIcon = this.icon
+    layeredIcon.setIcon(icon, layer)
+
+    when {
+      hasIcons() -> label.setIcon(layeredIcon)
+      else       -> label.setIcon(null)
+    }
+
+    invalidateIfNeeded()
   }
 
   private fun handlePopup(e: MouseEvent) {
@@ -343,66 +388,6 @@ class EditorGroupTabLabel(
     JBPopupMenu.showByEvent(e, tabs.activePopup!!)
   }
 
-  fun setText(text: SimpleColoredText?) {
-    label.change(Runnable {
-      label.clear()
-      label.setIcon(if (hasIcons()) this.icon else null)
-      if (text != null) {
-        text.appendToComponent(label)
-      }
-    }, false)
-
-    invalidateIfNeeded()
-  }
-
-  private fun invalidateIfNeeded() {
-    if (this.labelComponent.rootPane == null) return
-
-    val d = this.labelComponent.size
-    val pref = this.labelComponent.getPreferredSize()
-    if (d != null && d == pref) {
-      return
-    }
-
-    this.labelComponent.invalidate()
-
-    // if (actionPanel != null) {
-    //   actionPanel!!.invalidate()
-    // }
-
-    tabs.revalidateAndRepaint(false)
-  }
-
-  fun setIcon(icon: Icon?) {
-    setIcon(icon, 0)
-  }
-
-  private fun hasIcons(): Boolean {
-    val layeredIcon = this.icon
-    var hasIcons = false
-    val layers = layeredIcon.allLayers
-    for (layer1 in layers) {
-      if (layer1 != null) {
-        hasIcons = true
-        break
-      }
-    }
-
-    return hasIcons
-  }
-
-  private fun setIcon(icon: Icon?, layer: Int) {
-    val layeredIcon = this.icon
-    layeredIcon.setIcon(icon, layer)
-    if (hasIcons()) {
-      label.setIcon(layeredIcon)
-    } else {
-      label.setIcon(null)
-    }
-
-    invalidateIfNeeded()
-  }
-
   fun apply(decoration: TabUiDecoration) {
     val resultDec = mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration())
     border = EmptyBorder(resultDec.labelInsets)
@@ -432,15 +417,6 @@ class EditorGroupTabLabel(
     tabs.tabPainterAdapter.paintBackground(label = this, g = g, tabs = tabs)
   }
 
-  private val effectiveBackground: Color
-    get() {
-      val bg = tabs.tabPainter.getBackgroundColor()
-      val customBg = tabs.tabPainter.getCustomBackground(
-        info.tabColor, this.isSelected, tabs.isActiveTabs(this.info), this.isHovered
-      )
-      return if (customBg != null) ColorUtil.alphaBlending(customBg, bg) else bg
-    }
-
   override fun paintChildren(g: Graphics) {
     super.paintChildren(g)
 
@@ -466,16 +442,14 @@ class EditorGroupTabLabel(
     }
   }
 
-  override fun toString(): String {
-    return info.text
-  }
+  override fun toString(): String = info.text
 
   fun setTabEnabled(enabled: Boolean) {
     this.labelComponent.setEnabled(enabled)
   }
 
   override fun getToolTipText(event: MouseEvent): String? {
-    val iconWidth = label.icon?.iconWidth ?: JBUI.scale(16)
+    val iconWidth = label.icon?.iconWidth ?: JBUI.scale(ICON_WIDTH)
     val pointInLabel = RelativePoint(event).getPoint(label)
 
     if (label.visibleRect.width >= iconWidth * 2 && label.findFragmentAt(pointInLabel.x) == SimpleColoredComponent.FRAGMENT_ICON) {
@@ -521,9 +495,7 @@ class EditorGroupTabLabel(
       return description
     }
 
-    override fun getAccessibleRole(): AccessibleRole {
-      return AccessibleRole.PAGE_TAB
-    }
+    override fun getAccessibleRole(): AccessibleRole = AccessibleRole.PAGE_TAB
   }
 
   private inner class TabLabelLayout : BorderLayout() {
@@ -603,15 +575,33 @@ class EditorGroupTabLabel(
 
   companion object {
     private val LOG = Logger.getInstance(EditorGroupTabLabel::class.java)
-    private const val MIN_WIDTH_TO_CROP_ICON = 39
+    private const val FADEOUT_WIDTH: Int = 10
+    private const val FADEOUT_MAX: Int = 200
+    private const val ICON_WIDTH: Int = 16
 
+    /**
+     * Paints a rectangular area with a horizontal gradient.
+     *
+     * @param g The Graphics2D context to draw with.
+     * @param rect The rectangle area to be filled with the gradient.
+     * @param fromColor The starting color of the gradient.
+     * @param toColor The ending color of the gradient.
+     */
     private fun paintGradientRect(g: Graphics2D, rect: Rectangle, fromColor: Color, toColor: Color) {
-      g.paint = GradientPaint(rect.x.toFloat(), rect.y.toFloat(), fromColor, (rect.x + rect.width).toFloat(), rect.y.toFloat(), toColor)
+      g.paint = GradientPaint(
+        /* x1 = */ rect.x.toFloat(),
+        /* y1 = */ rect.y.toFloat(),
+        /* color1 = */ fromColor,
+        /* x2 = */ (rect.x + rect.width).toFloat(),
+        /* y2 = */ rect.y.toFloat(),
+        /* color2 = */ toColor
+      )
       g.fill(rect)
     }
 
     fun mergeUiDecorations(
-      customDec: TabUiDecoration, defaultDec: TabUiDecoration
+      customDec: TabUiDecoration,
+      defaultDec: TabUiDecoration
     ): MergedUiDecoration {
       val contentInsetsSupplier = Function { position: ActionsPosition? ->
         val def = Objects.requireNonNull<Function<ActionsPosition, Insets>?>(defaultDec.contentInsetsSupplier).apply(

@@ -70,6 +70,16 @@ object EditorGroupsUI {
     defaultTheme.underlineArc
   )
 
+  fun compactTabHeight(): Int = JBUI.getInt(
+    "EditorGroupsTabs.compactTabHeight",
+    defaultTheme.compactTabHeight
+  )
+
+  fun tabHeight(): Int = JBUI.getInt(
+    "EditorGroupsTabs.tabHeight",
+    defaultTheme.tabHeight
+  )
+
   fun fontSizeOffset(): Int = JBUI.getInt(
     "EditorGroupsTabs.fontSizeOffset",
     defaultTheme.fontSizeOffset

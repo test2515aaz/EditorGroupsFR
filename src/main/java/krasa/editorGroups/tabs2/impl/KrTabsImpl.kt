@@ -43,9 +43,9 @@ import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
 import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
 import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
-import krasa.editorGroups.tabs2.impl.painter.KrDefaultTabPainterAdapter
-import krasa.editorGroups.tabs2.impl.painter.KrTabPainter
-import krasa.editorGroups.tabs2.impl.painter.KrTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsDefaultTabPainterAdapter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
+import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
@@ -96,70 +96,6 @@ open class KrTabsImpl(
   QuickActionProvider,
   MorePopupAware,
   Accessible {
-  companion object {
-    @JvmField
-    val PINNED: Key<Boolean> = Key.create("pinned")
-
-    @JvmField
-    val SIDE_TABS_SIZE_LIMIT_KEY: Key<Int> = Key.create("SIDE_TABS_SIZE_LIMIT_KEY")
-
-    private val HIDDEN_INFOS_SELECT_INDEX_KEY = Key.create<Int>("HIDDEN_INFOS_SELECT_INDEX")
-
-    @JvmField
-    val MIN_TAB_WIDTH: Int = JBUIScale.scale(75)
-
-    @JvmField
-    val DEFAULT_MAX_TAB_WIDTH: Int = JBUIScale.scale(300)
-
-    @JvmField
-    internal val defaultDecorator: TabUiDecorator = DefaultTabDecorator()
-
-    @JvmStatic
-    fun getComponentImage(info: EditorGroupTabInfo): Image {
-      var image: BufferedImage = ImageUtil.createImage(info.component?.graphicsConfiguration, 500, 500, BufferedImage.TYPE_INT_ARGB)
-      val component = info.component ?: return image
-
-      if (component.isShowing) {
-        val width = if (component.width > 0) component.width else 500
-        val height = if (component.height > 0) component.height else 500
-
-        image = ImageUtil.createImage(
-          info.component?.graphicsConfiguration,
-          width,
-          height,
-          BufferedImage.TYPE_INT_ARGB
-        )
-
-        val g = image.createGraphics()
-        component.paint(g)
-      }
-
-      return image
-    }
-
-    @JvmStatic
-    val selectionTabVShift: Int
-      get() = 2
-
-    @JvmStatic
-    fun isSelectionClick(e: MouseEvent): Boolean {
-      if (e.clickCount == 1) {
-        if (!e.isPopupTrigger) {
-          return e.button == MouseEvent.BUTTON1 && !e.isControlDown && !e.isAltDown && !e.isMetaDown
-        }
-      }
-      return false
-    }
-
-    @JvmStatic
-    fun resetLayout(c: JComponent?) {
-      if (c == null) {
-        return
-      }
-      c.putClientProperty(LAYOUT_DONE, null)
-    }
-  }
-
   private val visibleInfos = ArrayList<EditorGroupTabInfo>()
   private val infoToPage = HashMap<EditorGroupTabInfo, AccessibleTabPage>()
   private val hiddenInfos = HashMap<EditorGroupTabInfo, Int>()
@@ -217,8 +153,8 @@ open class KrTabsImpl(
   private var isRequestFocusOnLastFocusedComponent = false
   private var listenerAdded = false
 
-  @JvmField
-  internal val attractions: MutableSet<EditorGroupTabInfo> = HashSet()
+  override val isEditorTabs: Boolean
+    get() = false
 
   private var allTabs: List<EditorGroupTabInfo>? = null
   private var focusManager = IdeFocusManager.getGlobalInstance()
@@ -255,10 +191,9 @@ open class KrTabsImpl(
   private var firstTabOffset = 0
 
   @JvmField
-  internal val tabPainterAdapter: KrTabPainterAdapter = createTabPainterAdapter()
-  val tabPainter: KrTabPainter = tabPainterAdapter.tabPainter
+  internal val tabPainterAdapter: EditorGroupsTabPainterAdapter = createTabPainterAdapter()
+  val tabPainter: EditorGroupsTabPainter = tabPainterAdapter.tabPainter
 
-  private var supportCompression = false
   private var emptyText: String? = null
 
   var isMouseInsideTabsArea: Boolean = false
@@ -266,9 +201,6 @@ open class KrTabsImpl(
 
   private var removeNotifyInProgress = false
   private var singleRow = true
-  protected fun createTabBorder(): KrTabsBorder = KrEditorTabsBorder(this)
-
-  protected open fun createTabPainterAdapter(): KrTabPainterAdapter = KrDefaultTabPainterAdapter()
 
   private var tabLabelAtMouse: EditorGroupTabLabel? = null
   private val scrollBar: JBScrollBar
@@ -393,6 +325,10 @@ open class KrTabsImpl(
     scrollBarChangeListener = ChangeListener { updateTabsOffsetFromScrollBar() }
   }
 
+  protected fun createTabBorder(): KrTabsBorder = KrEditorTabsBorder(this)
+
+  protected open fun createTabPainterAdapter(): EditorGroupsTabPainterAdapter = EditorGroupsDefaultTabPainterAdapter()
+
   private fun addMouseMotionAwtListener(parentDisposable: Disposable) {
     StartupUiUtil.addAwtListener(object : AWTEventListener {
       val afterScroll = Alarm(parentDisposable)
@@ -515,16 +451,10 @@ open class KrTabsImpl(
 
   open fun isActiveTabs(info: EditorGroupTabInfo?): Boolean = UIUtil.isFocusAncestor(this)
 
-  override val isEditorTabs: Boolean
-    get() = false
-
   fun addNestedTabs(tabs: KrTabsImpl, parentDisposable: Disposable) {
     nestedTabs.add(tabs)
     Disposer.register(parentDisposable) { nestedTabs.remove(tabs) }
   }
-
-  fun isDragOut(label: EditorGroupTabLabel?, deltaX: Int, deltaY: Int): Boolean =
-    effectiveLayout!!.isDragOut(label!!, deltaX, deltaY)
 
   fun ignoreTabLabelLimitedWidthWhenPaint(): Boolean = effectiveLayout!!.isScrollable
 
@@ -2785,6 +2715,70 @@ open class KrTabsImpl(
       contentInsetsSupplier = Function { JBUI.insets(0, 4) },
       iconTextGap = JBUI.scale(4)
     )
+  }
+
+  companion object {
+    @JvmField
+    val PINNED: Key<Boolean> = Key.create("pinned")
+
+    @JvmField
+    val SIDE_TABS_SIZE_LIMIT_KEY: Key<Int> = Key.create("SIDE_TABS_SIZE_LIMIT_KEY")
+
+    private val HIDDEN_INFOS_SELECT_INDEX_KEY = Key.create<Int>("HIDDEN_INFOS_SELECT_INDEX")
+
+    @JvmField
+    val MIN_TAB_WIDTH: Int = JBUIScale.scale(75)
+
+    @JvmField
+    val DEFAULT_MAX_TAB_WIDTH: Int = JBUIScale.scale(300)
+
+    @JvmField
+    internal val defaultDecorator: TabUiDecorator = DefaultTabDecorator()
+
+    @JvmStatic
+    fun getComponentImage(info: EditorGroupTabInfo): Image {
+      var image: BufferedImage = ImageUtil.createImage(info.component?.graphicsConfiguration, 500, 500, BufferedImage.TYPE_INT_ARGB)
+      val component = info.component ?: return image
+
+      if (component.isShowing) {
+        val width = if (component.width > 0) component.width else 500
+        val height = if (component.height > 0) component.height else 500
+
+        image = ImageUtil.createImage(
+          info.component?.graphicsConfiguration,
+          width,
+          height,
+          BufferedImage.TYPE_INT_ARGB
+        )
+
+        val g = image.createGraphics()
+        component.paint(g)
+      }
+
+      return image
+    }
+
+    @JvmStatic
+    val selectionTabVShift: Int
+      get() = 2
+
+    @JvmStatic
+    fun isSelectionClick(e: MouseEvent): Boolean {
+      if (e.clickCount == 1) {
+        if (!e.isPopupTrigger) {
+          return e.button == MouseEvent.BUTTON1 && !e.isControlDown && !e.isAltDown && !e.isMetaDown
+        }
+      }
+      return false
+    }
+
+    @JvmStatic
+    fun resetLayout(c: JComponent?) {
+      if (c == null) {
+        return
+      }
+      c.putClientProperty(LAYOUT_DONE, null)
+    }
   }
 }
 

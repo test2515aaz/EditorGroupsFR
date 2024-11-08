@@ -8,9 +8,9 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 
 /** Holds a tabPainter to paint the tab background. */
-class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
-  override val tabPainter: KrTabPainter
-    get() = KrTabPainter.DEFAULT
+class EditorGroupsDefaultTabPainterAdapter() : EditorGroupsTabPainterAdapter {
+  override val tabPainter: EditorGroupsTabPainter
+    get() = EditorGroupsTabPainter.DEFAULT
 
   private val magicOffset = 1
 
@@ -23,17 +23,15 @@ class KrDefaultTabPainterAdapter() : KrTabPainterAdapter {
     val g2d = g as Graphics2D
 
     when {
-      isSelected -> {
-        tabPainter.paintSelectedTab(
-          position = tabs.position,
-          g = g2d,
-          rect = rect,
-          borderThickness = tabs.borderThickness,
-          tabColor = info.tabColor,
-          active = tabs.isActiveTabs(info),
-          hovered = isHovered
-        )
-      }
+      isSelected -> tabPainter.paintSelectedTab(
+        position = tabs.position,
+        g = g2d,
+        rect = rect,
+        borderThickness = tabs.borderThickness,
+        tabColor = info.tabColor,
+        active = tabs.isActiveTabs(info),
+        hovered = isHovered
+      )
 
       else       -> {
         if (isHovered && tabs.tabsPosition == EditorGroupsTabsPosition.TOP) rect.height -= magicOffset

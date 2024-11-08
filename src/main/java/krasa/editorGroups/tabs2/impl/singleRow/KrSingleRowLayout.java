@@ -31,11 +31,6 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     return getStrategy().createShapeTransform(labelRec);
   }
 
-  @Override
-  public boolean isDragOut(@NotNull EditorGroupTabLabel tabLabel, int deltaX, int deltaY) {
-    return getStrategy().isDragOut(tabLabel, deltaX, deltaY);
-  }
-
   public KrSingleRowLayout(final KrTabsImpl tabs) {
     myTabs = tabs;
     myTop = new KrSingleRowLayoutStrategy.Top(this);
