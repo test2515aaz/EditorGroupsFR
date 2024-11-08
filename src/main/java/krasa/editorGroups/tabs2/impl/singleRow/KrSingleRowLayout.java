@@ -17,18 +17,11 @@ import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
 public abstract class KrSingleRowLayout extends KrTabLayout {
-  final KrTabsImpl myTabs;
+  final KrTabsImpl tabs;
   public KrSingleRowPassInfo lastSingleRowLayout;
 
   private final KrSingleRowLayoutStrategy myTop;
-  private final KrSingleRowLayoutStrategy myLeft;
   private final KrSingleRowLayoutStrategy myBottom;
-  private final KrSingleRowLayoutStrategy myRight;
-
-  @Override
-  public boolean isSideComponentOnTabs() {
-    return getStrategy().isSideComponentOnTabs();
-  }
 
   @Override
   public KrShapeTransform createShapeTransform(Rectangle labelRec) {
@@ -36,15 +29,13 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   public KrSingleRowLayout(final KrTabsImpl tabs) {
-    myTabs = tabs;
+    this.tabs = tabs;
     myTop = new KrSingleRowLayoutStrategy.Top(this);
-    myLeft = new KrSingleRowLayoutStrategy.Left(this);
     myBottom = new KrSingleRowLayoutStrategy.Bottom(this);
-    myRight = new KrSingleRowLayoutStrategy.Right(this);
   }
 
   KrSingleRowLayoutStrategy getStrategy() {
-    return switch (myTabs.getPresentation().getTabsPosition()) {
+    return switch (tabs.getPresentation().getTabsPosition()) {
       case TOP -> myTop;
       case BOTTOM -> myBottom;
     };
@@ -53,18 +44,18 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected boolean checkLayoutLabels(KrSingleRowPassInfo data) {
     boolean layoutLabels = true;
 
-    if (!myTabs.getForcedRelayout$EditorGroups() &&
+    if (!tabs.getForcedRelayout$EditorGroups() &&
       lastSingleRowLayout != null &&
-      lastSingleRowLayout.contentCount == myTabs.getTabCount() &&
-      lastSingleRowLayout.layoutSize.equals(myTabs.getSize()) &&
+      lastSingleRowLayout.contentCount == tabs.getTabCount() &&
+      lastSingleRowLayout.layoutSize.equals(tabs.getSize()) &&
       lastSingleRowLayout.scrollOffset == getScrollOffset()) {
       for (EditorGroupTabInfo each : data.myVisibleInfos) {
-        final EditorGroupTabLabel eachLabel = myTabs.getInfoToLabel().get(each);
+        final EditorGroupTabLabel eachLabel = tabs.getInfoToLabel().get(each);
         if (!eachLabel.isValid()) {
           layoutLabels = true;
           break;
         }
-        if (myTabs.getSelectedInfo() == each) {
+        if (tabs.getSelectedInfo() == each) {
           if (eachLabel.getBounds().width != 0) {
             layoutLabels = false;
           }
@@ -83,12 +74,12 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       data = lastSingleRowLayout;
     }
 
-    final EditorGroupTabInfo selected = myTabs.getSelectedInfo();
+    final EditorGroupTabInfo selected = tabs.getSelectedInfo();
     prepareLayoutPassInfo(data, selected);
 
-    myTabs.resetLayout(shouldLayoutLabels || myTabs.isHideTabs());
+    tabs.resetLayout(shouldLayoutLabels || tabs.isHideTabs());
 
-    if (shouldLayoutLabels && !myTabs.isHideTabs()) {
+    if (shouldLayoutLabels && !tabs.isHideTabs()) {
       recomputeToLayout(data);
 
       data.position = getStrategy().getStartPosition(data) - getScrollOffset();
@@ -109,13 +100,13 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     data.tabRectangle = new Rectangle();
 
     if (!data.toLayout.isEmpty()) {
-      final EditorGroupTabLabel firstLabel = myTabs.getInfoToLabel().get(data.toLayout.get(0));
+      final EditorGroupTabLabel firstLabel = tabs.getInfoToLabel().get(data.toLayout.get(0));
       final EditorGroupTabLabel lastLabel = findLastVisibleLabel(data);
       if (firstLabel != null && lastLabel != null) {
         data.tabRectangle.x = firstLabel.getBounds().x;
         data.tabRectangle.y = firstLabel.getBounds().y;
         data.tabRectangle.width = ExperimentalUI.isNewUI()
-          ? (int) data.entryPointRect.getMaxX() + myTabs.getActionsInsets().right - data.tabRectangle.x
+          ? (int) data.entryPointRect.getMaxX() + tabs.getActionsInsets().right - data.tabRectangle.x
           : (int) lastLabel.getBounds().getMaxX() - data.tabRectangle.x;
         data.tabRectangle.height = (int) lastLabel.getBounds().getMaxY() - data.tabRectangle.y;
       }
@@ -127,26 +118,26 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
 
   @Nullable
   protected EditorGroupTabLabel findLastVisibleLabel(KrSingleRowPassInfo data) {
-    return myTabs.getInfoToLabel().get(data.toLayout.get(data.toLayout.size() - 1));
+    return tabs.getInfoToLabel().get(data.toLayout.get(data.toLayout.size() - 1));
   }
 
   protected void prepareLayoutPassInfo(KrSingleRowPassInfo data, EditorGroupTabInfo selected) {
-    data.insets = myTabs.getLayoutInsets();
-    if (myTabs.isHorizontalTabs()) {
-      data.insets.left += myTabs.getFirstTabOffset();
+    data.insets = tabs.getLayoutInsets();
+    if (tabs.isHorizontalTabs()) {
+      data.insets.left += tabs.getFirstTabOffset();
     }
 
-    final KrTabsImpl.Toolbar selectedToolbar = myTabs.getInfoToToolbar().get(selected);
+    final KrTabsImpl.Toolbar selectedToolbar = tabs.getInfoToToolbar().get(selected);
     data.hToolbar =
-      new WeakReference<>(selectedToolbar != null && myTabs.getHorizontalSide() && !selectedToolbar.isEmpty() ? selectedToolbar : null);
+      new WeakReference<>(selectedToolbar != null && tabs.getHorizontalSide() && !selectedToolbar.isEmpty() ? selectedToolbar : null);
     data.vToolbar =
-      new WeakReference<>(selectedToolbar != null && !myTabs.getHorizontalSide() && !selectedToolbar.isEmpty() ? selectedToolbar : null);
+      new WeakReference<>(selectedToolbar != null && !tabs.getHorizontalSide() && !selectedToolbar.isEmpty() ? selectedToolbar : null);
     data.toFitLength = getStrategy().getToFitLength(data);
   }
 
   protected void layoutTitle(KrSingleRowPassInfo data) {
     data.titleRect = getStrategy().getTitleRect(data);
-    data.position += myTabs.isHorizontalTabs() ? data.titleRect.width : data.titleRect.height;
+    data.position += tabs.isHorizontalTabs() ? data.titleRect.width : data.titleRect.height;
   }
 
   protected void layoutMoreButton(KrSingleRowPassInfo data) {
@@ -162,10 +153,10 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected void layoutLabels(final KrSingleRowPassInfo data) {
     boolean layoutStopped = false;
     for (EditorGroupTabInfo eachInfo : data.toLayout) {
-      final EditorGroupTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
+      final EditorGroupTabLabel label = tabs.getInfoToLabel().get(eachInfo);
       if (layoutStopped) {
         final Rectangle rec = getStrategy().getLayoutRect(data, 0, 0);
-        myTabs.layout(label, rec);
+        tabs.layout(label, rec);
         continue;
       }
 
@@ -175,7 +166,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
       boolean continueLayout = applyTabLayout(data, label, length);
 
       data.position = getStrategy().getMaxPosition(label.getBounds());
-      data.position += myTabs.getTabHGap();
+      data.position += tabs.getTabHGap();
 
       if (!continueLayout) {
         layoutStopped = true;
@@ -183,13 +174,13 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
     }
 
     for (EditorGroupTabInfo eachInfo : data.toDrop) {
-      KrTabsImpl.Companion.resetLayout(myTabs.getInfoToLabel().get(eachInfo));
+      KrTabsImpl.Companion.resetLayout(tabs.getInfoToLabel().get(eachInfo));
     }
   }
 
   protected boolean applyTabLayout(KrSingleRowPassInfo data, EditorGroupTabLabel label, int length) {
     final Rectangle rec = getStrategy().getLayoutRect(data, data.position, length);
-    myTabs.layout(label, rec);
+    tabs.layout(label, rec);
 
     label.setAlignmentToCenter();
     return true;
@@ -199,8 +190,7 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected abstract void recomputeToLayout(final KrSingleRowPassInfo data);
 
   protected void calculateRequiredLength(KrSingleRowPassInfo data) {
-    data.requiredLength += myTabs.isHorizontalTabs() ? data.insets.left + data.insets.right
-      : data.insets.top + data.insets.bottom;
+    data.requiredLength += data.insets.left + data.insets.right;
     for (EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
       data.requiredLength += getRequiredLength(eachInfo);
       data.toLayout.add(eachInfo);
@@ -209,9 +199,9 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   }
 
   protected int getRequiredLength(EditorGroupTabInfo eachInfo) {
-    EditorGroupTabLabel label = myTabs.getInfoToLabel().get(eachInfo);
+    EditorGroupTabLabel label = tabs.getInfoToLabel().get(eachInfo);
     return getStrategy().getLengthIncrement(label != null ? label.getPreferredSize() : new Dimension())
-      + (myTabs.isEditorTabs() ? myTabs.getTabHGap() : 0);
+      + (tabs.isEditorTabs() ? tabs.getTabHGap() : 0);
   }
 
 

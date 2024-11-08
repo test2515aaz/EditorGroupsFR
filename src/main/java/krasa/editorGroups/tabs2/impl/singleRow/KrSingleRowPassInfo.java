@@ -35,7 +35,7 @@ public final class KrSingleRowPassInfo extends KrLayoutPassInfo {
 
   public KrSingleRowPassInfo(KrSingleRowLayout layout, List<EditorGroupTabInfo> visibleInfos) {
     super(visibleInfos);
-    tabs = layout.myTabs;
+    tabs = layout.tabs;
     layoutSize = tabs.getSize();
     contentCount = tabs.getTabCount();
     toLayout = new ArrayList<>();

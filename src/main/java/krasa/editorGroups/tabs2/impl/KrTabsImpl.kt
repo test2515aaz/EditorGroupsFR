@@ -2,6 +2,7 @@
 
 package krasa.editorGroups.tabs2.impl
 
+import com.intellij.concurrency.ContextAwareRunnable
 import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.UISettingsListener
 import com.intellij.openapi.Disposable
@@ -47,7 +48,7 @@ import krasa.editorGroups.tabs2.border.KrTabsBorder
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsDefaultTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
-import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
+import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
@@ -83,7 +84,7 @@ private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
-  parentDisposable: Disposable,
+  private val parentDisposable: Disposable,
   coroutineScope: CoroutineScope? = null,
   tabListOptions: EditorGroupsTabListOptions,
 ) : JComponent(),
@@ -132,6 +133,11 @@ open class KrTabsImpl(
 
   var isSideComponentBefore: Boolean = true
     private set
+
+  private val scrollBarActivityTracker = ScrollBarActivityTracker()
+
+  val isRecentlyActive: Boolean
+    get() = scrollBarActivityTracker.isRecentlyActive
 
   @JvmField
   internal val separatorWidth: Int = JBUI.scale(1)
@@ -445,7 +451,7 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = true)
   }
 
-  protected open fun createSingleRowLayout(): KrSingleRowLayout = KrScrollableSingleRowLayout(this)
+  protected open fun createSingleRowLayout(): KrSingleRowLayout = EditorGroupsScrollableSingleRowLayout(this)
 
   override fun setNavigationActionBinding(prevActionId: String, nextActionId: String) {
     nextAction?.reconnect(nextActionId)
@@ -481,8 +487,6 @@ open class KrTabsImpl(
     nestedTabs.add(tabs)
     Disposer.register(parentDisposable) { nestedTabs.remove(tabs) }
   }
-
-  fun ignoreTabLabelLimitedWidthWhenPaint(): Boolean = effectiveLayout!!.isScrollable
 
   @RequiresEdt
   fun resetTabsCache() {
@@ -1837,18 +1841,10 @@ open class KrTabsImpl(
 
   private fun computeMaxSize(): Max {
     val max = Max()
-    val isSideComponentOnTabs = effectiveLayout!!.isSideComponentOnTabs
     for (eachInfo in visibleInfos) {
       val label = infoToLabel[eachInfo]
       max.label.height = max.label.height.coerceAtLeast(label!!.preferredSize.height)
       max.label.width = max.label.width.coerceAtLeast(label.preferredSize.width)
-      if (isSideComponentOnTabs) {
-        val toolbar = infoToToolbar[eachInfo]
-        if (toolbar != null && !toolbar.isEmpty) {
-          max.toolbar.height = max.toolbar.height.coerceAtLeast(toolbar.preferredSize.height)
-          max.toolbar.width = max.toolbar.width.coerceAtLeast(toolbar.preferredSize.width)
-        }
-      }
     }
     return max
   }
@@ -2123,26 +2119,9 @@ open class KrTabsImpl(
   }
 
   /** @return insets, that should be used to layout [KrTabsImpl.moreToolbar] and [KrTabsImpl.entryPointToolbar] */
-  fun getActionsInsets(): Insets = if (ExperimentalUI.isNewUI()) {
-    JBInsets.create(Insets(0, 5, 0, 8))
-  } else {
-    JBInsets.create(Insets(0, 1, 0, 1))
-  }
+  fun getActionsInsets(): Insets = JBInsets.create(Insets(0, 5, 0, 8))
 
-  // Useful when you need to always show separator an as first or last component of ActionToolbar
-  // Just put it as first or last action and any separator will not be counted as a corner and will be shown
-  private class FakeEmptyAction : DumbAwareAction(), CustomComponentAction {
-    override fun actionPerformed(e: AnActionEvent) {
-      // do nothing
-    }
-
-    override fun createCustomComponent(presentation: Presentation, place: String): JComponent {
-      val panel = JPanel()
-      val size = Dimension(0, 0)
-      panel.preferredSize = size
-      return panel
-    }
-  }
+  internal fun isScrollBarAdjusting(): Boolean = scrollBar.valueIsAdjusting
 
   override fun addImpl(component: Component, constraints: Any?, index: Int) {
     unqueueFromRemove(component)
@@ -2158,7 +2137,7 @@ open class KrTabsImpl(
       forcedRelayout = forced
     }
     if (moreToolbar != null) {
-      moreToolbar.component.isVisible = !isHideTabs && effectiveLayout!!.isScrollable
+      moreToolbar.component.isVisible = !isHideTabs
     }
     revalidateAndRepaint(layoutNow)
   }
@@ -2491,8 +2470,42 @@ open class KrTabsImpl(
 
   override fun isSingleRow(): Boolean = singleRow
 
-  val isSideComponentVertical: Boolean
-    get() = !horizontalSide
+  private inner class ScrollBarActivityTracker {
+    var isRecentlyActive: Boolean = false
+      private set
+    private val RELAYOUT_DELAY = 2000
+    private val relayoutAlarm = Alarm(parentDisposable)
+    private var suspended = false
+
+    fun suspend() {
+      suspended = true
+    }
+
+    fun resume() {
+      suspended = false
+    }
+
+    fun reset() {
+      relayoutAlarm.cancelAllRequests()
+      isRecentlyActive = false
+    }
+
+    fun setRecentlyActive() {
+      if (suspended) return
+      relayoutAlarm.cancelAllRequests()
+      isRecentlyActive = true
+      if (!relayoutAlarm.isDisposed) {
+        relayoutAlarm.addRequest(ContextAwareRunnable {
+          isRecentlyActive = false
+          relayout(forced = false, layoutNow = false)
+        }, RELAYOUT_DELAY)
+      }
+    }
+
+    fun cancelActivityTimer() {
+      relayoutAlarm.cancelAllRequests()
+    }
+  }
 
   override fun setUiDecorator(decorator: TabUiDecorator?): KrTabsPresentation {
     uiDecorator = decorator ?: defaultDecorator
