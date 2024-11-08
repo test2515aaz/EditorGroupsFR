@@ -6,12 +6,9 @@ import org.jetbrains.annotations.Nls
 import javax.swing.Icon
 
 interface EditorGroupsTabsEx : EditorGroupsTabsBase {
-  companion object {
-    @JvmField
-    val NAVIGATION_ACTIONS_KEY: DataKey<EditorGroupsTabsEx> = DataKey.create("KrTabs")
-  }
-
   val isEditorTabs: Boolean
+
+  val isEmptyVisible: Boolean
 
   fun updateTabActions(validateNow: Boolean)
 
@@ -23,8 +20,11 @@ interface EditorGroupsTabsEx : EditorGroupsTabsBase {
 
   fun sortTabs(comparator: Comparator<EditorGroupTabInfo>)
 
-  val isEmptyVisible: Boolean
-
   fun setTitleProducer(titleProducer: (() -> Pair<Icon, @Nls String>)?)
+
+  companion object {
+    @JvmField
+    val NAVIGATION_ACTIONS_KEY: DataKey<EditorGroupsTabsEx> = DataKey.create("EditorGroupsTabsEx")
+  }
 
 }

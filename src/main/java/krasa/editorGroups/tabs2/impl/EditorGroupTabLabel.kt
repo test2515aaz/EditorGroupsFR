@@ -1,9 +1,7 @@
-// Copyright 2000-2019 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package krasa.editorGroups.tabs2.impl
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.JBPopupMenu
 import com.intellij.openapi.ui.popup.util.PopupUtil
 import com.intellij.openapi.util.registry.Registry
@@ -13,9 +11,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.Wrapper
 import com.intellij.ui.tabs.impl.MorePopupAware
 import com.intellij.util.MathUtil
-import com.intellij.util.ObjectUtils
 import com.intellij.util.ui.Centerizer
-import com.intellij.util.ui.JBInsets
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.accessibility.ScreenReader
@@ -27,8 +23,6 @@ import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.TabUiDecorator.TabUiDecoration
 import java.awt.*
 import java.awt.event.*
-import java.util.*
-import java.util.function.Function
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
 import javax.accessibility.AccessibleRole
@@ -37,11 +31,10 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.border.EmptyBorder
-import kotlin.math.max
-import kotlin.math.min
 
 class EditorGroupTabLabel(
-  private val tabs: KrTabsImpl, val info: EditorGroupTabInfo
+  private val tabs: KrTabsImpl,
+  val info: EditorGroupTabInfo
 ) : JPanel(/* isDoubleBuffered = */ true), Accessible, UiCompatibleDataProvider {
   /** The label. */
   private val label: SimpleColoredComponent
@@ -283,7 +276,6 @@ class EditorGroupTabLabel(
       val borderThickness = tabs.borderThickness
       val fadeoutWidth = JBUI.scale(MathUtil.clamp(fadeoutDefaultWidth, 1, FADEOUT_MAX))
 
-      val contentRect = labelPlaceholder.bounds
       val rect = bounds
       rect.height -= borderThickness + when {
         this.isSelected -> tabs.tabPainter.getTabTheme().underlineHeight
@@ -357,84 +349,88 @@ class EditorGroupTabLabel(
     invalidateIfNeeded()
   }
 
+  /** Display the tab menu action. */
   private fun handlePopup(e: MouseEvent) {
-    if (e.getClickCount() != 1 || !e.isPopupTrigger || PopupUtil.getPopupContainerFor(this) != null) return
+    // If there is already a popup, return
+    if (e.clickCount != 1 || !e.isPopupTrigger || PopupUtil.getPopupContainerFor(this) != null) return
 
-    if (e.getX() < 0 || e.getX() >= e.component.getWidth() || e.getY() < 0 || e.getY() >= e.component.getHeight()) return
+    // if event is out of bounds
+    if (e.x < 0 || e.x >= e.component.width || e.y < 0 || e.y >= e.component.height) return
 
-    var place = tabs.popupPlace
-    place = if (place != null) place else ActionPlaces.UNKNOWN
+    var place = tabs.popupPlace ?: ActionPlaces.UNKNOWN
+
+    // Sets this tabInfo to the current tabs' popupInfo
     tabs.popupInfo = this.info
 
+    // Add the tab actions
     val toShow = DefaultActionGroup()
     if (tabs.popupGroup != null) {
       toShow.addAll(tabs.popupGroup!!)
       toShow.addSeparator()
     }
 
-    val tabs = EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(
-      DataManager.getInstance().getDataContext(e.component, e.getX(), e.getY())
-    ) as KrTabsImpl
-    if (tabs === this@EditorGroupTabLabel.tabs && tabs.addNavigationGroup) {
+    // Get the tabs instance at mouse position, if its the same one as this' tabs, add the navigation actions
+    val dataContext = DataManager.getInstance().getDataContext(e.component, e.x, e.y)
+    val contextTabs = EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.getData(dataContext) as KrTabsImpl
+    if (contextTabs === tabs && tabs.addNavigationGroup) {
       toShow.addAll(tabs.navigationActions)
     }
 
     if (toShow.childrenCount == 0) return
 
+    // Sets the popup to the activePopup prop
     tabs.activePopup = ActionManager.getInstance().createActionPopupMenu(place, toShow).component
+    // Add the tabs' popup listener
     tabs.activePopup!!.addPopupMenuListener(tabs.popupListener)
+    // Basic tabs listener
+    tabs.activePopup!!.addPopupMenuListener(tabs)
 
-    tabs.activePopup!!.addPopupMenuListener(this@EditorGroupTabLabel.tabs)
+    // Show the popup at the event's position
     JBPopupMenu.showByEvent(e, tabs.activePopup!!)
   }
 
+  /** Apply decorations. */
   fun apply(decoration: TabUiDecoration) {
-    val resultDec = mergeUiDecorations(decoration, KrTabsImpl.defaultDecorator.getDecoration())
-    border = EmptyBorder(resultDec.labelInsets)
-    label.iconTextGap = resultDec.iconTextGap
+    val decorations = mergeUiDecorations(decoration, defaultDecoration = KrTabsImpl.defaultDecorator.decoration)
 
-    val contentInsets = resultDec.contentInsetsSupplier.apply(actionsPosition)
+    border = EmptyBorder(decorations.labelInsets)
+    label.iconTextGap = decorations.iconTextGap
+
+    val contentInsets = decorations.contentInsetsSupplier
     labelPlaceholder.border = EmptyBorder(contentInsets)
   }
 
-  private val isShowTabActions: Boolean
-    get() = true
-
-  private val isTabActionsOnTheRight: Boolean
-    get() = true
-
-  val actionsPosition: ActionsPosition
-    get() = if (this.isShowTabActions) if (this.isTabActionsOnTheRight) ActionsPosition.RIGHT else ActionsPosition.LEFT
-    else ActionsPosition.NONE
-
   override fun paintComponent(g: Graphics) {
     super.paintComponent(g)
-
-    paintBackground(g)
-  }
-
-  private fun paintBackground(g: Graphics) {
     tabs.tabPainterAdapter.paintBackground(label = this, g = g, tabs = tabs)
   }
 
   override fun paintChildren(g: Graphics) {
     super.paintChildren(g)
 
-    if (this.labelComponent.getParent() == null) {
-      return
-    }
+    if (labelComponent.parent == null) return
 
-    val textBounds = SwingUtilities.convertRectangle(this.labelComponent.getParent(), this.labelComponent.bounds, this)
-    // Paint border around label if we got the focus
+    val textBounds = SwingUtilities.convertRectangle(
+      /* source = */ labelComponent.parent,
+      /* aRectangle = */ labelComponent.bounds,
+      /* destination = */ this
+    )
+
+    // Paint border around label if we got the focus (screen readers)
     if (isFocusOwner) {
       g.color = UIUtil.getTreeSelectionBorderColor()
-      UIUtil.drawDottedRectangle(g, textBounds.x, textBounds.y, textBounds.x + textBounds.width - 1, textBounds.y + textBounds.height - 1)
+      UIUtil.drawDottedRectangle(
+        /* g = */ g,
+        /* x = */ textBounds.x,
+        /* y = */ textBounds.y,
+        /* x1 = */ textBounds.x + textBounds.width - 1,
+        /* y1 = */ textBounds.y + textBounds.height - 1
+      )
     }
 
-    if (overlaidIcon == null) {
-      return
-    }
+    if (overlaidIcon == null) return
 
+    // Paint layered icon
     if (icon.isLayerEnabled(1)) {
       val top = (size.height - overlaidIcon.iconHeight) / 2
 
@@ -444,6 +440,7 @@ class EditorGroupTabLabel(
 
   override fun toString(): String = info.text
 
+  /** When tab is enabled, enable the intrinsic component. */
   fun setTabEnabled(enabled: Boolean) {
     this.labelComponent.setEnabled(enabled)
   }
@@ -452,9 +449,11 @@ class EditorGroupTabLabel(
     val iconWidth = label.icon?.iconWidth ?: JBUI.scale(ICON_WIDTH)
     val pointInLabel = RelativePoint(event).getPoint(label)
 
+    // Show a tooltip of the current icon if available
     if (label.visibleRect.width >= iconWidth * 2 && label.findFragmentAt(pointInLabel.x) == SimpleColoredComponent.FRAGMENT_ICON) {
       icon.getToolTip(composite = false)?.let { return StringUtil.capitalize(it) }
     }
+
     return super.getToolTipText(event)
   }
 
@@ -462,57 +461,33 @@ class EditorGroupTabLabel(
     DataSink.uiDataSnapshot(sink, info.component)
   }
 
-  enum class ActionsPosition {
-    RIGHT, LEFT, NONE
-  }
+  override fun getAccessibleContext(): AccessibleContext = accessibleContext ?: AccessibleTabLabel()
 
+  /** Merged UI Decoration. */
   @JvmRecord
   data class MergedUiDecoration(
-    val labelInsets: Insets, val contentInsetsSupplier: Function<ActionsPosition?, Insets>, val iconTextGap: Int
+    val labelInsets: Insets,
+    val contentInsetsSupplier: Insets,
+    val iconTextGap: Int
   )
 
-  override fun getAccessibleContext(): AccessibleContext {
-    if (accessibleContext == null) {
-      accessibleContext = AccessibleTabLabel()
-    }
-    return accessibleContext
-  }
-
+  /** For accessibility screens. */
   private inner class AccessibleTabLabel : AccessibleJPanel() {
-    override fun getAccessibleName(): String? {
-      var name = super.getAccessibleName()
-      if (name == null) {
-        name = label.getAccessibleContext().getAccessibleName()
-      }
-      return name
-    }
+    override fun getAccessibleName(): String? = super.getAccessibleName() ?: label.accessibleContext.accessibleName
 
-    override fun getAccessibleDescription(): String? {
-      var description = super.getAccessibleDescription()
-      if (description == null) {
-        description = label.getAccessibleContext().getAccessibleDescription()
-      }
-      return description
-    }
+    override fun getAccessibleDescription(): String? = super.getAccessibleDescription() ?: label.accessibleContext.accessibleDescription
 
     override fun getAccessibleRole(): AccessibleRole = AccessibleRole.PAGE_TAB
   }
 
+  /** Custom Tab Label Layout. */
   private inner class TabLabelLayout : BorderLayout() {
-    override fun addLayoutComponent(comp: Component?, constraints: Any?) {
-      checkConstraints(constraints)
-      super.addLayoutComponent(comp, constraints)
-    }
-
     override fun layoutContainer(parent: Container) {
       val prefWidth = parent.preferredSize.width
       synchronized(parent.treeLock) {
-        if (tabs.effectiveLayout!!.isScrollable && (!isHovered || tabs.isHorizontalTabs) && isShowTabActions && isTabActionsOnTheRight && parent.getWidth() < prefWidth) {
-          layoutScrollable(parent)
-        } else if (!isHovered && !isSelected && parent.getWidth() < prefWidth) {
-          layoutCompressible(parent)
-        } else {
-          super.layoutContainer(parent)
+        when {
+          !isHovered && parent.width < prefWidth -> layoutScrollable(parent)
+          else                                   -> super.layoutContainer(parent)
         }
       }
     }
@@ -520,7 +495,7 @@ class EditorGroupTabLabel(
     fun layoutScrollable(parent: Container) {
       val spaceTop = parent.insets.top
       val spaceLeft = parent.insets.left
-      val spaceBottom = parent.getHeight() - parent.insets.bottom
+      val spaceBottom = parent.height - parent.insets.bottom
       val spaceHeight = spaceBottom - spaceTop
 
       var xOffset = spaceLeft
@@ -534,47 +509,13 @@ class EditorGroupTabLabel(
       if (component != null) {
         val prefWestWidth = component.preferredSize.width
         component.setBounds(xOffset, spaceTop, prefWestWidth, spaceHeight)
-        xOffset += prefWestWidth + getHgap()
+        xOffset += prefWestWidth + hgap
       }
       return xOffset
-    }
-
-    fun layoutCompressible(parent: Container) {
-      val insets = parent.insets
-      val height = parent.getHeight() - insets.bottom - insets.top
-      var curX = insets.left
-      val maxX = parent.getWidth() - insets.right
-
-      val left = getLayoutComponent(WEST)
-      val center = getLayoutComponent(CENTER)
-      val right = getLayoutComponent(EAST)
-
-      if (left != null) {
-        left.setBounds(0, 0, 0, 0)
-        val decreasedLen = parent.preferredSize.width - parent.getWidth()
-        val width = max((left.preferredSize.width - decreasedLen).toDouble(), 0.0).toInt()
-        curX += width
-      }
-
-      if (center != null) {
-        val width = min(center.preferredSize.width.toDouble(), (maxX - curX).toDouble()).toInt()
-        center.setBounds(curX, insets.top, width, height)
-      }
-
-      if (right != null) {
-        right.setBounds(0, 0, 0, 0)
-      }
-    }
-
-    private fun checkConstraints(constraints: Any?) {
-      if (NORTH == constraints || SOUTH == constraints) {
-        LOG.warn(IllegalArgumentException("constraints=" + constraints))
-      }
     }
   }
 
   companion object {
-    private val LOG = Logger.getInstance(EditorGroupTabLabel::class.java)
     private const val FADEOUT_WIDTH: Int = 10
     private const val FADEOUT_MAX: Int = 200
     private const val ICON_WIDTH: Int = 16
@@ -599,42 +540,58 @@ class EditorGroupTabLabel(
       g.fill(rect)
     }
 
+    /**
+     * Merges custom and default tab UI decorations into a single merged decoration.
+     *
+     * @param customDecoration The custom tab UI decoration, which may contain user-defined insets and gaps.
+     * @param defaultDecoration The default tab UI decoration, serving as fallback values for missing elements in the custom decoration.
+     * @return A MergedUiDecoration object that combines both custom and default values of insets and gaps for labels and content.
+     */
     fun mergeUiDecorations(
-      customDec: TabUiDecoration,
-      defaultDec: TabUiDecoration
+      customDecoration: TabUiDecoration,
+      defaultDecoration: TabUiDecoration
     ): MergedUiDecoration {
-      val contentInsetsSupplier = Function { position: ActionsPosition? ->
-        val def = Objects.requireNonNull<Function<ActionsPosition, Insets>?>(defaultDec.contentInsetsSupplier).apply(
-          position!!
+      val labelInsets = mergeInsets(
+        customInsets = customDecoration.labelInsets,
+        defaultInsets = defaultDecoration.labelInsets!!
+      )
+
+      val contentInsetsSupplier = when {
+        customDecoration.contentInsetsSupplier != null -> mergeInsets(
+          customInsets = customDecoration.contentInsetsSupplier,
+          defaultInsets = defaultDecoration.contentInsetsSupplier!!
         )
-        if (customDec.contentInsetsSupplier != null) {
-          return@Function mergeInsets(customDec.contentInsetsSupplier.apply(position), def)
-        }
-        def
+
+        else                                           -> defaultDecoration.contentInsetsSupplier!!
       }
+
+      val iconTextGap = when {
+        customDecoration.iconTextGap != null -> customDecoration.iconTextGap
+        else                                 -> defaultDecoration.iconTextGap!!
+      }
+
       return MergedUiDecoration(
-        mergeInsets(customDec.labelInsets, Objects.requireNonNull<Insets?>(defaultDec.labelInsets)),
-        contentInsetsSupplier,
-        ObjectUtils.notNull<Int?>(customDec.iconTextGap, Objects.requireNonNull<Int?>(defaultDec.iconTextGap))
+        labelInsets = labelInsets,
+        contentInsetsSupplier = contentInsetsSupplier,
+        iconTextGap = iconTextGap,
       )
     }
 
-    private fun mergeInsets(custom: Insets?, def: Insets): Insets {
-      if (custom != null) {
-        return JBInsets.addInsets(
-          Insets(
-            getValue(def.top, custom.top),
-            getValue(def.left, custom.left),
-            getValue(def.bottom, custom.bottom),
-            getValue(def.right, custom.right)
-          )
-        )
-      }
-      return def
+    private fun mergeInsets(customInsets: Insets?, defaultInsets: Insets): Insets {
+      if (customInsets == null) return defaultInsets
+
+      @Suppress("UseDPIAwareInsets")
+      return Insets(
+        getValue(defaultInsets.top, customInsets.top),
+        getValue(defaultInsets.left, customInsets.left),
+        getValue(defaultInsets.bottom, customInsets.bottom),
+        getValue(defaultInsets.right, customInsets.right)
+      )
     }
 
-    private fun getValue(currentValue: Int, newValue: Int): Int {
-      return if (newValue != -1) newValue else currentValue
+    private fun getValue(currentValue: Int, newValue: Int): Int = when {
+      newValue != -1 -> newValue
+      else           -> currentValue
     }
   }
 }

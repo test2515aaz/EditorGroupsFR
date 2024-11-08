@@ -10,6 +10,7 @@ import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.diagnostic.logger
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.options.advanced.AdvancedSettings
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
@@ -60,7 +61,6 @@ import java.awt.image.BufferedImage
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 import java.util.*
-import java.util.function.Function
 import java.util.function.Predicate
 import java.util.function.Supplier
 import javax.accessibility.*
@@ -78,7 +78,7 @@ private const val SCROLL_BAR_THICKNESS = 3
 private const val ADJUST_BORDERS = true
 private const val LAYOUT_DONE: @NonNls String = "Layout.done"
 
-@Suppress("UnstableApiUsage")
+@Suppress("detekt:LargeClass", "detekt:MagicNumber", "detekt:StringLiteralDuplication")
 @DirtyUI
 open class KrTabsImpl(
   private var project: Project?,
@@ -110,7 +110,7 @@ open class KrTabsImpl(
 
   var headerFitSize: Dimension? = null
 
-  private var innerInsets: Insets = JBInsets.emptyInsets()
+  private var innerInsets: Insets = JBUI.emptyInsets()
   private val tabMouseListeners = ContainerUtil.createLockFreeCopyOnWriteList<EventListener>()
   private val tabListeners = ContainerUtil.createLockFreeCopyOnWriteList<EditorGroupsTabsListener>()
   private var isFocused = false
@@ -159,7 +159,10 @@ open class KrTabsImpl(
   private var allTabs: List<EditorGroupTabInfo>? = null
   private var focusManager = IdeFocusManager.getGlobalInstance()
   private val nestedTabs = HashSet<KrTabsImpl>()
+
+  /** Adds the navigation action. */
   var addNavigationGroup: Boolean = true
+
   private var activeTabFillIn: Color? = null
   private var tabLabelActionsAutoHide = false
 
@@ -190,8 +193,20 @@ open class KrTabsImpl(
   private var deferredFocusRequest: Runnable? = null
   private var firstTabOffset = 0
 
+  val isHorizontalTabs: Boolean
+    get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
+
+  override val isEmptyVisible: Boolean
+    get() = visibleInfos.isEmpty()
+
+  val tabHGap: Int
+    get() = -myBorder.thickness
+
+  /** The tab painter adapter. */
   @JvmField
   internal val tabPainterAdapter: EditorGroupsTabPainterAdapter = createTabPainterAdapter()
+
+  /** The tab painter. */
   val tabPainter: EditorGroupsTabPainter = tabPainterAdapter.tabPainter
 
   private var emptyText: String? = null
@@ -207,14 +222,24 @@ open class KrTabsImpl(
   private val scrollBarChangeListener: ChangeListener
   private var scrollBarOn = false
 
-  @Suppress("IncorrectParentDisposable")
-  constructor(project: Project) : this(project = project, parentDisposable = project)
+  protected open val entryPointActionGroup: DefaultActionGroup?
+    get() = null
 
-  constructor(project: Project?, parentDisposable: Disposable) : this(
-    project = project,
-    parentDisposable = parentDisposable,
-    tabListOptions = EditorGroupsTabListOptions(),
-  )
+  private val scrollBarModel: BoundedRangeModel
+    get() = scrollBar.model
+
+  private val isWithScrollBar: Boolean
+    get() = effectiveLayout!!.isWithScrollBar
+
+  val entryPointPreferredSize: Dimension
+    get() = if (entryPointToolbar == null) Dimension() else entryPointToolbar!!.component.preferredSize
+
+  val moreToolbarPreferredSize: Dimension
+    // Returns default one action horizontal toolbar size (26x24)
+    get() {
+      val baseSize = ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
+      return Dimension(baseSize.width + JBUI.scale(4), baseSize.height + JBUI.scale(2))
+    }
 
   init {
     isOpaque = true
@@ -325,6 +350,15 @@ open class KrTabsImpl(
     scrollBarChangeListener = ChangeListener { updateTabsOffsetFromScrollBar() }
   }
 
+  @Suppress("IncorrectParentDisposable")
+  constructor(project: Project) : this(project = project, parentDisposable = project)
+
+  constructor(project: Project?, parentDisposable: Disposable) : this(
+    project = project,
+    parentDisposable = parentDisposable,
+    tabListOptions = EditorGroupsTabListOptions(),
+  )
+
   protected fun createTabBorder(): KrTabsBorder = KrEditorTabsBorder(this)
 
   protected open fun createTabPainterAdapter(): EditorGroupsTabPainterAdapter = EditorGroupsDefaultTabPainterAdapter()
@@ -378,9 +412,6 @@ open class KrTabsImpl(
     scrollBar.toggle(isOn)
   }
 
-  protected open val entryPointActionGroup: DefaultActionGroup?
-    get() = null
-
   private fun getScrollBarBounds(): Rectangle {
     if (!isWithScrollBar || isHideTabs) {
       return Rectangle(0, 0, 0, 0)
@@ -391,12 +422,6 @@ open class KrTabsImpl(
       EditorGroupsTabsPosition.BOTTOM -> Rectangle(0, height - SCROLL_BAR_THICKNESS, width, SCROLL_BAR_THICKNESS)
     }
   }
-
-  private val scrollBarModel: BoundedRangeModel
-    get() = scrollBar.model
-
-  private val isWithScrollBar: Boolean
-    get() = effectiveLayout!!.isWithScrollBar
 
   override fun uiSettingsChanged(uiSettings: UISettings) {
     for ((info, label) in infoToLabel) {
@@ -490,14 +515,14 @@ open class KrTabsImpl(
 
   override fun remove(index: Int) {
     if (removeNotifyInProgress) {
-      LOG.warn(IllegalStateException("removeNotify in progress"))
+      thisLogger().warn("removeNotify in progress")
     }
     super.remove(index)
   }
 
   override fun removeAll() {
     if (removeNotifyInProgress) {
-      LOG.warn(IllegalStateException("removeNotify in progress"))
+      thisLogger().warn("removeNotify in progress")
     }
     super.removeAll()
   }
@@ -666,16 +691,6 @@ open class KrTabsImpl(
       revalidateAndRepaint()
     }
   }
-
-  val entryPointPreferredSize: Dimension
-    get() = if (entryPointToolbar == null) Dimension() else entryPointToolbar!!.component.preferredSize
-
-  val moreToolbarPreferredSize: Dimension
-    // Returns default one action horizontal toolbar size (26x24)
-    get() {
-      val baseSize = ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
-      return Dimension(baseSize.width + JBUI.scale(4), baseSize.height + JBUI.scale(2))
-    }
 
   override fun setTitleProducer(titleProducer: (() -> Pair<Icon, @Nls String>)?) {
     titleWrapper.removeAll()
@@ -928,7 +943,7 @@ open class KrTabsImpl(
       label.setText(info.coloredText)
       label.setIcon(info.icon)
       label.setAlignmentToCenter()
-      label.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
+      label.apply(uiDecorator?.decoration ?: defaultDecorator.decoration)
       label.addMouseListener(object : MouseAdapter() {
         override fun mouseClicked(e: MouseEvent) {
           if (e.isShiftDown && !e.isPopupTrigger) {
@@ -1257,38 +1272,30 @@ open class KrTabsImpl(
 
   override fun propertyChange(evt: PropertyChangeEvent) {
     val tabInfo = evt.source as EditorGroupTabInfo
-    when {
-      EditorGroupTabInfo.ACTION_GROUP == evt.propertyName -> {
+    when (evt.propertyName) {
+      EditorGroupTabInfo.ACTION_GROUP -> {
         updateSideComponent(tabInfo)
         relayout(false, false)
       }
 
-      EditorGroupTabInfo.COMPONENT == evt.propertyName    -> {
-        relayout(true, false)
-      }
-
-      EditorGroupTabInfo.TEXT == evt.propertyName         -> {
+      EditorGroupTabInfo.COMPONENT    -> relayout(true, false)
+      EditorGroupTabInfo.TEXT         -> {
         updateText(tabInfo)
         revalidateAndRepaint()
       }
 
-      EditorGroupTabInfo.ICON == evt.propertyName         -> {
+      EditorGroupTabInfo.ICON         -> {
         updateIcon(tabInfo)
         revalidateAndRepaint()
       }
 
-      EditorGroupTabInfo.TAB_COLOR == evt.propertyName    -> {
-        revalidateAndRepaint()
-      }
-
-      EditorGroupTabInfo.HIDDEN == evt.propertyName       -> {
+      EditorGroupTabInfo.TAB_COLOR    -> revalidateAndRepaint()
+      EditorGroupTabInfo.HIDDEN       -> {
         updateHiding()
         relayout(false, false)
       }
 
-      EditorGroupTabInfo.ENABLED == evt.propertyName      -> {
-        updateEnabling()
-      }
+      EditorGroupTabInfo.ENABLED      -> updateEnabling()
     }
   }
 
@@ -2140,7 +2147,7 @@ open class KrTabsImpl(
     unqueueFromRemove(component)
     if (component is EditorGroupTabLabel) {
       val uiDecorator = uiDecorator
-      component.apply(uiDecorator?.getDecoration() ?: defaultDecorator.getDecoration())
+      component.apply(uiDecorator?.decoration ?: defaultDecorator.decoration)
     }
     super.addImpl(component, constraints, index)
   }
@@ -2506,7 +2513,7 @@ open class KrTabsImpl(
   }
 
   private fun applyDecoration() {
-    uiDecorator?.getDecoration()?.let { uiDecoration ->
+    uiDecorator?.decoration?.let { uiDecoration ->
       for (tabLabel in infoToLabel.values) {
         tabLabel.apply(uiDecoration)
       }
@@ -2615,9 +2622,6 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = true)
   }
 
-  val isHorizontalTabs: Boolean
-    get() = tabsPosition == EditorGroupsTabsPosition.TOP || tabsPosition == EditorGroupsTabsPosition.BOTTOM
-
   override fun resetDropOver(tabInfo: EditorGroupTabInfo) {
     if (dropInfo != null) {
       val dropInfo = dropInfo!!
@@ -2629,12 +2633,6 @@ open class KrTabsImpl(
       doRemoveTab(info = dropInfo, forcedSelectionTransfer = null, isDropTarget = true)
     }
   }
-
-  override val isEmptyVisible: Boolean
-    get() = visibleInfos.isEmpty()
-
-  val tabHGap: Int
-    get() = -myBorder.thickness
 
   override fun toString(): String = "KrTabs visible=$visibleInfos selected=$mySelectedInfo"
 
@@ -2710,16 +2708,14 @@ open class KrTabsImpl(
   }
 
   private class DefaultTabDecorator : TabUiDecorator {
-    override fun getDecoration(): TabUiDecorator.TabUiDecoration = TabUiDecorator.TabUiDecoration(
+    override val decoration = TabUiDecorator.TabUiDecoration(
       labelInsets = JBUI.insets(5, 8),
-      contentInsetsSupplier = Function { JBUI.insets(0, 4) },
+      contentInsetsSupplier = JBUI.insets(0, 4),
       iconTextGap = JBUI.scale(4)
     )
   }
 
   companion object {
-    @JvmField
-    val PINNED: Key<Boolean> = Key.create("pinned")
 
     @JvmField
     val SIDE_TABS_SIZE_LIMIT_KEY: Key<Int> = Key.create("SIDE_TABS_SIZE_LIMIT_KEY")
