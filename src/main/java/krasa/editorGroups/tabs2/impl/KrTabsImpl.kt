@@ -52,6 +52,7 @@ import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowPassInfo
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
+import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
 import krasa.editorGroups.tabs2.label.TabUiDecorator
 import org.jetbrains.annotations.Nls
 import org.jetbrains.annotations.NonNls

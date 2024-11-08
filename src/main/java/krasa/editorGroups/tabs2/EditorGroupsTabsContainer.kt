@@ -6,10 +6,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
-import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import krasa.editorGroups.tabs2.impl.singleRow.KrScrollableSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
+import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
 import java.awt.Component
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
@@ -40,7 +40,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
     patchMouseListener(this)
   }
 
-  /** Create a [krasa.editorGroups.tabs2.impl.EditorGroupTabLabel] from a [EditorGroupTabInfo]. */
+  /** Create a [EditorGroupTabLabel] from a [EditorGroupTabInfo]. */
   override fun createTabLabel(info: EditorGroupTabInfo): EditorGroupTabLabel {
     val tabLabel = EditorGroupTabLabel(this, info)
     patchMouseListener(tabLabel)

@@ -3,9 +3,9 @@ package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.tabs.impl.JBTabsImpl;
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition;
-import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo;
+import krasa.editorGroups.tabs2.label.EditorGroupTabLabel;
 
 import java.util.Iterator;
 

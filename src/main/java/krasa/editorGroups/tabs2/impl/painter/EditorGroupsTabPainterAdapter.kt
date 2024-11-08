@@ -1,8 +1,8 @@
 package krasa.editorGroups.tabs2.impl.painter
 
-import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
+import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
 import java.awt.Graphics
 
 interface EditorGroupsTabPainterAdapter {

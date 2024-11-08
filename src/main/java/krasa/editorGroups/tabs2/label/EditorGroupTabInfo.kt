@@ -4,7 +4,6 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.NlsContexts
 import com.intellij.ui.SimpleColoredText
 import com.intellij.ui.SimpleTextAttributes
-import krasa.editorGroups.tabs2.impl.EditorGroupTabLabel
 import java.awt.Color
 import java.beans.PropertyChangeSupport
 import java.lang.ref.Reference
