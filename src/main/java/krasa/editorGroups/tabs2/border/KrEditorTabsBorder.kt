@@ -1,4 +1,4 @@
-package krasa.editorGroups.tabs2.impl.border
+package krasa.editorGroups.tabs2.border
 
 import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.EditorGroupsPanelTabs
@@ -41,8 +41,6 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
           tabs.tabPainter.paintBorderLine(g, thickness, Point(x, curY), Point(x + width, curY))
         }
       }
-
-      else                            -> return
     }
 
     val selectedLabel = tabs.selectedLabel ?: return

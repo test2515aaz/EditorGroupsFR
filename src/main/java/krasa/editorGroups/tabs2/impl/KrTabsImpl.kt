@@ -42,8 +42,8 @@ import com.intellij.util.ui.update.lazyUiDisposable
 import kotlinx.coroutines.CoroutineScope
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.tabs2.*
-import krasa.editorGroups.tabs2.impl.border.KrEditorTabsBorder
-import krasa.editorGroups.tabs2.impl.border.KrTabsBorder
+import krasa.editorGroups.tabs2.border.KrEditorTabsBorder
+import krasa.editorGroups.tabs2.border.KrTabsBorder
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsDefaultTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
