@@ -2,7 +2,6 @@
 package krasa.editorGroups.tabs2.impl.singleRow;
 
 import com.intellij.ui.ExperimentalUI;
-import krasa.editorGroups.tabs2.impl.KrLayoutPassInfo;
 import krasa.editorGroups.tabs2.impl.KrShapeTransform;
 import krasa.editorGroups.tabs2.impl.KrTabLayout;
 import krasa.editorGroups.tabs2.impl.KrTabsImpl;
@@ -190,12 +189,14 @@ public abstract class KrSingleRowLayout extends KrTabLayout {
   protected abstract void recomputeToLayout(final KrSingleRowPassInfo data);
 
   protected void calculateRequiredLength(KrSingleRowPassInfo data) {
-    data.requiredLength += data.insets.left + data.insets.right;
+    data.setRequiredLength(data.getRequiredLength() + data.insets.left + data.insets.right);
+
     for (EditorGroupTabInfo eachInfo : data.myVisibleInfos) {
-      data.requiredLength += getRequiredLength(eachInfo);
+      data.setRequiredLength(data.getRequiredLength() + getRequiredLength(eachInfo));
       data.toLayout.add(eachInfo);
     }
-    data.requiredLength += getStrategy().getAdditionalLength();
+
+    data.setRequiredLength(data.getRequiredLength() + getStrategy().getAdditionalLength());
   }
 
   protected int getRequiredLength(EditorGroupTabInfo eachInfo) {

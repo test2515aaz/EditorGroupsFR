@@ -196,7 +196,7 @@ class EditorGroupTabLabel(
     val label: SimpleColoredComponent = object : SimpleColoredComponent() {
       override fun getFont(): Font? {
         val font = EditorGroupsUI.font()
-        val useSmallLabels = tabs.useSmallLabels()
+        val useSmallLabels = EditorGroupsSettings.instance.isSmallLabels
 
         return when {
           isFontSet || !useSmallLabels -> font

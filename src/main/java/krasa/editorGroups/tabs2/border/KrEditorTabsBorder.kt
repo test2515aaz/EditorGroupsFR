@@ -1,7 +1,6 @@
 package krasa.editorGroups.tabs2.border
 
 import com.intellij.util.ui.JBUI
-import krasa.editorGroups.tabs2.EditorGroupsPanelTabs
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
@@ -20,26 +19,25 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
       EditorGroupsTabsPosition.TOP    -> {
         val highlightThickness = thickness
         val startY = firstLabel.y - highlightThickness
-        val startRow = 1
-        val lastRow = tabs.lastLayoutPass!!.rowCount
+        val lastRow = 1
 
-        for (eachRow in startRow until lastRow) {
-          val yl = eachRow * tabs.headerFitSize!!.height + startY
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
-        }
-
-        if ((tabs as? EditorGroupsPanelTabs)?.shouldPaintBottomBorder() == true) {
-          val yl = lastRow * tabs.headerFitSize!!.height + startY
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, yl), Point(x + width, yl))
-        }
+        val yl = lastRow * tabs.headerFitSize!!.height + startY
+        tabs.tabPainter.paintBorderLine(
+          g = g,
+          thickness = thickness,
+          from = Point(x, yl),
+          to = Point(x + width, yl)
+        )
       }
 
       EditorGroupsTabsPosition.BOTTOM -> {
-        val rowCount = tabs.lastLayoutPass!!.rowCount
-        for (rowInd in 0 until rowCount) {
-          val curY = height - (rowInd + 1) * tabs.headerFitSize!!.height
-          tabs.tabPainter.paintBorderLine(g, thickness, Point(x, curY), Point(x + width, curY))
-        }
+        val curY = height - 1 * tabs.headerFitSize!!.height
+        tabs.tabPainter.paintBorderLine(
+          g = g,
+          thickness = thickness,
+          from = Point(x, curY),
+          to = Point(x + width, curY)
+        )
       }
     }
 
