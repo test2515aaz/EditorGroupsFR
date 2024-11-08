@@ -35,10 +35,10 @@ class EditorGroupsSingleRowPassInfo(
   val toDrop: MutableList<EditorGroupTabInfo> = mutableListOf<EditorGroupTabInfo>()
 
   @JvmField
-  val entryPointAxisSize: Int = layout.strategy.getEntryPointAxisSize()
+  val entryPointAxisSize: Int = layout.strategy.entryPointAxisSize
 
   @JvmField
-  val moreRectAxisSize: Int = layout.strategy.getMoreRectAxisSize()
+  val moreRectAxisSize: Int = layout.strategy.moreRectAxisSize
 
   @JvmField
   var hToolbar: WeakReference<JComponent?>? = null

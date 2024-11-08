@@ -15,7 +15,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
 
   /** Size of the more button rect. */
   private val moreRectAxisSize: Int
-    get() = strategy.getMoreRectAxisSize()
+    get() = strategy.moreRectAxisSize
 
   /** Scroll to X units. */
   override fun scroll(units: Int) {
@@ -94,9 +94,8 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
   }
 
   override fun layoutMoreButton(data: EditorGroupsSingleRowPassInfo) {
-    if (data.requiredLength > data.toFitLength) {
-      data.moreRect = strategy.getMoreRect(data)
-    }
+    if (data.requiredLength <= data.toFitLength) return
+    data.moreRect = strategy.getMoreRect(data)
   }
 
   override fun applyTabLayout(data: EditorGroupsSingleRowPassInfo, label: EditorGroupTabLabel, length: Int): Boolean {
