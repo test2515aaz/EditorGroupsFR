@@ -60,8 +60,8 @@ class EditorGroupsSingleRowPassInfo(
 
   override val scrollExtent: Int
     get() = when {
-      !moreRect.isEmpty       -> moreRect.x - tabs.getActionsInsets().left
-      !entryPointRect.isEmpty -> entryPointRect.x - tabs.getActionsInsets().left
+      !moreRect.isEmpty       -> moreRect.x - tabs.actionsInsets.left
+      !entryPointRect.isEmpty -> entryPointRect.x - tabs.actionsInsets.left
       else                    -> layoutSize.width
     }
 
