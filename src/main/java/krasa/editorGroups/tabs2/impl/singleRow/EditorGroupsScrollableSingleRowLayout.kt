@@ -11,11 +11,9 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
   override var scrollOffset: Int = 0
     private set
 
-  override val isWithScrollBar: Boolean = true
-
   /** Size of the more button rect. */
   private val moreRectAxisSize: Int
-    get() = strategy.getMoreRectAxisSize()
+    get() = strategy.moreRectAxisSize
 
   /** Scroll to X units. */
   override fun scroll(units: Int) {
@@ -23,7 +21,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     clampScrollOffsetToBounds(lastSingleRowLayout)
   }
 
-  override fun checkLayoutLabels(data: EditorGroupsSingleRowPassInfo): Boolean = true
+  override fun shouldRelayoutLabels(passInfo: EditorGroupsSingleRowPassInfo): Boolean = true
 
   /**
    * Clamps the scroll offset to ensure the content is within the bounds.
@@ -39,7 +37,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     }
 
     var max = data.requiredLength - data.toFitLength + this.moreRectAxisSize
-    val actionInsets = tabs.getActionsInsets()
+    val actionInsets = tabs.actionsInsets
     max += actionInsets.left + actionInsets.right
 
     this.scrollOffset = max(
@@ -57,7 +55,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     if (tabs.isMouseInsideTabsArea || tabs.isScrollBarAdjusting() || tabs.isRecentlyActive) return
 
     var offset = -this.scrollOffset
-    for (info in passInfo.myVisibleInfos) {
+    for (info in passInfo.visibleTabInfos) {
       val length = getRequiredLength(info)
 
       if (info === tabs.selectedInfo) {
@@ -67,7 +65,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
         }
 
         var maxLength = passInfo.toFitLength - this.moreRectAxisSize
-        val actionInsets = tabs.getActionsInsets()
+        val actionInsets = tabs.actionsInsets
 
         if (tabs.entryPointPreferredSize.width == 0) {
           maxLength -= actionInsets.left + actionInsets.right
@@ -86,35 +84,40 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
     }
   }
 
-  override fun recomputeToLayout(data: EditorGroupsSingleRowPassInfo) {
-    calculateRequiredLength(data)
-    clampScrollOffsetToBounds(data)
-    doScrollToSelectedTab(data)
-    clampScrollOffsetToBounds(data)
+  override fun recomputeToLayout(passInfo: EditorGroupsSingleRowPassInfo) {
+    calculateRequiredLength(passInfo)
+    clampScrollOffsetToBounds(passInfo)
+    doScrollToSelectedTab(passInfo)
+    clampScrollOffsetToBounds(passInfo)
   }
 
-  override fun layoutMoreButton(data: EditorGroupsSingleRowPassInfo) {
-    if (data.requiredLength > data.toFitLength) {
-      data.moreRect = strategy.getMoreRect(data)
-    }
+  override fun layoutMoreButton(passInfo: EditorGroupsSingleRowPassInfo) {
+    if (passInfo.requiredLength <= passInfo.toFitLength) return
+    passInfo.moreRect = strategy.getMoreRect(passInfo)
   }
 
-  override fun applyTabLayout(data: EditorGroupsSingleRowPassInfo, label: EditorGroupTabLabel, length: Int): Boolean {
+  override fun applyTabLayout(passInfo: EditorGroupsSingleRowPassInfo, label: EditorGroupTabLabel, length: Int): Boolean {
     var length = length
 
-    if (data.requiredLength > data.toFitLength) {
+    if (passInfo.requiredLength > passInfo.toFitLength) {
       length = strategy.getLengthIncrement(label.getPreferredSize())
       var moreRectSize = this.moreRectAxisSize
 
-      if (data.entryPointAxisSize == 0) {
-        val insets = tabs.getActionsInsets()
+      if (passInfo.entryPointAxisSize == 0) {
+        val insets = tabs.actionsInsets
         moreRectSize += insets.left + insets.right
       }
 
-      if (data.position + length > data.toFitLength - moreRectSize) {
+      if (passInfo.position + length > passInfo.toFitLength - moreRectSize) {
         if (strategy.drawPartialOverflowTabs()) {
-          val clippedLength = data.toFitLength - data.position - moreRectSize
-          val rec = strategy.getLayoutRect(data, data.position, clippedLength)
+          val clippedLength = passInfo.toFitLength - passInfo.position - moreRectSize
+          val rec = strategy.getLayoutRect(
+            passInfo = passInfo,
+            position = passInfo.position,
+            fixedPos = strategy.getFixedPosition(passInfo),
+            length = clippedLength,
+            fixedFitLength = strategy.getFixedFitLength(passInfo)
+          )
           tabs.layout(label, rec)
         }
 
@@ -123,12 +126,12 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
       }
     }
 
-    return super.applyTabLayout(data, label, length)
+    return super.applyTabLayout(passInfo, label, length)
   }
 
   /** Check whether the given tab is hidden (needs scrolling) */
-  override fun isTabHidden(info: EditorGroupTabInfo): Boolean {
-    val label = tabs.getTabLabel(info)!!
+  override fun isTabHidden(tabInfo: EditorGroupTabInfo): Boolean {
+    val label = tabs.getTabLabel(tabInfo)!!
     val bounds = label.bounds
     val deadzone = JBUI.scale(DEADZONE_FOR_DECLARE_TAB_HIDDEN)
 
@@ -137,10 +140,10 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayou
       || bounds.height < label.getPreferredSize().height - deadzone
   }
 
-  override fun findLastVisibleLabel(data: EditorGroupsSingleRowPassInfo): EditorGroupTabLabel? {
-    var i = data.toLayout.size - 1
+  override fun findLastVisibleLabel(passInfo: EditorGroupsSingleRowPassInfo): EditorGroupTabLabel? {
+    var i = passInfo.toLayout.size - 1
     while (i >= 0) {
-      val info = data.toLayout[i]
+      val info = passInfo.toLayout[i]
       val label = tabs.getTabLabel(info)!!
 
       if (!label.bounds.isEmpty) return label

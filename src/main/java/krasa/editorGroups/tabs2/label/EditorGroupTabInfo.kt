@@ -104,10 +104,10 @@ open class EditorGroupTabInfo(var component: JComponent? = null) {
   private fun getDefaultAttributes(): SimpleTextAttributes {
     if (defaultAttributes != null) return defaultAttributes!!
 
-    val style = ((when (defaultStyle) {
+    val style = when (defaultStyle) {
       -1   -> SimpleTextAttributes.STYLE_PLAIN
       else -> defaultStyle
-    }) or SimpleTextAttributes.STYLE_USE_EFFECT_COLOR)
+    } or SimpleTextAttributes.STYLE_USE_EFFECT_COLOR
 
     when (editorAttributes) {
       null -> defaultAttributes = SimpleTextAttributes(style, defaultForeground)
@@ -118,11 +118,6 @@ open class EditorGroupTabInfo(var component: JComponent? = null) {
     }
 
     return defaultAttributes!!
-  }
-
-  fun getFontSize(): Int = when (tabLabel) {
-    null -> 0
-    else -> tabLabel!!.font.size
   }
 
   fun clearText(invalidate: Boolean): EditorGroupTabInfo {

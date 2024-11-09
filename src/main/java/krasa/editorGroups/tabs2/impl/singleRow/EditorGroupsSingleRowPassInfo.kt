@@ -35,10 +35,10 @@ class EditorGroupsSingleRowPassInfo(
   val toDrop: MutableList<EditorGroupTabInfo> = mutableListOf<EditorGroupTabInfo>()
 
   @JvmField
-  val entryPointAxisSize: Int = layout.strategy.getEntryPointAxisSize()
+  val entryPointAxisSize: Int = layout.strategy.entryPointAxisSize
 
   @JvmField
-  val moreRectAxisSize: Int = layout.strategy.getMoreRectAxisSize()
+  val moreRectAxisSize: Int = layout.strategy.moreRectAxisSize
 
   @JvmField
   var hToolbar: WeakReference<JComponent?>? = null
@@ -60,8 +60,8 @@ class EditorGroupsSingleRowPassInfo(
 
   override val scrollExtent: Int
     get() = when {
-      !moreRect.isEmpty       -> moreRect.x - tabs.getActionsInsets().left
-      !entryPointRect.isEmpty -> entryPointRect.x - tabs.getActionsInsets().left
+      !moreRect.isEmpty       -> moreRect.x - tabs.actionsInsets.left
+      !entryPointRect.isEmpty -> entryPointRect.x - tabs.actionsInsets.left
       else                    -> layoutSize.width
     }
 
