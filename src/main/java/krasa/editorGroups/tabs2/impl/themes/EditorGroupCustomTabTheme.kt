@@ -60,5 +60,4 @@ open class EditorGroupCustomTabTheme : EditorGroupTabTheme {
 
   override val compactTabHeight: Int
     get() = EditorGroupsUI.compactTabHeight()
-
 }

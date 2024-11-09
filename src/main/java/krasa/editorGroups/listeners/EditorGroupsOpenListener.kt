@@ -6,11 +6,7 @@ import com.intellij.openapi.fileEditor.ex.FileEditorWithProvider
 import com.intellij.openapi.vfs.VirtualFile
 
 class EditorGroupsOpenListener : FileOpenedSyncListener {
-  override fun fileOpenedSync(
-    manager: FileEditorManager,
-    file: VirtualFile,
-    editorsWithProviders: List<FileEditorWithProvider>
-  ) {
+  override fun fileOpenedSync(manager: FileEditorManager, file: VirtualFile, editorsWithProviders: List<FileEditorWithProvider>) {
     EditorGroupsPanelBuilder.instance.addPanelToEditor(manager, file)
   }
 }

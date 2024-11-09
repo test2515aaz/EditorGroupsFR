@@ -33,7 +33,7 @@ import javax.swing.border.EmptyBorder
 class EditorGroupTabLabel(
   private val tabs: KrTabsImpl,
   val info: EditorGroupTabInfo
-) : JPanel(/* isDoubleBuffered = */ true), Accessible, UiCompatibleDataProvider {
+) : JPanel(true), Accessible, UiCompatibleDataProvider {
   /** The label. */
   private val label: SimpleColoredComponent
 
@@ -42,7 +42,7 @@ class EditorGroupTabLabel(
     get() = label
 
   /** Component wrapping the label. */
-  private val labelPlaceholder = Wrapper(/* isDoubleBuffered = */ false)
+  private val labelPlaceholder = Wrapper(false)
 
   /** The icon. */
   private val icon: LayeredIcon
@@ -188,7 +188,8 @@ class EditorGroupTabLabel(
     // We don't want the focus unless we are the selected tab.
     if (tabs.selectedLabel !== this) return false
 
-    @Suppress("UsePropertyAccessSyntax") return super.isFocusable()
+    @Suppress("UsePropertyAccessSyntax")
+    return super.isFocusable()
   }
 
   /** Create the label, with support for small labels. */
@@ -304,7 +305,7 @@ class EditorGroupTabLabel(
       }
 
       text?.appendToComponent(label)
-    }, /* autoInvalidate = */ false)
+    }, false)
 
     invalidateIfNeeded()
   }
@@ -353,7 +354,8 @@ class EditorGroupTabLabel(
     if (e.clickCount != 1 || !e.isPopupTrigger || PopupUtil.getPopupContainerFor(this) != null) return
 
     // if event is out of bounds
-    if (e.x < 0 || e.x >= e.component.width || e.y < 0 || e.y >= e.component.height) return
+    if (e.x < 0 || e.x >= e.component.width) return
+    if (e.y < 0 || e.y >= e.component.height) return
 
     var place = tabs.popupPlace ?: ActionPlaces.UNKNOWN
 
@@ -389,7 +391,8 @@ class EditorGroupTabLabel(
 
   /** Apply decorations. */
   fun apply(decoration: TabUiDecorator.TabUiDecoration) {
-    val decorations = mergeUiDecorations(decoration, defaultDecoration = KrTabsImpl.Companion.defaultDecorator.decoration)
+    val decorations =
+      mergeUiDecorations(decoration, defaultDecoration = KrTabsImpl.Companion.defaultDecorator.decoration)
 
     border = EmptyBorder(decorations.labelInsets)
     label.iconTextGap = decorations.iconTextGap
@@ -409,20 +412,28 @@ class EditorGroupTabLabel(
     if (labelComponent.parent == null) return
 
     val textBounds = SwingUtilities.convertRectangle(
-      /* source = */ labelComponent.parent,
-      /* aRectangle = */ labelComponent.bounds,
-      /* destination = */ this
+      /* source = */
+      labelComponent.parent,
+      /* aRectangle = */
+      labelComponent.bounds,
+      /* destination = */
+      this
     )
 
     // Paint border around label if we got the focus (screen readers)
     if (isFocusOwner) {
       g.color = UIUtil.getTreeSelectionBorderColor()
       UIUtil.drawDottedRectangle(
-        /* g = */ g,
-        /* x = */ textBounds.x,
-        /* y = */ textBounds.y,
-        /* x1 = */ textBounds.x + textBounds.width - 1,
-        /* y1 = */ textBounds.y + textBounds.height - 1
+        /* g = */
+        g,
+        /* x = */
+        textBounds.x,
+        /* y = */
+        textBounds.y,
+        /* x1 = */
+        textBounds.x + textBounds.width - 1,
+        /* y1 = */
+        textBounds.y + textBounds.height - 1
       )
     }
 
@@ -528,12 +539,18 @@ class EditorGroupTabLabel(
      */
     private fun paintGradientRect(g: Graphics2D, rect: Rectangle, fromColor: Color, toColor: Color) {
       g.paint = GradientPaint(
-        /* x1 = */ rect.x.toFloat(),
-        /* y1 = */ rect.y.toFloat(),
-        /* color1 = */ fromColor,
-        /* x2 = */ (rect.x + rect.width).toFloat(),
-        /* y2 = */ rect.y.toFloat(),
-        /* color2 = */ toColor
+        /* x1 = */
+        rect.x.toFloat(),
+        /* y1 = */
+        rect.y.toFloat(),
+        /* color1 = */
+        fromColor,
+        /* x2 = */
+        (rect.x + rect.width).toFloat(),
+        /* y2 = */
+        rect.y.toFloat(),
+        /* color2 = */
+        toColor
       )
       g.fill(rect)
     }

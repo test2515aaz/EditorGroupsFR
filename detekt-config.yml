@@ -32,12 +32,26 @@ formatting:
     active: true
   ArgumentListWrapping:
     active: true
-    maxLineLength: 160
+    maxLineLength: 140
+  ClassName:
+    active: true
+  EnumWrapping:
+    active: true
+  FunctionName:
+    active: true
+  FunctionSignature:
+    active: true
+    maxLineLength: 140
+    indentSize: 2
   Indentation:
     active: true
     indentSize: 2
-    continuationIndentSize: 2
+  MaximumLineLength:
+    active: true
+    maxLineLength: 140
   MultiLineIfElse:
+    active: true
+  NoBlankLineInList:
     active: true
   NoEmptyFirstLineInMethodBlock:
     active: true
@@ -45,48 +59,55 @@ formatting:
     active: false
   NoWildcardImports:
     active: false
-    excludes:
-      - '**/*Steps*'
-  PackageName:
-    active: true
   ParameterListWrapping:
     active: true
     indentSize: 2
-  SpacingBetweenDeclarationsWithAnnotations:
+    maxLineLength: 140
+  ParameterWrapping:
     active: true
-  SpacingBetweenDeclarationsWithComments:
-    active: true
-  MaximumLineLength:
-    maxLineLength: 160
+    maxLineLength: 140
 
 performance:
+  CouldBeSequence:
+    active: true
   SpreadOperator:
     active: false
+  UnnecessaryPartOfBinaryExpression:
+    active: true
 
 style:
-  SerialVersionUIDInSerializableClass:
-    active: false
+  autoCorrect: true
+  AlsoCouldBeApply:
+    active: true
+  BracesOnIfStatements:
+    active: true
+    singleLine: 'necessary'
+    multiLine: 'consistent'
+  BracesOnWhenStatements:
+    active: true
+    singleLine: 'necessary'
+    multiLine: 'necessary'
+  CanBeNonNullable:
+    active: true
   ClassOrdering:
     active: true
   CollapsibleIfStatements:
     active: true
   DataClassContainsFunctions:
-    active: true
+    active: false
   DataClassShouldBeImmutable:
+    active: false
+  DoubleNegativeLambda:
     active: true
   EqualsOnSignatureLine:
     active: true
   ExplicitCollectionElementAccessMethod:
     active: true
-  ExplicitItLambdaParameter:
-    active: true
   ExpressionBodySyntax:
     active: true
-  ForbiddenVoid:
+  LoopWithTooManyJumpStatements:
     active: true
-  ForbiddenComment:
-    active: true
-    values: []
+    maxJumpCount: 3
   MagicNumber:
     active: true
     ignorePropertyDeclaration: true
@@ -96,17 +117,22 @@ style:
     excludes:
       - '**/*Theme*'
       - '**/*Painter*'
-  MandatoryBracesIfStatements:
-    active: true
+      - '**/build.gradle.kts'
   MandatoryBracesLoops:
     active: true
+  MaxChainedCallsOnSameLine:
+    active: true
+    maxChainedCalls: 2
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+    excludeCommentStatements: true
+    excludeRawStrings: true
   MultilineLambdaItParameter:
     active: true
   NoTabs:
     active: true
   ObjectLiteralToLambda:
-    active: true
-  OptionalWhenBraces:
     active: true
   PreferToOverPairSyntax:
     active: true
@@ -117,17 +143,25 @@ style:
   RedundantVisibilityModifierRule:
     active: true
   ReturnCount:
-    max: 4
+    max: 6
     excludeGuardClauses: true
+  SerialVersionUIDInSerializableClass:
+    active: false
   SpacingBetweenPackageAndImports:
+    active: true
+  StringShouldBeRawString:
     active: true
   TrailingWhitespace:
     active: true
+  TrimMultilineRawString:
+    active: true
   UnderscoresInNumericLiterals:
     active: true
-  UnnecessaryApply:
+  UnnecessaryBackticks:
     active: true
-  UnnecessaryFilter:
+  UnnecessaryBracesAroundTrailingLambda:
+    active: true
+  UnnecessaryInnerClass:
     active: true
   UnnecessaryLet:
     active: true
@@ -139,31 +173,23 @@ style:
     active: true
   UseAnyOrNoneInsteadOfFind:
     active: true
-  UseArrayLiteralsInAnnotations:
-    active: true
-  UseCheckNotNull:
-    active: true
-  UseCheckOrError:
-    active: true
   UseDataClass:
     active: true
   UseEmptyCounterpart:
     active: true
   UseIfEmptyOrIfBlank:
     active: true
-  UseIsNullOrEmpty:
+  UseSumOfInsteadOfFlatMapSize:
     active: true
-  UseOrEmpty:
-    active: true
-  UseRequire:
-    active: true
-  UseRequireNotNull:
-    active: true
+  WildcardImport:
+    active: false
 
 comments:
   AbsentOrWrongFileLicense:
-    active: true
+    active: false
   DeprecatedBlockTag:
+    active: true
+  KDocReferencesNonPublicProperty:
     active: true
   OutdatedDocumentation:
     active: true
@@ -194,16 +220,14 @@ comments:
 
 complexity:
   LargeClass:
-    active: true
-    excludes:
-      - '**/test/**'
-      - '**/androidTest/**'
-      - '**/commonTest/**'
-      - '**/jvmTest/**'
-      - '**/jsTest/**'
-      - '**/iosTest/**'
-      - '**/*Resources*'
+    active: false
+  LongMethod:
+    active: false
+  LongParameterList:
+    active: false
   NamedArguments:
+    active: true
+  NestedScopeFunctions:
     active: true
   ReplaceSafeCallChainWithRun:
     active: true
@@ -222,31 +246,9 @@ complexity:
       - '**/iosTest/**'
       - '**/build.gradle.kts'
   TooManyFunctions:
-    excludes:
-      - '**/test/**'
-      - '**/androidTest/**'
-      - '**/commonTest/**'
-      - '**/jvmTest/**'
-      - '**/jsTest/**'
-      - '**/iosTest/**'
-    thresholdInFiles: 11
-    thresholdInClasses: 11
-    thresholdInInterfaces: 11
-    thresholdInObjects: 11
-    thresholdInEnums: 11
-    ignoreDeprecated: false
-    ignorePrivate: true
-    ignoreOverridden: true
+    active: false
 
 naming:
-  InvalidPackageDeclaration:
-    active: true
-  LambdaParameterNaming:
-    active: true
-  NoNameShadowing:
-    active: true
-  NonBooleanPropertyPrefixedWithIs:
-    active: true
   FunctionMaxLength:
     active: true
     maximumFunctionNameLength: 36
@@ -256,12 +258,20 @@ naming:
   FunctionMinLength:
     active: true
     minimumFunctionNameLength: 2
+  InvalidPackageDeclaration:
+    active: true
+  LambdaParameterNaming:
+    active: true
+  NoNameShadowing:
+    active: true
+  NonBooleanPropertyPrefixedWithIs:
+    active: true
   VariableMaxLength:
     active: true
 
 
 potential-bugs:
-  AvoidReferentialEquality:
+  CastNullableToNonNullableType:
     active: true
   CastToNullableType:
     active: true
@@ -269,23 +279,17 @@ potential-bugs:
     active: true
   DontDowncastCollectionTypes:
     active: true
-  DoubleMutabilityForCollection:
+  ElseCaseInsteadOfExhaustiveWhen:
     active: true
   HasPlatformType:
     active: true
   ImplicitUnitReturnType:
     active: true
-  MapGetWithNotNullAssertionOperator:
-    active: true
   MissingPackageDeclaration:
     active: true
     excludes:
       - '**/*.kts'
-  MissingWhenCase:
-    active: true
   NullableToStringCall:
     active: true
-  UnreachableCatchBlock:
-    active: true
-  UnusedUnaryOperator:
+  PropertyUsedBeforeDeclaration:
     active: true

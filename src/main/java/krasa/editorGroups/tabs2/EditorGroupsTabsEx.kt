@@ -25,5 +25,4 @@ interface EditorGroupsTabsEx : EditorGroupsTabsBase {
     @JvmField
     val NAVIGATION_ACTIONS_KEY: DataKey<EditorGroupsTabsEx> = DataKey.create("EditorGroupsTabsEx")
   }
-
 }

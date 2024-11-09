@@ -1,5 +1,6 @@
 package krasa.editorGroups.model
 
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -34,7 +35,7 @@ class RegexGroup(
         referenceMatcher = regexGroupModel.regexPattern?.matcher(resultFileName) ?: return null
         val matches = referenceMatcher.matches()
         if (!matches) {
-          throw RuntimeException("$resultFileName does not match $regexGroupModel")
+          thisLogger().error("$resultFileName does not match $regexGroupModel")
         }
       }
       return referenceMatcher

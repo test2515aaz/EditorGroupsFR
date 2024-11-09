@@ -78,31 +78,34 @@ class EditorGroupsPanelBuilder {
 
     // Listen for UI settings changes on this panel
     ApplicationManager.getApplication().messageBus.connect(panel)
-      .subscribe(TOPIC, object : UISettingsListener {
-        override fun uiSettingsChanged(uiSettings: UISettings) {
-          when {
-            panel.disposed                                             -> return
-            panel.currentTabPlacement == uiSettings.editorTabPlacement -> return
-            else                                                       -> {
-              panel.currentTabPlacement = uiSettings.editorTabPlacement
+      .subscribe(
+        TOPIC,
+        object : UISettingsListener {
+          override fun uiSettingsChanged(uiSettings: UISettings) {
+            when {
+              panel.disposed                                             -> return
+              panel.currentTabPlacement == uiSettings.editorTabPlacement -> return
+              else                                                       -> {
+                panel.currentTabPlacement = uiSettings.editorTabPlacement
 
-              if (panel.isLaidOut) {
-                manager.removeTopComponent(fileEditor, panel.root)
-                manager.removeBottomComponent(fileEditor, panel.root)
+                if (panel.isLaidOut) {
+                  manager.removeTopComponent(fileEditor, panel.root)
+                  manager.removeBottomComponent(fileEditor, panel.root)
+                }
+
+                panel.dispose()
+                panel = renderPanel(
+                  project = project,
+                  manager = manager,
+                  file = file,
+                  switchRequest = switchRequest,
+                  fileEditor = fileEditor
+                )
               }
-
-              panel.dispose()
-              panel = renderPanel(
-                project = project,
-                manager = manager,
-                file = file,
-                switchRequest = switchRequest,
-                fileEditor = fileEditor
-              )
             }
           }
         }
-      })
+      )
   }
 
   fun renderPanel(

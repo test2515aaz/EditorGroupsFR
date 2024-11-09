@@ -20,8 +20,8 @@ class SyntaxHighlightAnnotation(
 ) {
   fun annotate(holder: AnnotationHolder, sourceOffset: Int) {
     val fileRange = TextRange.create(
-      /* startOffset = */ startSourceOffset + sourceOffset,
-      /* endOffset = */ endSourceOffset + sourceOffset
+      startSourceOffset + sourceOffset,
+      endSourceOffset + sourceOffset
     )
 
     val infoAnnotation = when {

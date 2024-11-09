@@ -20,7 +20,6 @@ class ToggleColorizeGroupsAction : ToggleAction(), DumbAware {
     Notifications.notifyState(message("colorize.tabs"), state)
 
     TabGroupColorizer.getInstance(e.project ?: return).refreshTabs(force = true)
-
   }
 
   companion object {

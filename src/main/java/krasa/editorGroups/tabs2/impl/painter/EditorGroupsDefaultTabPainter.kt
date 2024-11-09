@@ -19,6 +19,7 @@ open class EditorGroupsDefaultTabPainter(private val theme: EditorGroupTabTheme 
 
   override fun getBackgroundColor(): Color = theme.background
 
+  @Suppress("detekt:CyclomaticComplexMethod", "detekt:NestedBlockDepth")
   override fun getCustomBackground(tabColor: Color?, selected: Boolean, active: Boolean, hovered: Boolean): Color? {
     var bg: Color? = null
 
@@ -114,13 +115,7 @@ open class EditorGroupsDefaultTabPainter(private val theme: EditorGroupTabTheme 
     )
   }
 
-  override fun paintUnderline(
-    position: EditorGroupsTabsPosition,
-    rect: Rectangle,
-    borderThickness: Int,
-    g: Graphics2D,
-    active: Boolean
-  ) {
+  override fun paintUnderline(position: EditorGroupsTabsPosition, rect: Rectangle, borderThickness: Int, g: Graphics2D, active: Boolean) {
     val underline = underlineRectangle(position, rect, theme.underlineHeight)
     val arc = theme.underlineArc
     val color = if (active) theme.underlineColor else theme.inactiveUnderlineColor

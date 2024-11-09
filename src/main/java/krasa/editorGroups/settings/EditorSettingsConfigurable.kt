@@ -177,7 +177,6 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
     behaviorGroup.enabledIf(isEnabled.selected)
     presentationGroup.enabledIf(isEnabled.selected)
     performanceGroup.enabledIf(isEnabled.selected)
-
   }
 
   private fun doReset() {

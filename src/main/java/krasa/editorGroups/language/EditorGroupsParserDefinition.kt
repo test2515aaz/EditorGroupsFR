@@ -38,5 +38,4 @@ internal class EditorGroupsParserDefinition : ParserDefinition {
   override fun createElement(node: ASTNode?): PsiElement = PsiUtilCore.NULL_PSI_ELEMENT
 
   override fun createFile(viewProvider: FileViewProvider): PsiFile = EditorGroupsPsiFile(viewProvider)
-
 }

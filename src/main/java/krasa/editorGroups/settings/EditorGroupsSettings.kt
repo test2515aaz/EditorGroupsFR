@@ -287,6 +287,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.fireChanged()
   }
 
+  @Suppress("detekt:CyclomaticComplexMethod")
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
@@ -358,7 +359,8 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |groupSizeLimit=$groupSizeLimit,
     |tabSizeLimit=$tabSizeLimit,
     |regexGroupModels=$regexGroupModels
-    )""".trimMargin()
+    )
+  """.trimMargin()
 
   interface SettingsNotifier {
     /** When Config is changed (settings) */

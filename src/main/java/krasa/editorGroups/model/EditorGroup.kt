@@ -141,6 +141,7 @@ abstract class EditorGroup {
    * @param project the project for which the title is generated
    * @return the tab title
    */
+  @Suppress("detekt:UnusedParameter")
   fun tabTitle(project: Project): String {
     var result = this.title
     if (result.isEmpty()) {
@@ -170,7 +171,11 @@ abstract class EditorGroup {
    * @param project the project for which the tooltip is generated
    * @return the tooltip text for the tab group, or null if not found
    */
-  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(project = project, message("owner.0", ownerPath), true)
+  fun getTabGroupTooltipText(project: Project): String? = getPresentableTitle(
+    project = project,
+    presentableNameForUI = message("owner.0", ownerPath),
+    showSize = true
+  )
 
   /**
    * Checks if this EditorGroup is selected.

@@ -89,7 +89,9 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   fun getById(id: String): EditorGroup = groupsMap[id] ?: EMPTY
 
-  fun ownerOrLast(currentFilePath: String?): EditorGroup = groupsMap.values.firstOrNull { it.isOwner(currentFilePath!!) } ?: EMPTY
+  fun ownerOrLast(currentFilePath: String?): EditorGroup = groupsMap.values.firstOrNull {
+    it.isOwner(currentFilePath!!)
+  } ?: EMPTY
 
   override fun toString(): String = "EditorGroups{map=$groupsMap, last='$last'}"
 

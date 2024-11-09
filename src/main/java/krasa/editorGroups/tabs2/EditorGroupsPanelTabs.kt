@@ -20,5 +20,4 @@ open class EditorGroupsPanelTabs : KrTabsImpl, EditorGroupsTabsBase {
 
     super.uiSettingsChanged(uiSettings)
   }
-
 }

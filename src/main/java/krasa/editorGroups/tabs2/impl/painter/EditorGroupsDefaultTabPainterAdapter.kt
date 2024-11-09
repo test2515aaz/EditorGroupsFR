@@ -8,7 +8,7 @@ import java.awt.Graphics2D
 import java.awt.Rectangle
 
 /** Holds a tabPainter to paint the tab background. */
-class EditorGroupsDefaultTabPainterAdapter() : EditorGroupsTabPainterAdapter {
+class EditorGroupsDefaultTabPainterAdapter : EditorGroupsTabPainterAdapter {
   override val tabPainter: EditorGroupsTabPainter
     get() = EditorGroupsTabPainter.DEFAULT
 
@@ -48,5 +48,4 @@ class EditorGroupsDefaultTabPainterAdapter() : EditorGroupsTabPainterAdapter {
       }
     }
   }
-
 }

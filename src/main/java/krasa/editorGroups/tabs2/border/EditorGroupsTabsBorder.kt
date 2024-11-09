@@ -4,9 +4,13 @@ import com.intellij.util.ui.JBUI
 import krasa.editorGroups.tabs2.EditorGroupsTabsPosition
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 import java.awt.*
+import javax.swing.border.Border
 
-class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
-  override val effectiveBorder: Insets
+class EditorGroupsTabsBorder(val tabs: KrTabsImpl) : Border {
+  val thickness: Int
+    get() = tabs.tabPainter.getTabTheme().topBorderThickness
+
+  val effectiveBorder: Insets
     get() = JBUI.insetsTop(thickness)
 
   override fun paintBorder(c: Component, g: Graphics, x: Int, y: Int, width: Int, height: Int) {
@@ -50,4 +54,8 @@ class KrEditorTabsBorder(tabs: KrTabsImpl) : KrTabsBorder(tabs) {
       active = tabs.isActiveTabs(tabs.selectedInfo)
     )
   }
+
+  override fun getBorderInsets(c: Component?): Insets = JBUI.emptyInsets()
+
+  override fun isBorderOpaque(): Boolean = true
 }

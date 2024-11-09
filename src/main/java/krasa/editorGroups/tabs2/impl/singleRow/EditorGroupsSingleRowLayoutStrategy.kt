@@ -87,8 +87,7 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
       return length
     }
 
-    override fun getLengthIncrement(labelPrefSize: Dimension): Int =
-      max(labelPrefSize.width, MIN_TAB_WIDTH)
+    override fun getLengthIncrement(labelPrefSize: Dimension): Int = max(labelPrefSize.width, MIN_TAB_WIDTH)
 
     override fun getMinPosition(bounds: Rectangle): Int = bounds.x
 
@@ -103,10 +102,14 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
       length: Int,
       fixedFitLength: Int
     ): Rectangle = Rectangle(
-      /* x = */ position,
-      /* y = */ fixedPos,
-      /* width = */ length,
-      /* height = */ fixedFitLength
+      /* x = */
+      position,
+      /* y = */
+      fixedPos,
+      /* width = */
+      length,
+      /* height = */
+      fixedFitLength
     )
 
     override fun getStartPosition(passInfo: EditorGroupsSingleRowPassInfo): Int = passInfo.insets!!.left
@@ -121,10 +124,14 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
     override fun getEntryPointRect(passInfo: EditorGroupsSingleRowPassInfo): Rectangle {
       val x: Int = passInfo.layoutSize.width - myTabs.actionsInsets.right - passInfo.entryPointAxisSize
       return Rectangle(
-        /* x = */ x,
-        /* y = */ 1,
-        /* width = */ passInfo.entryPointAxisSize,
-        /* height = */ myTabs.headerFitSize!!.height
+        /* x = */
+        x,
+        /* y = */
+        1,
+        /* width = */
+        passInfo.entryPointAxisSize,
+        /* height = */
+        myTabs.headerFitSize!!.height
       )
     }
 
@@ -133,20 +140,23 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
       x -= passInfo.entryPointAxisSize
 
       return Rectangle(
-        /* x = */ x,
-        /* y = */ 1,
-        /* width = */ passInfo.moreRectAxisSize,
-        /* height = */ myTabs.headerFitSize!!.height
+        /* x = */
+        x,
+        /* y = */
+        1,
+        /* width = */
+        passInfo.moreRectAxisSize,
+        /* height = */
+        myTabs.headerFitSize!!.height
       )
     }
 
-    override fun getTitleRect(passInfo: EditorGroupsSingleRowPassInfo): Rectangle =
-      Rectangle(
-        /* x = */ 0,
-        /* y = */ 0,
-        /* width = */ myTabs.titleWrapper.preferredSize.width,
-        /* height = */ myTabs.headerFitSize!!.height
-      )
+    override fun getTitleRect(passInfo: EditorGroupsSingleRowPassInfo): Rectangle = Rectangle(
+      0,
+      0,
+      myTabs.titleWrapper.preferredSize.width,
+      myTabs.headerFitSize!!.height
+    )
 
     override fun layoutComp(passInfo: EditorGroupsSingleRowPassInfo) {
       if (myTabs.isHideTabs) {
@@ -230,10 +240,14 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
       val x: Int = passInfo.layoutSize.width - myTabs.actionsInsets.right - passInfo.entryPointAxisSize
 
       return Rectangle(
-        /* x = */ x,
-        /* y = */ getFixedPosition(passInfo),
-        /* width = */ passInfo.entryPointAxisSize,
-        /* height = */ myTabs.headerFitSize!!.height
+        /* x = */
+        x,
+        /* y = */
+        getFixedPosition(passInfo),
+        /* width = */
+        passInfo.entryPointAxisSize,
+        /* height = */
+        myTabs.headerFitSize!!.height
       )
     }
 
@@ -242,21 +256,27 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
       x -= passInfo.entryPointAxisSize
 
       return Rectangle(
-        /* x = */ x,
-        /* y = */ getFixedPosition(passInfo),
-        /* width = */ passInfo.moreRectAxisSize,
-        /* height = */ myTabs.headerFitSize!!.height
+        /* x = */
+        x,
+        /* y = */
+        getFixedPosition(passInfo),
+        /* width = */
+        passInfo.moreRectAxisSize,
+        /* height = */
+        myTabs.headerFitSize!!.height
       )
     }
 
-    override fun getTitleRect(passInfo: EditorGroupsSingleRowPassInfo): Rectangle =
-      Rectangle(
-        /* x = */ 0,
-        /* y = */ getFixedPosition(passInfo),
-        /* width = */ myTabs.titleWrapper.preferredSize.width,
-        /* height = */ myTabs.headerFitSize!!.height
-      )
-
+    override fun getTitleRect(passInfo: EditorGroupsSingleRowPassInfo): Rectangle = Rectangle(
+      /* x = */
+      0,
+      /* y = */
+      getFixedPosition(passInfo),
+      /* width = */
+      myTabs.titleWrapper.preferredSize.width,
+      /* height = */
+      myTabs.headerFitSize!!.height
+    )
   }
 
   companion object {

@@ -141,13 +141,18 @@ class SwitchFileAction : QuickSwitchSchemeAction(), DumbAware {
           )
         )
       }
-
     } catch (e: IndexNotReadyException) {
       thisLogger().error("That should not happen", e)
     }
   }
 
-  private fun newAction(project: Project, panel: EditorGroupPanel, currentFile: String?, link: Link, text: String?): OpenFileAction {
+  private fun newAction(
+    project: Project,
+    panel: EditorGroupPanel,
+    currentFile: String?,
+    link: Link,
+    text: String?
+  ): OpenFileAction {
     val action = OpenFileAction(
       link = link,
       project = project,

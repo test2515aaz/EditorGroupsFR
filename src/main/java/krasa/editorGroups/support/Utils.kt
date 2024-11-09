@@ -1,3 +1,5 @@
+@file:Suppress("detekt:TooGenericExceptionThrown")
+
 package krasa.editorGroups.support
 
 import com.intellij.icons.AllIcons
@@ -24,9 +26,7 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import javax.swing.Icon
 
-object EditorGroupsActions {
-  const val EDITOR_GROUP_TAB_MENU: String = "krasa.editorGroups.EditorGroupsTabPopupMenu"
-}
+const val EDITOR_GROUP_TAB_MENU: String = "krasa.editorGroups.EditorGroupsTabPopupMenu"
 
 /**
  * Retrieves the presentable name from a given path, e.g. the last element of the path, without the extension.
@@ -216,8 +216,7 @@ fun isBlank(cs: CharSequence?): Boolean {
   return cs.indices.all { Character.isWhitespace(cs[it]) }
 }
 
-fun getSettings(component: Component): Settings? =
-  Settings.KEY.getData(DataManager.getInstance().getDataContext(component))
+fun getSettings(component: Component): Settings? = Settings.KEY.getData(DataManager.getInstance().getDataContext(component))
 
 fun navigateToSettingsPage(component: Component, name: String) {
   val settings = getSettings(component) ?: return

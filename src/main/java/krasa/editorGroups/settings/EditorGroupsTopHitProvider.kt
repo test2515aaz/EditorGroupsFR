@@ -28,8 +28,7 @@ import com.intellij.openapi.util.text.StringUtil
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 
 @NlsContexts.Checkbox
-fun getText(suffix: String): String =
-  StringUtil.stripHtml(message("settings.title", suffix), false)
+fun getText(suffix: String): String = StringUtil.stripHtml(message("settings.title", suffix), false)
 
 /** region [Checkbox Definitions]. */
 
@@ -136,5 +135,4 @@ internal class EditorGroupsTopHitProvider : ApplicationLevelProvider {
     isSmallLabelsOption(),
     toggleExcludeEditorGroupsFilesOption(),
   )
-
 }

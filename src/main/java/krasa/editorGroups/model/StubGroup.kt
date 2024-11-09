@@ -15,7 +15,9 @@ class StubGroup : EditorGroup() {
 
   override fun icon(): Icon = AllIcons.Actions.GroupByModule
 
-  override fun invalidate() {}
+  @Suppress("detekt:EmptyFunctionBlock")
+  override fun invalidate() {
+  }
 
   override fun size(project: Project): Int = 0
 

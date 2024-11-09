@@ -82,7 +82,6 @@ val colorMap: HashMap<String, String> = hashMapOf(
   "green" to "#008000",
   "greensea" to "#16a085",
   "greenyellow" to "#adff2f",
-  "grey" to "#808080",
   "honeydew" to "#f0fff0",
   "hotpink" to "#ff69b4",
   "indianred" to "#cd5c5c",
@@ -312,7 +311,6 @@ val colorMap: HashMap<String, String> = hashMapOf(
   "shadowed steel" to "#4b4b4b",
   "weird green" to "#3ae374",
   "hammam blue" to "#67e6dc",
-  "spiro disco ball" to "#17c0eb",
   "light indigo" to "#7158e2",
   "baltic sea" to "#3d3d3d",
   "sunflower" to "#ffc312",
@@ -399,17 +397,17 @@ fun getColorInstance(color: String): Color? {
  * @param size The size of the icon, default is 12.
  * @return An Icon instance with the specified color and size.
  */
+@Suppress("detekt:MagicNumber")
 fun gutterColorIcon(color: Color, size: Int = 12): Icon {
   val borderColor = JBColor(Color.black, Color.white)
-  val arc = 24
   return ColorIcon(
-    /* width = */ size,
-    /* height = */ size,
-    /* colorWidth = */ size,
-    /* colorHeight = */ size,
-    /* color = */ color,
-    /* borderColor = */ borderColor,
-    /* arc = */ arc
+    size,
+    size,
+    size,
+    size,
+    color,
+    borderColor,
+    24
   )
 }
 

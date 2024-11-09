@@ -159,8 +159,9 @@ class EditorGroupIndexValue : EditorGroup {
     return result
   }
 
+  @Suppress("MaxLineLength")
   override fun toString(): String =
-    "EditorGroupIndexValue{id='$id', ownerFile='$ownerPath', root='$root', title='$title', backgroundColor='$backgroundColor', foregroundColor='$foregroundColor', relatedPaths=$relatedPaths, valid=$valid}"
+    """EditorGroupIndexValue{id='$id', ownerFile='$ownerPath', root='$root', title='$title', backgroundColor='$backgroundColor', foregroundColor='$foregroundColor', relatedPaths=$relatedPaths, valid=$valid}"""
 
   companion object {
     @NonNls

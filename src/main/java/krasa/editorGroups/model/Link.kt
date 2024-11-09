@@ -91,6 +91,5 @@ abstract class Link(private val project: Project) {
     @JvmStatic
     fun fromVirtualFiles(links: Collection<VirtualFile?>, project: Project?): List<Link> =
       links.map { VirtualFileLink(it!!, project!!) }.sortedWith(LinkComparator.INSTANCE)
-
   }
 }

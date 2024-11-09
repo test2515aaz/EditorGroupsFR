@@ -48,5 +48,4 @@ class VirtualFileLink : Link {
   override fun fileEquals(currentFile: VirtualFile): Boolean = virtualFile == currentFile
 
   override fun toString(): String = "VirtualFileLink{virtualFile=$virtualFile, icon=$icon, line=$line}"
-
 }

@@ -304,13 +304,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   ): Handler {
     val actionHandler = object : Handler() {
       override fun run(editorGroup: EditorGroup) = when {
-        panel != null && file != null && bookmarkGroup.containsLink(project, file) -> {
-          refreshHandler(panel).run(bookmarkGroup)
-        }
-
-        else                                                                       -> {
-          otherGroupHandler(project).run(bookmarkGroup)
-        }
+        panel != null && file != null && bookmarkGroup.containsLink(project, file) -> refreshHandler(panel).run(bookmarkGroup)
+        else                                                                       -> otherGroupHandler(project).run(bookmarkGroup)
       }
     }
     return actionHandler
@@ -444,7 +439,6 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val alreadyDisplayed: MutableSet<String?> = alreadyFilledRegexGroups
       .filter { it.regexGroupModel.myScope == RegexGroupModel.Scope.WHOLE_PROJECT }
       .mapTo(HashSet()) { it.regexGroupModel.myRegex }
-
 
     if (regexGroups.isNotEmpty()) {
       defaultActionGroup.add(Separator(message("separator.regexps")))

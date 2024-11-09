@@ -101,7 +101,7 @@ class RegexModelTable : JBTable() {
   }
 
   fun commit(settings: EditorGroupsSettings) {
-    settings.regexGroupModels.regexGroupModels = myRegexGroupModels
+    settings.regexGroupModels.regexModels = myRegexGroupModels
   }
 
   fun reset(settings: EditorGroupsSettings) {
@@ -113,7 +113,7 @@ class RegexModelTable : JBTable() {
 
   private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: EditorGroupsSettings) {
     regexModels.clear()
-    val regexGroupModels = settings.regexGroupModels.regexGroupModels
+    val regexGroupModels = settings.regexGroupModels.regexModels
 
     regexGroupModels.mapTo(regexModels) { it.copy() }
   }

@@ -24,10 +24,13 @@ class RegexGroupModel : BaseState() {
     }
 
   /** The regex group matches to avoid comparing. */
+  @Suppress("detekt:UseRequire")
   var myNotComparingGroups: String?
     get() = notComparingGroups
     set(value) {
-      if (value != null && value.contains("|")) throw IllegalArgumentException("notComparingGroups must not contain '|'")
+      if (value != null && value.contains("|")) {
+        throw IllegalArgumentException("notComparingGroups must not contain '|'")
+      }
       notComparingGroups = value
       notComparingGroupsIntArray = null
     }
@@ -120,11 +123,7 @@ class RegexGroupModel : BaseState() {
      * @return a configured instance of `RegexGroupModel`
      */
     @JvmStatic
-    fun from(
-      regex: String = ".*",
-      scope: Scope = Scope.CURRENT_FOLDER,
-      notComparingGroups: String = ""
-    ): RegexGroupModel {
+    fun from(regex: String = ".*", scope: Scope = Scope.CURRENT_FOLDER, notComparingGroups: String = ""): RegexGroupModel {
       val model = RegexGroupModel()
       model.myRegex = regex
       model.myScope = scope
@@ -172,7 +171,10 @@ class RegexGroupModel : BaseState() {
             )
           }
 
-          else               -> throw RuntimeException("not supported")
+          else               -> {
+            thisLogger().error("Format not supported")
+            return null
+          }
         }
       } catch (e: Throwable) {
         thisLogger().warn("$e; source='$str'")
