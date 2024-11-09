@@ -178,6 +178,5 @@ open class EditorGroupTabInfo(var component: JComponent? = null) {
 
     const val HIDDEN: String = "hidden"
     const val ENABLED: String = "enabled"
-
   }
 }

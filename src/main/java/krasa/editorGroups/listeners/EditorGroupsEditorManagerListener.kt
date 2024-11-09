@@ -43,5 +43,4 @@ class EditorGroupsEditorManagerListener : FileEditorManagerListener {
       TabGroupColorizer.getInstance(project).refreshTabs()
     }
   }
-
 }

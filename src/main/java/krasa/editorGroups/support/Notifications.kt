@@ -57,11 +57,14 @@ object Notifications {
     val vals = values.joinToString { href(it.ownerPath) }
     val content = message("notifications.content.duplicate.group.id", id, vals)
 
-    showWarning(content, object : NotificationAction("") {
-      override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-        OpenFileAction.openFile(e.presentation.description, project)
+    showWarning(
+      content,
+      object : NotificationAction("") {
+        override fun actionPerformed(e: AnActionEvent, notification: Notification) {
+          OpenFileAction.openFile(e.presentation.description, project)
+        }
       }
-    })
+    )
   }
 
   fun showWarning(content: String, action: NotificationAction?) {

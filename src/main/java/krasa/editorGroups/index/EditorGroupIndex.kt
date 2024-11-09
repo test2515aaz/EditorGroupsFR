@@ -43,7 +43,7 @@ internal class EditorGroupIndex : FileBasedIndexExtension<String, EditorGroupInd
       value.foregroundColor = input.readUTF()
 
       val i = input.readInt()
-      (0 until i).forEach { value.addRelatedPath(input.readUTF()) }
+      repeat(i) { value.addRelatedPath(input.readUTF()) }
 
       return value
     }

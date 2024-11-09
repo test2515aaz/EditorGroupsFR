@@ -26,7 +26,7 @@ internal class EditorGroupColorSettings : ColorSettingsPage {
     <keyword>@group.fgcolor</keyword> <color>silver</color>
     <keyword>@group.related</keyword> <macro>PROJECT/</macro><path>*.svg</path>
     <keyword>@group.disable</keyword> <constant>true</constant>
-""".trimIndent()
+  """.trimIndent()
 
   override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey>? = DESCRIPTORS
 
@@ -50,10 +50,8 @@ internal class EditorGroupColorSettings : ColorSettingsPage {
 
     private val ATTRIBUTES: Array<AttributesDescriptor> = arrayOf(
       AttributesDescriptor(message("attribute.descriptor.comments"), EG_COMMENT),
-
       AttributesDescriptor(message("attribute.descriptor.groups.id"), EG_METADATA),
       AttributesDescriptor(message("attribute.descriptor.groups.property"), EG_KEYWORD),
-
       AttributesDescriptor(message("attribute.descriptor.values.path"), EG_PATH),
       AttributesDescriptor(message("attribute.descriptor.values.macro"), EG_MACRO),
       AttributesDescriptor(message("attribute.descriptor.values.color"), EG_COLOR),

@@ -39,6 +39,7 @@ class EditorGroupIndexer : DataIndexer<String, EditorGroupIndexValue, FileConten
    * @param inputData the file
    * @return the map of indexed values
    */
+  @Suppress("detekt:NestedBlockDepth")
   override fun map(inputData: FileContent): Map<String, EditorGroupIndexValue> {
     val file = inputData.file
     val isEGroup = EditorGroupsLanguage.isEditorGroupsLanguage(file)

@@ -64,5 +64,4 @@ class EditorGroupsSingleRowPassInfo(
       !entryPointRect.isEmpty -> entryPointRect.x - tabs.actionsInsets.left
       else                    -> layoutSize.width
     }
-
 }

@@ -32,23 +32,20 @@ class FileNameIndexService {
    * @param scope the scope within which to search for the files.
    * @return a mutable collection of virtual files that match the specified name and scope.
    */
-  fun getVirtualFilesByName(
-    name: String,
-    scope: GlobalSearchScope
-  ): MutableCollection<VirtualFile> {
+  fun getVirtualFilesByName(name: String, scope: GlobalSearchScope): MutableCollection<VirtualFile> {
     val files: MutableSet<VirtualFile> = mutableSetOf<VirtualFile>()
 
     FileBasedIndex.getInstance()
       .processValues<String?, Void?>(
-        /* indexId = */ FilenameWithoutExtensionIndex.NAME,
-        /* dataKey = */ name,
-        /* inFile = */ null,
-        /* processor = */ ValueProcessor { file: VirtualFile?, value: Void? ->
+        FilenameWithoutExtensionIndex.NAME,
+        name,
+        null,
+        ValueProcessor { file: VirtualFile?, value: Void? ->
           files.add(file!!)
           true
         },
-        /* filter = */ scope,
-        /* idFilter = */ null
+        scope,
+        null
       )
     return files
   }
@@ -60,17 +57,17 @@ class FileNameIndexService {
    * @param scope the scope within which to search for the files.
    * @return a mutable set of virtual files that match the specified name (ignoring case) and scope.
    */
-  private fun getVirtualFilesByNameIgnoringCase(
-    name: String,
-    scope: GlobalSearchScope
-  ): MutableSet<VirtualFile> {
+  private fun getVirtualFilesByNameIgnoringCase(name: String, scope: GlobalSearchScope): MutableSet<VirtualFile> {
     val keys: MutableSet<String> = mutableSetOf<String>()
 
     // Retrieve all files related with name, ignoring case
-    processAllFileNames(Processor { fileName: String? ->
-      if (name.equals(fileName, ignoreCase = true)) keys.add(fileName!!)
-      true
-    }, scope)
+    processAllFileNames(
+      Processor { fileName: String? ->
+        if (name.equals(fileName, ignoreCase = true)) keys.add(fileName!!)
+        true
+      },
+      scope
+    )
 
     // values accessed outside of processAllKeys
     val files: MutableSet<VirtualFile> = mutableSetOf()
@@ -86,11 +83,7 @@ class FileNameIndexService {
    * @param scope the scope within which to search for the files.
    * @return a mutable collection of virtual files that match the specified name and scope.
    */
-  fun getVirtualFilesByName(
-    name: String,
-    caseSensitively: Boolean,
-    scope: GlobalSearchScope
-  ): MutableCollection<VirtualFile> = when {
+  fun getVirtualFilesByName(name: String, caseSensitively: Boolean, scope: GlobalSearchScope): MutableCollection<VirtualFile> = when {
     caseSensitively -> getVirtualFilesByName(name, scope)
     else            -> getVirtualFilesByNameIgnoringCase(name, scope)
   }
@@ -103,10 +96,10 @@ class FileNameIndexService {
    */
   private fun processAllFileNames(processor: Processor<String?>, scope: GlobalSearchScope) {
     FileBasedIndex.getInstance().processAllKeys<String?>(
-      /* indexId = */ FilenameWithoutExtensionIndex.NAME,
-      /* processor = */ processor,
-      /* scope = */ scope,
-      /* idFilter = */ null
+      FilenameWithoutExtensionIndex.NAME,
+      processor,
+      scope,
+      null
     )
   }
 

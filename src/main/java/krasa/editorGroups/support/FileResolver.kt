@@ -50,6 +50,7 @@ open class FileResolver {
 
   fun getLinks(): Set<String?> = links
 
+  @Suppress("detekt:TooGenericExceptionThrown")
   private fun resolve(ownerFilePath: String, root: String?, relatedPaths: List<String>, group: EditorGroupIndexValue): List<Link> {
     try {
       return resolve2(ownerFilePath, root, relatedPaths, group)
@@ -59,12 +60,8 @@ open class FileResolver {
   }
 
   @Throws(IOException::class)
-  private fun resolve2(
-    ownerFilePath: String?,
-    root: String?,
-    relatedPaths: List<String>,
-    group: EditorGroupIndexValue
-  ): List<Link> {
+  @Suppress("detekt:MagicNumber")
+  private fun resolve2(ownerFilePath: String?, root: String?, relatedPaths: List<String>, group: EditorGroupIndexValue): List<Link> {
     val start = System.currentTimeMillis()
     val ownerFile = getNullableFileByPath(ownerFilePath)
     val rootFolder = resolveRootFolder(ownerFilePath, root, group, ownerFile)

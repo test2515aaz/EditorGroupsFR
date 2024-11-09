@@ -1,3 +1,12 @@
+@file:Suppress(
+  "detekt:MaximumLineLength",
+  "detekt:MaxLineLength",
+  "detekt:ComplexCondition",
+  "detekt:CyclomaticComplexMethod",
+  "detekt:TooGenericExceptionThrown",
+  "detekt:ThrowsCount"
+)
+
 package krasa.editorGroups
 
 import com.intellij.icons.AllIcons
@@ -148,7 +157,9 @@ class EditorGroupPanel(
     get() = this
 
   init {
-    thisLogger().debug(">new EditorGroupPanel, fileEditor = [$fileEditor], project = [${project.name}], switchingRequest = [$switchRequest], file = [$file]")
+    thisLogger().debug(
+      """>new EditorGroupPanel, fileEditor = [$fileEditor], project = [${project.name}], switchingRequest = [$switchRequest], file = [$file]"""
+    )
 
     // Disposes this when fileEditor is disposed
     Disposer.register(fileEditor, this)
@@ -180,7 +191,7 @@ class EditorGroupPanel(
     // Add a custom action "Compare file with editor"
     tabs.setPopupGroupWithSupplier(
       supplier = {
-        CustomActionsSchema.getInstance().getCorrectedAction(EditorGroupsActions.EDITOR_GROUP_TAB_MENU) as ActionGroup
+        CustomActionsSchema.getInstance().getCorrectedAction(EDITOR_GROUP_TAB_MENU) as ActionGroup
       },
       place = TAB_PLACE,
       addNavigationGroup = false
@@ -206,9 +217,12 @@ class EditorGroupPanel(
 
     // Listen to settings change
     ApplicationManager.getApplication().messageBus.connect(this)
-      .subscribe(EditorGroupsSettings.TOPIC, object : EditorGroupsSettings.SettingsNotifier {
-        override fun configChanged(config: EditorGroupsSettings) = refreshHeight()
-      })
+      .subscribe(
+        EditorGroupsSettings.TOPIC,
+        object : EditorGroupsSettings.SettingsNotifier {
+          override fun configChanged(config: EditorGroupsSettings) = refreshHeight()
+        }
+      )
   }
 
   fun refreshHeight() {
@@ -323,9 +337,9 @@ class EditorGroupPanel(
     }
 
     toolbar = ActionManager.getInstance().createActionToolbar(
-      /* place = */ TOOLBAR_PLACE,
-      /* group = */ actionGroup,
-      /* horizontal = */ true
+      TOOLBAR_PLACE,
+      actionGroup,
+      true
     )
     toolbar.targetComponent = this
 
@@ -476,8 +490,9 @@ class EditorGroupPanel(
 
         when {
           !isStub && !FileResolver.excluded(
-            File(file.path), excludeEditorGroupsFiles
-          )       -> thisLogger().warn("current file is not contained in group. file=${file}, group=${displayedGroup}, links=$links")
+            File(file.path),
+            excludeEditorGroupsFiles
+          )       -> thisLogger().warn("current file is not contained in group. file=$file, group=$displayedGroup, links=$links")
 
           !isStub -> thisLogger().debug("current file is excluded from the group $file $displayedGroup $links")
         }
@@ -750,15 +765,19 @@ class EditorGroupPanel(
       val refreshRequest = createRefreshRequest(editorGroupRef) ?: return
       val editorGroup = editorGroupRef.get()
 
-      thisLogger().debug(">executeRefresh before if: brokenScroll =$brokenScroll, request =$refreshRequest, group =$editorGroup, displayedGroup =$currentDisplayedGroup, toBeRendered =$groupToBeRendered")
+      thisLogger().debug(
+        ">executeRefresh before if: brokenScroll =$brokenScroll, request =$refreshRequest, group =$editorGroup, displayedGroup =$currentDisplayedGroup, toBeRendered =$groupToBeRendered"
+      )
 
       // If the scroll is broken, or if refresh is asked, or if the editor group changed, or if the current editor groups is different visually than the displayedGroup
-      var skipRefresh = !brokenScroll && !refreshRequest.refresh && (editorGroup === this.groupToBeRendered || editorGroup.equalsVisually(
-        project = project,
-        group = currentDisplayedGroup,
-        links = displayedLinks,
-        stub = isStub
-      ))
+      var skipRefresh = !brokenScroll && !refreshRequest.refresh && (
+        editorGroup === this.groupToBeRendered || editorGroup.equalsVisually(
+          project = project,
+          group = currentDisplayedGroup,
+          links = displayedLinks,
+          stub = isStub
+        )
+        )
 
       // If in the meantime we said to not show panel, stop refreshing
       val updateVisibility = hideGlobally != !EditorGroupsSettings.instance.isShowPanel
@@ -1149,12 +1168,7 @@ class EditorGroupPanel(
 
   /** Upon selecting a different tab of the group. */
   internal inner class TabSelectionChangeHandler(val panel: EditorGroupPanel) : EditorGroupsTabsBase.SelectionChangeHandler {
-    override fun execute(
-      info: EditorGroupTabInfo,
-      requestFocus: Boolean,
-      doChangeSelection: ActiveRunnable
-    ): ActionCallback {
-
+    override fun execute(info: EditorGroupTabInfo, requestFocus: Boolean, doChangeSelection: ActiveRunnable): ActionCallback {
       // TODO this causes the tab to not proceed with select
       // doChangeSelection.run()
 
@@ -1195,7 +1209,6 @@ class EditorGroupPanel(
       )
       return ActionCallback.DONE
     }
-
   }
 
   companion object {

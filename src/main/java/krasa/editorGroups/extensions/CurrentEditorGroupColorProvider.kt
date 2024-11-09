@@ -8,10 +8,7 @@ import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 
 internal class CurrentEditorGroupColorProvider : EditorTabColorProvider {
-  override fun getEditorTabColor(
-    project: Project,
-    file: VirtualFile
-  ): Color? {
+  override fun getEditorTabColor(project: Project, file: VirtualFile): Color? {
     val lastGroup = EditorGroupManager.getInstance(project).lastGroup
     return when {
       lastGroup.isStub                            -> null

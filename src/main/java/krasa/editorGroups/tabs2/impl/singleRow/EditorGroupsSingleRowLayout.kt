@@ -29,6 +29,7 @@ abstract class EditorGroupsSingleRowLayout(
     }
 
   /** Check whether to relayout tab labels. */
+  @Suppress("detekt:ReturnCount")
   protected open fun shouldRelayoutLabels(passInfo: EditorGroupsSingleRowPassInfo): Boolean {
     var layoutLabels = true
 
@@ -228,7 +229,6 @@ abstract class EditorGroupsSingleRowLayout(
   protected fun getRequiredLength(tabInfo: EditorGroupTabInfo?): Int {
     val label = tabs.infoToLabel[tabInfo]
     return strategy.getLengthIncrement(label?.preferredSize ?: Dimension()) + tabs.tabHGap
-
   }
 
   override fun isTabHidden(tabInfo: EditorGroupTabInfo): Boolean =

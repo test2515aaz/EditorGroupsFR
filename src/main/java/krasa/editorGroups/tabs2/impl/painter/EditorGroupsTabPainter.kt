@@ -14,12 +14,7 @@ interface EditorGroupsTabPainter {
   fun getBackgroundColor(): Color
 
   /** Color that should be painted on top of [EditorGroupTabTheme.background]. */
-  fun getCustomBackground(
-    tabColor: Color?,
-    selected: Boolean,
-    active: Boolean,
-    hovered: Boolean
-  ): Color? = tabColor
+  fun getCustomBackground(tabColor: Color?, selected: Boolean, active: Boolean, hovered: Boolean): Color? = tabColor
 
   fun paintBorderLine(g: Graphics2D, thickness: Int, from: Point, to: Point)
 
@@ -45,13 +40,7 @@ interface EditorGroupsTabPainter {
     hovered: Boolean
   )
 
-  fun paintUnderline(
-    position: EditorGroupsTabsPosition,
-    rect: Rectangle,
-    borderThickness: Int,
-    g: Graphics2D,
-    active: Boolean
-  )
+  fun paintUnderline(position: EditorGroupsTabsPosition, rect: Rectangle, borderThickness: Int, g: Graphics2D, active: Boolean)
 
   companion object {
     @JvmStatic

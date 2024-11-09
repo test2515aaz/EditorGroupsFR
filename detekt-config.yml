@@ -32,7 +32,7 @@ formatting:
     active: true
   ArgumentListWrapping:
     active: true
-    maxLineLength: 160
+    maxLineLength: 140
   ClassName:
     active: true
   EnumWrapping:
@@ -41,14 +41,14 @@ formatting:
     active: true
   FunctionSignature:
     active: true
-    forceMultilineWhenParameterCountGreaterOrEqualThan: 3
-    maxLineLength: 120
+    maxLineLength: 140
     indentSize: 2
   Indentation:
     active: true
     indentSize: 2
   MaximumLineLength:
-    maxLineLength: 160
+    active: true
+    maxLineLength: 140
   MultiLineIfElse:
     active: true
   NoBlankLineInList:
@@ -62,8 +62,10 @@ formatting:
   ParameterListWrapping:
     active: true
     indentSize: 2
-  PropertyName:
+    maxLineLength: 140
+  ParameterWrapping:
     active: true
+    maxLineLength: 140
 
 performance:
   CouldBeSequence:
@@ -80,7 +82,7 @@ style:
   BracesOnIfStatements:
     active: true
     singleLine: 'necessary'
-    multiLine: 'necessary'
+    multiLine: 'consistent'
   BracesOnWhenStatements:
     active: true
     singleLine: 'necessary'
@@ -103,6 +105,9 @@ style:
     active: true
   ExpressionBodySyntax:
     active: true
+  LoopWithTooManyJumpStatements:
+    active: true
+    maxJumpCount: 3
   MagicNumber:
     active: true
     ignorePropertyDeclaration: true
@@ -118,6 +123,11 @@ style:
   MaxChainedCallsOnSameLine:
     active: true
     maxChainedCalls: 2
+  MaxLineLength:
+    active: true
+    maxLineLength: 140
+    excludeCommentStatements: true
+    excludeRawStrings: true
   MultilineLambdaItParameter:
     active: true
   NoTabs:
@@ -133,7 +143,7 @@ style:
   RedundantVisibilityModifierRule:
     active: true
   ReturnCount:
-    max: 4
+    max: 6
     excludeGuardClauses: true
   SerialVersionUIDInSerializableClass:
     active: false
@@ -172,9 +182,7 @@ style:
   UseSumOfInsteadOfFlatMapSize:
     active: true
   WildcardImport:
-    active: true
-    excludeImports:
-      - com.intellij.ui.dsl.builder.*
+    active: false
 
 comments:
   AbsentOrWrongFileLicense:
@@ -214,6 +222,8 @@ complexity:
   LargeClass:
     active: false
   LongMethod:
+    active: false
+  LongParameterList:
     active: false
   NamedArguments:
     active: true

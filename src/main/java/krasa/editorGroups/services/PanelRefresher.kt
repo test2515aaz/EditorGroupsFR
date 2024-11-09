@@ -34,11 +34,14 @@ class PanelRefresher(private val project: Project) : Disposable {
   init {
     // When switching from dumb mode to smart mode, refresh all panels.
     project.messageBus.connect()
-      .subscribe(DumbService.DUMB_MODE, object : DumbService.DumbModeListener {
-        override fun enteredDumbMode() = Unit
+      .subscribe(
+        DumbService.DUMB_MODE,
+        object : DumbService.DumbModeListener {
+          override fun enteredDumbMode() = Unit
 
-        override fun exitDumbMode() = onSmartMode()
-      })
+          override fun exitDumbMode() = onSmartMode()
+        }
+      )
 
     addBookmarksListener()
   }
@@ -46,45 +49,47 @@ class PanelRefresher(private val project: Project) : Disposable {
   private fun addBookmarksListener() {
     val connect = project.messageBus.connect(this)
     connect
-      .subscribe(BookmarksListener.TOPIC, object : BookmarksListener {
-        override fun bookmarkAdded(group: BookmarkGroup, bookmark: Bookmark) = refresh()
+      .subscribe(
+        BookmarksListener.TOPIC,
+        object : BookmarksListener {
+          override fun bookmarkAdded(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-        override fun bookmarkRemoved(group: BookmarkGroup, bookmark: Bookmark) = refresh()
+          override fun bookmarkRemoved(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-        override fun bookmarkChanged(group: BookmarkGroup, bookmark: Bookmark) = refresh()
+          override fun bookmarkChanged(group: BookmarkGroup, bookmark: Bookmark) = refresh()
 
-        override fun groupsSorted() = refresh()
+          override fun groupsSorted() = refresh()
 
-        override fun groupAdded(group: BookmarkGroup) = refresh()
+          override fun groupAdded(group: BookmarkGroup) = refresh()
 
-        override fun groupRemoved(group: BookmarkGroup) = refresh()
+          override fun groupRemoved(group: BookmarkGroup) = refresh()
 
-        override fun groupRenamed(group: BookmarkGroup) = refresh()
+          override fun groupRenamed(group: BookmarkGroup) = refresh()
 
-        override fun bookmarksSorted(group: BookmarkGroup) = refresh()
+          override fun bookmarksSorted(group: BookmarkGroup) = refresh()
 
-        override fun bookmarkTypeChanged(bookmark: Bookmark) = refresh()
+          override fun bookmarkTypeChanged(bookmark: Bookmark) = refresh()
 
-        override fun defaultGroupChanged(oldGroup: BookmarkGroup?, newGroup: BookmarkGroup?) = refresh()
+          override fun defaultGroupChanged(oldGroup: BookmarkGroup?, newGroup: BookmarkGroup?) = refresh()
 
-        fun refresh() {
-          iteratePanels(BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
-            if (displayedGroup !is BookmarksGroup) return@BiConsumer
+          fun refresh() {
+            iteratePanels(
+              BiConsumer { panel: EditorGroupPanel, displayedGroup: EditorGroup ->
+                if (displayedGroup !is BookmarksGroup) return@BiConsumer
 
-            thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
-            panel.refreshPane(refresh = true, newGroup = displayedGroup)
-          })
+                thisLogger().debug("BookmarksListener refreshing ${panel.file.name}")
+                panel.refreshPane(refresh = true, newGroup = displayedGroup)
+              }
+            )
+          }
         }
-      })
-
+      )
   }
 
   /**
-   * Iterates over all editor panels in the current project and applies the given bi-consumer to each panel and its
-   * displayed group.
+   * Iterates over all editor panels in the current project and applies the given bi-consumer to each panel and its displayed group.
    *
-   * @param biConsumer a BiConsumer that accepts an EditorGroupPanel and an EditorGroup and performs an operation on
-   *    them
+   * @param biConsumer a BiConsumer that accepts an EditorGroupPanel and an EditorGroup and performs an operation on them
    */
   private fun iteratePanels(biConsumer: BiConsumer<EditorGroupPanel, EditorGroup>) {
     val manager = FileEditorManager.getInstance(project)
@@ -98,8 +103,8 @@ class PanelRefresher(private val project: Project) : Disposable {
   }
 
   /**
-   * Refreshes the panels for the selected editors if the cache is ready and the project is not disposed. This method is
-   * typically used to handle changes when switching to smart mode in the application.
+   * Refreshes the panels for the selected editors if the cache is ready and the project is not disposed. This method is typically used to
+   * handle changes when switching to smart mode in the application.
    */
   fun onSmartMode() {
     if (!cacheReady.get()) return
@@ -230,7 +235,7 @@ class PanelRefresher(private val project: Project) : Disposable {
   }
 
   override fun dispose() {
-
+    // do nothing yet
   }
 
   companion object {

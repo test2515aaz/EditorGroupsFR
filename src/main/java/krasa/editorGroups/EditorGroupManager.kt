@@ -85,7 +85,9 @@ class EditorGroupManager(private val project: Project) {
     val stub = true
     val refresh = false
 
-    thisLogger().debug("<getStubGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
+    thisLogger().debug(
+      "<getStubGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]"
+    )
 
     val start = System.currentTimeMillis()
     var result = EditorGroup.EMPTY
@@ -98,8 +100,8 @@ class EditorGroupManager(private val project: Project) {
       if (result.isInvalid) {
         cache.validate(requestedOrDisplayedGroup)
 
-        if (requestedOrDisplayedGroup.isValid
-          && (
+        if (requestedOrDisplayedGroup.isValid &&
+          (
             requestedOrDisplayedGroup is AutoGroup ||
               requestedOrDisplayedGroup.containsLink(project, currentFile) ||
               requestedOrDisplayedGroup.isOwner(currentFilePath)
@@ -144,7 +146,7 @@ class EditorGroupManager(private val project: Project) {
       if (isEmptyAutoGroup(project, result) || isIndexingAutoGroup(project, result)) {
         thisLogger().debug("refreshing result...")
 
-        //_refresh
+        // _refresh
         when (result) {
           is FolderGroup    -> result = autoGroupProvider.getFolderGroup(currentFile)
           is BookmarksGroup -> result = externalGroupProvider.getBookmarkGroup(result.title)
@@ -153,7 +155,9 @@ class EditorGroupManager(private val project: Project) {
 
       result.isStub = stub
 
-      thisLogger().debug("<getStubGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
+      thisLogger().debug(
+        "<getStubGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result"
+      )
 
       cache.setLast(currentFilePath, result)
     } catch (e: IndexNotReadyException) {
@@ -180,7 +184,9 @@ class EditorGroupManager(private val project: Project) {
     refresh: Boolean,
     stub: Boolean
   ): EditorGroup {
-    thisLogger().debug("<getGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]")
+    thisLogger().debug(
+      "<getGroup: fileEditor = [$fileEditor], displayedGroup = [$displayedGroup], requestedGroup = [$requestedGroup], force = [$refresh], stub = [$stub], project = [${project.name}]"
+    )
 
     val start = System.currentTimeMillis()
     var result = EditorGroup.EMPTY
@@ -212,11 +218,11 @@ class EditorGroupManager(private val project: Project) {
       if (result.isInvalid) {
         cache.validate(requestedOrDisplayedGroup)
 
-        if (requestedOrDisplayedGroup.isValid
-          && (
-            requestedOrDisplayedGroup is AutoGroup
-              || requestedOrDisplayedGroup.containsLink(project, currentFile)
-              || requestedOrDisplayedGroup.isOwner(currentFilePath)
+        if (requestedOrDisplayedGroup.isValid &&
+          (
+            requestedOrDisplayedGroup is AutoGroup ||
+              requestedOrDisplayedGroup.containsLink(project, currentFile) ||
+              requestedOrDisplayedGroup.isOwner(currentFilePath)
             )
         ) {
           result = requestedOrDisplayedGroup
@@ -256,17 +262,21 @@ class EditorGroupManager(private val project: Project) {
 
         when {
           !stub && result === requestedOrDisplayedGroup && result is EditorGroupIndexValue -> cache.initGroup(result)
-          !stub && result is SameNameGroup                                                 -> result =
-            autoGroupProvider.getSameNameGroup(currentFile)
+          !stub && result is SameNameGroup                                                 ->
+            result =
+              autoGroupProvider.getSameNameGroup(currentFile)
 
-          !stub && result is RegexGroup                                                    -> result =
-            regexGroupProvider.getRegexGroup(result, project, currentFile)
+          !stub && result is RegexGroup                                                    ->
+            result =
+              regexGroupProvider.getRegexGroup(result, project, currentFile)
 
-          result is FolderGroup                                                            -> result =
-            autoGroupProvider.getFolderGroup(currentFile)
+          result is FolderGroup                                                            ->
+            result =
+              autoGroupProvider.getFolderGroup(currentFile)
 
-          result is BookmarksGroup                                                         -> result =
-            externalGroupProvider.getBookmarkGroup(result.title)
+          result is BookmarksGroup                                                         ->
+            result =
+              externalGroupProvider.getBookmarkGroup(result.title)
         }
 
         // Last resort, try multigroup
@@ -277,15 +287,18 @@ class EditorGroupManager(private val project: Project) {
           val multiGroup = cache.getMultiGroup(currentFile)
           when {
             multiGroup.isValid                                                                       -> result = multiGroup
-            config.state.isAutoFolders && AutoGroup.SAME_FILE_NAME != cache.getLast(currentFilePath) -> result =
-              autoGroupProvider.getFolderGroup(currentFile)
+            config.state.isAutoFolders && AutoGroup.SAME_FILE_NAME != cache.getLast(currentFilePath) ->
+              result =
+                autoGroupProvider.getFolderGroup(currentFile)
           }
         }
       }
 
       result.isStub = stub
 
-      thisLogger().debug("<getGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result")
+      thisLogger().debug(
+        "<getGroup ${System.currentTimeMillis() - start}ms, EDT=${SwingUtilities.isEventDispatchThread()}, file=${currentFile.name} title='${result.title} stub='${result.isStub}' $result"
+      )
 
       cache.setLast(currentFilePath, result)
       lastGroup = result
@@ -333,7 +346,9 @@ class EditorGroupManager(private val project: Project) {
     this.switchRequest = switchRequest
     switching = true
 
-    thisLogger().debug("switching switching = [$switching], group = [${switchRequest.group}], fileToOpen = [${switchRequest.fileToOpen}], myScrollOffset = [${switchRequest.myScrollOffset}]")
+    thisLogger().debug(
+      "switching switching = [$switching], group = [${switchRequest.group}], fileToOpen = [${switchRequest.fileToOpen}], myScrollOffset = [${switchRequest.myScrollOffset}]"
+    )
   }
 
   /**
@@ -528,7 +543,9 @@ class EditorGroupManager(private val project: Project) {
     splitters: Splitters,
     switchRequest: SwitchRequest
   ): OpenFileResult? {
-    thisLogger().debug("open2 fileToOpen = [$fileToOpen], currentFile = [$currentFile], group = [$group], newWindow = [$newWindow], newTab = [$newTab], splitters = [$splitters], switchingRequest = [$switchRequest]")
+    thisLogger().debug(
+      "open2 fileToOpen = [$fileToOpen], currentFile = [$currentFile], group = [$group], newWindow = [$newWindow], newTab = [$newTab], splitters = [$splitters], switchingRequest = [$switchRequest]"
+    )
 
     val resultAtomicReference = AtomicReference<OpenFileResult>()
     startSwitching(switchRequest)

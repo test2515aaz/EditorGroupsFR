@@ -1,9 +1,8 @@
 package krasa.editorGroups.language.annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
-import kotlin.collections.mutableListOf
 
-class SourceAnnotationResult() {
+class SourceAnnotationResult {
   private val annotations: MutableList<SyntaxHighlightAnnotation> = mutableListOf<SyntaxHighlightAnnotation>()
 
   fun addAll(sourceAnnotations: MutableList<SyntaxHighlightAnnotation>) {

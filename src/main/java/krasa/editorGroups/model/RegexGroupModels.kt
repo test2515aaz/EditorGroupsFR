@@ -7,18 +7,20 @@ import com.intellij.util.xmlb.annotations.XCollection
 @Tag("regexGroups")
 class RegexGroupModels : BaseState() {
   @get:XCollection
-  var regexGroupModels: MutableList<RegexGroupModel> by list<RegexGroupModel>()
+  var regexModels: MutableList<RegexGroupModel> by list<RegexGroupModel>()
 
-  override fun toString(): String = "RegExpGroupModels{models=$regexGroupModels}"
+  override fun toString(): String = "RegExpGroupModels{models=$regexModels}"
 
-  fun findFirstMatching(fileName: String?): RegexGroupModel? = regexGroupModels.firstOrNull { it.matches(fileName!!) }
+  fun findFirstMatching(fileName: String?): RegexGroupModel? = regexModels.firstOrNull { it.matches(fileName!!) }
 
-  fun findMatching(fileName: String?): List<RegexGroupModel> = regexGroupModels.filter { it.matches(fileName!!) }
+  fun findMatching(fileName: String?): List<RegexGroupModel> = regexModels.filter { it.matches(fileName!!) }
 
   fun find(substring: String): RegexGroupModel? {
     val deserializedGroup = RegexGroupModel.deserialize(substring) ?: return null
-    return regexGroupModels.find { it.isEnabled && it.myRegex == deserializedGroup.myRegex }
+    return regexModels.find { it.isEnabled && it.myRegex == deserializedGroup.myRegex }
   }
 
-  fun findProjectRegexGroups(): List<RegexGroupModel> = regexGroupModels.filter { it.myScope == RegexGroupModel.Scope.WHOLE_PROJECT }
+  fun findProjectRegexGroups(): List<RegexGroupModel> = regexModels.filter {
+    it.myScope == RegexGroupModel.Scope.WHOLE_PROJECT
+  }
 }

@@ -53,11 +53,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
     }
   }
 
-  private fun loadLineBookmark(
-    bookmark: LineBookmark,
-    bookmarkGroup: BookmarkGroup,
-    project: Project
-  ) {
+  private fun loadLineBookmark(bookmark: LineBookmark, bookmarkGroup: BookmarkGroup, project: Project) {
     val file = bookmark.file
     val icon = EditorGroupsIcons.bookmarks
     val line = bookmark.line
@@ -78,11 +74,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
     )
   }
 
-  private fun loadFileBookmark(
-    bookmark: FileBookmark,
-    bookmarkGroup: BookmarkGroup,
-    project: Project
-  ) {
+  private fun loadFileBookmark(bookmark: FileBookmark, bookmarkGroup: BookmarkGroup, project: Project) {
     val file = bookmark.file
     val desc = bookmarkGroup.getDescription(bookmark)
 
@@ -117,10 +109,7 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   override fun toString(): String = "BookmarksGroup{links=$links, name='$name'}"
 
-  override fun getTabTitle(
-    project: Project,
-    presentableNameForUI: String,
-  ): String {
+  override fun getTabTitle(project: Project, presentableNameForUI: String): String {
     var nameForUI = presentableNameForUI
     val isEmptyName = name.isEmpty()
 

@@ -37,7 +37,6 @@ open class RegexFileResolver(private val project: Project) {
         .asSequence()
         .filterNotNull()
         .forEach { processFolders(regexGroup, regexGroupModel, referenceMatcher, groupMatcher, projectFileIndex, it) }
-
     } catch (e: TooManyFilesException) {
       e.showNotification()
       thisLogger().warn("Found too many matching files, skipping. Size=${links.size} $regexGroup")
@@ -60,35 +59,38 @@ open class RegexFileResolver(private val project: Project) {
     projectFileIndex: ProjectFileIndex,
     folder: VirtualFile
   ) {
-    VfsUtilCore.visitChildrenRecursively(folder, object : VirtualFileVisitor<Any?>() {
-      override fun visitFileEx(child: VirtualFile): Result {
-        when {
-          child.isDirectory -> {
-            ProgressManager.checkCanceled()
+    VfsUtilCore.visitChildrenRecursively(
+      folder,
+      object : VirtualFileVisitor<Any?>() {
+        override fun visitFileEx(child: VirtualFile): Result {
+          when {
+            child.isDirectory -> {
+              ProgressManager.checkCanceled()
 
-            if (shouldSkipDirectory(
-                child = child,
-                regexGroupModel = regexGroupModel,
-                regexGroup = regexGroup,
-                projectFileIndex = projectFileIndex
-              )
-            ) {
-              return SKIP_CHILDREN
+              if (shouldSkipDirectory(
+                  child = child,
+                  regexGroupModel = regexGroupModel,
+                  regexGroup = regexGroup,
+                  projectFileIndex = projectFileIndex
+                )
+              ) {
+                return SKIP_CHILDREN
+              }
+            }
+
+            else              -> {
+              val matcher = groupMatcher.reset(child.name)
+              if (matches(regexGroupModel, referenceMatcher, matcher)) {
+                links.add(child)
+
+                if (links.size > EditorGroupsSettings.instance.groupSizeLimit) throw TooManyFilesException()
+              }
             }
           }
-
-          else              -> {
-            val matcher = groupMatcher.reset(child.name)
-            if (matches(regexGroupModel, referenceMatcher, matcher)) {
-              links.add(child)
-
-              if (links.size > EditorGroupsSettings.instance.groupSizeLimit) throw TooManyFilesException()
-            }
-          }
+          return CONTINUE
         }
-        return CONTINUE
       }
-    })
+    )
   }
 
   private fun shouldSkipDirectory(

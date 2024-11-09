@@ -87,5 +87,4 @@ class EditorGroupTabTitleProvider : EditorTabTitleProvider {
 
     return uniqueName.takeIf { uniqueName != file.name }
   }
-
 }

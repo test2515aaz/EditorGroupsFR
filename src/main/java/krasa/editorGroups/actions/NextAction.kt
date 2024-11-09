@@ -35,7 +35,11 @@ class NextAction : EditorGroupsAction(), CustomComponentAction {
     presentation.icon = AllIcons.Actions.Forward
 
     button.addMouseListener(object : PopupHandler() {
-      override fun invokePopup(comp: Component, x: Int, y: Int) = popupInvoked(comp, x, y)
+      override fun invokePopup(
+        comp: Component,
+        x: Int,
+        y: Int
+      ) = popupInvoked(comp, x, y)
     })
 
     return button

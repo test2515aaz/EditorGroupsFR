@@ -38,14 +38,14 @@ class IndexCache(private val project: Project) {
       fileBasedIndex.getAllKeys(EditorGroupIndex.NAME, project)
         .forEach {
           fileBasedIndex.processValues(
-            /* indexId = */ EditorGroupIndex.NAME,
-            /* dataKey = */ it,
-            /* inFile = */ null,
-            /* processor = */ { _: VirtualFile?, value: EditorGroupIndexValue ->
+            EditorGroupIndex.NAME,
+            it,
+            null,
+            { _: VirtualFile?, value: EditorGroupIndexValue ->
               all.add(value)
               true
             },
-            /* filter = */ scope
+            scope
           )
         }
 
@@ -153,9 +153,12 @@ class IndexCache(private val project: Project) {
    */
   private fun getGroupFromIndexById(id: String): EditorGroup {
     val values = FileBasedIndex.getInstance().getValues(
-      /* indexId = */ EditorGroupIndex.NAME,
-      /* dataKey = */ id,
-      /* filter = */ GlobalSearchScope.projectScope(project)
+      /* indexId = */
+      EditorGroupIndex.NAME,
+      /* dataKey = */
+      id,
+      /* filter = */
+      GlobalSearchScope.projectScope(project)
     )
 
     if (values.size > 1) {
@@ -281,6 +284,7 @@ class IndexCache(private val project: Project) {
    * @param currentFile The VirtualFile currently open in the editor.
    * @return The calculated EditorGroup based on the input parameters.
    */
+  @Suppress("detekt:CyclomaticComplexMethod")
   private fun getResultGroup(
     last: String,
     includeAutoGroups: Boolean,

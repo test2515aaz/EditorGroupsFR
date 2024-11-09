@@ -51,6 +51,7 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : EditorGroupsSing
    *
    * @param passInfo The layout information for the current row of tabs.
    */
+  @Suppress("detekt:NestedBlockDepth")
   private fun doScrollToSelectedTab(passInfo: EditorGroupsSingleRowPassInfo) {
     if (tabs.isMouseInsideTabsArea || tabs.isScrollBarAdjusting() || tabs.isRecentlyActive) return
 
@@ -135,9 +136,9 @@ class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : EditorGroupsSing
     val bounds = label.bounds
     val deadzone = JBUI.scale(DEADZONE_FOR_DECLARE_TAB_HIDDEN)
 
-    return strategy.getMinPosition(bounds) < -deadzone
-      || bounds.width < label.getPreferredSize().width - deadzone
-      || bounds.height < label.getPreferredSize().height - deadzone
+    return strategy.getMinPosition(bounds) < -deadzone ||
+      bounds.width < label.getPreferredSize().width - deadzone ||
+      bounds.height < label.getPreferredSize().height - deadzone
   }
 
   override fun findLastVisibleLabel(passInfo: EditorGroupsSingleRowPassInfo): EditorGroupTabLabel? {
