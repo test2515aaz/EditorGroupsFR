@@ -1,14 +1,14 @@
+@file:Suppress("HardCodedStringLiteral")
+
 import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.extensions.intellijPlatform
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun properties(key: String) = providers.gradleProperty(key).get()
-fun environment(key: String) = providers.environmentVariable(key)
-fun fileProperties(key: String) = project.findProperty(key).toString().let { if (it.isNotEmpty()) file(it) else null }
+fun properties(key: String): String = providers.gradleProperty(key).get()
+fun environment(key: String): Provider<String?> = providers.environmentVariable(key)
 
 plugins {
-  // Java support
   id("java")
   alias(libs.plugins.kotlin)
   alias(libs.plugins.gradleIntelliJPlugin)
@@ -23,12 +23,8 @@ val pluginName: String by project
 val pluginVersion: String by project
 val pluginSinceBuild: String by project
 val pluginUntilBuild: String by project
-val pluginVerifierIdeVersions: String by project
 
-val platformType: String by project
 val platformVersion: String by project
-val platformPlugins: String by project
-val platformDownloadSources: String by project
 
 group = properties("pluginGroup")
 version = properties("pluginVersion")
@@ -47,12 +43,8 @@ repositories {
 }
 
 dependencies {
-  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.22.0")
-  implementation("commons-io:commons-io:2.11.0")
-  implementation("io.sentry:sentry:6.18.1")
-  testImplementation("org.assertj:assertj-core:3.24.2")
-  testImplementation("io.mockk:mockk:1.13.5")
-  implementation("commons-io:commons-io:2.11.0")
+  detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.7")
+  implementation("commons-io:commons-io:2.17.0")
   implementation("org.apache.commons:commons-lang3:3.12.0")
 
   intellijPlatform {
@@ -130,8 +122,6 @@ intellijPlatform {
     password = environment("PRIVATE_KEY_PASSWORD")
   }
 }
-
-
 
 tasks {
   wrapper {
