@@ -2,16 +2,10 @@
 package krasa.editorGroups.tabs2.impl
 
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
-import java.awt.Rectangle
 
 abstract class EditorGroupsTabLayout {
-  open val isWithScrollBar: Boolean
-    get() = true
-
   open val scrollOffset: Int
     get() = 0
-
-  open fun createShapeTransform(rectangle: Rectangle?): KrShapeTransform = KrShapeTransform.Top(rectangle)
 
   open fun scroll(units: Int): Unit = Unit
 

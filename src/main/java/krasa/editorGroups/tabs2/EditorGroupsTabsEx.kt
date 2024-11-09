@@ -6,7 +6,6 @@ import org.jetbrains.annotations.Nls
 import javax.swing.Icon
 
 interface EditorGroupsTabsEx : EditorGroupsTabsBase {
-  val isEditorTabs: Boolean
 
   val isEmptyVisible: Boolean
 

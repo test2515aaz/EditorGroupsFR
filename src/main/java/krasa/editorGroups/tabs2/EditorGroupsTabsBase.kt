@@ -72,8 +72,6 @@ interface EditorGroupsTabsBase {
 
   fun setPopupGroupWithSupplier(supplier: Supplier<out ActionGroup?>, place: String, addNavigationGroup: Boolean): EditorGroupsTabsBase
 
-  fun resetDropOver(tabInfo: EditorGroupTabInfo)
-
   fun getTabLabel(tabInfo: EditorGroupTabInfo): Component?
 
   interface SelectionChangeHandler {
