@@ -7,7 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.EditorGroupManager
 import krasa.editorGroups.EditorGroupPanel
 import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsScrollableSingleRowLayout
-import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
+import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsSingleRowLayout
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
 import java.awt.Component
@@ -81,7 +81,7 @@ class EditorGroupsTabsContainer(private val project: Project, parent: Disposable
    * krasa.editorGroups.tabs2.impl.JBTabsImpl$7.initialize(JBTabsImpl.java:340) at
    * krasa.editorGroups.tabs2.impl.JBTabsImpl$7.initialize(JBTabsImpl.java:333)
    */
-  override fun createSingleRowLayout(): KrSingleRowLayout = EditorGroupsScrollableSingleRowLayout(this)
+  override fun createSingleRowLayout(): EditorGroupsSingleRowLayout = EditorGroupsScrollableSingleRowLayout(this)
 
   /** Do not handle inactive tabs. */
   override fun isActiveTabs(info: EditorGroupTabInfo?): Boolean = true

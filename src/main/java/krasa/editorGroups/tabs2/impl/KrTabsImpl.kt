@@ -50,8 +50,8 @@ import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainter
 import krasa.editorGroups.tabs2.impl.painter.EditorGroupsTabPainterAdapter
 import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsLayoutPassInfo
 import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsScrollableSingleRowLayout
+import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsSingleRowLayout
 import krasa.editorGroups.tabs2.impl.singleRow.EditorGroupsSingleRowPassInfo
-import krasa.editorGroups.tabs2.impl.singleRow.KrSingleRowLayout
 import krasa.editorGroups.tabs2.impl.themes.EditorGroupTabTheme
 import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
@@ -445,7 +445,7 @@ open class KrTabsImpl(
     relayout(forced = true, layoutNow = true)
   }
 
-  protected open fun createSingleRowLayout(): KrSingleRowLayout = EditorGroupsScrollableSingleRowLayout(this)
+  protected open fun createSingleRowLayout(): EditorGroupsSingleRowLayout = EditorGroupsScrollableSingleRowLayout(this)
 
   override fun setNavigationActionBinding(prevActionId: String, nextActionId: String) {
     nextAction?.reconnect(nextActionId)
@@ -1544,7 +1544,7 @@ open class KrTabsImpl(
       val visible = getVisibleInfos().toMutableList()
 
       val effectiveLayout = effectiveLayout
-      if (effectiveLayout is KrSingleRowLayout) {
+      if (effectiveLayout is EditorGroupsSingleRowLayout) {
         lastLayoutPass = effectiveLayout.layoutSingleRow(visible)
         val titleRect = lastLayoutPass!!.titleRect
         if (!titleRect.isEmpty) {

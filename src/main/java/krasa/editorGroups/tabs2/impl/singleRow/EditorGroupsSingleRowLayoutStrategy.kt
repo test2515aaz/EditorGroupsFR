@@ -6,7 +6,7 @@ import java.awt.Rectangle
 import kotlin.math.max
 import kotlin.math.sign
 
-abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayout: KrSingleRowLayout) {
+abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayout: EditorGroupsSingleRowLayout) {
   val myTabs: KrTabsImpl = myLayout.tabs
 
   abstract val moreRectAxisSize: Int
@@ -54,7 +54,8 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
    */
   abstract fun drawPartialOverflowTabs(): Boolean
 
-  internal abstract class Horizontal protected constructor(layout: KrSingleRowLayout) : EditorGroupsSingleRowLayoutStrategy(layout) {
+  internal abstract class Horizontal protected constructor(layout: EditorGroupsSingleRowLayout) :
+    EditorGroupsSingleRowLayoutStrategy(layout) {
     override val isToCenterTextWhenStretched: Boolean
       get() = true
 
@@ -113,7 +114,7 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
     override fun drawPartialOverflowTabs(): Boolean = true
   }
 
-  internal class Top(layout: KrSingleRowLayout) : Horizontal(layout) {
+  internal class Top(layout: EditorGroupsSingleRowLayout) : Horizontal(layout) {
 
     override fun getFixedPosition(passInfo: EditorGroupsSingleRowPassInfo): Int = passInfo.insets!!.top
 
@@ -201,7 +202,7 @@ abstract class EditorGroupsSingleRowLayoutStrategy protected constructor(myLayou
     }
   }
 
-  internal class Bottom(layout: KrSingleRowLayout) : Horizontal(layout) {
+  internal class Bottom(layout: EditorGroupsSingleRowLayout) : Horizontal(layout) {
     override fun layoutComp(passInfo: EditorGroupsSingleRowPassInfo) {
       when {
         myTabs.isHideTabs -> myTabs.layoutComp(
