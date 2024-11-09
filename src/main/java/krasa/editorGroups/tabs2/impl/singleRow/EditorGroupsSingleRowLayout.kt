@@ -14,7 +14,7 @@ import java.awt.Rectangle
 import java.lang.ref.WeakReference
 import javax.swing.JComponent
 
-abstract class KrSingleRowLayout(
+abstract class EditorGroupsSingleRowLayout(
   val tabs: KrTabsImpl
 ) : EditorGroupsTabLayout() {
   var lastSingleRowLayout: EditorGroupsSingleRowPassInfo? = null

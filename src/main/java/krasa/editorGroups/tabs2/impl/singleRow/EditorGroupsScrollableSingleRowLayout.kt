@@ -7,7 +7,7 @@ import krasa.editorGroups.tabs2.label.EditorGroupTabLabel
 import kotlin.math.max
 import kotlin.math.min
 
-class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : KrSingleRowLayout(tabs) {
+class EditorGroupsScrollableSingleRowLayout(tabs: KrTabsImpl) : EditorGroupsSingleRowLayout(tabs) {
   override var scrollOffset: Int = 0
     private set
 

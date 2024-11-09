@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference
 import javax.swing.JComponent
 
 class EditorGroupsSingleRowPassInfo(
-  layout: KrSingleRowLayout,
+  layout: EditorGroupsSingleRowLayout,
   visibleTabInfos: MutableList<EditorGroupTabInfo>
 ) : EditorGroupsLayoutPassInfo(visibleTabInfos) {
   private val tabs: KrTabsImpl = layout.tabs
