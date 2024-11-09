@@ -7,7 +7,6 @@ import krasa.editorGroups.tabs2.impl.EditorGroupsTabListOptions
 import krasa.editorGroups.tabs2.impl.KrTabsImpl
 
 open class EditorGroupsPanelTabs : KrTabsImpl, EditorGroupsTabsBase {
-  override val isEditorTabs: Boolean = true
 
   constructor(project: Project?, parentDisposable: Disposable) : super(
     project = project,

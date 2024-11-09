@@ -14,16 +14,6 @@ public interface KrTabsPresentation {
 
   KrTabsPresentation setPaintFocus(boolean paintFocus);
 
-  KrTabsPresentation setSideComponentVertical(boolean vertical);
-
-  KrTabsPresentation setSideComponentOnTabs(boolean onTabs);
-
-  KrTabsPresentation setSideComponentBefore(boolean before);
-
-  KrTabsPresentation setSingleRow(boolean singleRow);
-
-  boolean isSingleRow();
-
   KrTabsPresentation setUiDecorator(@Nullable TabUiDecorator decorator);
 
   KrTabsPresentation setRequestFocusOnLastFocusedComponent(boolean request);
@@ -44,14 +34,9 @@ public interface KrTabsPresentation {
   KrTabsPresentation setActiveTabFillIn(@Nullable Color color);
 
   @NotNull
-  KrTabsPresentation setTabLabelActionsAutoHide(boolean autoHide);
-
-  @NotNull
   KrTabsPresentation setTabsPosition(EditorGroupsTabsPosition position);
 
   EditorGroupsTabsPosition getTabsPosition();
-
-  void setFirstTabOffset(int offset);
 
   KrTabsPresentation setEmptyText(@Nullable @NlsContexts.StatusText String text);
 }

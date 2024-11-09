@@ -10,8 +10,8 @@ import javax.swing.JComponent
 
 class EditorGroupsSingleRowPassInfo(
   layout: KrSingleRowLayout,
-  visibleInfos: MutableList<EditorGroupTabInfo>
-) : EditorGroupsLayoutPassInfo(visibleInfos) {
+  visibleTabInfos: MutableList<EditorGroupTabInfo>
+) : EditorGroupsLayoutPassInfo(visibleTabInfos) {
   private val tabs: KrTabsImpl = layout.tabs
 
   @JvmField
@@ -42,9 +42,6 @@ class EditorGroupsSingleRowPassInfo(
 
   @JvmField
   var hToolbar: WeakReference<JComponent?>? = null
-
-  @JvmField
-  var vToolbar: WeakReference<JComponent?>? = null
 
   @JvmField
   var insets: Insets? = null

@@ -4,7 +4,7 @@ import krasa.editorGroups.tabs2.label.EditorGroupTabInfo
 import java.awt.Rectangle
 
 abstract class EditorGroupsLayoutPassInfo protected constructor(
-  @JvmField val myVisibleInfos: MutableList<EditorGroupTabInfo>
+  @JvmField val visibleTabInfos: MutableList<EditorGroupTabInfo>
 ) {
   @JvmField
   var entryPointRect: Rectangle = Rectangle()
