@@ -12,7 +12,6 @@ package krasa.editorGroups
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.ide.IdeEventQueue
-import com.intellij.ide.ui.UISettings
 import com.intellij.ide.ui.customization.CustomActionsSchema
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.*
@@ -89,7 +88,6 @@ class EditorGroupPanel(
   var disposed: Boolean = false
 
   var currentTabPlacement: Int = SwingConstants.TOP
-  var isLaidOut: Boolean = false
 
   /**
    * A thread-safe reference to the current refresh request.
@@ -183,7 +181,7 @@ class EditorGroupPanel(
     createToolbar()
 
     // Create the tabs component
-    setTabPlacement(UISettings.getInstance().editorTabPlacement)
+    updateTabPlacement()
 
     // Add a right click mouse listener to allow remove from favorites
     tabs.addTabMouseListener(EditorTabMouseListener(tabs))
@@ -235,9 +233,8 @@ class EditorGroupPanel(
     else                                        -> EditorGroupsUI.tabHeight()
   }
 
-  // TODO move to KrJBEditorTabs constructor
-  internal fun setTabPlacement(tabPlacement: Int) {
-    when (tabPlacement) {
+  internal fun updateTabPlacement() {
+    when (this.currentTabPlacement) {
       SwingConstants.TOP    -> tabs.setTabsPosition(EditorGroupsTabsPosition.TOP)
       SwingConstants.BOTTOM -> tabs.setTabsPosition(EditorGroupsTabsPosition.BOTTOM)
       else                  -> tabs.isHideTabs = true

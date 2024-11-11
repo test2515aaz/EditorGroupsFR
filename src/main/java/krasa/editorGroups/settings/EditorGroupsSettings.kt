@@ -7,6 +7,8 @@ import com.intellij.util.messages.Topic
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
+import org.intellij.lang.annotations.JdkConstants
+import javax.swing.SwingConstants
 
 @Service(Service.Level.APP)
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
@@ -67,6 +69,10 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
     // Limit the number of tabs in a group
     var tabSizeLimitInt: Int by property(DEFAULT_TAB_SIZE_LIMIT)
+
+    // Placement of the tab panel
+    @JdkConstants.TabPlacement
+    var tabsPlacement: Int by property(SwingConstants.TOP)
   }
 
   @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
@@ -195,6 +201,13 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
       state.tabSizeLimitInt = value.toInt().coerceIn(MIN_TAB_SIZE_LIMIT, MAX_TAB_SIZE_LIMIT)
     }
 
+  @EditorGroupSetting([EditorGroupSetting.Category.TABS])
+  var tabsPlacement: Int
+    get() = state.tabsPlacement
+    set(value) {
+      state.tabsPlacement = value.coerceIn(SwingConstants.TOP, SwingConstants.BOTTOM)
+    }
+
   @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
   var regexGroupModels: RegexGroupModels
     get() = state.regexGroupModels
@@ -228,6 +241,8 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     clone.isShowPanel = this.isShowPanel
     clone.groupSizeLimit = this.groupSizeLimit
     clone.tabSizeLimit = this.tabSizeLimit
+    clone.tabsPlacement = this.tabsPlacement
+    clone.regexGroupModels = this.regexGroupModels
     return clone
   }
 
@@ -250,6 +265,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isShowPanel = state.isShowPanel
     this.groupSizeLimit = state.groupSizeLimit
     this.tabSizeLimit = state.tabSizeLimit
+    this.tabsPlacement = state.tabsPlacement
     this.fireChanged()
   }
 
@@ -284,6 +300,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isShowPanel = true
     this.groupSizeLimit = DEFAULT_GROUP_SIZE_LIMIT
     this.tabSizeLimit = DEFAULT_TAB_SIZE_LIMIT
+    this.tabsPlacement = SwingConstants.TOP
     this.fireChanged()
   }
 
@@ -312,6 +329,8 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     if (isShowPanel != other.isShowPanel) return false
     if (groupSizeLimit != other.groupSizeLimit) return false
     if (tabSizeLimit != other.tabSizeLimit) return false
+    if (tabsPlacement != other.tabsPlacement) return false
+    if (regexGroupModels != other.regexGroupModels) return false
 
     return true
   }
@@ -335,6 +354,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     result = 31 * result + isShowPanel.hashCode()
     result = 31 * result + groupSizeLimit
     result = 31 * result + tabSizeLimit
+    result = 31 * result + tabsPlacement
     return result
   }
 
@@ -358,6 +378,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |isShowPanel=$isShowPanel,
     |groupSizeLimit=$groupSizeLimit,
     |tabSizeLimit=$tabSizeLimit,
+    |tabsPlacement=$tabsPlacement,
     |regexGroupModels=$regexGroupModels
     )
   """.trimMargin()
