@@ -7,7 +7,6 @@ import com.intellij.util.messages.Topic
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
-import org.intellij.lang.annotations.JdkConstants
 import javax.swing.SwingConstants
 
 @Service(Service.Level.APP)
@@ -77,7 +76,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     var customFont: String? by string(DEFAULT_FONT)
 
     // Placement of the tab panel
-    @JdkConstants.TabPlacement
     var tabsPlacement: Int by property(SwingConstants.TOP)
   }
 
