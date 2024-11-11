@@ -5,13 +5,16 @@ import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.ui.FontComboBox
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import krasa.editorGroups.messages.EditorGroupsBundle.message
+import krasa.editorGroups.settings.EditorGroupsSettings.Companion.DEFAULT_FONT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_GROUP_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_TAB_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MIN_GROUP_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MIN_TAB_SIZE_LIMIT
+import krasa.editorGroups.support.bind
 import krasa.editorGroups.support.navigateToSettingsPage
 import javax.swing.SwingConstants
 
@@ -113,6 +116,19 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
           checkBox(message("EditorGroupsSettings.isCompactTabsCheckbox.text"))
             .bindSelected(settingsClone::isCompactTabs)
             .comment(message("EditorGroupsSettings.isCompactTabsCheckbox.toolTipText"))
+        }
+
+        separator()
+
+        row {
+          val tabFontCheckbox = checkBox(message("EditorGroupsSettings.isCustomFont.text"))
+            .bindSelected(settingsClone::isCustomFont)
+            .gap(RightGap.COLUMNS)
+            .comment(message("EditorGroupsSettings.isCustomFont.tooltipText"))
+
+          cell(FontComboBox())
+            .enabledIf(tabFontCheckbox.selected)
+            .bind(settingsClone::customFont, DEFAULT_FONT)
         }
 
         row {

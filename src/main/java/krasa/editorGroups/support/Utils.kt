@@ -216,8 +216,20 @@ fun isBlank(cs: CharSequence?): Boolean {
   return cs.indices.all { Character.isWhitespace(cs[it]) }
 }
 
+/**
+ * Retrieves the settings associated with the specified component.
+ *
+ * @param component The component for which settings are to be retrieved.
+ * @return The settings associated with the component, or null if no settings are found.
+ */
 fun getSettings(component: Component): Settings? = Settings.KEY.getData(DataManager.getInstance().getDataContext(component))
 
+/**
+ * Navigates to the settings page associated with a specific component.
+ *
+ * @param component The component for which the settings page is to be navigated.
+ * @param name The name of the settings page to navigate to.
+ */
 fun navigateToSettingsPage(component: Component, name: String) {
   val settings = getSettings(component) ?: return
   settings.select(settings.find(name))
