@@ -3,12 +3,14 @@ package krasa.editorGroups.tabs2.impl.themes
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBFont
 import com.intellij.util.ui.JBUI
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.awt.Color
 import java.awt.Font
 import javax.swing.UIManager
 
 object EditorGroupsUI {
   val defaultTheme: EditorGroupDefaultTabTheme = EditorGroupDefaultTabTheme()
+  val defaultSize: Int = JBUI.scale(14)
 
   fun underlineColor(): Color = JBColor.namedColor(
     "EditorGroupsTabs.underlineColor",
@@ -85,8 +87,18 @@ object EditorGroupsUI {
     defaultTheme.fontSizeOffset
   )
 
-  fun font(): Font = defaultFont()
-    .biggerOn(fontSizeOffset().toFloat())
+  fun font(): Font {
+    val isCustomFont = EditorGroupsSettings.instance.isCustomFont
+    val customFont = EditorGroupsSettings.instance.customFont
+
+    val font = when {
+      isCustomFont && customFont != null -> JBFont.create(Font(customFont, Font.PLAIN, defaultSize), false)
+      else                               -> defaultFont()
+    }
+
+    return font
+      .biggerOn(fontSizeOffset().toFloat())
+  }
 
   private fun defaultFont(): JBFont {
     val font = UIManager.getFont("EditorGroupsTabs.font") ?: defaultTheme.font

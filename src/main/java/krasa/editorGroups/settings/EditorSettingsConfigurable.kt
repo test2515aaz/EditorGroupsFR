@@ -1,16 +1,22 @@
 package krasa.editorGroups.settings
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.observable.properties.GraphProperty
+import com.intellij.openapi.observable.properties.PropertyGraph
 import com.intellij.openapi.options.BoundSearchableConfigurable
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.ui.FontComboBox
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.*
 import krasa.editorGroups.messages.EditorGroupsBundle.message
+import krasa.editorGroups.settings.EditorGroupsSettings.Companion.DEFAULT_FONT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_GROUP_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MAX_TAB_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MIN_GROUP_SIZE_LIMIT
 import krasa.editorGroups.settings.EditorGroupsSettings.Companion.MIN_TAB_SIZE_LIMIT
+import krasa.editorGroups.support.bind
 import krasa.editorGroups.support.navigateToSettingsPage
+import javax.swing.SwingConstants
 
 internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
   message("settings.title"),
@@ -31,6 +37,9 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
     lateinit var behaviorGroup: CollapsibleRow
     lateinit var presentationGroup: CollapsibleRow
     lateinit var performanceGroup: CollapsibleRow
+
+    val propertyGraph = PropertyGraph()
+    val tabsPlacementProperty: GraphProperty<Int> = propertyGraph.property(settingsClone.tabsPlacement)
 
     main = panel {
       row {
@@ -83,6 +92,20 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
         .also { it.expanded = true }
 
       presentationGroup = collapsibleGroup(message("settings.features.presentation.title")) {
+        row(message("EditorGroupsSettings.tabsPlacement.text")) {
+          segmentedButton(listOf(SwingConstants.TOP, SwingConstants.BOTTOM)) {
+            text = when (it) {
+              SwingConstants.TOP    -> message("EditorGroupsSettings.tabsPlacementTop.text")
+              SwingConstants.BOTTOM -> message("EditorGroupsSettings.tabsPlacementBottom.text")
+              else                  -> message("EditorGroupsSettings.tabsPlacementTop.text")
+            }
+          }
+            .bind(tabsPlacementProperty)
+            .selectedItem = tabsPlacementProperty.get()
+        }
+          .rowComment(message("EditorGroupsSettings.tabsPlacement.toolTipText"))
+          .bottomGap(BottomGap.SMALL)
+
         row {
           checkBox(message("EditorGroupsSettings.isShowSizeCheckbox.text"))
             .bindSelected(settingsClone::isShowSize)
@@ -93,6 +116,19 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
           checkBox(message("EditorGroupsSettings.isCompactTabsCheckbox.text"))
             .bindSelected(settingsClone::isCompactTabs)
             .comment(message("EditorGroupsSettings.isCompactTabsCheckbox.toolTipText"))
+        }
+
+        separator()
+
+        row {
+          val tabFontCheckbox = checkBox(message("EditorGroupsSettings.isCustomFont.text"))
+            .bindSelected(settingsClone::isCustomFont)
+            .gap(RightGap.COLUMNS)
+            .comment(message("EditorGroupsSettings.isCustomFont.tooltipText"))
+
+          cell(FontComboBox())
+            .enabledIf(tabFontCheckbox.selected)
+            .bind(settingsClone::customFont, DEFAULT_FONT)
         }
 
         row {
@@ -177,6 +213,11 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
     behaviorGroup.enabledIf(isEnabled.selected)
     presentationGroup.enabledIf(isEnabled.selected)
     performanceGroup.enabledIf(isEnabled.selected)
+
+    // Synchronize changes back to the original property
+    tabsPlacementProperty.afterChange { newValue ->
+      settingsClone.tabsPlacement = newValue
+    }
   }
 
   private fun doReset() {

@@ -128,6 +128,7 @@ style:
     maxLineLength: 140
     excludeCommentStatements: true
     excludeRawStrings: true
+    excludeStringTemplates: true
   MultilineLambdaItParameter:
     active: true
   NoTabs:

@@ -15,6 +15,15 @@
       "key": "EditorGroupsTabs.hoverBackground"
     },
     {
+      "key": "EditorGroupsTabs.hoverInactiveBackground"
+    },
+    {
+      "key": "EditorGroupsTabs.hoverSelectedBackground"
+    },
+    {
+      "key": "EditorGroupsTabs.hoverSelectedInactiveBackground"
+    },
+    {
       "key": "EditorGroupsTabs.inactiveMaskColor"
     },
     {
@@ -28,6 +37,24 @@
     },
     {
       "key": "EditorGroupsTabs.underlinedTabBackground"
+    },
+    {
+      "key": "EditorGroupsTabs.underlinedTabForeground"
+    },
+    {
+      "key": "EditorGroupsTabs.underlineArc"
+    },
+    {
+      "key": "EditorGroupsTabs.compactTabHeight"
+    },
+    {
+      "key": "EditorGroupsTabs.tabHeight"
+    },
+    {
+      "key": "EditorGroupsTabs.fontSizeOffset"
+    },
+    {
+      "key": "EditorGroupsTabs.font"
     }
   ]
 }

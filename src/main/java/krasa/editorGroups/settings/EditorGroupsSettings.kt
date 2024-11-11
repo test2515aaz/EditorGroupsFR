@@ -7,6 +7,7 @@ import com.intellij.util.messages.Topic
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
+import javax.swing.SwingConstants
 
 @Service(Service.Level.APP)
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
@@ -67,6 +68,15 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
     // Limit the number of tabs in a group
     var tabSizeLimitInt: Int by property(DEFAULT_TAB_SIZE_LIMIT)
+
+    // Custom font
+    var isCustomFont: Boolean by property(false)
+
+    // Custom font name
+    var customFont: String? by string(DEFAULT_FONT)
+
+    // Placement of the tab panel
+    var tabsPlacement: Int by property(SwingConstants.TOP)
   }
 
   @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
@@ -195,6 +205,27 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
       state.tabSizeLimitInt = value.toInt().coerceIn(MIN_TAB_SIZE_LIMIT, MAX_TAB_SIZE_LIMIT)
     }
 
+  @EditorGroupSetting([EditorGroupSetting.Category.UI, EditorGroupSetting.Category.TABS])
+  var tabsPlacement: Int
+    get() = state.tabsPlacement
+    set(value) {
+      state.tabsPlacement = value.coerceIn(SwingConstants.TOP, SwingConstants.BOTTOM)
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.UI, EditorGroupSetting.Category.TABS])
+  var isCustomFont: Boolean
+    get() = state.isCustomFont
+    set(value) {
+      state.isCustomFont = value
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.UI, EditorGroupSetting.Category.TABS])
+  var customFont: String?
+    get() = state.customFont
+    set(value) {
+      state.customFont = value
+    }
+
   @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
   var regexGroupModels: RegexGroupModels
     get() = state.regexGroupModels
@@ -228,6 +259,10 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     clone.isShowPanel = this.isShowPanel
     clone.groupSizeLimit = this.groupSizeLimit
     clone.tabSizeLimit = this.tabSizeLimit
+    clone.tabsPlacement = this.tabsPlacement
+    clone.isCustomFont = this.isCustomFont
+    clone.customFont = this.customFont
+    clone.regexGroupModels = this.regexGroupModels
     return clone
   }
 
@@ -250,6 +285,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isShowPanel = state.isShowPanel
     this.groupSizeLimit = state.groupSizeLimit
     this.tabSizeLimit = state.tabSizeLimit
+    this.tabsPlacement = state.tabsPlacement
+    this.isCustomFont = state.isCustomFont
+    this.customFont = state.customFont
     this.fireChanged()
   }
 
@@ -284,6 +322,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isShowPanel = true
     this.groupSizeLimit = DEFAULT_GROUP_SIZE_LIMIT
     this.tabSizeLimit = DEFAULT_TAB_SIZE_LIMIT
+    this.tabsPlacement = SwingConstants.TOP
+    this.isCustomFont = false
+    this.customFont = DEFAULT_FONT
     this.fireChanged()
   }
 
@@ -312,6 +353,10 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     if (isShowPanel != other.isShowPanel) return false
     if (groupSizeLimit != other.groupSizeLimit) return false
     if (tabSizeLimit != other.tabSizeLimit) return false
+    if (tabsPlacement != other.tabsPlacement) return false
+    if (isCustomFont != other.isCustomFont) return false
+    if (customFont != other.customFont) return false
+    if (regexGroupModels != other.regexGroupModels) return false
 
     return true
   }
@@ -335,6 +380,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     result = 31 * result + isShowPanel.hashCode()
     result = 31 * result + groupSizeLimit
     result = 31 * result + tabSizeLimit
+    result = 31 * result + tabsPlacement
+    result = 31 * result + isCustomFont.hashCode()
+    result = 31 * result + customFont.hashCode()
     return result
   }
 
@@ -358,6 +406,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |isShowPanel=$isShowPanel,
     |groupSizeLimit=$groupSizeLimit,
     |tabSizeLimit=$tabSizeLimit,
+    |tabsPlacement=$tabsPlacement,
+    |isCustomFont=$isCustomFont,
+    |customFont=$customFont,
     |regexGroupModels=$regexGroupModels
     )
   """.trimMargin()
@@ -375,6 +426,8 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     const val DEFAULT_TAB_SIZE_LIMIT: Int = 50
     const val MIN_TAB_SIZE_LIMIT: Int = 1
     const val MAX_TAB_SIZE_LIMIT: Int = 100
+
+    const val DEFAULT_FONT: String = "Lato"
 
     @Topic.AppLevel
     @JvmField
