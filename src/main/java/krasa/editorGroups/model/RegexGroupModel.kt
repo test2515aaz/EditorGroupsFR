@@ -11,13 +11,22 @@ import java.util.regex.Pattern
 @Tag("regexGroup")
 class RegexGroupModel : BaseState() {
   var isEnabled: Boolean by property(true)
+  var touched: Boolean = false
+  var name: String? by string()
   var regex: String? by string()
   var notComparingGroups: String? by string()
   var scope: Scope by enum(Scope.CURRENT_FOLDER)
 
+  /** Optional regex name. */
+  var myName: String
+    get() = name ?: myRegex
+    set(value) {
+      name = value
+    }
+
   /** Regex. */
-  var myRegex: String?
-    get() = regex
+  var myRegex: String
+    get() = regex ?: ".*"
     set(value) {
       regex = value
       regexPattern = null
@@ -25,10 +34,10 @@ class RegexGroupModel : BaseState() {
 
   /** The regex group matches to avoid comparing. */
   @Suppress("detekt:UseRequire")
-  var myNotComparingGroups: String?
-    get() = notComparingGroups
+  var myNotComparingGroups: String
+    get() = notComparingGroups ?: ""
     set(value) {
-      if (value != null && value.contains("|")) {
+      if (value.contains("|")) {
         throw IllegalArgumentException("notComparingGroups must not contain '|'")
       }
       notComparingGroups = value
@@ -36,24 +45,34 @@ class RegexGroupModel : BaseState() {
     }
 
   /** Scope. */
-  var myScope: Scope?
+  var myScope: Scope
     get() = scope
     set(value) {
-      scope = value ?: Scope.CURRENT_FOLDER
+      scope = value
     }
 
   @Transient
   var regexPattern: Pattern? = null
     get() {
-      if (field == null) field = myRegex?.let { Pattern.compile(it) }
+      if (field == null) field = myRegex.let { Pattern.compile(it) }
       return field
     }
 
   @Transient
   private var notComparingGroupsIntArray: IntArray? = null
 
+  val isEmpty: Boolean
+    get() = myRegex.isBlank()
+
   @NonNls
   fun serialize(): String = "v1|$myScope|$myNotComparingGroups|$myRegex"
+
+  fun apply(other: RegexGroupModel) {
+    isEnabled = other.isEnabled
+    myRegex = other.myRegex
+    myNotComparingGroups = other.myNotComparingGroups
+    myScope = other.myScope
+  }
 
   fun matches(name: String): Boolean {
     try {
@@ -65,9 +84,9 @@ class RegexGroupModel : BaseState() {
   }
 
   fun copy(): RegexGroupModel = from(
-    regex = myRegex ?: ".*",
-    scope = myScope ?: Scope.CURRENT_FOLDER,
-    notComparingGroups = myNotComparingGroups ?: ""
+    regex = myRegex,
+    scope = myScope,
+    notComparingGroups = myNotComparingGroups
   )
 
   fun isComparingGroup(groupIndex: Int): Boolean {
@@ -84,7 +103,7 @@ class RegexGroupModel : BaseState() {
   private fun getNotComparingGroupsAsIntArray(): IntArray {
     if (StringUtils.isBlank(myNotComparingGroups)) return IntArray(0)
 
-    val split = myNotComparingGroups!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    val split = myNotComparingGroups.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     val size = split.size
     val arr = IntArray(size)
 
