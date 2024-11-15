@@ -5,7 +5,6 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.messages.Topic
 import krasa.editorGroups.messages.EditorGroupsBundle.message
-import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupsSettings.EditorGroupsSettingsState
 import javax.swing.SwingConstants
 
@@ -13,8 +12,6 @@ import javax.swing.SwingConstants
 @State(name = "EditorGroups", storages = [Storage(value = "EditorGroups.xml")], category = SettingsCategory.UI)
 class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettingsState>(EditorGroupsSettingsState()) {
   class EditorGroupsSettingsState : BaseState() {
-    var regexGroupModels: RegexGroupModels by property(RegexGroupModels())
-
     // Select first matching regex group if no group matches
     var isSelectRegexGroup: Boolean by property(false)
 
@@ -226,13 +223,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
       state.customFont = value
     }
 
-  @EditorGroupSetting([EditorGroupSetting.Category.REGEX, EditorGroupSetting.Category.GROUPS])
-  var regexGroupModels: RegexGroupModels
-    get() = state.regexGroupModels
-    set(value) {
-      state.regexGroupModels = value
-    }
-
   fun fireChanged() {
     ApplicationManager.getApplication().messageBus
       .syncPublisher(TOPIC)
@@ -262,7 +252,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     clone.tabsPlacement = this.tabsPlacement
     clone.isCustomFont = this.isCustomFont
     clone.customFont = this.customFont
-    clone.regexGroupModels = this.regexGroupModels
     return clone
   }
 
@@ -356,7 +345,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     if (tabsPlacement != other.tabsPlacement) return false
     if (isCustomFont != other.isCustomFont) return false
     if (customFont != other.customFont) return false
-    if (regexGroupModels != other.regexGroupModels) return false
 
     return true
   }
@@ -409,7 +397,6 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |tabsPlacement=$tabsPlacement,
     |isCustomFont=$isCustomFont,
     |customFont=$customFont,
-    |regexGroupModels=$regexGroupModels
     )
   """.trimMargin()
 

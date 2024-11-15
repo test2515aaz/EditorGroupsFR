@@ -4,7 +4,7 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.ui.table.JBTable
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
-import krasa.editorGroups.settings.EditorGroupsSettings
+import krasa.editorGroups.settings.regex.RegexGroupsSettings
 import java.awt.Component
 import java.util.*
 import javax.swing.JTable
@@ -100,18 +100,18 @@ class RegexModelTable : JBTable() {
     }
   }
 
-  fun commit(settings: EditorGroupsSettings) {
+  fun commit(settings: RegexGroupsSettings) {
     settings.regexGroupModels.regexModels = myRegexGroupModels
   }
 
-  fun reset(settings: EditorGroupsSettings) {
+  fun reset(settings: RegexGroupsSettings) {
     obtainRegexModels(myRegexGroupModels, settings)
     myTableModel.fireTableDataChanged()
   }
 
   private fun indexOfRegexModelWithName(name: String): Int = myRegexGroupModels.indexOfFirst { it.myRegex == name }
 
-  private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: EditorGroupsSettings) {
+  private fun obtainRegexModels(regexModels: MutableList<RegexGroupModel>, settings: RegexGroupsSettings) {
     regexModels.clear()
     val regexGroupModels = settings.regexGroupModels.regexModels
 
@@ -140,7 +140,7 @@ class RegexModelTable : JBTable() {
     return true
   }
 
-  fun isModified(settings: EditorGroupsSettings): Boolean {
+  fun isModified(settings: RegexGroupsSettings): Boolean {
     val regexGroupModels = MutableList<RegexGroupModel>(0) { RegexGroupModel() }
     obtainRegexModels(regexGroupModels, settings)
     return regexGroupModels != myRegexGroupModels
