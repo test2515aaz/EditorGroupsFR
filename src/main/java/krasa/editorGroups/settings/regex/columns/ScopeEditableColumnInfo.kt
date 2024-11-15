@@ -23,29 +23,28 @@
  */
 package krasa.editorGroups.settings.regex.columns
 
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.ui.ValidationInfo
-import com.intellij.openapi.ui.cellvalidators.StatefulValidatingCellEditor
-import com.intellij.openapi.ui.cellvalidators.ValidatingTableCellRendererWrapper
-import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.ui.table.TableModelEditor.EditableColumnInfo
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
 import krasa.editorGroups.model.RegexGroupModel.Scope
+import java.awt.Component
+import javax.swing.DefaultCellEditor
+import javax.swing.JComboBox
+import javax.swing.JTable
+import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
 /** Editable column info for [krasa.editorGroups.model.RegexGroupModel] scope. */
-@Suppress("UnstableApiUsage")
-class ScopeEditableColumnInfo(private val parent: Disposable, private val editable: Boolean) :
-  EditableColumnInfo<RegexGroupModel, String>(message("RegexEditorConfigurable.columns.scope")) {
+class ScopeEditableColumnInfo(private val editable: Boolean) :
+  EditableColumnInfo<RegexGroupModel, Scope>(message("RegexEditorConfigurable.columns.scope")) {
   /**
    * The value of the column is the scope
    *
    * @param item the [RegexGroupModel]
    * @return [RegexGroupModel] scope
    */
-  override fun valueOf(item: RegexGroupModel): String = item.myScope.name
+  override fun valueOf(item: RegexGroupModel): Scope = item.myScope
 
   /**
    * Set [RegexGroupModel]'s scope
@@ -53,8 +52,8 @@ class ScopeEditableColumnInfo(private val parent: Disposable, private val editab
    * @param item the [RegexGroupModel]
    * @param value the new scope
    */
-  override fun setValue(item: RegexGroupModel, value: String) {
-    item.scope = Scope.valueOf(value)
+  override fun setValue(item: RegexGroupModel, value: Scope) {
+    item.scope = value
     item.touched = true
   }
 
@@ -64,27 +63,30 @@ class ScopeEditableColumnInfo(private val parent: Disposable, private val editab
    * @param item the [RegexGroupModel]
    * @return the [TableCellEditor]
    */
-  override fun getEditor(item: RegexGroupModel): TableCellEditor {
-    val cellEditor = ExtendableTextField()
-    return StatefulValidatingCellEditor(cellEditor, parent)
-  }
+  override fun getEditor(item: RegexGroupModel): TableCellEditor = DefaultCellEditor(
+    JComboBox(Scope.entries.toTypedArray()).apply {
+      selectedItem = item.myScope
+    }
+  )
 
-  /**
-   * Creates a renderer for the name: displays the name with a validation tooltip if the scope is empty
-   *
-   * @param item the [RegexGroupModel]
-   * @return the [TableCellRenderer]
-   */
-  override fun getRenderer(item: RegexGroupModel): TableCellRenderer? {
-    return ValidatingTableCellRendererWrapper(ModifiedInfoCellRenderer(item))
-      .withCellValidator { value: Any?, _: Int, _: Int ->
-        if (value == null || value == "") {
-          return@withCellValidator ValidationInfo(message("RegexEditorConfigurable.NameEditor.empty"))
-        } else {
-          return@withCellValidator null
-        }
-      }
+  override fun getRenderer(item: RegexGroupModel): TableCellRenderer = object : DefaultTableCellRenderer() {
+    override fun getTableCellRendererComponent(
+      table: JTable,
+      value: Any?,
+      isSelected: Boolean,
+      hasFocus: Boolean,
+      row: Int,
+      column: Int
+    ): Component {
+      val component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
+      if (value !is Scope) return component
+
+      text = message("scope.${value.name}")
+      return component
+    }
   }
 
   override fun isCellEditable(item: RegexGroupModel): Boolean = editable
+
+  override fun getColumnClass(): Class<*> = Scope::class.java
 }

@@ -35,7 +35,7 @@ internal class RegexEditorConfigurable :
     TouchedColumnInfo(),
     NameEditableColumnInfo(parent = this, editable = true),
     PatternEditableColumnInfo(parent = this, editable = true),
-    ScopeEditableColumnInfo(parent = this, editable = true),
+    ScopeEditableColumnInfo(editable = true),
     NotComparingGroupsEditableColumnInfo(parent = this, editable = true),
   )
 

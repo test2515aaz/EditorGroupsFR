@@ -12,6 +12,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.table.ComboBoxTableCellEditor
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.model.RegexGroupModel.Scope
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -300,6 +301,7 @@ class RegexTableModelEditor(
         val oldValue = columnInfo.valueOf(item)
 
         val comparator = when (columnInfo.columnClass) {
+          Scope::class.java  -> Comparing.equal(oldValue, aValue)
           String::class.java -> Comparing.strEqual(oldValue as? String, aValue as String)
           else               -> Comparing.equal(oldValue, aValue)
         }

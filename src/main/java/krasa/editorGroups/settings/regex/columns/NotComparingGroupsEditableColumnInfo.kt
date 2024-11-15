@@ -24,18 +24,14 @@
 package krasa.editorGroups.settings.regex.columns
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.cellvalidators.StatefulValidatingCellEditor
-import com.intellij.openapi.ui.cellvalidators.ValidatingTableCellRendererWrapper
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.ui.table.TableModelEditor.EditableColumnInfo
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
 import javax.swing.table.TableCellEditor
-import javax.swing.table.TableCellRenderer
 
 /** Editable column info for [krasa.editorGroups.model.RegexGroupModel] notComparingGroups. */
-@Suppress("UnstableApiUsage")
 class NotComparingGroupsEditableColumnInfo(private val parent: Disposable, private val editable: Boolean) :
   EditableColumnInfo<RegexGroupModel, String>(message("RegexEditorConfigurable.columns.notComparingGroups")) {
   /**
@@ -66,23 +62,6 @@ class NotComparingGroupsEditableColumnInfo(private val parent: Disposable, priva
   override fun getEditor(item: RegexGroupModel): TableCellEditor {
     val cellEditor = ExtendableTextField()
     return StatefulValidatingCellEditor(cellEditor, parent)
-  }
-
-  /**
-   * Creates a renderer for the name: displays the name with a validation tooltip if the scope is empty
-   *
-   * @param item the [RegexGroupModel]
-   * @return the [TableCellRenderer]
-   */
-  override fun getRenderer(item: RegexGroupModel): TableCellRenderer? {
-    return ValidatingTableCellRendererWrapper(ModifiedInfoCellRenderer(item))
-      .withCellValidator { value: Any?, _: Int, _: Int ->
-        if (value == null || value == "") {
-          return@withCellValidator ValidationInfo(message("RegexEditorConfigurable.NameEditor.empty"))
-        } else {
-          return@withCellValidator null
-        }
-      }
   }
 
   override fun isCellEditable(item: RegexGroupModel): Boolean = editable
