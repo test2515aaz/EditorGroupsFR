@@ -17,6 +17,7 @@ class RegexGroupModel : BaseState() {
   var regex: String? by string()
   var notComparingGroups: String? by string()
   var scope: Scope by enum(Scope.CURRENT_FOLDER)
+  var priority: Int by property(0)
 
   /** Optional regex name. */
   var myName: String
@@ -59,7 +60,7 @@ class RegexGroupModel : BaseState() {
     get() = myName.isBlank() || myRegex.isBlank()
 
   @NonNls
-  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$myRegex"
+  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$myRegex|$priority"
 
   fun apply(other: RegexGroupModel) {
     isEnabled = other.isEnabled
@@ -67,6 +68,7 @@ class RegexGroupModel : BaseState() {
     myRegex = other.myRegex
     myNotComparingGroups = other.myNotComparingGroups
     myScope = other.myScope
+    priority = other.priority
   }
 
   fun matches(name: String): Boolean = try {
@@ -81,7 +83,8 @@ class RegexGroupModel : BaseState() {
     isEnabled = isEnabled,
     regex = myRegex,
     scope = myScope,
-    notComparingGroups = myNotComparingGroups
+    notComparingGroups = myNotComparingGroups,
+    priority = priority
   )
 
   fun isComparingGroup(groupIndex: Int): Boolean {
@@ -122,6 +125,7 @@ class RegexGroupModel : BaseState() {
       |notComparingGroups='$myNotComparingGroups',
       |scope=$myScope,
       |enabled=$isEnabled
+      |priority=$priority
     }
   """.trimMargin()
 
@@ -133,11 +137,12 @@ class RegexGroupModel : BaseState() {
     /**
      * Creates and returns a `RegexGroupModel` instance with specified parameters.
      *
-     * @param name the optional regex name (default is an empty string)
+     * @param name the optional regex name (default is generated unique name)
      * @param isEnabled indicates whether the group is enabled (default is true)
      * @param regex the regular expression pattern to be used (default is ".*")
      * @param scope the scope in which the regular expression is evaluated (default is `Scope.CURRENT_FOLDER`)
      * @param notComparingGroups a comma-separated string representing groups that are not compared (default is "")
+     * @param priority the priority level for the regex group (default is 0)
      * @return a configured instance of `RegexGroupModel`
      */
     @JvmStatic
@@ -146,7 +151,8 @@ class RegexGroupModel : BaseState() {
       isEnabled: Boolean = true,
       regex: String = ".*",
       scope: Scope = Scope.CURRENT_FOLDER,
-      notComparingGroups: String = ""
+      notComparingGroups: String = "",
+      priority: Int = 0
     ): RegexGroupModel {
       val model = RegexGroupModel()
       model.isEnabled = isEnabled
@@ -154,6 +160,7 @@ class RegexGroupModel : BaseState() {
       model.myRegex = regex
       model.myScope = scope
       model.myNotComparingGroups = notComparingGroups
+      model.priority = priority
 
       return model
     }
@@ -195,13 +202,18 @@ class RegexGroupModel : BaseState() {
           }
 
           str.startsWith(V2) -> {
-            val (_, name, scope, regex, notComparingGroups) = elements
+            val name = elements[1]
+            val scope = elements[2]
+            val regex = elements[3]
+            val notComparingGroups = elements[4]
+            val priority = elements[5]
 
             return from(
               name = name,
               regex = regex,
               scope = Scope.valueOf(scope),
-              notComparingGroups = notComparingGroups
+              notComparingGroups = notComparingGroups,
+              priority = priority.toInt()
             )
           }
 

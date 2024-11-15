@@ -67,7 +67,4 @@ class RegexTableItemEditor : DialogItemEditor<RegexGroupModel>, CollectionItemEd
    * @return true if empty
    */
   override fun isEmpty(item: RegexGroupModel): Boolean = item.isEmpty
-
-  /** Whether item can be removed. */
-  override fun isRemovable(item: RegexGroupModel): Boolean = item.touched
 }

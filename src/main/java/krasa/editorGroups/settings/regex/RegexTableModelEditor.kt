@@ -62,10 +62,10 @@ class RegexTableModelEditor(
     table.visibleRowCount = MIN_ROW_COUNT
     table.rowHeight = ROW_HEIGHT
     table.rowMargin = 0
-    // sort by touched but remove the column from the table
+    // sort by priority but remove the column from the table
     table.rowSorter.sortKeys = listOf(
       RowSorter.SortKey(
-        Columns.TOUCHED.index,
+        Columns.PRIORITY.index,
         SortOrder.DESCENDING
       )
     )
@@ -87,9 +87,7 @@ class RegexTableModelEditor(
 
     // Setup actions
     toolbarDecorator = ToolbarDecorator.createDecorator(table, this)
-    toolbarDecorator.run {
-      setRemoveActionUpdater { table.selectedObject?.touched == true }
-    }
+    toolbarDecorator.disableUpDownActions()
 
     // Search and filter table
     if (searchTextField != null) {
@@ -211,6 +209,7 @@ class RegexTableModelEditor(
     newModel.scope = Scope.CURRENT_FOLDER
     newModel.regex = ".*"
     newModel.notComparingGroups = null
+    newModel.priority = 0
     return newModel
   }
 
@@ -322,9 +321,11 @@ class RegexTableModelEditor(
     private enum class Columns(val index: Int) {
       ENABLED(0),
       TOUCHED(1),
-      SCOPE(2),
+      NAME(2),
       REGEX(3),
-      NOT_COMPARING_GROUPS(4)
+      SCOPE(4),
+      NOT_COMPARING_GROUPS(5),
+      PRIORITY(6),
     }
   }
 }

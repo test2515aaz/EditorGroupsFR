@@ -2,9 +2,7 @@ package krasa.editorGroups.settings.regex
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.*
-import com.intellij.openapi.ui.Messages
 import com.intellij.util.messages.Topic
-import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupSetting
@@ -27,6 +25,7 @@ class RegexGroupsSettings : SimplePersistentStateComponent<RegexGroupsSettingsSt
     get() = state.regexGroupModels
     set(value) {
       state.regexGroupModels = value
+      state.regexGroupModels.regexModels.forEach { it.touched = false }
     }
 
   fun fireChanged() {
@@ -44,18 +43,6 @@ class RegexGroupsSettings : SimplePersistentStateComponent<RegexGroupsSettingsSt
   fun apply(state: RegexGroupsSettings) {
     this.regexGroupModels = state.regexGroupModels
     this.fireChanged()
-  }
-
-  fun askResetSettings(action: () -> Unit) {
-    val answer = Messages.showYesNoDialog(
-      message("EditorGroupSettings.dialog.resetDefaults.consent"),
-      message("EditorGroupSettings.resetDefaultsButton.text"),
-      Messages.getWarningIcon()
-    )
-    if (answer == Messages.YES) {
-      action()
-      fireChanged()
-    }
   }
 
   fun reset() {
