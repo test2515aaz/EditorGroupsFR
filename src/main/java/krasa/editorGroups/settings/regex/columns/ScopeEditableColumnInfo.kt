@@ -52,7 +52,7 @@ class ScopeEditableColumnInfo(private val editable: Boolean) :
    * @param value the new scope
    */
   override fun setValue(item: RegexGroupModel, value: Scope) {
-    item.scope = value
+    item.myScope = value
     item.touched = true
   }
 

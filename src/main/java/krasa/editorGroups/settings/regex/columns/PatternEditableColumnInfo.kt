@@ -54,7 +54,7 @@ class PatternEditableColumnInfo(private val parent: Disposable, private val edit
    * @param value the string value for the matcher
    */
   override fun setValue(item: RegexGroupModel, value: String) {
-    item.regex = value
+    item.myRegex = value
     item.touched = true
   }
 

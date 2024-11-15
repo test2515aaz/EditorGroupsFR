@@ -53,7 +53,7 @@ class NameEditableColumnInfo(private val parent: Disposable, private val editabl
    * @param value the new name
    */
   override fun setValue(item: RegexGroupModel, value: String) {
-    item.name = value
+    item.myName = value
     item.touched = true
   }
 
@@ -69,21 +69,18 @@ class NameEditableColumnInfo(private val parent: Disposable, private val editabl
   }
 
   /**
-   * Creates a renderer for the name: displays the name with a calidation tooltip if the name is empty
+   * Creates a renderer for the name: displays the name with a validation tooltip if the name is empty
    *
    * @param item the [RegexGroupModel]
    * @return the [TableCellRenderer]
    */
-  override fun getRenderer(item: RegexGroupModel): TableCellRenderer? {
-    return ValidatingTableCellRendererWrapper(ModifiedInfoCellRenderer(item))
-      .withCellValidator { value: Any?, _: Int, _: Int ->
-        if (value == null || value == "") {
-          return@withCellValidator ValidationInfo(message("RegexEditorConfigurable.NameEditor.empty"))
-        } else {
-          return@withCellValidator null
-        }
+  override fun getRenderer(item: RegexGroupModel): TableCellRenderer? = ValidatingTableCellRendererWrapper(ModifiedInfoCellRenderer(item))
+    .withCellValidator { value: Any?, _: Int, _: Int ->
+      when (value) {
+        null, "" -> return@withCellValidator ValidationInfo(message("RegexEditorConfigurable.NameEditor.empty"))
+        else     -> return@withCellValidator null
       }
-  }
+    }
 
   override fun isCellEditable(item: RegexGroupModel): Boolean = editable
 }

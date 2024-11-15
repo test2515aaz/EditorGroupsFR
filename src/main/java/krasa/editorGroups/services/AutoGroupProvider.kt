@@ -28,7 +28,7 @@ class AutoGroupProvider(private val project: Project) {
     val parent = file.parent
 
     val regexGroup = RegexGroup(
-      RegexGroupModel.from(scope = Scope.CURRENT_FOLDER),
+      RegexGroupModel.from(),
       parent
     )
 

@@ -5,9 +5,11 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.ui.Messages
 import com.intellij.util.messages.Topic
 import krasa.editorGroups.messages.EditorGroupsBundle.message
+import krasa.editorGroups.model.RegexGroupModel
 import krasa.editorGroups.model.RegexGroupModels
 import krasa.editorGroups.settings.EditorGroupSetting
 import krasa.editorGroups.settings.regex.RegexGroupsSettings.RegexGroupsSettingsState
+import java.util.*
 
 @Service(Service.Level.APP)
 @State(
@@ -80,6 +82,12 @@ class RegexGroupsSettings : SimplePersistentStateComponent<RegexGroupsSettingsSt
       regexGroupModels=$regexGroupModels
     )
   """.trimMargin()
+
+  fun isModified(models: MutableList<RegexGroupModel>): Boolean {
+    val touched = models.filter { it.touched }
+
+    return !Objects.deepEquals(this.regexGroupModels.regexModels, touched)
+  }
 
   interface RegexSettingsNotifier {
     /** When Config is changed (settings) */

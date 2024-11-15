@@ -30,9 +30,7 @@ class RegexTableModelEditor(
   val searchTextField: SearchTextField?,
 ) : CollectionModelEditor<RegexGroupModel, CollectionItemEditor<RegexGroupModel>?>(itemEditor) {
   private val table: TableView<RegexGroupModel>
-
   private val toolbarDecorator: ToolbarDecorator
-
   private val model: RegexGroupsTableModel = RegexGroupsTableModel(columns, items)
 
   /** Backing field for model's unfiltered list. */
@@ -90,7 +88,6 @@ class RegexTableModelEditor(
     // Setup actions
     toolbarDecorator = ToolbarDecorator.createDecorator(table, this)
     toolbarDecorator.run {
-      disableUpDownActions()
       setRemoveActionUpdater { table.selectedObject?.touched == true }
     }
 
@@ -209,7 +206,7 @@ class RegexTableModelEditor(
     increment++
 
     val newModel = RegexGroupModel()
-    newModel.name = "New Regex (${increment})" // NON-NLS
+    newModel.name = "New Regex ($increment)" // NON-NLS
     newModel.touched = true
     newModel.scope = Scope.CURRENT_FOLDER
     newModel.regex = ".*"

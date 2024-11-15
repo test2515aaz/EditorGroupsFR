@@ -23,9 +23,10 @@ class RegexTableItemEditor : DialogItemEditor<RegexGroupModel>, CollectionItemEd
    * @return a clone of the association
    */
   override fun clone(item: RegexGroupModel, forInPlaceEditing: Boolean): RegexGroupModel {
-    val regexAssociation = RegexGroupModel()
+    val regexModel = RegexGroupModel()
 
-    with(regexAssociation) {
+    with(regexModel) {
+      name = item.name
       regex = item.regex
       scope = item.scope
       notComparingGroups = item.notComparingGroups
@@ -33,7 +34,7 @@ class RegexTableItemEditor : DialogItemEditor<RegexGroupModel>, CollectionItemEd
       touched = item.touched
     }
 
-    return regexAssociation
+    return regexModel
   }
 
   /**
@@ -60,7 +61,7 @@ class RegexTableItemEditor : DialogItemEditor<RegexGroupModel>, CollectionItemEd
   override fun isEditable(item: RegexGroupModel): Boolean = !item.isEmpty
 
   /**
-   * Determines what constitues an empty [RegexGroupModel]
+   * Determines what constitutes an empty [RegexGroupModel]
    *
    * @param item the [RegexGroupModel]
    * @return true if empty

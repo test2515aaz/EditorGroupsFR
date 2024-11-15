@@ -49,7 +49,7 @@ class NotComparingGroupsEditableColumnInfo(private val parent: Disposable, priva
    * @param value the new scope
    */
   override fun setValue(item: RegexGroupModel, value: String) {
-    item.notComparingGroups = value
+    item.myNotComparingGroups = value
     item.touched = true
   }
 
