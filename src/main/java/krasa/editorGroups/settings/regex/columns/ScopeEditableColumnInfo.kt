@@ -23,14 +23,13 @@
  */
 package krasa.editorGroups.settings.regex.columns
 
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.util.ui.table.TableModelEditor.EditableColumnInfo
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
-import krasa.editorGroups.model.RegexGroupModel.Scope
+import krasa.editorGroups.model.Scope
 import java.awt.Component
-import javax.swing.DefaultCellEditor
-import javax.swing.JComboBox
-import javax.swing.JTable
+import javax.swing.*
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
@@ -63,13 +62,33 @@ class ScopeEditableColumnInfo(private val editable: Boolean) :
    * @param item the [RegexGroupModel]
    * @return the [TableCellEditor]
    */
-  override fun getEditor(item: RegexGroupModel): TableCellEditor = DefaultCellEditor(
-    JComboBox(Scope.entries.toTypedArray()).apply {
-      selectedItem = item.myScope
-    }
-  )
+  override fun getEditor(item: RegexGroupModel): TableCellEditor {
+    val comboBox = ComboBox(Scope.entries.toTypedArray())
+    comboBox.renderer = ScopeCellRenderer()
+    return DefaultCellEditor(comboBox)
+  }
 
-  override fun getRenderer(item: RegexGroupModel): TableCellRenderer = object : DefaultTableCellRenderer() {
+  override fun getRenderer(item: RegexGroupModel): TableCellRenderer = ScopeCellRenderer()
+
+  override fun isCellEditable(item: RegexGroupModel): Boolean = editable
+
+  override fun getColumnClass(): Class<*> = Scope::class.java
+
+  inner class ScopeCellRenderer : DefaultTableCellRenderer(), ListCellRenderer<Scope> {
+    private val renderer = DefaultListCellRenderer()
+
+    override fun getListCellRendererComponent(
+      list: JList<out Scope>?,
+      value: Scope?,
+      index: Int,
+      isSelected: Boolean,
+      cellHasFocus: Boolean
+    ): Component {
+      val label = renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus) as JLabel
+      label.text = value?.label
+      return label
+    }
+
     override fun getTableCellRendererComponent(
       table: JTable,
       value: Any?,
@@ -81,12 +100,8 @@ class ScopeEditableColumnInfo(private val editable: Boolean) :
       val component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
       if (value !is Scope) return component
 
-      text = message("scope.${value.name}")
+      text = value.label
       return component
     }
   }
-
-  override fun isCellEditable(item: RegexGroupModel): Boolean = editable
-
-  override fun getColumnClass(): Class<*> = Scope::class.java
 }

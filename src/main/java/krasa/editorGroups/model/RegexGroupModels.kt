@@ -21,6 +21,6 @@ class RegexGroupModels : BaseState() {
   }
 
   fun findProjectRegexGroups(): List<RegexGroupModel> = regexModels.filter {
-    it.myScope == RegexGroupModel.Scope.WHOLE_PROJECT
+    it.myScope == Scope.WHOLE_PROJECT
   }
 }

@@ -17,7 +17,7 @@ import com.intellij.ui.EnumComboBoxModel;
 import com.intellij.ui.ErrorLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.NamedColorUtil;
-import krasa.editorGroups.model.RegexGroupModel;
+import krasa.editorGroups.model.Scope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +33,7 @@ import static krasa.editorGroups.support.UtilsKt.isBlank;
 public class RegexModelEditor extends DialogWrapper {
   private static final Logger LOG = Logger.getInstance(RegexModelEditor.class);
   private JTextField regex;
-  private JComboBox<RegexGroupModel.Scope> scopeCombo;
+  private JComboBox<Scope> scopeCombo;
   private JPanel root;
   private ErrorLabel error;
   //	private FileTextField fileName;
@@ -52,7 +52,7 @@ public class RegexModelEditor extends DialogWrapper {
     testResult.setPreferredSize(new Dimension(400, 200));
   }
 
-  public RegexModelEditor(String title, String regex, String snotComparingGroupsText, RegexGroupModel.Scope scope) {
+  public RegexModelEditor(String title, String regex, String snotComparingGroupsText, Scope scope) {
     super(true);
     help.setText(
       """
@@ -69,7 +69,7 @@ public class RegexModelEditor extends DialogWrapper {
     error.setForeground(NamedColorUtil.getErrorForeground());
     setTitle(title);
     this.regex.setNextFocusableComponent(this.regex);
-    scopeCombo.setModel(new EnumComboBoxModel<>(RegexGroupModel.Scope.class));
+    scopeCombo.setModel(new EnumComboBoxModel<>(Scope.class));
 
     this.regex.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
@@ -200,8 +200,8 @@ public class RegexModelEditor extends DialogWrapper {
     return notComparingGroups.getText().trim();
   }
 
-  public RegexGroupModel.Scope getScopeCombo() {
-    return (RegexGroupModel.Scope) scopeCombo.getSelectedItem();
+  public Scope getScopeCombo() {
+    return (Scope) scopeCombo.getSelectedItem();
   }
 
   @Override

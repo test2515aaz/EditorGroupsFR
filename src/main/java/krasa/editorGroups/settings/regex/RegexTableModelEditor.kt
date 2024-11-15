@@ -12,7 +12,7 @@ import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.ui.*
 import com.intellij.util.ui.table.ComboBoxTableCellEditor
 import krasa.editorGroups.model.RegexGroupModel
-import krasa.editorGroups.model.RegexGroupModel.Scope
+import krasa.editorGroups.model.Scope
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -211,7 +211,7 @@ class RegexTableModelEditor(
     val newModel = RegexGroupModel()
     newModel.name = "New Regex (${increment})" // NON-NLS
     newModel.touched = true
-    newModel.scope = RegexGroupModel.Scope.CURRENT_FOLDER
+    newModel.scope = Scope.CURRENT_FOLDER
     newModel.regex = ".*"
     newModel.notComparingGroups = null
     return newModel

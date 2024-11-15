@@ -123,12 +123,6 @@ class RegexGroupModel : BaseState() {
   override fun toString(): String =
     "RegexGroupModel{regex='$myRegex', notComparingGroups='$myNotComparingGroups', scope=$myScope, enabled=$isEnabled}"
 
-  enum class Scope {
-    CURRENT_FOLDER,
-    INCLUDING_SUBFOLDERS,
-    WHOLE_PROJECT
-  }
-
   companion object {
     const val V0: String = "v0"
     const val V1: String = "v1"

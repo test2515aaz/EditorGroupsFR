@@ -4,6 +4,7 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.ui.table.JBTable
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.model.Scope
 import krasa.editorGroups.settings.regex.RegexGroupsSettings
 import java.awt.Component
 import java.util.*
@@ -34,10 +35,10 @@ class RegexModelTable : JBTable() {
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
   }
 
-  fun getRegexModelValueAt(row: Int): RegexGroupModel.Scope = getValueAt(row, SCOPE_COLUMN) as RegexGroupModel.Scope
+  fun getRegexModelValueAt(row: Int): Scope = getValueAt(row, SCOPE_COLUMN) as Scope
 
   fun addRegexModel() {
-    val regexModelEditor = RegexModelEditor(message("add.regexgroup"), "", "", RegexGroupModel.Scope.CURRENT_FOLDER)
+    val regexModelEditor = RegexModelEditor(message("add.regexgroup"), "", "", Scope.CURRENT_FOLDER)
 
     if (regexModelEditor.showAndGet()) {
       val name = regexModelEditor.regex
