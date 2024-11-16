@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.icons.EditorGroupsIcons
-import krasa.editorGroups.messages.EditorGroupsBundle.message
+import krasa.editorGroups.settings.EditorGroupsSettings
 import java.util.regex.Matcher
 import javax.swing.Icon
 
@@ -26,6 +26,12 @@ class RegexGroup(
   override val title: String
     get() = id
 
+  val name: String
+    get() = regexGroupModel.myName
+
+  val pattern: String
+    get() = regexGroupModel.regexPattern.toString()
+
   val referenceMatcher: Matcher?
     get() {
       var referenceMatcher: Matcher? = null
@@ -41,14 +47,21 @@ class RegexGroup(
       return referenceMatcher
     }
 
-  constructor(model: RegexGroupModel) : this(model, null, emptyList<Link>(), null)
   constructor(model: RegexGroupModel, folder: VirtualFile?) : this(model, folder, emptyList<Link>(), null)
   constructor(model: RegexGroupModel, folder: VirtualFile?, fileName: String?) : this(model, folder, emptyList<Link>(), fileName)
 
   override fun icon(): Icon = EditorGroupsIcons.regex
 
-  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String =
-    message("regex.0", regexGroupModel.regexPattern.toString())
+  override fun switchTitle(project: Project): String? {
+    val doShowSize = EditorGroupsSettings.instance.isShowSize
+    val size = size(project)
+    val nameForUI = "[$name] - $pattern"
+
+    return when {
+      doShowSize -> "$nameForUI ($size)"
+      else       -> nameForUI
+    }
+  }
 
   override fun isSelected(editorGroup: EditorGroup): Boolean = when (editorGroup) {
     is RegexGroup -> regexGroupModel == editorGroup.regexGroupModel

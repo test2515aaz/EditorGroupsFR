@@ -36,9 +36,17 @@ import java.awt.Color
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import javax.swing.SwingUtilities
-import kotlin.Throws
 
-@Suppress("LongLine")
+@Suppress(
+  "LongLine",
+  "detekt:CyclomaticComplexMethod",
+  "detekt:ReturnCount",
+  "detekt:ComplexCondition",
+  "detekt:MaxLineLength",
+  "detekt:NestedBlockDepth",
+  "detekt:RethrowCaughtException",
+  "HardCodedStringLiteral",
+)
 @Service(Service.Level.PROJECT)
 class EditorGroupManager(private val project: Project) {
   private var cache: IndexCache = IndexCache.getInstance(project)
@@ -60,7 +68,6 @@ class EditorGroupManager(private val project: Project) {
   @Volatile
   var switching: Boolean = false
 
-  @get:Throws(IndexNotReadyException::class)
   val allIndexedGroups: List<EditorGroupIndexValue>
     // TODO cache it?
     get() {
@@ -74,7 +81,6 @@ class EditorGroupManager(private val project: Project) {
       return allGroups
     }
 
-  @Throws(IndexNotReady::class)
   fun getStubGroup(
     project: Project,
     fileEditor: FileEditor,
@@ -174,7 +180,6 @@ class EditorGroupManager(private val project: Project) {
     return result
   }
 
-  @Throws(IndexNotReady::class)
   fun getGroup(
     project: Project,
     fileEditor: FileEditor,
@@ -504,18 +509,17 @@ class EditorGroupManager(private val project: Project) {
     split: Splitters,
     group: EditorGroup,
     current: VirtualFile?
-  ): OpenFileResult? =
-    open(
-      currentWindow = null,
-      currentFile = current,
-      fileToOpen = fileToOpen,
-      line = null,
-      group = group,
-      newWindow = newWindow,
-      newTab = newTab,
-      splitters = split,
-      switchRequest = SwitchRequest(group, fileToOpen)
-    )
+  ): OpenFileResult? = open(
+    currentWindow = null,
+    currentFile = current,
+    fileToOpen = fileToOpen,
+    line = null,
+    group = group,
+    newWindow = newWindow,
+    newTab = newTab,
+    splitters = split,
+    switchRequest = SwitchRequest(group, fileToOpen)
+  )
 
   /**
    * Opens the provided file in the editor, considering various conditions such as current file, window, group, splitters, and switching
@@ -581,7 +585,9 @@ class EditorGroupManager(private val project: Project) {
             resultAtomicReference.set(OpenFileResult(isScrolledOnly = true))
           }
 
-          thisLogger().debug("fileToOpen.equals(selectedFile) [fileToOpen=$fileToOpen, selectedFile=$selectedFile, currentFile=$currentFile]")
+          thisLogger().debug(
+            "fileToOpen.equals(selectedFile) [fileToOpen=$fileToOpen, selectedFile=$selectedFile, currentFile=$currentFile]"
+          )
 
           resetSwitching()
           return@executeCommand
@@ -670,8 +676,10 @@ class EditorGroupManager(private val project: Project) {
           }
         }
       },
-      /* name = */ null,
-      /* groupId = */ null
+      /* name = */
+      null,
+      /* groupId = */
+      null
     )
 
     return resultAtomicReference.get()
@@ -689,7 +697,7 @@ class EditorGroupManager(private val project: Project) {
 
     for (fileEditor in fileEditors) {
       if (fileEditor is TextEditorImpl) {
-        val position = LogicalPosition(/* line = */ line, /* column = */ 0)
+        val position = LogicalPosition(line, 0)
         val editor: Editor = fileEditor.editor
         editor.run {
           caretModel.removeSecondaryCarets()
@@ -709,7 +717,7 @@ class EditorGroupManager(private val project: Project) {
     switchRequest = null
   }
 
-  class OpenFileResult(var isScrolledOnly: Boolean)
+  data class OpenFileResult(var isScrolledOnly: Boolean)
 
   companion object {
     val COMPARATOR: Comparator<EditorGroup> = Comparator.comparing { group: EditorGroup -> group.title.lowercase(Locale.getDefault()) }

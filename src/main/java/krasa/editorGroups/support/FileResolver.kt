@@ -35,20 +35,20 @@ import java.util.*
 import kotlin.Throws
 
 open class FileResolver {
-  protected val project: Project?
+  protected val project: Project
   protected val excludeEditorGroupsFiles: Boolean
-  private val links: MutableSet<String?>
+  private val links: MutableSet<String>
 
-  constructor(project: Project?) {
+  constructor(project: Project) {
     this.project = project
     excludeEditorGroupsFiles = EditorGroupsSettings.instance.isExcludeEditorGroupsFiles
 
-    links = object : LinkedHashSet<String?>() {
-      override fun add(element: String?): Boolean = super.add(sanitize(element))
+    links = object : LinkedHashSet<String>() {
+      override fun add(element: String): Boolean = super.add(sanitize(element))
     }
   }
 
-  fun getLinks(): Set<String?> = links
+  fun getLinks(): Set<String> = links
 
   @Suppress("detekt:TooGenericExceptionThrown")
   private fun resolve(ownerFilePath: String, root: String?, relatedPaths: List<String>, group: EditorGroupIndexValue): List<Link> {

@@ -15,7 +15,7 @@ import krasa.editorGroups.settings.EditorGroupsSettings
 import java.util.regex.Matcher
 
 open class RegexFileResolver(private val project: Project) {
-  protected var links: MutableSet<VirtualFile?> = HashSet()
+  protected var links: MutableSet<VirtualFile> = HashSet()
 
   fun resolveRegexGroupLinks(regexGroup: RegexGroup, currentFile: VirtualFile?): List<Link> {
     thisLogger().debug("<resolveRegexGroupLinks")
@@ -37,7 +37,16 @@ open class RegexFileResolver(private val project: Project) {
       folders
         .asSequence()
         .filterNotNull()
-        .forEach { processFolders(regexGroup, regexGroupModel, referenceMatcher, groupMatcher, projectFileIndex, it) }
+        .forEach {
+          processFolders(
+            regexGroup = regexGroup,
+            regexGroupModel = regexGroupModel,
+            referenceMatcher = referenceMatcher,
+            groupMatcher = groupMatcher,
+            projectFileIndex = projectFileIndex,
+            folder = it
+          )
+        }
     } catch (e: TooManyFilesException) {
       e.showNotification()
       thisLogger().warn("Found too many matching files, skipping. Size=${links.size} $regexGroup")
@@ -118,6 +127,6 @@ open class RegexFileResolver(private val project: Project) {
   }
 
   companion object {
-    const val DURATION = 500
+    const val DURATION: Int = 500
   }
 }
