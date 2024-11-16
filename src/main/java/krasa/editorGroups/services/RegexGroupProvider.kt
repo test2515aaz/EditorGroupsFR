@@ -41,32 +41,50 @@ class RegexGroupProvider {
     return toRegexGroup(file, fileName, matching)
   }
 
-  fun findProjectRegexGroups(): List<RegexGroup> {
-    val globalRegexGroups = RegexGroupsSettings.instance.regexGroupModels.findProjectRegexGroups()
-    return toRegexGroups(globalRegexGroups)
+  fun findProjectRegexGroups(): List<RegexGroup> = RegexGroupsSettings.instance.regexGroupModels.findProjectRegexGroups()
+    .map {
+      RegexGroup(
+        regexGroupModel = it,
+        folder = null,
+        links = emptyList(),
+        fileName = null
+      )
+    }
+
+  fun toRegexGroup(file: VirtualFile, fileName: String?, matching: List<RegexGroupModel>): List<RegexGroup> = matching.map {
+    RegexGroup(
+      regexGroupModel = it,
+      folder = file.parent,
+      links = emptyList(),
+      fileName = fileName
+    )
   }
 
-  fun toRegexGroup(file: VirtualFile, fileName: String?, matching: List<RegexGroupModel>): List<RegexGroup> =
-    matching.map { RegexGroup(it, file.parent, emptyList(), fileName) }
-
-  private fun toRegexGroups(globalRegexGroups: List<RegexGroupModel>): List<RegexGroup> =
-    globalRegexGroups.map { RegexGroup(it, null, emptyList(), null) }
-
-  fun getRegexGroup(group: RegexGroup, project: Project?, currentFile: VirtualFile?): RegexGroup {
-    val links = RegexFileResolver(project!!).resolveRegexGroupLinks(group, currentFile)
+  fun getRegexGroup(group: RegexGroup, project: Project, currentFile: VirtualFile?): RegexGroup {
+    val links = RegexFileResolver(project).resolveRegexGroupLinks(group, currentFile)
 
     if (currentFile != null && links.isEmpty()) {
       thisLogger().error("should contain the current file at least: $group")
     }
 
-    return RegexGroup(group.regexGroupModel, group.folder, links, group.fileName)
+    return RegexGroup(
+      regexGroupModel = group.regexGroupModel,
+      folder = group.folder,
+      links = links,
+      fileName = group.fileName
+    )
   }
 
-  fun findRegexGroup(file: VirtualFile, substring: String?): EditorGroup {
+  fun findRegexGroup(file: VirtualFile, substring: String): EditorGroup {
     val regexGroupModels = RegexGroupsSettings.instance.regexGroupModels
-    val regexGroupModel = regexGroupModels.find(substring!!) ?: return EditorGroup.EMPTY
+    val regexGroupModel = regexGroupModels.find(substring) ?: return EditorGroup.EMPTY
 
-    return RegexGroup(regexGroupModel, file.parent, emptyList(), file.name)
+    return RegexGroup(
+      regexGroupModel = regexGroupModel,
+      folder = file.parent,
+      links = emptyList(),
+      fileName = file.name
+    )
   }
 
   companion object {

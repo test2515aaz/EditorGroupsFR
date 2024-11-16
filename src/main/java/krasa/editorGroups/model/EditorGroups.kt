@@ -21,6 +21,8 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   override val isValid: Boolean = true
 
+  override val isCustom: Boolean = true
+
   override val groups: Collection<EditorGroup>
     get() = groupsMap.values
 

@@ -79,7 +79,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           displayedGroup = editorGroupPanel.getDisplayedGroupOrEmpty()
 
           // Same file name
-          defaultActionGroup.add(
+          tempGroup.add(
             createAction(
               displayedGroup = displayedGroup,
               targetGroup = SameNameGroup(
@@ -92,7 +92,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             )
           )
           // Current folder
-          defaultActionGroup.add(
+          tempGroup.add(
             createAction(
               displayedGroup = displayedGroup,
               targetGroup = FolderGroup(
@@ -105,7 +105,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             )
           )
           // Hide panel
-          defaultActionGroup.add(
+          tempGroup.add(
             createAction(
               displayedGroup = displayedGroup,
               targetGroup = HidePanelGroup(),
@@ -117,14 +117,14 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           // Current file custom groups
           currentFileGroups = fillCurrentFileGroups(
             project = project,
-            tempGroup = tempGroup,
+            targetGroup = tempGroup,
             panel = editorGroupPanel,
             file = file
           )
           // Current file related regex groups
           regexGroups = fillRegexGroups(
             project = project,
-            tempGroup = tempGroup,
+            targetGroup = tempGroup,
             panel = editorGroupPanel,
             file = file
           )
@@ -133,19 +133,19 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       addBookmarkGroups(
         project = project,
-        defaultActionGroup = defaultActionGroup,
+        targetGroup = tempGroup,
         panel = editorGroupPanel,
         displayedGroup = displayedGroup,
         file = file
       )
       fillOtherIndexedGroups(
-        group = tempGroup,
+        targetGroup = tempGroup,
         currentGroups = currentFileGroups,
         displayedGroup = displayedGroup,
         project = project
       )
       fillGlobalRegexGroups(
-        defaultActionGroup = tempGroup,
+        targetGroup = tempGroup,
         project = project,
         displayedGroup = displayedGroup,
         alreadyFilledRegexGroups = regexGroups
@@ -154,6 +154,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       when {
         // If the option to group the groups is enabled
         EditorGroupsSettings.instance.isGroupSwitchGroupAction -> defaultActionGroup.addAll(*tempGroup.childActionsOrStubs)
+        // Remove all separators
         else                                                   -> {
           val childActionsOrStubs = tempGroup.childActionsOrStubs
           val list = childActionsOrStubs.asSequence()
@@ -180,33 +181,33 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * Adds bookmark groups action to the given action group.
    *
    * @param project The current project instance.
-   * @param defaultActionGroup The action group to which the bookmark action will be added.
+   * @param targetGroup The action group to which the bookmark action will be added.
    * @param panel Optional panel to be updated upon bookmark action.
    * @param displayedGroup The editor group to be displayed.
    * @param file Optional virtual file to check for bookmark availability.
    */
   private fun addBookmarkGroups(
     project: Project,
-    defaultActionGroup: DefaultActionGroup,
+    targetGroup: DefaultActionGroup,
     panel: EditorGroupPanel?,
     displayedGroup: EditorGroup,
     file: VirtualFile?
   ) {
     // add separator
-    defaultActionGroup.add(Separator(message("separator.bookmarks")))
+    targetGroup.add(Separator(message("separator.bookmarks")))
     addDefaultBookmarksGroups(
       project = project,
       panel = panel,
       file = file,
       displayedGroup = displayedGroup,
-      defaultActionGroup = defaultActionGroup
+      defaultActionGroup = targetGroup
     )
     addOtherBookmarkGroups(
       project = project,
       panel = panel,
       file = file,
       displayedGroup = displayedGroup,
-      defaultActionGroup = defaultActionGroup
+      defaultActionGroup = targetGroup
     )
   }
 
@@ -315,25 +316,25 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * Appends the file's related custom groups to the tempGroup
    *
    * @param project The current project.
-   * @param tempGroup The temporary action group to populate.
+   * @param targetGroup The temporary action group to populate.
    * @param panel The panel associated with editor groups.
    * @param file The currently open file.
    * @return A list of editor groups associated with the current file.
    */
   private fun fillCurrentFileGroups(
     project: Project,
-    tempGroup: DefaultActionGroup,
+    targetGroup: DefaultActionGroup,
     panel: EditorGroupPanel,
-    file: VirtualFile?
+    file: VirtualFile
   ): List<EditorGroup> {
     val displayedGroup = panel.getDisplayedGroupOrEmpty()
     val manager = EditorGroupManager.getInstance(project)
-    val groups = manager.getGroups(file!!)
+    val groups = manager.getGroups(file)
 
-    tempGroup.add(Separator(message("separator.groups.for.current.file")))
+    targetGroup.add(Separator(message("separator.groups.for.current.file")))
 
     groups.forEach {
-      tempGroup.add(
+      targetGroup.add(
         createAction(
           displayedGroup = displayedGroup,
           targetGroup = it,
@@ -350,21 +351,32 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * Appends the file related regex groups to the tempGroup
    *
    * @param project the current project context.
-   * @param tempGroup the action group to which the actions will be added.
+   * @param targetGroup the action group to which the actions will be added.
    * @param panel the editor panel containing the displayed group.
    * @param file the virtual file to be matched against regex groups.
    * @return a list of matching regex groups for the specified file.
    */
   private fun fillRegexGroups(
     project: Project,
-    tempGroup: DefaultActionGroup,
+    targetGroup: DefaultActionGroup,
     panel: EditorGroupPanel,
-    file: VirtualFile?
+    file: VirtualFile
   ): List<RegexGroup> {
-    val regexGroups = RegexGroupProvider.getInstance(project).findMatchingRegexGroups(file!!)
+    val regexGroups = RegexGroupProvider.getInstance(project).findMatchingRegexGroups(file)
 
-    regexGroups.forEach { regexGroup ->
-      tempGroup.add(
+    if (regexGroups.isNotEmpty()) {
+      targetGroup.add(Separator(message("separator.regex.groups")))
+    }
+
+    regexGroups.forEach { group ->
+      val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(
+        group = group,
+        project = project,
+        currentFile = file
+      )
+      if (regexGroup.isEmpty) return@forEach
+
+      targetGroup.add(
         createAction(
           displayedGroup = panel.getDisplayedGroupOrEmpty(),
           targetGroup = regexGroup,
@@ -380,13 +392,13 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
   /**
    * Fills the provided action group with actions for all editor groups that are indexed but not currently displayed.
    *
-   * @param group The action group to fill with actions.
+   * @param targetGroup The action group to fill with actions.
    * @param currentGroups A list of editor groups that are currently displayed.
    * @param displayedGroup The editor group that is currently being displayed.
    * @param project The current project.
    */
   private fun fillOtherIndexedGroups(
-    group: DefaultActionGroup,
+    targetGroup: DefaultActionGroup,
     currentGroups: List<EditorGroup>,
     displayedGroup: EditorGroup,
     project: Project
@@ -397,14 +409,14 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       override fun actionPerformed(anActionEvent: AnActionEvent) = Unit
     }
 
-    group.add(Separator(message("separator.other.groups")))
+    targetGroup.add(Separator(message("separator.other.groups")))
 
     runCatching { manager.allIndexedGroups }
       .onSuccess { allGroups ->
         allGroups
           .filterNot { g -> currentGroupSet.contains(g) }
           .forEach { g ->
-            group.add(
+            targetGroup.add(
               createAction(
                 displayedGroup = displayedGroup,
                 targetGroup = g,
@@ -416,20 +428,20 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       }
       .onFailure { _ ->
         indexingAction.templatePresentation.isEnabled = false
-        group.add(indexingAction)
+        targetGroup.add(indexingAction)
       }
   }
 
   /**
    * Add regex groups that do not belong to the current file
    *
-   * @param defaultActionGroup The action group to which regex actions will be added.
+   * @param targetGroup The action group to which regex actions will be added.
    * @param project The current project context.
    * @param displayedGroup The currently displayed editor group.
    * @param alreadyFilledRegexGroups List of regex groups that are already filled/displayed.
    */
   private fun fillGlobalRegexGroups(
-    defaultActionGroup: DefaultActionGroup,
+    targetGroup: DefaultActionGroup,
     project: Project,
     displayedGroup: EditorGroup,
     alreadyFilledRegexGroups: List<RegexGroup>
@@ -441,19 +453,25 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       .mapTo(HashSet()) { it.regexGroupModel.myRegex }
 
     if (regexGroups.isNotEmpty()) {
-      defaultActionGroup.add(Separator(message("separator.regexps")))
+      targetGroup.add(Separator(message("separator.regexps")))
 
       regexGroups
         .asSequence()
         .filterNot { alreadyDisplayed.contains(it.regexGroupModel.myRegex) }
         .forEach { group ->
+          val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(
+            group = group,
+            project = project,
+            currentFile = null
+          )
+          if (regexGroup.isEmpty) return@forEach
 
-          defaultActionGroup.add(
+          targetGroup.add(
             createAction(
               displayedGroup = displayedGroup,
               targetGroup = group,
               project = project,
-              actionHandler = otherRegexGroupHandler(project, group)
+              actionHandler = otherRegexGroupHandler(project, regexGroup)
             )
           )
         }
@@ -467,9 +485,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     }
   }
 
-  private fun otherRegexGroupHandler(project: Project, group: RegexGroup) = object : Handler() {
+  private fun otherRegexGroupHandler(project: Project, regexGroup: RegexGroup) = object : Handler() {
     override fun run(editorGroup: EditorGroup) {
-      val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(group = group, project = project, currentFile = null)
       otherGroupHandler(project).run(regexGroup)
     }
   }

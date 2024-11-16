@@ -270,7 +270,6 @@ class EditorGroupPanel(
       if (delta > 200) thisLogger().warn("lag on editor opening - #getGroup took $delta ms for $file")
     }
 
-    // TODO not sure why we have two if branches that does the same thing...
     if (editorGroup == null && !preferLatencyOverFlicker) {
       val start = System.currentTimeMillis()
 
@@ -456,7 +455,7 @@ class EditorGroupPanel(
    * @param group the group to be checked, or null.
    * @return true if the group is an instance of EditorGroups, BookmarkGroup, or HidePanelGroup; false otherwise.
    */
-  private fun isCustomGroup(group: EditorGroup?): Boolean = group is EditorGroups || group is BookmarksGroup || group is HidePanelGroup
+  private fun isCustomGroup(group: EditorGroup?): Boolean = group?.isCustom == true
 
   /**
    * Adds the current file as a tab in the editor panel.

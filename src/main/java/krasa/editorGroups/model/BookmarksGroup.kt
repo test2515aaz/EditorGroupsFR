@@ -22,6 +22,9 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   override val isValid: Boolean = true
 
+  override val isCustom: Boolean
+    get() = true
+
   val name: String
     get() = bookmarkGroup?.name ?: message("unnamed")
 

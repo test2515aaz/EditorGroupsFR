@@ -82,14 +82,14 @@ abstract class Link(private val project: Project) {
 
   companion object {
     @JvmStatic
-    fun from(links: Collection<String?>, project: Project?): List<Link> =
-      links.map { PathLink(it!!, project) }.sortedWith(LinkComparator.INSTANCE)
+    fun from(links: Collection<String>, project: Project): List<Link> =
+      links.map { PathLink(it, project) }.sortedWith(LinkComparator.INSTANCE)
 
     @JvmStatic
-    fun fromFile(file: VirtualFile?, project: Project?): Link = VirtualFileLink(file!!, project!!)
+    fun fromFile(file: VirtualFile, project: Project): Link = VirtualFileLink(file, project)
 
     @JvmStatic
-    fun fromVirtualFiles(links: Collection<VirtualFile?>, project: Project?): List<Link> =
-      links.map { VirtualFileLink(it!!, project!!) }.sortedWith(LinkComparator.INSTANCE)
+    fun fromVirtualFiles(links: Collection<VirtualFile>, project: Project): List<Link> =
+      links.map { VirtualFileLink(it, project) }.sortedWith(LinkComparator.INSTANCE)
   }
 }
