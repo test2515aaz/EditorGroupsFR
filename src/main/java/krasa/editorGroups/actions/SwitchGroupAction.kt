@@ -464,7 +464,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
             project = project,
             currentFile = null
           )
-          if (regexGroup.isEmpty) return@forEach
+          // if (regexGroup.isEmpty) return@forEach
 
           targetGroup.add(
             createAction(

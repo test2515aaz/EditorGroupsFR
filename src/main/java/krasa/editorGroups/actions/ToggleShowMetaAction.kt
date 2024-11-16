@@ -16,7 +16,7 @@ class ToggleShowMetaAction : ToggleAction(), DumbAware {
   override fun setSelected(e: AnActionEvent, state: Boolean) {
     EditorGroupsSettings.instance.isShowMeta = state
     EditorGroupsSettings.instance.fireChanged()
-    Notifications.notifyState(message("show.size"), state)
+    Notifications.notifyState(message("show.meta"), state)
   }
 
   companion object {

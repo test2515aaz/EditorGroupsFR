@@ -32,6 +32,7 @@ class RegexTableItemEditor : DialogItemEditor<RegexGroupModel>, CollectionItemEd
       notComparingGroups = item.notComparingGroups
       isEnabled = item.isEnabled
       touched = item.touched
+      priority = item.priority
     }
 
     return regexModel

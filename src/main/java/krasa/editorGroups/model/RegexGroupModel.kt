@@ -60,7 +60,7 @@ class RegexGroupModel : BaseState() {
     get() = myName.isBlank() || myRegex.isBlank()
 
   @NonNls
-  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$myRegex|$priority"
+  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$priority|$myRegex"
 
   fun apply(other: RegexGroupModel) {
     isEnabled = other.isEnabled
@@ -204,9 +204,9 @@ class RegexGroupModel : BaseState() {
           str.startsWith(V2) -> {
             val name = elements[1]
             val scope = elements[2]
-            val regex = elements[3]
-            val notComparingGroups = elements[4]
-            val priority = elements[5]
+            val notComparingGroups = elements[3]
+            val priority = elements[4]
+            val regex = elements[5]
 
             return from(
               name = name,

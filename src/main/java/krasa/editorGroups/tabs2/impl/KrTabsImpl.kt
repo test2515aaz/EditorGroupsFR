@@ -514,7 +514,7 @@ open class KrTabsImpl(
   }
 
   override fun uiSettingsChanged(uiSettings: UISettings) {
-    for ((info, label) in infoToLabel) {
+    for ((info, _) in infoToLabel) {
       info.revalidate()
     }
     updateRowLayout()
@@ -731,7 +731,7 @@ open class KrTabsImpl(
     var changed = false
     for (tabLabel in infoToLabel.values) {
       // val changes = tabLabel.updateTabActions()
-      changed = changed // || changes
+      // || changes
     }
     if (changed) {
       revalidateAndRepaint()
@@ -1524,7 +1524,7 @@ open class KrTabsImpl(
 
     override fun getPreferredSize(): Dimension {
       val base = super.getPreferredSize()
-      val label = tabs.infoToLabel[info]
+      tabs.infoToLabel[info]
       return base
     }
   }
@@ -1764,7 +1764,6 @@ open class KrTabsImpl(
 
   private fun groupPinnedFirst(infos: MutableList<EditorGroupTabInfo>) {
     var firstNotPinned = -1
-    var changed = false
     for (i in infos.indices) {
       if (firstNotPinned == -1) {
         firstNotPinned = i
@@ -2046,7 +2045,7 @@ open class KrTabsImpl(
       remove(it.component)
     }
 
-    val selectedInfo = selectedInfo
+    selectedInfo
     val entryPointActionGroup = entryPointActionGroup
     if (entryPointActionGroup == null) {
       entryPointToolbar = null
@@ -2617,7 +2616,7 @@ open class KrTabsImpl(
     @JvmStatic
     fun isSelectionClick(e: MouseEvent): Boolean {
       if (e.clickCount == 1 && !e.isPopupTrigger) {
-        return e.button == MouseEvent.BUTTON1 && !e.isControlDown && !e.isAltDown && !e.isMetaDown
+        return e.button == MouseEvent.BUTTON1 && !e.isControlDown
       }
       return false
     }
