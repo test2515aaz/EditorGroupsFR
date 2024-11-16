@@ -55,7 +55,7 @@ class RegexGroup(
     else          -> super.isSelected(editorGroup)
   }
 
-  override fun needSmartMode(): Boolean = regexGroupModel.scope == RegexGroupModel.Scope.WHOLE_PROJECT
+  override fun needSmartMode(): Boolean = regexGroupModel.scope == Scope.WHOLE_PROJECT
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -81,7 +81,7 @@ class RegexGroup(
     val paths: MutableList<VirtualFile?> = ArrayList()
 
     // If we want to find all files of the same regex in the whole project
-    if (regexGroupModel.scope == RegexGroupModel.Scope.WHOLE_PROJECT) {
+    if (regexGroupModel.scope == Scope.WHOLE_PROJECT) {
       val allContentRoots = ProjectRootUtil.getAllContentRoots(project)
       // Get all content roots' paths
       allContentRoots.mapTo(paths) { it.virtualFile }

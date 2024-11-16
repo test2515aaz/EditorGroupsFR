@@ -10,6 +10,7 @@ import com.intellij.openapi.vfs.VirtualFileVisitor
 import krasa.editorGroups.model.Link
 import krasa.editorGroups.model.RegexGroup
 import krasa.editorGroups.model.RegexGroupModel
+import krasa.editorGroups.model.Scope
 import krasa.editorGroups.settings.EditorGroupsSettings
 import java.util.regex.Matcher
 
@@ -99,8 +100,8 @@ open class RegexFileResolver(private val project: Project) {
     regexGroup: RegexGroup,
     projectFileIndex: ProjectFileIndex
   ): Boolean = when (regexGroupModel.myScope) {
-    RegexGroupModel.Scope.CURRENT_FOLDER -> child != regexGroup.folder
-    else                                 -> projectFileIndex.isExcluded(child)
+    Scope.CURRENT_FOLDER -> child != regexGroup.folder
+    else                 -> projectFileIndex.isExcluded(child)
   }
 
   private fun matches(regexGroupModel: RegexGroupModel, referenceMatcher: Matcher?, matcher: Matcher): Boolean {

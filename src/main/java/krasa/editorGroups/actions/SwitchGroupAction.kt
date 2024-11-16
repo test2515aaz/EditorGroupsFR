@@ -437,7 +437,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     val regexGroups = RegexGroupProvider.getInstance(project).findProjectRegexGroups()
 
     val alreadyDisplayed: MutableSet<String?> = alreadyFilledRegexGroups
-      .filter { it.regexGroupModel.myScope == RegexGroupModel.Scope.WHOLE_PROJECT }
+      .filter { it.regexGroupModel.myScope == Scope.WHOLE_PROJECT }
       .mapTo(HashSet()) { it.regexGroupModel.myRegex }
 
     if (regexGroups.isNotEmpty()) {

@@ -21,10 +21,10 @@
         <h2>Features</h2>
         <ul>
             <li>Quickly switch between files in the current tab</li>
-            <li>Group files by the same <b>filename</b> (without extension)</li>
-            <li>Group files within the <b>current folder</b></li>
-            <li>Group files by <b>bookmark group</b></li>
-            <li>Group files by a <b>regular expression</b> (like <code>service|controller|interface...</code>)</li>
+            <li>Group files by the same <strong>filename</strong> (without extension)</li>
+            <li>Group files within the <strong>current folder</strong></li>
+            <li>Group files by <strong>bookmark group</strong></li>
+            <li>Group files by a <strong>regular expression</strong> (like <code>service|controller|interface...</code>)</li>
             <li>Switch the current file with another file from the same group.</li>
         </ul>
 
@@ -70,8 +70,15 @@
         <applicationConfigurable instance="krasa.editorGroups.settings.EditorSettingsConfigurable"
                                  id="EditorSettingsConfigurable"
                                  key="settings.title"
-                                 parentId="Editor"
+                                 parentId="editor"
         />
+        <applicationConfigurable instance="krasa.editorGroups.settings.regex.RegexEditorConfigurable"
+                                 id="RegexEditorConfigurable"
+                                 key="settings.regex"
+                                 parentId="EditorSettingsConfigurable"
+        />
+
+
         <search.optionContributor implementation="krasa.editorGroups.settings.EditorGroupsOptionContributor"/>
         <search.topHitProvider implementation="krasa.editorGroups.settings.EditorGroupsTopHitProvider"/>
 

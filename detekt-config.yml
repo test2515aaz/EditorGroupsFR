@@ -96,6 +96,8 @@ style:
     active: false
   DataClassShouldBeImmutable:
     active: false
+  DestructuringDeclarationWithTooManyEntries:
+    active: false
   DoubleNegativeLambda:
     active: true
   EqualsOnSignatureLine:

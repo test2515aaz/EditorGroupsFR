@@ -5,75 +5,92 @@ import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.util.xmlb.annotations.Tag
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
+import java.util.*
 import java.util.regex.Pattern
 
 /** Regex group model. */
 @Tag("regexGroup")
 class RegexGroupModel : BaseState() {
   var isEnabled: Boolean by property(true)
+  var touched: Boolean = false
+  var name: String? by string()
   var regex: String? by string()
   var notComparingGroups: String? by string()
   var scope: Scope by enum(Scope.CURRENT_FOLDER)
+  var priority: Int by property(0)
+
+  /** Optional regex name. */
+  var myName: String
+    get() = name ?: generateUniqueName()
+    set(value) {
+      name = value
+    }
 
   /** Regex. */
-  var myRegex: String?
-    get() = regex
+  var myRegex: String
+    get() = regex ?: ".*"
     set(value) {
       regex = value
       regexPattern = null
     }
 
   /** The regex group matches to avoid comparing. */
-  @Suppress("detekt:UseRequire")
-  var myNotComparingGroups: String?
-    get() = notComparingGroups
+  var myNotComparingGroups: String
+    get() = notComparingGroups ?: ""
     set(value) {
-      if (value != null && value.contains("|")) {
-        throw IllegalArgumentException("notComparingGroups must not contain '|'")
-      }
+      require(!value.contains("|")) { "notComparingGroups must not contain '|'" }
       notComparingGroups = value
-      notComparingGroupsIntArray = null
     }
 
   /** Scope. */
-  var myScope: Scope?
+  var myScope: Scope
     get() = scope
     set(value) {
-      scope = value ?: Scope.CURRENT_FOLDER
+      scope = value
     }
 
   @Transient
   var regexPattern: Pattern? = null
     get() {
-      if (field == null) field = myRegex?.let { Pattern.compile(it) }
+      if (field == null) field = myRegex.let { Pattern.compile(it) }
       return field
     }
 
-  @Transient
-  private var notComparingGroupsIntArray: IntArray? = null
+  val isEmpty: Boolean
+    get() = myName.isBlank() || myRegex.isBlank()
 
   @NonNls
-  fun serialize(): String = "v1|$myScope|$myNotComparingGroups|$myRegex"
+  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$myRegex|$priority"
 
-  fun matches(name: String): Boolean {
-    try {
-      return regexPattern?.matcher(name)?.matches() == true
-    } catch (e: Exception) {
-      thisLogger().error(e)
-    }
-    return false
+  fun apply(other: RegexGroupModel) {
+    isEnabled = other.isEnabled
+    myName = other.myName
+    myRegex = other.myRegex
+    myNotComparingGroups = other.myNotComparingGroups
+    myScope = other.myScope
+    priority = other.priority
+  }
+
+  fun matches(name: String): Boolean = try {
+    regexPattern?.matcher(name)?.matches() == true
+  } catch (e: Exception) {
+    thisLogger().error(e)
+    false
   }
 
   fun copy(): RegexGroupModel = from(
-    regex = myRegex ?: ".*",
-    scope = myScope ?: Scope.CURRENT_FOLDER,
-    notComparingGroups = myNotComparingGroups ?: ""
+    name = myName,
+    isEnabled = isEnabled,
+    regex = myRegex,
+    scope = myScope,
+    notComparingGroups = myNotComparingGroups,
+    priority = priority
   )
 
   fun isComparingGroup(groupIndex: Int): Boolean {
-    if (notComparingGroupsIntArray == null) notComparingGroupsIntArray = getNotComparingGroupsAsIntArray()
+    val notComparingGroupsIntArray = getNotComparingGroupsAsIntArray()
 
-    return groupIndex !in notComparingGroupsIntArray!!
+    return groupIndex !in notComparingGroupsIntArray
   }
 
   /**
@@ -84,7 +101,7 @@ class RegexGroupModel : BaseState() {
   private fun getNotComparingGroupsAsIntArray(): IntArray {
     if (StringUtils.isBlank(myNotComparingGroups)) return IntArray(0)
 
-    val split = myNotComparingGroups!!.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+    val split = myNotComparingGroups.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
     val size = split.size
     val arr = IntArray(size)
 
@@ -101,36 +118,55 @@ class RegexGroupModel : BaseState() {
     return arr
   }
 
-  override fun toString(): String =
-    "RegexGroupModel{regex='$myRegex', notComparingGroups='$myNotComparingGroups', scope=$myScope, enabled=$isEnabled}"
-
-  enum class Scope {
-    CURRENT_FOLDER,
-    INCLUDING_SUBFOLDERS,
-    WHOLE_PROJECT
-  }
+  override fun toString(): String = """
+    RegexGroupModel{
+      |name='$myName',
+      |regex='$myRegex',
+      |notComparingGroups='$myNotComparingGroups',
+      |scope=$myScope,
+      |enabled=$isEnabled
+      |priority=$priority
+    }
+  """.trimMargin()
 
   companion object {
     const val V0: String = "v0"
     const val V1: String = "v1"
+    const val V2: String = "v2"
 
     /**
      * Creates and returns a `RegexGroupModel` instance with specified parameters.
      *
+     * @param name the optional regex name (default is generated unique name)
+     * @param isEnabled indicates whether the group is enabled (default is true)
      * @param regex the regular expression pattern to be used (default is ".*")
      * @param scope the scope in which the regular expression is evaluated (default is `Scope.CURRENT_FOLDER`)
      * @param notComparingGroups a comma-separated string representing groups that are not compared (default is "")
+     * @param priority the priority level for the regex group (default is 0)
      * @return a configured instance of `RegexGroupModel`
      */
     @JvmStatic
-    fun from(regex: String = ".*", scope: Scope = Scope.CURRENT_FOLDER, notComparingGroups: String = ""): RegexGroupModel {
+    fun from(
+      name: String = generateUniqueName(),
+      isEnabled: Boolean = true,
+      regex: String = ".*",
+      scope: Scope = Scope.CURRENT_FOLDER,
+      notComparingGroups: String = "",
+      priority: Int = 0
+    ): RegexGroupModel {
       val model = RegexGroupModel()
+      model.isEnabled = isEnabled
+      model.myName = name
       model.myRegex = regex
       model.myScope = scope
       model.myNotComparingGroups = notComparingGroups
+      model.priority = priority
 
       return model
     }
+
+    @NonNls
+    fun generateUniqueName(): String = "RegexGroup-${UUID.randomUUID()}"
 
     /**
      * Deserializes a given string into a `RegexGroupModel` object based on the specific format versions.
@@ -142,12 +178,12 @@ class RegexGroupModel : BaseState() {
     @JvmStatic
     @Suppress("MagicNumber")
     fun deserialize(str: String): RegexGroupModel? {
+      val elements = str.split("|")
+
       try {
         when {
           str.startsWith(V0) -> {
-            val scopeEnd = str.indexOf("|", 3)
-            val scope = str.substring(3, scopeEnd)
-            val regex = str.substring(scopeEnd + 1)
+            val (_, scope, regex) = elements
 
             return from(
               regex = regex,
@@ -156,18 +192,28 @@ class RegexGroupModel : BaseState() {
           }
 
           str.startsWith(V1) -> {
-            val scopeEnd = str.indexOf("|", 3)
-            val scope = str.substring(3, scopeEnd)
-
-            val notComparingGroupsEnd = str.indexOf("|", scopeEnd + 1)
-            val notComparingGroups = str.substring(scopeEnd + 1, notComparingGroupsEnd)
-
-            val regex = str.substring(notComparingGroupsEnd + 1)
+            val (_, scope, regex, notComparingGroups) = elements
 
             return from(
               regex = regex,
               scope = Scope.valueOf(scope),
               notComparingGroups = notComparingGroups
+            )
+          }
+
+          str.startsWith(V2) -> {
+            val name = elements[1]
+            val scope = elements[2]
+            val regex = elements[3]
+            val notComparingGroups = elements[4]
+            val priority = elements[5]
+
+            return from(
+              name = name,
+              regex = regex,
+              scope = Scope.valueOf(scope),
+              notComparingGroups = notComparingGroups,
+              priority = priority.toInt()
             )
           }
 
