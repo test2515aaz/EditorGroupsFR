@@ -233,6 +233,10 @@
                     class="krasa.editorGroups.actions.ToggleShowSizeAction"
                     icon="AllIcons.Gutter.Mnemonic"/>
 
+            <action id="krasa.editorGroups.ToggleShowMeta"
+                    class="krasa.editorGroups.actions.ToggleShowMetaAction"
+                    icon="AllIcons.General.Information"/>
+
             <action id="krasa.editorGroups.ToggleCompactModeGroupsAction"
                     class="krasa.editorGroups.actions.ToggleCompactModeGroupsAction"
                     icon="AllIcons.Actions.Collapseall"/>

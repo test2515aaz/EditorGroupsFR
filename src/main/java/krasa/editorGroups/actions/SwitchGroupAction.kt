@@ -580,7 +580,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           text += " ${message("action.empty.text")}"
         }
 
-        if (description?.isNotEmpty() == true) {
+        if (EditorGroupsSettings.instance.isShowMeta && description?.isNotEmpty() == true) {
           text += " <font color='gray'><small>$description</small></font>" // NON-NLS
         }
 

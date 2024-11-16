@@ -29,6 +29,7 @@ object PopupMenu {
     ToggleCompactModeGroupsAction.ID,
     ToggleColorizeGroupsAction.ID,
     ToggleShowSizeAction.ID,
+    ToggleShowMetaAction.ID,
     "-",
     OpenConfigurationAction.ID
   )
