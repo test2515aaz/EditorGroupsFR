@@ -171,7 +171,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         add(ActionManager.getInstance().getAction(TogglePanelVisibilityAction.ID))
         add(ActionManager.getInstance().getAction(OpenConfigurationAction.ID))
       }
-    } catch (e: IndexNotReadyException) {
+    }
+    catch (e: IndexNotReadyException) {
       thisLogger().error("That should not happen", e)
     }
   }
@@ -362,6 +363,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     file: VirtualFile?
   ): List<RegexGroup> {
     val regexGroups = RegexGroupProvider.getInstance(project).findMatchingRegexGroups(file!!)
+
+    tempGroup.add(Separator(message("separator.regex.groups")))
 
     regexGroups.forEach { regexGroup ->
       tempGroup.add(

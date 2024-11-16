@@ -13,6 +13,8 @@ class HidePanelGroup : EditorGroup() {
 
   override val isValid: Boolean = true
 
+  override val isCustom: Boolean = true
+
   override fun switchTitle(project: Project): String = title
 
   override fun icon(): Icon? = EditorGroupsIcons.hide

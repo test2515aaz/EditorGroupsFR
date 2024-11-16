@@ -23,6 +23,9 @@ abstract class EditorGroup {
 
   abstract val isValid: Boolean
 
+  open val isCustom: Boolean
+    get() = false
+
   val isInvalid: Boolean
     get() = !isValid
 
