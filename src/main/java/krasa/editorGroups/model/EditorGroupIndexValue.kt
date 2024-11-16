@@ -79,6 +79,9 @@ class EditorGroupIndexValue : EditorGroup {
   override val isValid: Boolean
     get() = valid
 
+  override val switchDescription: String?
+    get() = null
+
   /*runtime data*/
   @Volatile
   @Transient

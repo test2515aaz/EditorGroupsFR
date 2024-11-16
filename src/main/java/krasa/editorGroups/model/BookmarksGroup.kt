@@ -22,11 +22,16 @@ class BookmarksGroup(val bookmarkGroup: BookmarkGroup?, val project: Project) : 
 
   override val isValid: Boolean = true
 
-  override val isCustom: Boolean
-    get() = true
+  override val isCustom: Boolean = true
 
   val name: String
     get() = bookmarkGroup?.name ?: message("unnamed")
+
+  override val switchDescription: String?
+    get() = when (bookmarkGroup?.isDefault) {
+      true -> message("default")
+      else -> null
+    }
 
   override val bgColor: Color?
     get() {

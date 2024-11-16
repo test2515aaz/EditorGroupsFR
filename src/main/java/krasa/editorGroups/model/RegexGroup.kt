@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil
 import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.icons.EditorGroupsIcons
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.settings.EditorGroupsSettings
 import java.util.regex.Matcher
 import javax.swing.Icon
@@ -31,6 +32,16 @@ class RegexGroup(
 
   val pattern: String
     get() = regexGroupModel.regexPattern.toString()
+
+  val scope: String
+    get() = when (regexGroupModel.myScope) {
+      Scope.CURRENT_FOLDER       -> message("scope.currentFolder")
+      Scope.INCLUDING_SUBFOLDERS -> message("scope.includeSubfolders")
+      Scope.WHOLE_PROJECT        -> message("scope.wholeProject")
+    }
+
+  override val switchDescription: String?
+    get() = scope
 
   val referenceMatcher: Matcher?
     get() {

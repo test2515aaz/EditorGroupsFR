@@ -237,7 +237,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       project = project
     )
 
-    val defaultBookmarkGroupAction = createBookmarkGroupAction(
+    val defaultBookmarkGroupAction = createAction(
       displayedGroup = displayedGroup,
       targetGroup = defaultBookmarkGroup,
       project = project,
@@ -277,7 +277,7 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         project = project
       )
 
-      val bookmarkGroupAction = createBookmarkGroupAction(
+      val bookmarkGroupAction = createAction(
         displayedGroup = displayedGroup,
         targetGroup = bookmarkGroup,
         project = project,
@@ -544,32 +544,17 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
    * @param actionHandler the handler for the action to be performed
    * @return a new DumbAwareAction configured for the switch action
    */
+  /**
+   * Creates a new action for switching the editor group.
+   *
+   * @param displayedGroup The currently displayed editor group.
+   * @param targetGroup The target editor group to switch to.
+   * @param project The project in which the switch is to be made.
+   * @param actionHandler The handler for the action to be performed.
+   * @param isDefault Whether this action should be marked as default.
+   * @return A new DumbAwareAction configured for the switch action.
+   */
   private fun createAction(
-    displayedGroup: EditorGroup,
-    targetGroup: EditorGroup,
-    project: Project,
-    actionHandler: Handler
-  ): DumbAwareAction {
-    val isSelected = displayedGroup.isSelected(targetGroup)
-    val description = targetGroup.switchDescription
-    var title = targetGroup.switchTitle(project) // NON-NLS
-
-    if (isSelected) title += message("action.current.suffix")
-
-    val dumbAwareAction: DumbAwareAction = object : DumbAwareAction(title, description, targetGroup.icon()) {
-      override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
-
-      override fun getActionUpdateThread(): ActionUpdateThread = super.getActionUpdateThread()
-
-      override fun update(e: AnActionEvent) {
-        e.presentation.isEnabled = !isSelected
-      }
-    }
-
-    return dumbAwareAction
-  }
-
-  private fun createBookmarkGroupAction(
     displayedGroup: EditorGroup,
     targetGroup: EditorGroup,
     project: Project,
@@ -577,10 +562,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     isDefault: Boolean = false
   ): DumbAwareAction {
     val isSelected = displayedGroup.isSelected(targetGroup)
-    val description = targetGroup.switchDescription
+    val description = targetGroup.switchDescription // NON-NLS
     var title = targetGroup.switchTitle(project) // NON-NLS
-
-    if (isSelected) title += message("action.current.suffix")
 
     return object : DumbAwareAction(title, description, targetGroup.icon()) {
       override fun actionPerformed(event: AnActionEvent) = actionHandler.run(targetGroup)
@@ -589,16 +572,27 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
 
       override fun update(e: AnActionEvent) {
         e.presentation.isEnabled = !isSelected
+        var text = title
 
-        if (targetGroup.size(project) == 0) {
+        if (!targetGroup.isAuto && targetGroup.size(project) == 0) {
           e.presentation.isEnabled = false
-          e.presentation.setText("${targetGroup.title} ${message("action.empty.text")}")
+
+          text += " ${message("action.empty.text")}"
+        }
+
+        if (description?.isNotEmpty() == true) {
+          text += " <font color='gray'><small>$description</small></font>" // NON-NLS
         }
 
         if (isDefault) {
-          // Make text bold
-          e.presentation.text = "<html><b>${e.presentation.text}</b></html>"
+          text = "<b>$text</b>"
         }
+
+        if (isSelected) {
+          text += " ${message("action.current.suffix")}"
+        }
+
+        e.presentation.text = "<html>$text</html>"
       }
     }
   }
