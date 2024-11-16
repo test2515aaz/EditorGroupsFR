@@ -368,7 +368,12 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
       targetGroup.add(Separator(message("separator.regex.groups")))
     }
 
-    regexGroups.forEach { regexGroup ->
+    regexGroups.forEach { group ->
+      val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(
+        group = group,
+        project = project,
+        currentFile = file
+      )
       if (regexGroup.isEmpty) return@forEach
 
       targetGroup.add(
@@ -454,14 +459,19 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
         .asSequence()
         .filterNot { alreadyDisplayed.contains(it.regexGroupModel.myRegex) }
         .forEach { group ->
-          if (group.isEmpty) return@forEach
+          val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(
+            group = group,
+            project = project,
+            currentFile = null
+          )
+          if (regexGroup.isEmpty) return@forEach
 
           targetGroup.add(
             createAction(
               displayedGroup = displayedGroup,
               targetGroup = group,
               project = project,
-              actionHandler = otherRegexGroupHandler(project, group)
+              actionHandler = otherRegexGroupHandler(project, regexGroup)
             )
           )
         }
@@ -475,9 +485,8 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
     }
   }
 
-  private fun otherRegexGroupHandler(project: Project, group: RegexGroup) = object : Handler() {
+  private fun otherRegexGroupHandler(project: Project, regexGroup: RegexGroup) = object : Handler() {
     override fun run(editorGroup: EditorGroup) {
-      val regexGroup = RegexGroupProvider.getInstance(project).getRegexGroup(group = group, project = project, currentFile = null)
       otherGroupHandler(project).run(regexGroup)
     }
   }
