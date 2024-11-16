@@ -271,11 +271,10 @@ class RegexTableModelEditor(
      */
     override fun removeRow(index: Int) {
       val item = getItem(index)
-      if (!item.touched) return
-
       helper.remove(item)
       super.removeRow(index)
       allItems.remove(item)
+      fireTableDataChanged()
     }
 
     override fun addRow(item: RegexGroupModel) {
