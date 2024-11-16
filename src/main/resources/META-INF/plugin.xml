@@ -229,6 +229,10 @@
                     class="krasa.editorGroups.actions.ToggleHideEmptyAction"
                     icon="AllIcons.General.HideToolWindow"/>
 
+            <action id="krasa.editorGroups.ToggleReuseCurrentTabAction"
+                    class="krasa.editorGroups.actions.ToggleReuseCurrentTabAction"
+                    icon="AllIcons.General.Pin_tab"/>
+
             <action id="krasa.editorGroups.ToggleShowSize"
                     class="krasa.editorGroups.actions.ToggleShowSizeAction"
                     icon="AllIcons.Gutter.Mnemonic"/>

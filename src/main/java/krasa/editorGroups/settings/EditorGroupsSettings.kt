@@ -63,6 +63,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     // Show the panel at all
     var isShowPanel: Boolean by property(true)
 
+    // Reuse the current tab
+    var reuseCurrentTab: Boolean by property(false)
+
     // Limit the number of elements in a group
     var groupSizeLimitInt: Int by property(DEFAULT_GROUP_SIZE_LIMIT)
 
@@ -105,6 +108,13 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     get() = state.isForceSwitch
     set(value) {
       state.isForceSwitch = value
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.TABS])
+  var reuseCurrentTab: Boolean
+    get() = state.reuseCurrentTab
+    set(value) {
+      state.reuseCurrentTab = value
     }
 
   @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
@@ -261,6 +271,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     clone.isShowPanel = this.isShowPanel
     clone.isShowSize = this.isShowSize
     clone.isSmallLabels = this.isSmallLabels
+    clone.reuseCurrentTab = this.reuseCurrentTab
     clone.tabSizeLimit = this.tabSizeLimit
     clone.tabsPlacement = this.tabsPlacement
     return clone
@@ -287,6 +298,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.isShowPanel = state.isShowPanel
     this.isShowSize = state.isShowSize
     this.isSmallLabels = state.isSmallLabels
+    this.reuseCurrentTab = state.reuseCurrentTab
     this.tabSizeLimit = state.tabSizeLimit
     this.tabsPlacement = state.tabsPlacement
     this.fireChanged()
@@ -356,6 +368,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     if (isShowPanel != other.isShowPanel) return false
     if (isShowSize != other.isShowSize) return false
     if (isSmallLabels != other.isSmallLabels) return false
+    if (reuseCurrentTab != other.reuseCurrentTab) return false
     if (tabSizeLimit != other.tabSizeLimit) return false
     if (tabsPlacement != other.tabsPlacement) return false
 
@@ -383,6 +396,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     result = 31 * result + isShowPanel.hashCode()
     result = 31 * result + isShowSize.hashCode()
     result = 31 * result + isSmallLabels.hashCode()
+    result = 31 * result + reuseCurrentTab.hashCode()
     result = 31 * result + tabSizeLimit
     result = 31 * result + tabsPlacement
     return result
@@ -410,6 +424,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |isShowPanel=$isShowPanel,
     |isShowSize=$isShowSize,
     |isSmallLabels=$isSmallLabels,
+    |reuseCurrentTab=$reuseCurrentTab,
     |tabSizeLimit=$tabSizeLimit,
     |tabsPlacement=$tabsPlacement,
     )

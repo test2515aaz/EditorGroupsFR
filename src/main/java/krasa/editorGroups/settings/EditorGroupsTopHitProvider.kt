@@ -117,6 +117,11 @@ fun isSmallLabelsOption(): BooleanOptionDescription = CheckboxDescriptor(
   EditorGroupsSettings.instance::isSmallLabels,
 ).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
 
+fun reuseCurrentTabOption(): BooleanOptionDescription = CheckboxDescriptor(
+  getText(message("EditorGroupsSettings.reuseCurrentTab.text")),
+  EditorGroupsSettings.instance::reuseCurrentTab,
+).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
+
 // endregion [Checkbox Definitions]
 
 internal class EditorGroupsTopHitProvider : ApplicationLevelProvider {
@@ -139,6 +144,7 @@ internal class EditorGroupsTopHitProvider : ApplicationLevelProvider {
     isShowPanelEnabledOption(),
     isShowSizeOption(),
     isSmallLabelsOption(),
+    reuseCurrentTabOption(),
     toggleExcludeEditorGroupsFilesOption(),
   )
 }
