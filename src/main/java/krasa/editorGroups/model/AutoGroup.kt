@@ -58,5 +58,6 @@ abstract class AutoGroup(
   companion object {
     const val SAME_FILE_NAME: String = "FILE_NAME"
     const val DIRECTORY: String = "DIRECTORY"
+    const val SAME_FEATURE: String = "SAME_FEATURE"
   }
 }

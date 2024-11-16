@@ -62,6 +62,7 @@ class IndexCache(private val project: Project) {
         val last = value.last
         when {
           last == null                                     -> return@forEach
+          autoSameName && last == AutoGroup.SAME_FEATURE   -> return@forEach
           autoSameName && last == AutoGroup.SAME_FILE_NAME -> return@forEach
           autoFolders && last == AutoGroup.DIRECTORY       -> return@forEach
         }
@@ -293,6 +294,7 @@ class IndexCache(private val project: Project) {
     currentFile: VirtualFile
   ): EditorGroup {
     return when {
+      includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FEATURE   -> SameFeatureGroup.INSTANCE
       includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> SameNameGroup.INSTANCE
       includeAutoGroups && config.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
       last == HidePanelGroup.ID                                                      -> HidePanelGroup.INSTANCE

@@ -13,6 +13,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.OSAgnosticPathUtil
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.text.StringUtilRt
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
@@ -233,4 +234,21 @@ fun getSettings(component: Component): Settings? = Settings.KEY.getData(DataMana
 fun navigateToSettingsPage(component: Component, name: String) {
   val settings = getSettings(component) ?: return
   settings.select(settings.find(name))
+}
+
+/**
+ * Extracts the name of a file without its type and extension.
+ *
+ * @param name the full name of the file, including its type and extension
+ * @return the name of the file without its type and extension
+ */
+fun getNameWithoutTypeAndExt(name: CharSequence): CharSequence {
+  val lastIndex = StringUtilRt.lastIndexOf(name, '.', 0, name.length)
+  if (lastIndex < 0) return name
+
+  val secondToLastIndex = StringUtilRt.lastIndexOf(name, '.', 0, lastIndex)
+  return when {
+    secondToLastIndex < 0 -> name
+    else                  -> name.subSequence(0, secondToLastIndex)
+  }
 }
