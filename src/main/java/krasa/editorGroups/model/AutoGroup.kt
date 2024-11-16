@@ -20,6 +20,12 @@ abstract class AutoGroup(
   val isEmpty: Boolean
     get() = links.isEmpty()
 
+  override val switchDescription: String?
+    get() = null
+
+  override val isAuto: Boolean
+    get() = true
+
   init {
     links.sortedWith(LinkComparator.INSTANCE)
   }

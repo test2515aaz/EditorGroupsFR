@@ -23,24 +23,20 @@ abstract class EditorGroup {
 
   abstract val isValid: Boolean
 
-  open val isCustom: Boolean
-    get() = false
+  open val isCustom: Boolean = false
 
   val isInvalid: Boolean
     get() = !isValid
 
-  val switchDescription: String?
-    get() {
-      if (this is AutoGroup) return null
-      if (this !is BookmarksGroup) return message("owner.0", ownerPath)
-      return null
-    }
+  abstract val switchDescription: String?
 
   open val bgColor: Color?
     get() = null
 
   open val fgColor: Color?
     get() = null
+
+  open val isAuto: Boolean = false
 
   abstract fun icon(): Icon?
 

@@ -113,6 +113,12 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
         }
 
         row {
+          checkBox(message("EditorGroupsSettings.isShowMetaCheckbox.text"))
+            .bindSelected(settingsClone::isShowMeta)
+            .comment(message("EditorGroupsSettings.isShowMetaCheckbox.toolTipText"))
+        }
+
+        row {
           checkBox(message("EditorGroupsSettings.isCompactTabsCheckbox.text"))
             .bindSelected(settingsClone::isCompactTabs)
             .comment(message("EditorGroupsSettings.isCompactTabsCheckbox.toolTipText"))

@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import krasa.editorGroups.index.IndexCache
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.support.getColorInstance
 import org.jetbrains.annotations.NonNls
 import java.awt.Color
@@ -78,6 +79,9 @@ class EditorGroupIndexValue : EditorGroup {
 
   override val isValid: Boolean
     get() = valid
+
+  override val switchDescription: String
+    get() = message("owner.0", ownerPath)
 
   /*runtime data*/
   @Volatile

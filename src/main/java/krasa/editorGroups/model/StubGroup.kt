@@ -12,6 +12,8 @@ class StubGroup : EditorGroup() {
   override val title: String = ""
 
   override val isValid: Boolean = true
+  override val switchDescription: String?
+    get() = TODO("Not yet implemented")
 
   override fun icon(): Icon = AllIcons.Actions.GroupByModule
 

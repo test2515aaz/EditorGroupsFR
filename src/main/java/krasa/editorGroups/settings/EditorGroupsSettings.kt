@@ -30,6 +30,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     // Show group size at title
     var isShowSize: Boolean by property(true)
 
+    // Show group metadata
+    var isShowMeta: Boolean by property(false)
+
     // Color tabs of the current group
     var isColorTabs: Boolean by property(true)
 
@@ -116,6 +119,13 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     get() = state.isShowSize
     set(value) {
       state.isShowSize = value
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.GROUPS, EditorGroupSetting.Category.UI])
+  var isShowMeta: Boolean
+    get() = state.isShowMeta
+    set(value) {
+      state.isShowMeta = value
     }
 
   @EditorGroupSetting([EditorGroupSetting.Category.TABS, EditorGroupSetting.Category.UI])
@@ -231,52 +241,54 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
   fun clone(): EditorGroupsSettings {
     val clone = EditorGroupsSettings()
-    clone.isSelectRegexGroup = this.isSelectRegexGroup
+    clone.customFont = this.customFont
+    clone.groupSizeLimit = this.groupSizeLimit
     clone.isAutoFolders = this.isAutoFolders
     clone.isAutoSameName = this.isAutoSameName
-    clone.isForceSwitch = this.isForceSwitch
-    clone.isHideEmpty = this.isHideEmpty
-    clone.isShowSize = this.isShowSize
     clone.isColorTabs = this.isColorTabs
-    clone.isSmallLabels = this.isSmallLabels
-    clone.isContinuousScrolling = this.isContinuousScrolling
-    clone.isInitializeSynchronously = this.isInitializeSynchronously
-    clone.isIndexOnlyEditorGroupsFiles = this.isIndexOnlyEditorGroupsFiles
-    clone.isExcludeEditorGroupsFiles = this.isExcludeEditorGroupsFiles
-    clone.isRememberLastGroup = this.isRememberLastGroup
     clone.isCompactTabs = this.isCompactTabs
+    clone.isContinuousScrolling = this.isContinuousScrolling
+    clone.isCustomFont = this.isCustomFont
+    clone.isExcludeEditorGroupsFiles = this.isExcludeEditorGroupsFiles
+    clone.isForceSwitch = this.isForceSwitch
     clone.isGroupSwitchGroupAction = this.isGroupSwitchGroupAction
+    clone.isHideEmpty = this.isHideEmpty
+    clone.isIndexOnlyEditorGroupsFiles = this.isIndexOnlyEditorGroupsFiles
+    clone.isInitializeSynchronously = this.isInitializeSynchronously
+    clone.isRememberLastGroup = this.isRememberLastGroup
+    clone.isSelectRegexGroup = this.isSelectRegexGroup
+    clone.isShowMeta = this.isShowMeta
     clone.isShowPanel = this.isShowPanel
-    clone.groupSizeLimit = this.groupSizeLimit
+    clone.isShowSize = this.isShowSize
+    clone.isSmallLabels = this.isSmallLabels
     clone.tabSizeLimit = this.tabSizeLimit
     clone.tabsPlacement = this.tabsPlacement
-    clone.isCustomFont = this.isCustomFont
-    clone.customFont = this.customFont
     return clone
   }
 
   fun apply(state: EditorGroupsSettings) {
-    this.isSelectRegexGroup = state.isSelectRegexGroup
+    this.customFont = state.customFont
+    this.groupSizeLimit = state.groupSizeLimit
     this.isAutoFolders = state.isAutoFolders
     this.isAutoSameName = state.isAutoSameName
-    this.isForceSwitch = state.isForceSwitch
-    this.isHideEmpty = state.isHideEmpty
-    this.isShowSize = state.isShowSize
     this.isColorTabs = state.isColorTabs
-    this.isSmallLabels = state.isSmallLabels
-    this.isContinuousScrolling = state.isContinuousScrolling
-    this.isInitializeSynchronously = state.isInitializeSynchronously
-    this.isIndexOnlyEditorGroupsFiles = state.isIndexOnlyEditorGroupsFiles
-    this.isExcludeEditorGroupsFiles = state.isExcludeEditorGroupsFiles
-    this.isRememberLastGroup = state.isRememberLastGroup
     this.isCompactTabs = state.isCompactTabs
+    this.isContinuousScrolling = state.isContinuousScrolling
+    this.isCustomFont = state.isCustomFont
+    this.isExcludeEditorGroupsFiles = state.isExcludeEditorGroupsFiles
+    this.isForceSwitch = state.isForceSwitch
     this.isGroupSwitchGroupAction = state.isGroupSwitchGroupAction
+    this.isHideEmpty = state.isHideEmpty
+    this.isIndexOnlyEditorGroupsFiles = state.isIndexOnlyEditorGroupsFiles
+    this.isInitializeSynchronously = state.isInitializeSynchronously
+    this.isRememberLastGroup = state.isRememberLastGroup
+    this.isSelectRegexGroup = state.isSelectRegexGroup
+    this.isShowMeta = state.isShowMeta
     this.isShowPanel = state.isShowPanel
-    this.groupSizeLimit = state.groupSizeLimit
+    this.isShowSize = state.isShowSize
+    this.isSmallLabels = state.isSmallLabels
     this.tabSizeLimit = state.tabSizeLimit
     this.tabsPlacement = state.tabsPlacement
-    this.isCustomFont = state.isCustomFont
-    this.customFont = state.customFont
     this.fireChanged()
   }
 
@@ -324,79 +336,82 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
 
     other as EditorGroupsSettings
 
-    if (isSelectRegexGroup != other.isSelectRegexGroup) return false
+    if (customFont != other.customFont) return false
+    if (groupSizeLimit != other.groupSizeLimit) return false
     if (isAutoFolders != other.isAutoFolders) return false
     if (isAutoSameName != other.isAutoSameName) return false
-    if (isForceSwitch != other.isForceSwitch) return false
-    if (isHideEmpty != other.isHideEmpty) return false
-    if (isShowSize != other.isShowSize) return false
     if (isColorTabs != other.isColorTabs) return false
-    if (isSmallLabels != other.isSmallLabels) return false
-    if (isContinuousScrolling != other.isContinuousScrolling) return false
-    if (isInitializeSynchronously != other.isInitializeSynchronously) return false
-    if (isIndexOnlyEditorGroupsFiles != other.isIndexOnlyEditorGroupsFiles) return false
-    if (isExcludeEditorGroupsFiles != other.isExcludeEditorGroupsFiles) return false
-    if (isRememberLastGroup != other.isRememberLastGroup) return false
     if (isCompactTabs != other.isCompactTabs) return false
+    if (isContinuousScrolling != other.isContinuousScrolling) return false
+    if (isCustomFont != other.isCustomFont) return false
+    if (isExcludeEditorGroupsFiles != other.isExcludeEditorGroupsFiles) return false
+    if (isForceSwitch != other.isForceSwitch) return false
     if (isGroupSwitchGroupAction != other.isGroupSwitchGroupAction) return false
+    if (isHideEmpty != other.isHideEmpty) return false
+    if (isIndexOnlyEditorGroupsFiles != other.isIndexOnlyEditorGroupsFiles) return false
+    if (isInitializeSynchronously != other.isInitializeSynchronously) return false
+    if (isRememberLastGroup != other.isRememberLastGroup) return false
+    if (isSelectRegexGroup != other.isSelectRegexGroup) return false
+    if (isShowMeta != other.isShowMeta) return false
     if (isShowPanel != other.isShowPanel) return false
-    if (groupSizeLimit != other.groupSizeLimit) return false
+    if (isShowSize != other.isShowSize) return false
+    if (isSmallLabels != other.isSmallLabels) return false
     if (tabSizeLimit != other.tabSizeLimit) return false
     if (tabsPlacement != other.tabsPlacement) return false
-    if (isCustomFont != other.isCustomFont) return false
-    if (customFont != other.customFont) return false
 
     return true
   }
 
   override fun hashCode(): Int {
     var result = isSelectRegexGroup.hashCode()
+    result = 31 * result + customFont.hashCode()
+    result = 31 * result + groupSizeLimit
     result = 31 * result + isAutoFolders.hashCode()
     result = 31 * result + isAutoSameName.hashCode()
-    result = 31 * result + isForceSwitch.hashCode()
-    result = 31 * result + isHideEmpty.hashCode()
-    result = 31 * result + isShowSize.hashCode()
     result = 31 * result + isColorTabs.hashCode()
-    result = 31 * result + isSmallLabels.hashCode()
-    result = 31 * result + isContinuousScrolling.hashCode()
-    result = 31 * result + isInitializeSynchronously.hashCode()
-    result = 31 * result + isIndexOnlyEditorGroupsFiles.hashCode()
-    result = 31 * result + isExcludeEditorGroupsFiles.hashCode()
-    result = 31 * result + isRememberLastGroup.hashCode()
     result = 31 * result + isCompactTabs.hashCode()
+    result = 31 * result + isContinuousScrolling.hashCode()
+    result = 31 * result + isCustomFont.hashCode()
+    result = 31 * result + isExcludeEditorGroupsFiles.hashCode()
+    result = 31 * result + isForceSwitch.hashCode()
     result = 31 * result + isGroupSwitchGroupAction.hashCode()
+    result = 31 * result + isHideEmpty.hashCode()
+    result = 31 * result + isIndexOnlyEditorGroupsFiles.hashCode()
+    result = 31 * result + isInitializeSynchronously.hashCode()
+    result = 31 * result + isRememberLastGroup.hashCode()
+    result = 31 * result + isShowMeta.hashCode()
     result = 31 * result + isShowPanel.hashCode()
-    result = 31 * result + groupSizeLimit
+    result = 31 * result + isShowSize.hashCode()
+    result = 31 * result + isSmallLabels.hashCode()
     result = 31 * result + tabSizeLimit
     result = 31 * result + tabsPlacement
-    result = 31 * result + isCustomFont.hashCode()
-    result = 31 * result + customFont.hashCode()
     return result
   }
 
   override fun toString(): String = """
     EditorGroupsSettings(
-    |isSelectRegexGroup=$isSelectRegexGroup,
+    |customFont=$customFont,
+    |groupSizeLimit=$groupSizeLimit,
     |isAutoFolders=$isAutoFolders,
     |isAutoSameName=$isAutoSameName,
-    |isForceSwitch=$isForceSwitch,
-    |isHideEmpty=$isHideEmpty,
-    |isShowSize=$isShowSize,
     |isColorTabs=$isColorTabs,
-    |isSmallLabels=$isSmallLabels,
-    |isContinuousScrolling=$isContinuousScrolling,
-    |isInitializeSynchronously=$isInitializeSynchronously,
-    |isIndexOnlyEditorGroupsFiles=$isIndexOnlyEditorGroupsFiles,
-    |isExcludeEditorGroupsFiles=$isExcludeEditorGroupsFiles,
-    |isRememberLastGroup=$isRememberLastGroup,
     |isCompactTabs=$isCompactTabs,
+    |isContinuousScrolling=$isContinuousScrolling,
+    |isCustomFont=$isCustomFont,
+    |isExcludeEditorGroupsFiles=$isExcludeEditorGroupsFiles,
+    |isForceSwitch=$isForceSwitch,
     |isGroupSwitchGroupAction=$isGroupSwitchGroupAction,
+    |isHideEmpty=$isHideEmpty,
+    |isIndexOnlyEditorGroupsFiles=$isIndexOnlyEditorGroupsFiles,
+    |isInitializeSynchronously=$isInitializeSynchronously,
+    |isRememberLastGroup=$isRememberLastGroup,
+    |isSelectRegexGroup=$isSelectRegexGroup,
+    |isShowMeta=$isShowMeta,
     |isShowPanel=$isShowPanel,
-    |groupSizeLimit=$groupSizeLimit,
+    |isShowSize=$isShowSize,
+    |isSmallLabels=$isSmallLabels,
     |tabSizeLimit=$tabSizeLimit,
     |tabsPlacement=$tabsPlacement,
-    |isCustomFont=$isCustomFont,
-    |customFont=$customFont,
     )
   """.trimMargin()
 

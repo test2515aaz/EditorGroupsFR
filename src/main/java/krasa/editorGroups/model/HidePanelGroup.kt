@@ -15,6 +15,11 @@ class HidePanelGroup : EditorGroup() {
 
   override val isCustom: Boolean = true
 
+  override val isAuto: Boolean = true
+
+  override val switchDescription: String?
+    get() = null
+
   override fun switchTitle(project: Project): String = title
 
   override fun icon(): Icon? = EditorGroupsIcons.hide

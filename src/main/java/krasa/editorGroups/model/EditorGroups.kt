@@ -3,6 +3,7 @@ package krasa.editorGroups.model
 import com.intellij.openapi.project.Project
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.index.IndexCache
+import krasa.editorGroups.messages.EditorGroupsBundle.message
 import java.util.concurrent.ConcurrentHashMap
 import javax.swing.Icon
 
@@ -16,6 +17,9 @@ class EditorGroups : EditorGroup, GroupsHolder {
 
   override val id: String
     get() = ID
+
+  override val switchDescription: String?
+    get() = message("owner.0", ownerPath)
 
   override val title: String = ""
 

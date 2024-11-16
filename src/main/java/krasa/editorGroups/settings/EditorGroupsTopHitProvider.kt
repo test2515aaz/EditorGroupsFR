@@ -107,6 +107,11 @@ fun isShowSizeOption(): BooleanOptionDescription = CheckboxDescriptor(
   EditorGroupsSettings.instance::isShowSize,
 ).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
 
+fun isShowMetaOption(): BooleanOptionDescription = CheckboxDescriptor(
+  getText(message("EditorGroupsSettings.isShowMetaCheckbox.text")),
+  EditorGroupsSettings.instance::isShowMeta,
+).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
+
 fun isSmallLabelsOption(): BooleanOptionDescription = CheckboxDescriptor(
   getText(message("EditorGroupsSettings.isSmallLabelsCheckbox.text")),
   EditorGroupsSettings.instance::isSmallLabels,
@@ -130,6 +135,7 @@ internal class EditorGroupsTopHitProvider : ApplicationLevelProvider {
     isInitializeSynchronouslyOption(),
     isRememberLastGroupOption(),
     isSelectRegexGroupOption(),
+    isShowMetaOption(),
     isShowPanelEnabledOption(),
     isShowSizeOption(),
     isSmallLabelsOption(),
