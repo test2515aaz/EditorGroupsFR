@@ -88,7 +88,7 @@ open class KrTabsImpl(
   EditorGroupsTabsEx,
   PropertyChangeListener,
   TimerListener,
-  DataProvider,
+  UiDataProvider,
   PopupMenuListener,
   KrTabsPresentation,
   UISettingsListener,
@@ -2093,6 +2093,10 @@ open class KrTabsImpl(
 
   override fun getComponent(): JComponent = this
 
+  override fun getName(): @NlsActions.ActionText String? {
+    return ""
+  }
+
   private fun addListeners() {
     for (eachInfo in visibleTabInfos) {
       val label = infoToLabel[eachInfo]
@@ -2460,19 +2464,11 @@ open class KrTabsImpl(
     return this
   }
 
-  override fun getData(dataId: @NonNls String): Any? {
-    if (dataProvider != null) {
-      dataProvider!!.getData(dataId)?.let {
-        return it
-      }
-    }
-    if (QuickActionProvider.KEY.`is`(dataId) || MorePopupAware.KEY.`is`(dataId) || EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY.`is`(
-        dataId
-      )
-    ) {
-      return this
-    }
-    return null
+  override fun uiDataSnapshot(sink: DataSink) {
+    DataSink.uiDataSnapshot(sink, dataProvider)
+    sink[QuickActionProvider.KEY] = this@KrTabsImpl
+    sink[MorePopupAware.KEY] = this@KrTabsImpl
+    sink[EditorGroupsTabsEx.NAVIGATION_ACTIONS_KEY] = this@KrTabsImpl
   }
 
   override fun getActions(originalProvider: Boolean): List<AnAction> = emptyList()
