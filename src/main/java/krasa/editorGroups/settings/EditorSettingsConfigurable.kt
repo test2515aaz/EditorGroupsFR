@@ -84,6 +84,12 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
         separator()
 
         row {
+          checkBox(message("EditorGroupsSettings.reuseCurrentTab.text"))
+            .bindSelected(settingsClone::reuseCurrentTab)
+            .comment(message("EditorGroupsSettings.reuseCurrentTab.toolTipText"))
+        }
+
+        row {
           checkBox(message("EditorGroupsSettings.isRememberLastGroupCheckbox.text"))
             .bindSelected(settingsClone::isRememberLastGroup)
             .comment(message("EditorGroupsSettings.isRememberLastGroupCheckbox.toolTipText"))

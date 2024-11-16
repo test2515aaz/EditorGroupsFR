@@ -664,12 +664,13 @@ class EditorGroupManager(private val project: Project) {
 
               if (reuseNotModifiedTabs) return@executeCommand
 
-              // not sure, but it seems to mess order of tabs less if we do it after opening a new tab
-              // if (selectedFile != null && !newTab) {
-              //   thisLogger().debug("closeFile $selectedFile")
-              //   checkNotNull(currentWindow)
-              //   manager.closeFile(selectedFile, currentWindow)
-              // }
+              // replace current tab
+              // PS: it seems to mess order of tabs less if we do it after opening a new tab
+              if (EditorGroupsSettings.instance.reuseCurrentTab && selectedFile != null && !newTab) {
+                thisLogger().debug("closeFile $selectedFile")
+                checkNotNull(currentWindow)
+                currentWindow.closeFile(selectedFile)
+              }
             } finally {
               UISettings.getInstance().reuseNotModifiedTabs = reuseNotModifiedTabs
             }
