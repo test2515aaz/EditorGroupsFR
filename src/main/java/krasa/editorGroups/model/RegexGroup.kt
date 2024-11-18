@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import krasa.editorGroups.icons.EditorGroupsIcons
 import krasa.editorGroups.messages.EditorGroupsBundle.message
 import krasa.editorGroups.settings.EditorGroupsSettings
+import java.awt.Color
 import java.util.regex.Matcher
 import javax.swing.Icon
 
@@ -57,6 +58,9 @@ class RegexGroup(
       }
       return referenceMatcher
     }
+
+  override val bgColor: Color?
+    get() = regexGroupModel.myColor
 
   constructor(model: RegexGroupModel, folder: VirtualFile?) : this(model, folder, emptyList<Link>(), null)
   constructor(model: RegexGroupModel, folder: VirtualFile?, fileName: String?) : this(model, folder, emptyList<Link>(), fileName)

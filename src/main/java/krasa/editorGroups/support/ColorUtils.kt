@@ -7,6 +7,7 @@ import krasa.editorGroups.language.annotator.LanguagePatternHolder
 import org.jetbrains.annotations.NonNls
 import java.awt.Color
 import javax.swing.Icon
+import javax.swing.UIManager
 
 @NonNls
 val colorMap: HashMap<String, String> = hashMapOf(
@@ -411,18 +412,13 @@ fun gutterColorIcon(color: Color, size: Int = 12): Icon {
   )
 }
 
-/**
- * Converts a Color object to its hexadecimal string representation.
- *
- * @return A string representing the color in hexadecimal format.
- */
+/** Converts a Color object to its hexadecimal string representation. */
 fun Color.toHex(): String = ColorUtil.toHex(this)
 
-/**
- * Converts the String to a Color object if the String matches the hex color pattern.
- *
- * @return The Color object parsed from the hex color string, or null if the string does not match the hex color pattern.
- */
+/** Converts a hexadecimal string to a Color object. */
+fun String.fromHex(): Color = ColorUtil.fromHex(this)
+
+/** Converts the String to a Color object if the String matches the hex color pattern. */
 fun String.toColor(): Color? = when {
   !LanguagePatternHolder.hexColorPattern.toRegex().matches(this) -> null
   else                                                           -> ColorUtil.fromHex(this)
@@ -432,4 +428,46 @@ fun String.toColor(): Color? = when {
 fun getContrastedText(color: Color): Color = when {
   ColorUtil.isDark(color) -> Color.white
   else                    -> Color.black
+}
+
+fun isDarkTheme(): Boolean {
+  val lookAndFeelDefaults = UIManager.getLookAndFeelDefaults()
+  return lookAndFeelDefaults == null || lookAndFeelDefaults.getBoolean("ui.theme.is.dark")
+}
+
+fun dimmer(color: Color, factor: Int): Color = (0 until factor).fold(color) { acc, _ -> ColorUtil.dimmer(acc) }
+
+fun softer(color: Color, factor: Int): Color = (0 until factor).fold(color) { acc, _ -> ColorUtil.softer(acc) }
+
+@Suppress("detekt:MagicNumber")
+fun generateColor(string: String? = null): Color {
+  val name = string ?: randomString(10)
+  val tones = 6
+  val color = Color(stringToARGB(name))
+  val lightColor = ColorUtil.brighter(color, tones / 2)
+  val isDark = ColorUtil.isDark(color)
+
+  return when {
+    isDarkTheme()            -> ColorUtil.darker(color, tones)
+    !isDarkTheme() && isDark -> dimmer(lightColor, tones / 2)
+    else                     -> softer(color, tones / 2)
+  }
+}
+
+/** Converts a string to a color. */
+@Suppress("detekt:MagicNumber")
+fun stringToARGB(charSequence: CharSequence): Int {
+  var hash = 0
+  val length = charSequence.length
+  for (i in 0 until length) {
+    hash = charSequence[i].code + ((hash shl 5) - hash)
+  }
+  return hash
+}
+
+fun randomString(len: Int): String {
+  val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+  return (1..len)
+    .map { charPool.random() }
+    .joinToString("")
 }
