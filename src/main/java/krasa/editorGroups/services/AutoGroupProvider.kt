@@ -14,6 +14,7 @@ import krasa.editorGroups.settings.EditorGroupsSettings
 import krasa.editorGroups.support.Notifications.notifyTooManyFiles
 import krasa.editorGroups.support.RegexFileResolver
 import krasa.editorGroups.support.VirtualFileComparator
+import krasa.editorGroups.support.getNameWithoutTypeAndExt
 import krasa.editorGroups.support.isJarOrZip
 
 @Service(Service.Level.PROJECT)
@@ -96,6 +97,72 @@ class AutoGroupProvider(private val project: Project) {
     thisLogger().debug("getSameNameGroup ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
 
     return SameNameGroup(
+      fileNameWithoutExtension = nameWithoutExtension,
+      links = Link.fromVirtualFiles(paths, project),
+      project = project
+    )
+  }
+
+  /**
+   * Retrieves a group of files that have the same feature as the given file.
+   *
+   * @param currentFile The file for which the same-name group is being retrieved.
+   * @return An instance of [EditorGroup] containing the files with the same feature.
+   */
+  fun getSameFeatureGroup(currentFile: VirtualFile): EditorGroup {
+    val nameWithoutExtension = getNameWithoutTypeAndExt(currentFile.name).toString()
+    val start = System.currentTimeMillis()
+    val paths = mutableListOf<VirtualFile>()
+
+    runCatching {
+      // Get related files
+      FileNameIndexService.instance.getVirtualFilesByName(
+        nameWithoutExtension,
+        true,
+        GlobalSearchScope.projectScope(project)
+      ).toMutableList()
+    }
+      .onSuccess { virtualFilesByName ->
+        thisLogger().debug("<getVirtualFilesByName=$virtualFilesByName")
+
+        val groupSizeLimitInt = EditorGroupsSettings.instance.groupSizeLimit
+        val size = virtualFilesByName.size
+
+        // collect all files, within the limit
+        for (file in virtualFilesByName) {
+          if (shouldSkipFile(file)) continue
+
+          if (paths.size == groupSizeLimitInt) {
+            notifyTooManyFiles()
+            thisLogger().warn("<getSameNameGroup: too many results for $nameWithoutExtension = $size")
+            break
+          }
+
+          paths.add(file)
+        }
+
+        // Add the current file
+        if (currentFile !in paths) paths.add(0, currentFile)
+
+        paths.sortedWith(VirtualFileComparator.INSTANCE)
+      }.onFailure { e ->
+        when (e) {
+          is ProcessCanceledException -> throw e
+          else                        -> thisLogger().error(e)
+        }
+
+        val vf = LightVirtualFile(INDEXING)
+        vf.isValid = false
+
+        paths.add(vf)
+      }
+
+    val duration = System.currentTimeMillis() - start
+    if (duration > DURATION) thisLogger().warn("getSameNameGroup took ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
+
+    thisLogger().debug("getSameNameGroup ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
+
+    return SameFeatureGroup(
       fileNameWithoutExtension = nameWithoutExtension,
       links = Link.fromVirtualFiles(paths, project),
       project = project

@@ -78,6 +78,19 @@ class SwitchGroupAction : QuickSwitchSchemeAction(), DumbAware, CustomComponentA
           file = editorGroupPanel.file
           displayedGroup = editorGroupPanel.getDisplayedGroupOrEmpty()
 
+          // Same feature
+          tempGroup.add(
+            createAction(
+              displayedGroup = displayedGroup,
+              targetGroup = SameFeatureGroup(
+                fileNameWithoutExtension = file.nameWithoutExtension,
+                links = emptyList(),
+                project = project
+              ),
+              project = project,
+              actionHandler = refreshHandler(editorGroupPanel)
+            )
+          )
           // Same file name
           tempGroup.add(
             createAction(

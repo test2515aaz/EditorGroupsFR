@@ -21,6 +21,7 @@ object PopupMenu {
     "-",
     RemoveFromCurrentBookmarksAction.ID,
     "-",
+    ToggleAutoSameFeatureGroupsAction.ID,
     ToggleAutoSameNameGroupsAction.ID,
     ToggleAutoFolderGroupsAction.ID,
     ToggleForceAction.ID,

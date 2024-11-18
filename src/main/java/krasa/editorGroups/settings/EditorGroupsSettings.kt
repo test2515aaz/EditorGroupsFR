@@ -19,6 +19,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     var isAutoFolders: Boolean by property(true)
 
     // Select same name group if no other group matches
+    var isAutoSameFeature: Boolean by property(true)
+
+    // Select same name group if no other group matches
     var isAutoSameName: Boolean by property(true)
 
     // Refresh button switches to a manual group if exists
@@ -94,6 +97,13 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     get() = state.isAutoFolders
     set(value) {
       state.isAutoFolders = value
+    }
+
+  @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
+  var isAutoSameFeature: Boolean
+    get() = state.isAutoSameFeature
+    set(value) {
+      state.isAutoSameFeature = value
     }
 
   @EditorGroupSetting([EditorGroupSetting.Category.GROUPS])
@@ -254,6 +264,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     clone.customFont = this.customFont
     clone.groupSizeLimit = this.groupSizeLimit
     clone.isAutoFolders = this.isAutoFolders
+    clone.isAutoSameFeature = this.isAutoSameFeature
     clone.isAutoSameName = this.isAutoSameName
     clone.isColorTabs = this.isColorTabs
     clone.isCompactTabs = this.isCompactTabs
@@ -281,6 +292,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     this.customFont = state.customFont
     this.groupSizeLimit = state.groupSizeLimit
     this.isAutoFolders = state.isAutoFolders
+    this.isAutoSameFeature = state.isAutoSameFeature
     this.isAutoSameName = state.isAutoSameName
     this.isColorTabs = state.isColorTabs
     this.isCompactTabs = state.isCompactTabs
@@ -319,6 +331,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
   fun reset() {
     this.isSelectRegexGroup = false
     this.isAutoFolders = true
+    this.isAutoSameFeature = true
     this.isAutoSameName = true
     this.isForceSwitch = true
     this.isHideEmpty = true
@@ -351,6 +364,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     if (customFont != other.customFont) return false
     if (groupSizeLimit != other.groupSizeLimit) return false
     if (isAutoFolders != other.isAutoFolders) return false
+    if (isAutoSameFeature != other.isAutoSameFeature) return false
     if (isAutoSameName != other.isAutoSameName) return false
     if (isColorTabs != other.isColorTabs) return false
     if (isCompactTabs != other.isCompactTabs) return false
@@ -378,8 +392,9 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
   override fun hashCode(): Int {
     var result = isSelectRegexGroup.hashCode()
     result = 31 * result + customFont.hashCode()
-    result = 31 * result + groupSizeLimit
+    result = 31 * result + groupSizeLimit.hashCode()
     result = 31 * result + isAutoFolders.hashCode()
+    result = 31 * result + isAutoSameFeature.hashCode()
     result = 31 * result + isAutoSameName.hashCode()
     result = 31 * result + isColorTabs.hashCode()
     result = 31 * result + isCompactTabs.hashCode()
@@ -407,6 +422,7 @@ class EditorGroupsSettings : SimplePersistentStateComponent<EditorGroupsSettings
     |customFont=$customFont,
     |groupSizeLimit=$groupSizeLimit,
     |isAutoFolders=$isAutoFolders,
+    |isAutoSameFeature=$isAutoSameFeature,
     |isAutoSameName=$isAutoSameName,
     |isColorTabs=$isColorTabs,
     |isCompactTabs=$isCompactTabs,

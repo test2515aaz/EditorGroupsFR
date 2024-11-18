@@ -139,6 +139,11 @@ class EditorGroupManager(private val project: Project) {
       }
 
       // If nothing is found, try to get the same name group if the option is on
+      if (result.isInvalid && config.state.isAutoSameFeature) {
+        result = SameFeatureGroup.INSTANCE
+      }
+
+      // If nothing is found, try to get the same name group if the option is on
       if (result.isInvalid && config.state.isAutoSameName) {
         result = SameNameGroup.INSTANCE
       }
@@ -252,6 +257,10 @@ class EditorGroupManager(private val project: Project) {
           result = RegexGroupProvider.getInstance(project).findFirstMatchingRegexGroup(currentFile)
         }
 
+        if (result.isInvalid && config.state.isAutoSameFeature) {
+          result = SameFeatureGroup.INSTANCE
+        }
+
         if (result.isInvalid && config.state.isAutoSameName) {
           result = SameNameGroup.INSTANCE
         }
@@ -267,6 +276,11 @@ class EditorGroupManager(private val project: Project) {
 
         when {
           !stub && result === requestedOrDisplayedGroup && result is EditorGroupIndexValue -> cache.initGroup(result)
+
+          !stub && result is SameFeatureGroup                                              ->
+            result =
+              autoGroupProvider.getSameFeatureGroup(currentFile)
+
           !stub && result is SameNameGroup                                                 ->
             result =
               autoGroupProvider.getSameNameGroup(currentFile)
