@@ -56,7 +56,7 @@ class RegexGroupModel : BaseState() {
     }
 
   var myColor: Color
-    get() = color?.fromHex() ?: generateColor(name ?: "")
+    get() = color?.fromHex() ?: generateColor(name)
     set(value) {
       color = value.toHex()
     }

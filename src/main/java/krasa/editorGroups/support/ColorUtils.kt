@@ -440,16 +440,17 @@ fun dimmer(color: Color, factor: Int): Color = (0 until factor).fold(color) { ac
 fun softer(color: Color, factor: Int): Color = (0 until factor).fold(color) { acc, _ -> ColorUtil.softer(acc) }
 
 @Suppress("detekt:MagicNumber")
-fun generateColor(string: String): Color {
-  val tones = 8
-  val projectColor = Color(stringToARGB(string))
-  val lightColor = ColorUtil.brighter(projectColor, tones / 2)
-  val isDark = ColorUtil.isDark(projectColor)
+fun generateColor(string: String? = null): Color {
+  val name = string ?: randomString(10)
+  val tones = 6
+  val color = Color(stringToARGB(name))
+  val lightColor = ColorUtil.brighter(color, tones / 2)
+  val isDark = ColorUtil.isDark(color)
 
   return when {
-    isDarkTheme()            -> ColorUtil.darker(projectColor, tones)
+    isDarkTheme()            -> ColorUtil.darker(color, tones)
     !isDarkTheme() && isDark -> dimmer(lightColor, tones / 2)
-    else                     -> softer(projectColor, tones / 2)
+    else                     -> softer(color, tones / 2)
   }
 }
 
@@ -462,4 +463,11 @@ fun stringToARGB(charSequence: CharSequence): Int {
     hash = charSequence[i].code + ((hash shl 5) - hash)
   }
   return hash
+}
+
+fun randomString(len: Int): String {
+  val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+  return (1..len)
+    .map { charPool.random() }
+    .joinToString("")
 }

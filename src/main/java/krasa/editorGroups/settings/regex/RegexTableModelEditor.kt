@@ -213,7 +213,7 @@ class RegexTableModelEditor(
     newModel.scope = Scope.CURRENT_FOLDER
     newModel.regex = ".*"
     newModel.notComparingGroups = null
-    newModel.myColor = generateColor(newModel.myName)
+    newModel.myColor = generateColor()
     newModel.priority = 0
     return newModel
   }
