@@ -26,7 +26,8 @@ class SameFeatureGroup(
 
   override fun icon(): Icon = EditorGroupsIcons.feature
 
-  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String = message("by.same.feature")
+  override fun getPresentableTitle(project: Project, presentableNameForUI: String, showSize: Boolean): String =
+    message("by.same.logical.name")
 
   override fun getTabTitle(project: Project, presentableNameForUI: String): String = presentableNameForUI
 

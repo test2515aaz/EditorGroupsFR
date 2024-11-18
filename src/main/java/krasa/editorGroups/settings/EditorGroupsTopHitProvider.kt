@@ -42,6 +42,11 @@ fun isAutoSameNameOption(): BooleanOptionDescription = CheckboxDescriptor(
   EditorGroupsSettings.instance::isAutoSameName
 ).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
 
+fun isAutoSameFeatureOption(): BooleanOptionDescription = CheckboxDescriptor(
+  getText(message("EditorGroupsSettings.isAutoSameFeatureCheckbox.text")),
+  EditorGroupsSettings.instance::isAutoSameFeature
+).asOptionDescriptor { EditorGroupsSettings.instance.fireChanged() }
+
 fun isColorTabsOption(): BooleanOptionDescription = CheckboxDescriptor(
   getText(message("EditorGroupsSettings.isColorTabsCheckbox.text")),
   EditorGroupsSettings.instance::isColorTabs
@@ -129,6 +134,7 @@ internal class EditorGroupsTopHitProvider : ApplicationLevelProvider {
 
   override fun getOptions(): Collection<OptionDescription> = listOf(
     isAutoFoldersOption(),
+    isAutoSameFeatureOption(),
     isAutoSameNameOption(),
     isColorTabsOption(),
     isCompactTabsOption(),

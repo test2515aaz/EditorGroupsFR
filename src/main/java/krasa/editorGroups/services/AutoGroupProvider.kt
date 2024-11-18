@@ -162,7 +162,7 @@ class AutoGroupProvider(private val project: Project) {
 
     thisLogger().debug("getSameNameGroup ${duration}ms for '$nameWithoutExtension', results: ${paths.size}")
 
-    return SameNameGroup(
+    return SameFeatureGroup(
       fileNameWithoutExtension = nameWithoutExtension,
       links = Link.fromVirtualFiles(paths, project),
       project = project

@@ -56,6 +56,12 @@ internal class EditorSettingsConfigurable : BoundSearchableConfigurable(
         }
 
         row {
+          checkBox(message("EditorGroupsSettings.isAutoSameFeatureCheckbox.text"))
+            .bindSelected(settingsClone::isAutoSameFeature)
+            .comment(message("EditorGroupsSettings.isAutoSameFeatureCheckbox.toolTipText"))
+        }
+
+        row {
           checkBox(message("EditorGroupsSettings.isAutoSameNameCheckbox.text"))
             .bindSelected(settingsClone::isAutoSameName)
             .comment(message("EditorGroupsSettings.isAutoSameNameCheckbox.toolTipText"))

@@ -213,6 +213,10 @@
 
             <separator/>
 
+            <action id="krasa.editorGroups.ToggleAutoSameFeatureGroups"
+                    class="krasa.editorGroups.actions.ToggleAutoSameFeatureGroupsAction"
+                    icon="AllIcons.General.Filter"/>
+
             <action id="krasa.editorGroups.ToggleAutoSameNameGroups"
                     class="krasa.editorGroups.actions.ToggleAutoSameNameGroupsAction"
                     icon="AllIcons.FileTypes.Text"/>

@@ -56,15 +56,16 @@ class IndexCache(private val project: Project) {
     get() {
       val state = EditorGroupProjectStorage.State()
       val autoSameName = config.isAutoSameName
+      val autoSameFeature = config.isAutoSameFeature
       val autoFolders = config.isAutoFolders
 
       groupsByLinks.entries.forEach { (key, value) ->
         val last = value.last
         when {
-          last == null                                     -> return@forEach
-          autoSameName && last == AutoGroup.SAME_FEATURE   -> return@forEach
-          autoSameName && last == AutoGroup.SAME_FILE_NAME -> return@forEach
-          autoFolders && last == AutoGroup.DIRECTORY       -> return@forEach
+          last == null                                      -> return@forEach
+          autoSameFeature && last == AutoGroup.SAME_FEATURE -> return@forEach
+          autoSameName && last == AutoGroup.SAME_FILE_NAME  -> return@forEach
+          autoFolders && last == AutoGroup.DIRECTORY        -> return@forEach
         }
 
         if (state.lastGroup.size > MAX_HISTORY_SIZE) return@forEach
@@ -294,22 +295,22 @@ class IndexCache(private val project: Project) {
     currentFile: VirtualFile
   ): EditorGroup {
     return when {
-      includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FEATURE   -> SameFeatureGroup.INSTANCE
-      includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FILE_NAME -> SameNameGroup.INSTANCE
-      includeAutoGroups && config.isAutoFolders && last == AutoGroup.DIRECTORY       -> FolderGroup.INSTANCE
-      last == HidePanelGroup.ID                                                      -> HidePanelGroup.INSTANCE
+      includeAutoGroups && config.isAutoSameFeature && last == AutoGroup.SAME_FEATURE -> SameFeatureGroup.INSTANCE
+      includeAutoGroups && config.isAutoSameName && last == AutoGroup.SAME_FILE_NAME  -> SameNameGroup.INSTANCE
+      includeAutoGroups && config.isAutoFolders && last == AutoGroup.DIRECTORY        -> FolderGroup.INSTANCE
+      last == HidePanelGroup.ID                                                       -> HidePanelGroup.INSTANCE
 
-      includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                      -> {
+      includeFavorites && last.startsWith(RegexGroup.ID_PREFIX)                       -> {
         val groupName = last.substring(RegexGroup.ID_PREFIX.length)
         RegexGroupProvider.getInstance(project).findRegexGroup(currentFile, groupName)
       }
 
-      includeFavorites && last == BookmarksGroup.ID_PREFIX                           ->
+      includeFavorites && last == BookmarksGroup.ID_PREFIX                            ->
         externalGroupProvider.defaultBookmarkGroup
 
-      stub                                                                           -> StubGroup()
+      stub                                                                            -> StubGroup()
 
-      else                                                                           -> {
+      else                                                                            -> {
         val lastGroup = getById(last)
         if (lastGroup.containsLink(project, currentFile) || lastGroup.isOwner(currentFile.path)) lastGroup else EditorGroup.EMPTY
       }
