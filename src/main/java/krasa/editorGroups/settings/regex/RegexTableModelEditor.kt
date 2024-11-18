@@ -2,10 +2,7 @@ package krasa.editorGroups.settings.regex
 
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.SearchTextField
-import com.intellij.ui.TableUtil
-import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.*
 import com.intellij.ui.table.JBTable
 import com.intellij.ui.table.TableView
 import com.intellij.util.containers.ContainerUtil
@@ -13,9 +10,13 @@ import com.intellij.util.ui.*
 import com.intellij.util.ui.table.ComboBoxTableCellEditor
 import krasa.editorGroups.model.RegexGroupModel
 import krasa.editorGroups.model.Scope
+import krasa.editorGroups.support.generateColor
+import krasa.editorGroups.support.toHex
+import java.awt.Color
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
+import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.ListSelectionModel
 import javax.swing.RowSorter
@@ -106,6 +107,9 @@ class RegexTableModelEditor(
         override fun textChanged(e: DocumentEvent) = filterTable()
       })
     }
+
+    // Color picker listening
+    MyColorPickerListener().installOn(table)
   }
 
   constructor(
@@ -209,6 +213,7 @@ class RegexTableModelEditor(
     newModel.scope = Scope.CURRENT_FOLDER
     newModel.regex = ".*"
     newModel.notComparingGroups = null
+    newModel.myColor = generateColor(newModel.myName)
     newModel.priority = 0
     return newModel
   }
@@ -218,7 +223,7 @@ class RegexTableModelEditor(
    *
    * @param oldItem item changed (in the filtered list)
    * @param newItem new item to insert
-   * @param index index in the filtered lisst
+   * @param index index in the filtered list
    */
   override fun silentlyReplaceItem(oldItem: RegexGroupModel, newItem: RegexGroupModel, index: Int) {
     super.silentlyReplaceItem(oldItem, newItem, index)
@@ -308,6 +313,40 @@ class RegexTableModelEditor(
     }
   }
 
+  inner class MyColorPickerListener : ClickListener() {
+    override fun onClick(event: MouseEvent, clickCount: Int): Boolean {
+      val point = event.point
+      val row: Int = table.rowAtPoint(point)
+      val column: Int = table.columnAtPoint(point) + 1 // Because the touched takes a slot...
+      if (row < 0 || column < 0) return false
+      val modelIndex = table.convertRowIndexToModel(row)
+
+      if (modelIndex < 0 || modelIndex >= table.rowCount) return false
+
+      return when (column) {
+        Columns.COLOR.index -> setGroupColor(modelIndex)
+        else                -> false
+      }
+    }
+
+    private fun setGroupColor(row: Int): Boolean {
+      val colorValue: Any = model.getValueAt(row, Columns.COLOR.index)
+      val modelColor: Color = ColorUtil.fromHex(colorValue as String)
+
+      ColorChooserService.instance.showPopup(null, modelColor, { color, _ ->
+        color?.let {
+          model.setValueAt(
+            aValue = it.toHex(),
+            rowIndex = row,
+            columnIndex = Columns.COLOR.index
+          )
+        }
+      })
+
+      return true
+    }
+  }
+
   companion object {
     const val MAX_ITEMS: Int = 60
     const val MIN_ROW_COUNT: Int = 18
@@ -324,7 +363,8 @@ class RegexTableModelEditor(
       REGEX(3),
       SCOPE(4),
       NOT_COMPARING_GROUPS(5),
-      PRIORITY(6),
+      COLOR(6),
+      PRIORITY(7),
     }
   }
 }

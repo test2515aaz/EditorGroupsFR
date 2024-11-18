@@ -2,9 +2,14 @@ package krasa.editorGroups.model
 
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.diagnostic.thisLogger
+import com.intellij.ui.ColorUtil
 import com.intellij.util.xmlb.annotations.Tag
+import krasa.editorGroups.support.fromHex
+import krasa.editorGroups.support.generateColor
+import krasa.editorGroups.support.toHex
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.NonNls
+import java.awt.Color
 import java.util.*
 import java.util.regex.Pattern
 
@@ -17,6 +22,7 @@ class RegexGroupModel : BaseState() {
   var regex: String? by string()
   var notComparingGroups: String? by string()
   var scope: Scope by enum(Scope.CURRENT_FOLDER)
+  var color: String? by string()
   var priority: Int by property(0)
 
   /** Optional regex name. */
@@ -49,6 +55,12 @@ class RegexGroupModel : BaseState() {
       scope = value
     }
 
+  var myColor: Color
+    get() = color?.fromHex() ?: generateColor(name ?: "")
+    set(value) {
+      color = value.toHex()
+    }
+
   @Transient
   var regexPattern: Pattern? = null
     get() {
@@ -60,7 +72,7 @@ class RegexGroupModel : BaseState() {
     get() = myName.isBlank() || myRegex.isBlank()
 
   @NonNls
-  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$priority|$myRegex"
+  fun serialize(): String = "v2|$myName|$myScope|$myNotComparingGroups|$priority|$color|$myRegex"
 
   fun apply(other: RegexGroupModel) {
     isEnabled = other.isEnabled
@@ -69,6 +81,7 @@ class RegexGroupModel : BaseState() {
     myNotComparingGroups = other.myNotComparingGroups
     myScope = other.myScope
     priority = other.priority
+    myColor = other.myColor
   }
 
   fun matches(name: String): Boolean = try {
@@ -84,7 +97,8 @@ class RegexGroupModel : BaseState() {
     regex = myRegex,
     scope = myScope,
     notComparingGroups = myNotComparingGroups,
-    priority = priority
+    priority = priority,
+    color = myColor
   )
 
   fun isComparingGroup(groupIndex: Int): Boolean {
@@ -125,6 +139,7 @@ class RegexGroupModel : BaseState() {
       |notComparingGroups='$myNotComparingGroups',
       |scope=$myScope,
       |enabled=$isEnabled
+      |color=$myColor
       |priority=$priority
     }
   """.trimMargin()
@@ -142,6 +157,7 @@ class RegexGroupModel : BaseState() {
      * @param regex the regular expression pattern to be used (default is ".*")
      * @param scope the scope in which the regular expression is evaluated (default is `Scope.CURRENT_FOLDER`)
      * @param notComparingGroups a comma-separated string representing groups that are not compared (default is "")
+     * @param color the color to be used for the group (default is a random color based on the name)
      * @param priority the priority level for the regex group (default is 0)
      * @return a configured instance of `RegexGroupModel`
      */
@@ -152,6 +168,7 @@ class RegexGroupModel : BaseState() {
       regex: String = ".*",
       scope: Scope = Scope.CURRENT_FOLDER,
       notComparingGroups: String = "",
+      color: Color = generateColor(name),
       priority: Int = 0
     ): RegexGroupModel {
       val model = RegexGroupModel()
@@ -160,6 +177,7 @@ class RegexGroupModel : BaseState() {
       model.myRegex = regex
       model.myScope = scope
       model.myNotComparingGroups = notComparingGroups
+      model.myColor = color
       model.priority = priority
 
       return model
@@ -206,13 +224,15 @@ class RegexGroupModel : BaseState() {
             val scope = elements[2]
             val notComparingGroups = elements[3]
             val priority = elements[4]
-            val regex = elements[5]
+            val color = elements[5]
+            val regex = elements[6]
 
             return from(
               name = name,
               regex = regex,
               scope = Scope.valueOf(scope),
               notComparingGroups = notComparingGroups,
+              color = ColorUtil.fromHex(color),
               priority = priority.toInt()
             )
           }
